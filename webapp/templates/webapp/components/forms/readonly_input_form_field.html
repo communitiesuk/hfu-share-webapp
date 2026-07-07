@@ -5,12 +5,12 @@
     <p class="govuk-body">
         {% if value|is_list %}
             {% for item in formatted_value %}
-                {{ item|safe }}
+                {{ item }}
                 <br>
                 <br>
             {% endfor %}
         {% else %}
-            {{ formatted_value|safe }}
+            {{ formatted_value }}
         {% endif %}
     </p>
     {% if value|is_list %}

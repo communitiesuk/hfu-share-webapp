@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 
 from django.test import TestCase
 from django.urls import reverse
+from django.utils.html import escape
 
 from accounts.tests.base import TestSessionTokenMixin
 from deduplication.views import SelectAndReviewRecordsStep
@@ -872,6 +873,78 @@ class DeduplicationGuestSelectedViewTests(TestSessionTokenMixin, TestCase):
         )
         self.assertContains(response, "test2firstname test2lastname")
         self.assertContains(response, "Checks Required")
+
+    def test_application_number_and_accommodation_title_are_html_escaped(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        malicious_application_number = "<script>alert('application-number')</script>"
+        malicious_ar_title = "<script>alert('accommodation-title')</script>"
+
+        self.first_guest.application_number = [malicious_application_number]
+        self.first_guest.save()
+        self.accommodation_request_one.title = malicious_ar_title
+        self.accommodation_request_one.save()
+
+        self.client.post(
+            reverse(
+                "deduplication:guests:select-and-review-records-manual-step",
+                kwargs={"step": SelectAndReviewRecordsStep.SELECT_RECORD},
+            ),
+            {
+                "select-record-guest_record": [
+                    self.first_guest.id,
+                    self.no_data_guest.id,
+                ],
+                "SelectAndReviewRecordsFormWizard-current_step": (
+                    SelectAndReviewRecordsStep.SELECT_RECORD,
+                ),
+            },
+            follow=True,
+        )
+
+        self.client.post(
+            reverse(
+                "deduplication:guests:select-and-review-records-manual-step",
+                kwargs={"step": SelectAndReviewRecordsStep.VIEW_SELECTED_RECORDS},
+            ),
+            {
+                "select-record-guest_record": [
+                    self.first_guest.id,
+                    self.no_data_guest.id,
+                ],
+                "SelectAndReviewRecordsFormWizard-current_step": (
+                    SelectAndReviewRecordsStep.VIEW_SELECTED_RECORDS,
+                ),
+            },
+            follow=True,
+        )
+
+        response = self.client.post(
+            reverse(
+                "deduplication:guests:select-and-review-records-manual-step",
+                kwargs={"step": SelectAndReviewRecordsStep.REVIEW_SELECTED_RECORDS},
+            ),
+            {
+                "select-record-guest_record": [
+                    self.first_guest.id,
+                    self.no_data_guest.id,
+                ],
+                "SelectAndReviewRecordsFormWizard-current_step": (
+                    SelectAndReviewRecordsStep.REVIEW_SELECTED_RECORDS,
+                ),
+            },
+            follow=True,
+        )
+
+        self.assertNotContains(response, malicious_application_number)
+        self.assertNotContains(response, malicious_ar_title)
+        self.assertContains(response, escape(malicious_application_number))
+        self.assertContains(response, escape(malicious_ar_title))
+
+        # Trusted status tag components should still render normally.
+        self.assertContains(response, self.first_guest.visa_status)
+        self.assertContains(response, self.accommodation_request_one.checks_status)
 
     def test_should_not_render_field_info_when_no_values_available(self):
         user = get_admin_user()
