@@ -1,0 +1,10 @@
+<dl class="govuk-summary-list">
+    {% for label, value in fields %}
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">{{ label }}</dt>
+            <dd class="govuk-summary-list__value">
+                {% include "webapp/components/record_tabs/record_value.html" with value=value linked_from_object=object label=label %}
+            </dd>
+        </div>
+    {% endfor %}
+</dl>

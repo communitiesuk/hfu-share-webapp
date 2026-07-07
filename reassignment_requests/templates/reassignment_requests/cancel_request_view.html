@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load crispy_forms_gds %}
+{% load crispy_forms_tags %}
+{% block breadcrumb_content %}
+    <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="./">Requests to move guests between local authorities</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">Review request</li>
+{% endblock breadcrumb_content %}
+{% block content %}
+    <div class="govuk-!-width-two-thirds">
+        {% error_summary form %}
+        {% include "webapp/components/heading/heading.html" with page_heading="Cancel request to move guests to a different local authority" %}
+        <div class="govuk-!-width-three-quarters">
+            <form method="post">
+                {% csrf_token %}
+                {{ wizard.management_form }}
+                {% crispy form %}
+            </form>
+        </div>
+    </div>
+{% endblock content %}

@@ -1,0 +1,9 @@
+{% extends "accommodation_requests/detail_view/detail_view_base.html" %}
+{% block selected_tab %}
+    <h4 class="govuk-heading-l">Safeguarding checks</h4>
+    {% include "webapp/components/record_tabs/record_summary_list.html" with fields=fields %}
+    {% if user_can_add_update %}
+        <a href="{% url 'accommodation-requests:update-safeguarding-checks' object.id %}"
+           class="govuk-button govuk-button--primary">View and update safeguarding checks</a>
+    {% endif %}
+{% endblock selected_tab %}

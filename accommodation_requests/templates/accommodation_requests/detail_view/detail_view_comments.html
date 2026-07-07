@@ -1,0 +1,13 @@
+{% extends "accommodation_requests/detail_view/detail_view_base.html" %}
+{% load timeline_extras %}
+{% block selected_tab %}
+    <h4 class="govuk-heading-l">Comments</h4>
+    <p>
+        This page shows details of previous comments, before the Share system launched. You can view previous comments, but you cannot add new comments manually.
+    </p>
+    {% if events|length == 0 %}
+        <p class="govuk-body govuk-hint govuk-!-padding-top-3">No comments found</p>
+    {% else %}
+        {% timeline request events event_type events_with_files %}
+    {% endif %}
+{% endblock selected_tab %}

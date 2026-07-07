@@ -1,0 +1,4 @@
+{% load safeguarding_extras %}
+<strong class="govuk-tag govuk-tag--{{ will_notify_la_central_case_flag|will_notify_la_central_case_flag_to_tag_colour }}"
+        style="white-space: nowrap;
+               max-width: 100%">{{ will_notify_la_central_case_flag|yesno:"Yes,No" }}</strong>

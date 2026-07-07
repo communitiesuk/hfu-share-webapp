@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block breadcrumb_content %}
+    <li class="govuk-breadcrumbs__list-item">Sponsors and hosts</li>
+{% endblock breadcrumb_content %}
+{% block content %}
+    {% include "webapp/components/heading/heading.html" with page_heading="Sponsors and hosts" %}
+    {% block sponsor_list_table %}
+    {% endblock sponsor_list_table %}
+{% endblock content %}

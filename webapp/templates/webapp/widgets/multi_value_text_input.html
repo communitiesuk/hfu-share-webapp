@@ -1,0 +1,111 @@
+<div class="array-input-group"
+     data-name="{{ widget.name }}"
+     data-max="{{ widget.max_values }}"
+     data-required="{% if widget.attrs.required is not defined or widget.attrs.required %}true{% else %}false{% endif %}">
+    {% for val in widget.values %}
+        <div class="array-input-item"
+             style="display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    margin-bottom: 10px">
+            <input type="{{ widget.attrs.input_type }}"
+                   name="{{ widget.name }}-{{ forloop.counter0 }}"
+                   value="{{ val }}"
+                   class="form-control d-inline-block govuk-input"
+                   style="flex: 1" />
+            <a href="#"
+               class="remove-array-item govuk-link"
+               style="white-space: nowrap">Remove</a>
+        </div>
+    {% endfor %}
+    <!-- Hidden template item to clone -->
+    <div class="array-input-item array-input-template"
+         style="display: none;
+                align-items: center;
+                gap: 10px;
+                margin-bottom: 10px">
+        <input type="{{ widget.attrs.input_type }}"
+               name=""
+               value=""
+               class="form-control d-inline-block govuk-input"
+               style="flex: 1" />
+        <a href="#"
+           class="remove-array-item govuk-link"
+           style="white-space: nowrap">Remove</a>
+    </div>
+    <a href="#"
+       class="add-array-item govuk-link"
+       {% if widget.values|length >= widget.max_values %}style="display: none;"{% endif %}>
+        Add
+        {% if widget.attrs.label %}{{ widget.attrs.label }}{% endif %}
+    </a>
+</div>
+<script>
+  (function () {
+    function updateIndices(container) {
+      const items = container.querySelectorAll('.array-input-item:not(.array-input-template)');
+      const fieldName = container.dataset.name;
+      const isRequired = container.dataset.required === "true";
+      const max = parseInt(container.dataset.max || "5", 10);
+      const addLink = container.querySelector('.add-array-item');
+
+      // Update input names
+      items.forEach((item, index) => {
+        const input = item.querySelector('input');
+        input.name = `${fieldName}-${index}`;
+      });
+
+      // Add button
+      if (addLink) {
+        addLink.style.display = items.length < max ? 'inline-block' : 'none';
+      }
+
+      // Remove button visibility
+      items.forEach((item) => {
+        const removeLink = item.querySelector('.remove-array-item');
+        if (removeLink) {
+          removeLink.style.display = (isRequired && items.length === 1) ? 'none' : 'inline-block';
+        }
+      });
+    }
+
+    function initArrayWidget(container) {
+      if (container.dataset.initialized) return;
+
+      const addLink = container.querySelector('.add-array-item');
+      const template = container.querySelector('.array-input-template');
+
+      addLink?.addEventListener('click', function (e) {
+        e.preventDefault();
+        const max = parseInt(container.dataset.max || "5", 10);
+        const items = container.querySelectorAll('.array-input-item:not(.array-input-template)');
+        if (items.length >= max) return;
+
+        const clone = template.cloneNode(true);
+        clone.classList.remove('array-input-template');
+        clone.style.display = 'flex';
+        clone.querySelector('input').value = '';
+        container.insertBefore(clone, addLink);
+        updateIndices(container);
+      });
+
+      container.addEventListener('click', function (e) {
+        if (e.target.classList.contains('remove-array-item')) {
+          e.preventDefault();
+          const item = e.target.closest('.array-input-item');
+          if (!item.classList.contains('array-input-template')) {
+            item.remove();
+            updateIndices(container);
+          }
+        }
+      });
+
+      container.dataset.initialized = "true";
+      updateIndices(container);
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('.array-input-group').forEach(initArrayWidget);
+    });
+  })();
+</script>

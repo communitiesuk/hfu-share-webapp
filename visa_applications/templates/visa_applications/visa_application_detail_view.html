@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block breadcrumb_content %}
+    <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link"
+           href="{% url 'visa-applications:visa-applications' %}">Visa applications</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">Visa application record</li>
+{% endblock breadcrumb_content %}
+{% block content %}
+    {% include "webapp/components/heading/heading.html" with caption="Visa application record for" page_heading=object.Q44g_full_name %}
+    <h4 class="govuk-heading-l">Properties</h4>
+    {% include "webapp/components/record_tabs/record_summary_list_two_columns.html" with left_fields=properties_left right_fields=properties_right %}
+    <h4 class="govuk-heading-l govuk-!-margin-top-8">Questions</h4>
+    {% include "webapp/components/record_tabs/record_summary_list_two_columns.html" with left_fields=questions_left right_fields=questions_right %}
+    <a href="{% url 'visa-applications:visa-applications' %}"
+       class="govuk-button govuk-button--secondary">Back to list of visa applications</a>
+{% endblock content %}

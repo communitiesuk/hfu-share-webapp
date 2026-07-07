@@ -1,0 +1,52 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+    -   id: trailing-whitespace
+    -   id: end-of-file-fixer
+    -   id: check-yaml
+    -   id: check-added-large-files
+    -   id: name-tests-test
+        args: [--pytest-test-first]
+        exclude: "tests/.*(base|factories)"
+    -   id: no-commit-to-branch
+        args: [--branch=main]
+-   repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.13.1
+    hooks:
+    -   id: ruff
+        args: [--fix]
+    -   id: ruff-format
+-   repo: local
+    hooks:
+      - id: mypy
+        name: Run type checks
+        language: system
+        types: [python]
+        entry: poetry run mypy . --disable-error-code annotation-unchecked
+        pass_filenames: false
+-   repo: https://github.com/djlint/djLint
+    rev: v1.36.4
+    hooks:
+      - id: djlint-reformat-django
+      - id: djlint-django
+-   repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.32.1
+    hooks:
+      - id: check-github-workflows
+        name: "Check GitHub Workflows"
+        files: ^\.github/workflows/[^/]+$
+        types: [yaml]
+-   repo: local
+    hooks:
+      - id: pylint
+        name: pylint
+        entry: poetry run pylint
+        language: system
+        types: [python]
+        args:
+          - "--disable=all"
+          - "--enable=W1350,W1351"
+        require_serial: true

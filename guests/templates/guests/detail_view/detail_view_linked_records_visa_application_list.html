@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block breadcrumb_content %}
+    <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="{% url 'guests:guests' %}">Guests</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link"
+           href="{% url 'guests:detail-linked-records' object.pk %}">Guest record</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">Linked Visa applications</li>
+{% endblock breadcrumb_content %}
+{% block content %}
+    {% include "webapp/components/heading/heading.html" with caption="Visa applications for" page_heading=object.get_full_name %}
+    {% block visa_applications_list_table %}
+        {% include "webapp/components/tables/table.html" %}
+    {% endblock visa_applications_list_table %}
+    <a href="{% url 'guests:detail-linked-records' object.pk %}"
+       class="govuk-button govuk-button--secondary">Back to guest record</a>
+{% endblock content %}

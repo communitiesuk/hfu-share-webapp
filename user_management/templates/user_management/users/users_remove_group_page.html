@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags crispy_forms_gds crispy_forms_field %}
+{% block breadcrumb_content %}
+    <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link"
+           href="{% url 'user-management:users' %}">Manage people</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">User account</li>
+{% endblock breadcrumb_content %}
+{% block content %}
+    {% include "webapp/components/heading/heading.html" with caption="User account for" page_heading=user.full_name_or_email %}
+    <p class="govuk-body govuk-!-margin-bottom-9">
+        Are you sure you want to remove this user from <strong>{{ group_name }}</strong>?
+    </p>
+    {% crispy form %}
+{% endblock content %}

@@ -1,0 +1,61 @@
+{% extends "accommodation_requests/add_update_safeguarding_checks/add_update_safeguarding_checks_page_base.html" %}
+{% load static %}
+{% load crispy_forms_filters crispy_forms_tags crispy_forms_gds %}
+{% block form-content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-half">
+            <h3 class="govuk-heading-l govuk-!-margin-top-2 govuk-!-margin-bottom-6">
+                {% if form.dev_check_v2_id %}
+                    Edit
+                {% else %}
+                    Add
+                {% endif %}
+                safeguarding check
+            </h3>
+            <p class="govuk-body govuk-!-margin-top-6">
+                You only need to fail one of three checks for it to be escalated to UKVI.
+            </p>
+            <p class="govuk-body govuk-!-margin-bottom-6">
+                If you fail 'Guests have arrived in accommodation', this will not be escalated to UKVI.
+            </p>
+            <p class="govuk-body govuk-!-margin-bottom-6">
+                If you change the status from ‘failed’ to any other status, raise a Jira ticket to inform MHCLG.
+            </p>
+            <form method="post">
+                {% csrf_token %}
+                {% if form.non_field_errors %}
+                    <div class="govuk-error-summary" role="alert" tabindex="-1">
+                        <h2 class="govuk-error-summary__title">There is a problem</h2>
+                        <div class="govuk-error-summary__body">
+                            <ul class="govuk-list govuk-error-summary__list">
+                                {% for error in form.non_field_errors %}
+                                    <li>
+                                        <a href="#">{{ error }}</a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                {% endif %}
+                {% crispy form %}
+            </form>
+        </div>
+        <div class="govuk-grid-column-one-half">
+            <div class="custom-govuk-side-card">
+                <div class="govuk-grid-row">
+                    <!-- empty 1/4 to offset -->
+                    <div class="govuk-grid-column-one-third">
+                        <p>&nbsp;</p>
+                    </div>
+                    <div class="govuk-grid-column-two-thirds">
+                        <h1 class="govuk-heading-m govuk-!-padding-top-2">Safeguarding check completion check</h1>
+                        {% include "webapp/components/record_tabs/record_summary_list.html" with fields=fields %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock form-content %}
+{% block extra_js %}
+    <script src="{% static 'js/safeguarding-form.js' %}"></script>
+{% endblock extra_js %}

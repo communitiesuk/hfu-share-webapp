@@ -1,0 +1,47 @@
+{% load filters %}
+<dl class="govuk-summary-list govuk-!-width-two-thirds">
+    {% for question, question_data in access_request_summary %}
+        <div class="govuk-summary-list__row {% if not question_data.editable %}govuk-summary-list__row--no-actions{% endif %}">
+            <dt class="govuk-summary-list__key">{{ question_data.question }}</dt>
+            <dd class="govuk-summary-list__value">
+                {% if question_data.answer|is_date %}
+                    {{ question_data.answer|date:"j F Y" }}
+                {% else %}
+                    {{ question_data.answer }}
+                {% endif %}
+            </dd>
+            {% if question_data.editable %}
+                <dd class="govuk-summary-list__actions">
+                    <button class="govuk-link"
+                            type="submit"
+                            name="wizard_goto_step"
+                            value="{{ question }}">Change</button>
+                </dd>
+            {% endif %}
+        </div>
+    {% endfor %}
+</dl>
+{% if access_review_summary %}
+    <dl class="govuk-summary-list govuk-!-width-two-thirds">
+        {% for question, question_data in access_review_summary.items %}
+            <div class="govuk-summary-list__row {% if not question_data.editable %}govuk-summary-list__row--no-actions{% endif %}">
+                <dt class="govuk-summary-list__key">{{ question_data.question }}</dt>
+                <dd class="govuk-summary-list__value">
+                    {% if question_data.answer|is_date %}
+                        {{ question_data.answer|date:"j F Y" }}
+                    {% else %}
+                        {{ question_data.answer }}
+                    {% endif %}
+                </dd>
+                {% if question_data.editable %}
+                    <dd class="govuk-summary-list__actions">
+                        <button class="govuk-link"
+                                type="submit"
+                                name="wizard_goto_step"
+                                value="{{ question }}">Change</button>
+                    </dd>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </dl>
+{% endif %}

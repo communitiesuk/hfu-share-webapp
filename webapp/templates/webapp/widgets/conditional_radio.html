@@ -1,0 +1,60 @@
+{% load filters %}
+<div class="govuk-radios govuk-radios--conditional"
+     data-module="govuk-radios">
+    {% for choice_value, label in choices %}
+        <div class="govuk-radios__item">
+            <input class="govuk-radios__input"
+                   id="{{ name }}_{{ forloop.counter }}"
+                   name="{{ name }}"
+                   type="radio"
+                   value="{{ choice_value }}"
+                   {% if value == choice_value %}checked{% endif %}
+                   {% if choice_value in conditional_inputs %} data-aria-controls="conditional-{{ name }}_{{ forloop.counter }}"{% endif %}>
+        </input>
+        <label class="govuk-label govuk-radios__label"
+               for="{{ name }}_{{ forloop.counter }}">{{ label }}</label>
+    </div>
+    <div class="govuk-radios__conditional govuk-radios__conditional--hidden"
+         id="conditional-{{ name }}_{{ forloop.counter }}">
+        <div class="govuk-form-group">
+            {% with labels=conditional_inputs|dict_key:choice_value %}
+                {% for label in labels %}
+                    {% if label.type == 'textarea' %}
+                        <div class="govuk-form-group govuk-character-count"
+                             data-module="govuk-character-count"
+                             data-maxlength="500">
+                            <label class="govuk-label" for="{{ name }}_{{ choice_value }}_extra">
+                                {% if label %}{{ label.label }}{% endif %}
+                            </label>
+                            <textarea class="govuk-textarea govuk-js-character-count {{ label.extra_css }}"
+                                      rows="5"
+                                      id="{{ name }}_{{ choice_value }}_extra"
+                                      name="{{ name }}_extra_{{ choice_value }}"
+                                      maxlength="500"></textarea>
+                            <div id="{{ name }}_{{ choice_value }}_extra-info"
+                                 class="govuk-hint govuk-character-count__message">
+                                You can enter up to 500 characters
+                            </div>
+                        </div>
+                    {% elif label.type == 'radio' %}
+                        {% for choice_value, choice_label in label.choices %}
+                            <div class="govuk-radios__item">
+                                <input class="govuk-radios__input"
+                                       id="{{ name }}_conditional_{{ forloop.counter }}"
+                                       name="{{ name }}_conditional"
+                                       type="radio"
+                                       value="{{ choice_value }}"
+                                       {% if choice_value == value or choice_value == label.initial %}checked{% endif %}
+                                       {% if choice_value in conditional_input %}data-aria-controls="conditional-{{ name }}_{{ forloop.counter }}"{% endif %}>
+                            </input>
+                            <label class="govuk-label govuk-radios__label"
+                                   for="{{ name }}_{{ forloop.counter }}">{{ choice_label }}</label>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
+        {% endwith %}
+    </div>
+</div>
+{% endfor %}
+</div>

@@ -1,0 +1,11 @@
+{% extends "webapp/components/tables/table_with_filters.html" %}
+{% block extra_buttons %}
+    {% if user_can_start_vir %}
+        <div style="margin-left: auto;">
+            <a class="govuk-button"
+               href="{% url 'visa-applications:visa-applications' %}">
+                <span class="govuk-button__text">Start a VIR</span>
+            </a>
+        </div>
+    {% endif %}
+{% endblock extra_buttons %}

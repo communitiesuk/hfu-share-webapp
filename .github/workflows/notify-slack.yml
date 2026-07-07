@@ -1,0 +1,52 @@
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      job_type:
+        required: true
+        type: string
+        default: Release
+      message_text:
+        required: true
+        type: string
+      success_or_failure:
+        required: true
+        type: string
+    secrets:
+      SLACK_SUCCESS_WEBHOOK_URL:
+        required: true
+      SLACK_FAILURE_WEBHOOK_URL:
+        required: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  notify_slack:
+    name: Slack notification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send success message to Slack
+        # Don't send notifications for successful dev deployments
+        if: ${{ inputs.success_or_failure == 'success' && inputs.environment != 'aws-dev' }}
+        uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95 # v3.0.1
+        with:
+          webhook-type: incoming-webhook
+          webhook: ${{ secrets.SLACK_SUCCESS_WEBHOOK_URL }}
+          payload: |
+            deployment: "${{ inputs.job_type }} to ${{ inputs.environment }}"
+            status: ":green-tick: ${{ inputs.success_or_failure }}"
+            text: ${{ inputs.message_text }}
+      - name: Send failure message to Slack channel
+        if: ${{ inputs.success_or_failure == 'failure' }}
+        uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95 # v3.0.1
+        with:
+          webhook-type: incoming-webhook
+          webhook: ${{ secrets.SLACK_FAILURE_WEBHOOK_URL }}
+          payload: |
+            deployment: "${{ inputs.job_type }} to ${{ inputs.environment }}"
+            status: ":x: ${{ inputs.success_or_failure }}"
+            text: ${{ inputs.message_text }}

@@ -1,0 +1,29 @@
+{% extends "uams/detail_view/detail_view_base.html" %}
+{% block selected_tab %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <h1 class="govuk-heading-l">Files</h1>
+            <p class="govuk-body">
+                Each application to sponsor a child includes a 'Ukraine certified consent form' and a 'UK sponsorship arrangement consent form'.
+            </p>
+            <h2 class="govuk-heading-m">Existing files</h2>
+            {% if attachments and attachments|length > 0 %}
+                <table class="govuk-table">
+                    <tbody class="govuk-table__body" style="border-top: 1px solid #b1b4b6">
+                        {% for attachment in attachments %}
+                            <tr class="govuk-table__row">
+                                <td class="govuk-table__cell">{{ attachment.name }}</td>
+                                <td class="govuk-table__cell">
+                                    <a href="{{ attachment.url }}"
+                                       class="govuk-link govuk-link--no-visited-state">Download file</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="govuk-body">No files uploaded.</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock selected_tab %}

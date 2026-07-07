@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block page_title %}
+    Access Denied
+{% endblock page_title %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-three-quarters">
+            {% include "webapp/components/heading/heading.html" with page_heading="Access Denied" %}
+            <p class="govuk-body">Make sure you are using the correct account to access Share.</p>
+            <p class="govuk-body">Note that access to Share may be unavailable to users during planned maintenance windows.</p>
+            <p class="govuk-body">
+                Please check <a class="govuk-link"
+    href="https://khub.net/group/homes-for-ukraine-and-ukraine-permissions/">Knowledge Hub</a> for details of planned maintenance.
+            </p>
+        </div>
+        {% include "webapp/components/guidance_and_support/guidance_and_support.html" %}
+    </div>
+{% endblock content %}

@@ -1,0 +1,8 @@
+<h2 class="govuk-heading-l govuk-!-padding-top-6 govuk-!-padding-left-3">Announcements</h2>
+<div class="govuk-grid-row govuk-card__flex-container">
+    {% for announcement in available_announcements %}
+        <div class="govuk-grid-column-one-third govuk-card__flex-item">
+            {% include "webapp/components/card/card.html" with heading=announcement.title date=announcement.publish_at|date:"j F Y" type=announcement.type body=announcement.body link_url=announcement.link|default_if_none:"None" link_text=announcement.link_text %}
+        </div>
+    {% endfor %}
+</div>

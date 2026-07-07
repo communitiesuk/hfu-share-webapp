@@ -1,0 +1,40 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.local
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8010"
+    volumes:
+      - ./:/usr/src/app/
+    ports:
+      - "8010:8010"
+    env_file:
+      - ./.env
+    environment:
+      - "DB_HOST=database"
+      - "AWS_ACCESS_KEY_ID=test"
+      - "AWS_SECRET_ACCESS_KEY=test"
+      - "AWS_ENDPOINT_URL=http://localstack:4566/"
+  database:
+    image: postgres:16.8
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - "POSTGRES_HOST_AUTH_METHOD=trust"
+    ports:
+      - 5432:5432
+  localstack:
+    image: localstack/localstack
+    ports:
+      - "127.0.0.1:4566:4566"            # LocalStack Gateway
+      - "127.0.0.1:4510-4559:4510-4559"  # external services port range
+    environment:
+      # LocalStack configuration: https://docs.localstack.cloud/references/configuration/
+      - DEBUG=${DEBUG:-0}
+      - FILE_DOWNLOAD_S3_BUCKET_NAME=test-bucket
+      - REGION=eu-west-2
+    volumes:
+      - "./hfurb_scripts/localstack-script.sh:/etc/localstack/init/ready.d/script.sh"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+volumes:
+  postgres_data:

@@ -1,0 +1,224 @@
+[tool.poetry]
+name = "hfu-case-management-webapp"
+version = "2.1.0"
+description = "Homes for Ukraine case management webapp"
+authors = ["Homes for Ukraine <homesforukraine@communities.gov.uk>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.13"
+Django = "^5.2.14"
+asgiref = "^3.8.1"
+django-debug-toolbar = "^4.4.6"
+gunicorn = "^23.0.0"
+python-dotenv = "^1.0.1"
+sqlparse = "^0.5.4"
+psycopg2-binary = "^2.9.11"
+django-tables2 = "^2.7.0"
+django-filter = "^24.3"
+django-crispy-forms = "<=2.3" # For compatibility with crispy-forms-gds
+crispy-forms-gds = "^2.0.0"
+rules = "^3.5"
+django-formtools = "^2.5.1"
+django-csp = "^4.0"
+msal = "^1.37.0"
+sentry-sdk = {extras = ["django"], version = "^2.61.0"}
+boto3 = "^1.40.11"
+django-auditlog = "^3.3.0"
+python-dateutil = "^2.9.0.post0"
+shellcheck-py = "^0.11.0.1"
+notifications-python-client = "^10.0.1"
+beautifulsoup4 = "^4.14.3"
+
+[tool.poetry.group.dev.dependencies]
+pylint = "^3.3.7"
+pre-commit = "^4.0.1"
+mypy = "^1.13.0"
+django-stubs = "^5.1.1"
+factory-boy = "^3.3.1"
+coverage = "^7.6.10"
+djlint = "^1.36.4"
+types-requests = "^2.32.0.20250328"
+freezegun = "^1.5.1"
+boto3-stubs = {extras = ["s3"], version = "^1.40.11"}
+moto = {extras = ["s3"], version = "^5.1.10"}
+ruff = "^0.13.1"
+types-python-dateutil = "^2.9.0.20251008"
+tblib = "^1.7.0"
+beautifulsoup4 = "^4.14.3"
+pytest = "^9.0.3"
+pytest-django = "^4.12.0"
+pytest-env = "^1.6.0"
+
+[tool.poetry.scripts]
+dev = "scripts:run_development_server"
+format = "scripts:format_code"
+lint = "scripts:lint"
+lint-shell = "scripts:lint_shell"
+seed-db = "scripts:seed_db"
+test = "scripts:test"
+test-db-timeout = "scripts:test_db_timeout"
+test-keepdb = "scripts:test_keepdb"
+test-parallel = "scripts:test_parallel"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pylint]
+load-plugins = ["hfurb_scripts.lint_extras.find_f_strings_in_format_html", "hfurb_scripts.lint_extras.check_view_access_control"]
+disable = ["all"]  # Disable all rules by default
+enable = ["W1350", "W1351"]  # Only enable our custom rule
+
+[tool.ruff]
+target-version = "py313"
+line-length = 88
+indent-width = 4
+
+[tool.ruff.lint]
+select = [
+    "E", # pycodestyle
+    "F", # pyflakes
+    "W", # pycodestyle
+    "B", # flake8-bugbear
+    "I", # isort
+    "C90", # mccabe cyclomatic complexity
+    "G", # flake8-logging-format
+    # "UP", # pyupgrade
+    # "SIM", # flake8-simplify
+]
+ignore = []
+exclude = []
+
+# This is the maximum cyclomatic complexity allowed for functions.
+mccabe.max-complexity = 12
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.format]
+exclude = []
+
+# Like Black, use double quotes for strings.
+quote-style = "double"
+
+# Like Black, indent with spaces, rather than tabs.
+indent-style = "space"
+
+# Like Black, respect magic trailing commas.
+skip-magic-trailing-comma = false
+
+# Like Black, automatically detect the appropriate line ending.
+line-ending = "auto"
+
+# Add this new section for per-file ignores
+[tool.ruff.lint.per-file-ignores]
+"**/migrations/*.py" = ["E501"]  # E501 is the line-too-long error code
+"accounts/models/__init__.py" = ["F401"]  # F401 unused import error
+"ontology/models/__init__.py" = ["F401"]  # F401 unused import error
+"user_management/views/__init__.py" = ["F401"]  # F401 unused import error
+
+[tool.mypy]
+exclude = [
+    ".*/(migrations)/(.)*",
+    "ontology/models/*",
+    "accounts/models/*",
+    "deduplication/models/*"
+]
+
+[[tool.mypy.overrides]]
+module = 'debug_toolbar.*'
+ignore_missing_imports = 'True'
+
+[[tool.mypy.overrides]]
+module = 'django_filters.*'
+ignore_missing_imports = 'True'
+
+[[tool.mypy.overrides]]
+module = 'django_tables2.*'
+ignore_missing_imports = 'True'
+
+[[tool.mypy.overrides]]
+module = 'crispy_forms_gds.*'
+ignore_missing_imports = 'True'
+
+[[tool.mypy.overrides]]
+module = 'factory.*'
+ignore_missing_imports = 'True'
+
+[[tool.mypy.overrides]]
+module = 'formtools.*'
+ignore_missing_imports = 'True'
+
+[[tool.mypy.overrides]]
+module = 'msal.*'
+ignore_missing_imports = 'True'
+
+[[tool.mypy.overrides]]
+module = 'requests.*'
+ignore_missing_imports = 'True'
+
+[[tool.mypy.overrides]]
+module = 'astroid.*'
+ignore_missing_imports = 'True'
+
+[[tool.mypy.overrides]]
+module = "auditlog.*"
+ignore_missing_imports = true
+
+[tool.coverage.run]
+branch = "true"
+source = [
+    "accounts",
+    "accommodations",
+    "accommodation_requests",
+    "deduplication",
+    "guests",
+    "safeguarding",
+    "sponsors",
+    "visa_applications",
+    "ontology",
+    "uams",
+    "unassigned_accommodation_requests",
+    "webapp",
+    ]
+omit = [
+    "*migrations*",
+    "*manage.py",
+    "*__init__.py",
+    "scripts/*.py",
+    "*apps.py",
+    ]
+
+[tool.coverage.report]
+exclude_also = [
+    # Don't complain about missing debug-only code:
+    "def __repr__",
+    "if self\\.debug",
+
+    # Don't complain if tests don't hit defensive assertion code:
+    "raise AssertionError",
+    "raise NotImplementedError",
+
+    # Don't complain if non-runnable code isn't run:
+    "if 0:",
+    "if __name__ == .__main__.:",
+
+    # Don't complain about abstract methods, they aren't run:
+    "@(abc\\.)?abstractmethod",
+    ]
+
+ignore_errors = true
+
+[tool.djlint]
+profile="django"
+ignore="H021,H030,H031" # Ignore inline styles, and html <meta> tag suggestion
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "case_management.settings"
+python_files = ["test*.py"]
+python_functions = ["test_*"]
+addopts = "--reuse-db"
+
+[tool.pytest_env]
+ENTRA_ID_ENABLED = "True"

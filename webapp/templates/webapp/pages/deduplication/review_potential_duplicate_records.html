@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block breadcrumb_content %}
+    <li class="govuk-breadcrumbs__list-item">Review potential duplicate records</li>
+{% endblock breadcrumb_content %}
+{% block content %}
+    {% include "webapp/components/heading/heading.html" with page_heading="Review potential duplicate records" %}
+    <div class="govuk-grid-row govuk-card__flex-container">
+        {% include "webapp/components/selectable_card/selectable_card.html" with heading="Review potential duplicate guest records" target="webapp:review-duplicate-guest-records-suggested" %}
+        {% include "webapp/components/selectable_card/selectable_card.html" with heading="Review potential duplicate sponsor and host records" %}
+        {% include "webapp/components/selectable_card/selectable_card.html" with heading="Review potential duplicate accommodation records" %}
+    </div>
+{% endblock content %}

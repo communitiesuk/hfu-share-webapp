@@ -1,0 +1,25 @@
+{% load static %}
+<select name="{{ widget.name }}"
+        class="govuk-select"
+        {% include "webapp/widgets/attrs.html" %}>
+    {% for group_name, group_choices, group_index in widget.optgroups %}
+        {% if group_name %}<optgroup label="{{ group_name }}">{% endif %}
+            {% for option in group_choices %}
+                <option value="{{ option.value|stringformat:'s' }}"
+                        {% include "webapp/widgets/attrs.html" with widget=option %}>{{ option.label }}</option>
+            {% endfor %}
+            {% if group_name %}</optgroup>{% endif %}
+    {% endfor %}
+</select>
+<script type="text/javascript"
+        src="{% static 'accessible-autocomplete/accessible-autocomplete.min.js' %}"></script>
+<script type="text/javascript">
+    accessibleAutocomplete.enhanceSelectElement({
+        selectElement: document.querySelector('#{{ widget.attrs.id }}'),
+        placeholder: 'Start typing or select one...',
+        showAllValues: true,
+        autoselect: false,
+        dropdownArrow: () => '<svg class="autocomplete__dropdown-arrow-down" width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M1.25 0.5L5.25 4.5L9.25 0.5" stroke="#0B0C0C" /> </svg>',
+        menuClasses: "govuk-body"
+    })
+</script>

@@ -1,0 +1,46 @@
+{% load i18n %}
+<details data-filter-title="{{ spec.title }}" open>
+    <summary>{% trans "By" %} {{ spec.title }}</summary>
+    <ul>
+        <li>
+            <form method="get">
+                {# Preserve all existing query params except this filter's own date params, p, and o #}
+                {% for key, value in request.GET.items %}
+                    {% if key != spec.lookup_kwarg_gte and key != spec.lookup_kwarg_lte and key != 'p' and key != 'o' %}
+                        <input type="hidden" name="{{ key }}" value="{{ value }}">
+                    {% endif %}
+                {% endfor %}
+                <div style="display: flex;
+                            flex-direction: column;
+                            gap: 4px;
+                            padding: 4px 0">
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                        <label style="min-width: 2.5em; color: #6c757d;">{% trans "From" %}</label>
+                        <input type="date"
+                               name="{{ spec.lookup_kwarg_gte }}"
+                               value="{{ spec.form.start.value }}"
+                               style="flex: 1">
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                        <label style="min-width: 2.5em; color: #6c757d;">{% trans "To" %}</label>
+                        <input type="date"
+                               name="{{ spec.lookup_kwarg_lte }}"
+                               value="{{ spec.form.end.value }}"
+                               style="flex: 1">
+                    </div>
+                    <div style="display: flex;
+                                justify-content: flex-end;
+                                gap: 4px;
+                                margin-top: 4px">
+                        <button type="submit" class="button default" style="padding: 2px 8px;">{% trans "Apply" %}</button>
+                        <a href="{{ spec.remove_query_string }}"
+                           class="button"
+                           style="padding: 2px 8px;
+                                  text-decoration: none;
+                                  color: #fff">{% trans "Reset" %}</a>
+                    </div>
+                </div>
+            </form>
+        </li>
+    </ul>
+</details>

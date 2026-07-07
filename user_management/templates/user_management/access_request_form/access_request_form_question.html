@@ -1,0 +1,25 @@
+{% extends "user_management/access_request_form/access_request_form_base.html" %}
+{% block breadcrumb_content %}
+    <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link"
+           href="{% url 'user-management:access-request-intro' %}">Request access to data</a>
+    </li>
+    {% for breadcrumb in breadcrumbs %}
+        <li class="govuk-breadcrumbs__list-item">
+            {% if breadcrumb.url %}
+                <a class="govuk-breadcrumbs__link" href="{% url breadcrumb.url %}">{{ breadcrumb.name }}</a>
+            {% else %}
+                {{ breadcrumb.name }}
+            {% endif %}
+        </li>
+    {% endfor %}
+{% endblock breadcrumb_content %}
+{% load crispy_forms_filters crispy_forms_tags crispy_forms_gds %}
+{% block form-content %}
+    {% include "webapp/components/heading/heading.html" with page_heading=title %}
+    <form method="post" class="govuk-!-width-one-third">
+        {% csrf_token %}
+        {{ wizard.management_form }}
+        {% crispy wizard.form %}
+    </form>
+{% endblock form-content %}

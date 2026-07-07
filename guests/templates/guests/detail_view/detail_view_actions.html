@@ -1,0 +1,4 @@
+{% extends "guests/detail_view/detail_view_base.html" %}
+{% block selected_tab %}
+    {% include "webapp/components/record_tabs/record_actions_tab.html" with actions=actions %}
+{% endblock selected_tab %}

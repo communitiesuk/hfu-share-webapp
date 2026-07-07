@@ -1,0 +1,233 @@
+name: Build and Test
+
+on:
+  pull_request:
+  push:
+    branches:
+      - 'main'
+      - 'release-please--branches--main'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment Environment'
+        required: true
+        default: 'aws-dev'
+        type: choice
+        options:
+          - aws-dev
+          - aws-staging
+          - aws-prod
+  merge_group:
+
+defaults:
+  run:
+    shell: bash
+
+# Required for OIDC with AWS
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  poetry-cache-setup:
+    name: Poetry Cache Setup
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment || 'aws-dev' }}
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+      - name: Setup Poetry cache if required
+        uses: ./.github/actions/setup-python-poetry
+        with:
+          role-session-name: BuildAndTest-Lint-${{ github.run_id }}
+          aws-region: ${{ vars.AWS_REGION }}
+          aws-role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          aws-codeartifact-account-id: ${{ secrets.AWS_CODEARTIFACT_ACCOUNT_ID }}
+          install-tooling: 'false'
+
+  lint:
+    name: Lint
+    needs: poetry-cache-setup
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment || 'aws-dev' }}
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+      - name: Setup Python and Poetry + Restore Poetry cache
+        uses: ./.github/actions/setup-python-poetry
+        with:
+          role-session-name: BuildAndTest-Lint-${{ github.run_id }}
+          aws-region: ${{ vars.AWS_REGION }}
+          aws-role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          aws-codeartifact-account-id: ${{ secrets.AWS_CODEARTIFACT_ACCOUNT_ID }}
+
+      - name: Lint
+        run: poetry run lint
+
+      - name: Lint shell scripts
+        run: poetry run lint-shell
+
+  migrations:
+    name: Migration checks
+    needs: poetry-cache-setup
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment || 'aws-dev' }}
+    env:
+      DB_HOST: 'localhost'
+      DB_USERNAME: 'postgres'
+      DB_PASSWORD: 'postgres'
+    services:
+      postgres:
+        image: postgres:16.8
+        env:
+          POSTGRES_PASSWORD: 'postgres'
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python and Poetry + Restore Poetry cache
+        uses: ./.github/actions/setup-python-poetry
+        with:
+          role-session-name: BuildAndTest-Migrations-${{ github.run_id }}
+          aws-region: ${{ vars.AWS_REGION }}
+          aws-role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          aws-codeartifact-account-id: ${{ secrets.AWS_CODEARTIFACT_ACCOUNT_ID }}
+
+      - name: Check for un-made migrations
+        run: |
+          poetry run python manage.py makemigrations --check --dry-run
+
+      # Set has_migration_changes to true if there are migration file changes
+      - name: Check for migration file changes
+        if: github.event_name == 'pull_request'
+        id: check_migrations
+        run: |
+          if git diff --name-only origin/${{ github.base_ref }}...HEAD | grep '.*/migrations/.*.py'; then
+            echo "has_migration_changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_migration_changes=false" >> $GITHUB_OUTPUT
+          fi
+
+      # Make sure migration changes don't error when running migrations
+      # E.g. if the same migration operation is applied to the database twice, it will error
+      # This can happen if an existing migration filename was updated
+      - name: Check migration changes for PR branch
+        if: github.event_name == 'pull_request' && steps.check_migrations.outputs.has_migration_changes == 'true'
+        run: |
+          # Check out main branch, then run migrations
+          git checkout main
+          poetry run python manage.py migrate
+
+          # Check out PR branch and run migrations
+          git checkout ${{ github.head_ref }}
+          poetry run python manage.py migrate
+
+  test-parallel:
+    name: Tests
+    needs: poetry-cache-setup
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment || 'aws-dev' }}
+    env:
+      DB_HOST: 'localhost'
+      DB_USERNAME: 'postgres'
+      DB_PASSWORD: 'postgres'
+    services:
+      postgres:
+        image: postgres:16.8
+        env:
+          POSTGRES_PASSWORD: 'postgres'
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+      - name: Setup Python and Poetry + Restore Poetry cache
+        uses: ./.github/actions/setup-python-poetry
+        with:
+          role-session-name: BuildAndTest-Tests-${{ github.run_id }}
+          aws-region: ${{ vars.AWS_REGION }}
+          aws-role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          aws-codeartifact-account-id: ${{ secrets.AWS_CODEARTIFACT_ACCOUNT_ID }}
+
+      - name: Test
+        run: |
+          poetry run test-parallel
+        env:
+          SECRET_KEY: 'a_very_long_and_random_string_for_tests'
+          ENTRA_AUTHORITY: 'https://login.microsoftonline.com/organizations'
+
+  test-image-build:
+    name: Test image build
+    needs: poetry-cache-setup
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment || 'aws-dev' }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
+        with:
+          aws-region: ${{ vars.AWS_REGION }}
+          role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          role-session-name: TestImageBuild-${{ github.run_id }}
+
+      - name: Get CodeArtifact Token
+        id: codeartifact_token
+        run: |
+          echo "token=$(aws codeartifact get-authorization-token \
+            --domain mhclg-prod-domain \
+            --domain-owner ${{ secrets.AWS_CODEARTIFACT_ACCOUNT_ID }} \
+            --query authorizationToken \
+            --output text)" >> $GITHUB_OUTPUT
+
+      - name: Test that docker image can be successfully built
+        env:
+          CODEARTIFACT_TOKEN: ${{ steps.codeartifact_token.outputs.token }}
+          CODEARTIFACT_URL: https://mhclg-prod-domain-${{ secrets.AWS_CODEARTIFACT_ACCOUNT_ID }}.d.codeartifact.eu-west-2.amazonaws.com/pypi/mhclg-prod-pypi/simple/
+          DOCKER_BULDKIT: "1"
+        run: |
+          docker build \
+          --load \
+          --secret id=codeartifact_token,env=CODEARTIFACT_TOKEN \
+          --secret id=codeartifact_url,env=CODEARTIFACT_URL \
+          -t hfu-case-management-webapp:github-tests \
+          -f Dockerfile .
+
+  checks-passed:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    needs: [lint, migrations, test-parallel, test-image-build]
+    if: always()
+    steps:
+      - name: Check status of all jobs
+        run: |
+          # If any dependency failed or was cancelled, we fail this job too
+          if [[ "${{ contains(needs.*.result, 'failure') }}" == "true" || "${{ contains(needs.*.result, 'cancelled') }}" == "true" ]]; then
+            echo "One or more jobs failed."
+            exit 1
+          fi
+          echo "All jobs passed!"

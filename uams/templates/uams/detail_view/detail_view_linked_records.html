@@ -1,0 +1,4 @@
+{% extends "uams/detail_view/detail_view_base.html" %}
+{% block selected_tab %}
+    {% include "webapp/components/record_tabs/record_linked_records_tab.html" with fields=linked_records %}
+{% endblock selected_tab %}

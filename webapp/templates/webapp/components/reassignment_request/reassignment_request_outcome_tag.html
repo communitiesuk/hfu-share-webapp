@@ -1,0 +1,4 @@
+{% load reassignment_request_extras %}
+<strong class="govuk-tag govuk-tag--{{ outcome|reassignment_request_outcome_to_tag_colour }}"
+        style="white-space: nowrap;
+               max-width: 100%">{{ outcome.label }}</strong>

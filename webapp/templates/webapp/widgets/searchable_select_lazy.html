@@ -1,0 +1,42 @@
+{% load static %}
+<div id="{{ widget.attrs.id }}_container"
+     data-data-ajax-url="{{ widget.attrs.data_ajax_url }}"
+     data-default-value="{{ widget.attrs.default|default:'' }}"></div>
+<script type="text/javascript"
+        src="{% static 'accessible-autocomplete/accessible-autocomplete.min.js' %}"></script>
+<script type="text/javascript">
+    const container = document.querySelector('#{{ widget.attrs.id }}_container');
+    const dataAjaxUrl = container.dataset.dataAjaxUrl;
+    const defaultValue = container.dataset.defaultValue;
+
+    accessibleAutocomplete({
+        element: document.querySelector('#{{ widget.attrs.id }}_container'),
+        id: '{{ widget.attrs.id }}',
+        name: '{{ widget.name }}',
+        placeholder: 'Start typing postcode...',
+        minLength: 2,
+        showAllValues: true,
+        menuClasses: 'govuk-body',
+        autoselect: false,
+        dropdownArrow: () => '<svg class="autocomplete__dropdown-arrow-down" width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M1.25 0.5L5.25 4.5L9.25 0.5" stroke="#0B0C0C" /> </svg>',
+        defaultValue: defaultValue,
+        source: function(query, populateResults) {
+            if (query.length < 2) {
+                populateResults([]);
+                return;
+            }
+
+            fetch(`${dataAjaxUrl}?q=${encodeURIComponent(query)}`)
+                .then(response => {
+                    return response.json();
+                })
+                .then(data => {
+                    var searchResults = data.results || [];
+                    populateResults(searchResults);
+                })
+                .catch(error => {
+                    populateResults([]);
+                });
+        },
+    });
+</script>

@@ -1,0 +1,12 @@
+<li class="govuk-task-list__item govuk-task-list__item--with-link">
+    <div class="govuk-task-list__name-and-hint">
+        <a class="govuk-link govuk-task-list__link"
+           href="{{ task_url }}"
+           aria-describedby="task-list-status">{{ task_text }}</a>
+    </div>
+    <div class="govuk-task-list__status" id="task-list-status">
+        <strong class="govuk-tag govuk-tag--{% if task_status == 'INCOMPLETE' %}yellow{% elif task_status == 'URGENT' %}red{% else %}green{% endif %}">
+            {{ task_status }}
+        </strong>
+    </div>
+</li>

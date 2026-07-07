@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block breadcrumb_content %}
+    <li class="govuk-breadcrumbs__list-item">Visa applications</li>
+{% endblock breadcrumb_content %}
+{% block content %}
+    {% include "webapp/components/heading/heading.html" with page_heading="Visa applications" %}
+    <div class="visa-applications-table">{% include "webapp/components/tables/table_with_filters.html" %}</div>
+{% endblock content %}

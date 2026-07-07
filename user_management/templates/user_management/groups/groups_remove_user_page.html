@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags crispy_forms_gds crispy_forms_field %}
+{% block breadcrumb_content %}
+    <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link"
+           href="{% url 'user-management:groups' %}">Manage Groups</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">Group</li>
+{% endblock breadcrumb_content %}
+{% block content %}
+    {% include "webapp/components/heading/heading.html" with caption="Group" page_heading=group_name %}
+    <p class="govuk-body govuk-!-margin-bottom-9">
+        Are you sure you want to remove <strong>{{ user.full_name_or_email }}</strong> from this group?
+    </p>
+    {% crispy form %}
+{% endblock content %}

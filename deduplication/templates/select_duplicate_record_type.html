@@ -1,0 +1,16 @@
+{% extends "select_and_review_records_base.html" %}
+{% load crispy_forms_tags crispy_forms_gds crispy_forms_field %}
+{% block breadcrumb_content %}
+    {% url 'webapp:landing-page' as home_url %}
+    <li class="govuk-breadcrumbs__list-item">Fix duplicate records</li>
+{% endblock breadcrumb_content %}
+{% block form %}
+    {% include "webapp/components/heading/heading.html" with page_heading="Fix duplicate records" %}
+    <p class="govuk-body">
+        <strong>Select the type of record you want to fix</strong>
+    </p>
+    <form method="post">
+        {% csrf_token %}
+        {% crispy form %}
+    </form>
+{% endblock form %}

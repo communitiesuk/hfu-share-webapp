@@ -1,0 +1,10 @@
+{% extends "webapp/components/filtered_section/filtered_section.html" %}
+{% block data_view %}
+    <div style="display: flex;
+                flex-direction: column"
+         class="govuk-!-width-full">
+        {% for person_master_record in suggested_duplicates %}
+            {% include "webapp/components/suggested_duplicate_card/suggested_duplicate_card.html" with title=person_master_record.card_title person_records=person_master_record.persons.all %}
+        {% endfor %}
+    </div>
+{% endblock data_view %}

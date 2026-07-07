@@ -1,0 +1,175 @@
+{% load django_tables2 %}
+{% load static %}
+{% load i18n l10n %}
+{% load filters %}
+<script nonce="{{request.csp_nonce}}">
+    document.addEventListener('DOMContentLoaded', () => {
+        const selectAllCheckbox = document.getElementById('select-all')
+        const table = selectAllCheckbox?.closest('table')
+        const tableBody = table?.querySelector('tbody')
+        const rowCheckboxes = tableBody ? Array.from(tableBody.getElementsByClassName('govuk-checkboxes__input')) : []
+
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', () => {
+                rowCheckboxes.forEach(checkbox => {
+                    if (checkbox.id !== "select-all") {
+                        checkbox.checked = selectAllCheckbox.checked
+                    }
+                })
+            })
+
+            rowCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', () => {
+                  if (!checkbox.checked && selectAllCheckbox.checked) {
+                     selectAllCheckbox.checked = false
+                  }
+                })
+            })
+        }
+    })
+</script>
+{% block table-wrapper %}
+    {% if table.table_name %}<h1 class="govuk-heading-l">{{ table.table_name }}</h1>{% endif %}
+    {% if table.empty_text and not table.data %}
+        <p class="govuk-body govuk-!-margin-top-2">{{ table.empty_text }}</p>
+    {% else %}
+        <div class="ui container table-container"
+             style="overflow-x: auto;
+                    overflow-y: visible">
+            {% block table %}
+                <table {% render_attrs table.attrs class="govuk-table" %}>
+                    {% block table.thead %}
+                        {% if table.show_header %}
+                            <thead {{ table.attrs.thead.as_html }} class="govuk-table__head">
+                                <tr class="govuk-table__row">
+                                    {% for column in table.columns %}
+                                        <th class="{{ column.attrs.th.class }} govuk-table__header"
+                                            style="vertical-align: top;
+                                                   text-align: left">
+                                            {% if column.orderable %}
+                                                <a class="govuk-link--no-visited-state govuk-body-s govuk-!-font-weight-bold govuk-!-margin-0"
+                                                   href="{% querystring table.prefixed_order_by_field=column.order_by_alias.next %}">{{ column.header }}</a>
+                                            {% else %}
+                                                <span class="govuk-body-s govuk-!-font-weight-bold govuk-!-margin-0">{{ column.header }}</span>
+                                            {% endif %}
+                                        </th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                        {% endif %}
+                    {% endblock table.thead %}
+                    {% block table.tbody %}
+                        <tbody {{ table.attrs.tbody.as_html }} class="govuk-table__body">
+                            {% for row in table.paginated_rows %}
+                                {% block table.tbody.row %}
+                                    <tr {{ row.attrs.as_html }} class="govuk-table__row">
+                                        {% for column, cell in row.items %}
+                                            <td {{ column.attrs.td.as_html }}
+                                                class="govuk-table__cell govuk-body-s govuk-!-margin-0"
+                                                style="vertical-align: top;
+                                                       text-align: left">
+                                                {% for value in cell|ensure_list %}
+                                                    {% if column.localize == None %}
+                                                        {{ value }}
+                                                    {% else %}
+                                                        {% if column.localize %}
+                                                            {{ value|localize }}
+                                                        {% else %}
+                                                            {{ value|unlocalize }}
+                                                        {% endif %}
+                                                    {% endif %}
+                                                    {% if not forloop.last %}<br>{% endif %}
+                                                {% endfor %}
+                                            </td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endblock table.tbody.row %}
+                            {% endfor %}
+                        </tbody>
+                    {% endblock table.tbody %}
+                    {% block table.tfoot %}
+                        <tfoot {{ table.attrs.tfoot.as_html }}>
+                            {% if table.has_footer %}
+                                <tr class="govuk-table__row">
+                                    {% for column in table.columns %}
+                                        <td {{ column.attrs.tf.as_html }} class="govuk-table__cell">{{ column.footer }}
+                                        </td>
+                                    {% endfor %}
+                                </tr>
+                            {% endif %}
+                        </tfoot>
+                    {% endblock table.tfoot %}
+                </table>
+            {% endblock table %}
+        </div>
+        {% block pagination %}
+            {% if table.page and table.paginator.num_pages > 1 %}
+                <nav class="govuk-pagination govuk-!-margin-top-4"
+                     style="justify-content: center"
+                     aria-label="Table pagination">
+                    {% if table.page.has_previous %}
+                        {% block pagination.previous %}
+                            <div class="govuk-pagination__prev">
+                                <a class="govuk-link govuk-link--no-visited-state"
+                                   href="{% querystring table.prefixed_page_field=table.page.previous_page_number %}">
+                                    <svg class="govuk-pagination__icon govuk-pagination__icon--prev"
+                                         xmlns="http://www.w3.org/2000/svg"
+                                         height="13"
+                                         width="15"
+                                         aria-hidden="true"
+                                         focusable="false"
+                                         viewBox="0 0 15 13">
+                                        <path d="m6.5938-0.0078125-6.7266 6.7266 6.7441 6.4062 1.377-1.449-4.1856-3.9768h12.896v-2h-12.984l4.2931-4.293-1.414-1.414z">
+                                        </path>
+                                    </svg>
+                                    <span class="govuk-pagination__link-title">Previous<span class="govuk-visually-hidden">page</span></span>
+                                </a>
+                            </div>
+                        {% endblock pagination.previous %}
+                    {% endif %}
+                    {% if table.page.has_previous or table.page.has_next %}
+                        {% block pagination.range %}
+                            <ul class="govuk-pagination__list">
+                                {% for p in table.page|table_page_range:table.paginator %}
+                                    <li class="govuk-pagination__item {% if p == table.page.number %}govuk-pagination__item--current{% endif %}">
+                                        {% if p == '...' %}
+                                            <a href="#"
+                                               class="govuk-link govuk-link--no-visited-state govuk-pagination__link ">{{ p }}</a>
+                                        {% else %}
+                                            <a href="{% querystring table.prefixed_page_field=p %}"
+                                               class="govuk-link govuk-link--no-visited-state govuk-pagination__link {% if p == table.page.number %}govuk-pagination__item--current{% endif %}">
+                                                {{ p }}
+                                            </a>
+                                        {% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% endblock pagination.range %}
+                    {% endif %}
+                    {% if table.page.has_next %}
+                        {% block pagination.next %}
+                            <div class="govuk-pagination__next">
+                                <a href="{% querystring table.prefixed_page_field=table.page.next_page_number %}"
+                                   class="govuk-link govuk-link--no-visited-state govuk-pagination__link">
+                                    <span class="govuk-pagination__link-title">
+                                        Next<span class="govuk-visually-hidden">page</span>
+                                    </span>
+                                    <svg class="govuk-pagination__icon govuk-pagination__icon--next"
+                                         xmlns="http://www.w3.org/2000/svg"
+                                         height="13"
+                                         width="15"
+                                         aria-hidden="true"
+                                         focusable="false"
+                                         viewBox="0 0 15 13">
+                                        <path d="m8.107-0.0078125-1.4136 1.414 4.2926 4.293h-12.986v2h12.896l-4.1855 3.9766 1.377 1.4492 6.7441-6.4062-6.7246-6.7266z">
+                                        </path>
+                                    </svg>
+                                </a>
+                            </div>
+                        {% endblock pagination.next %}
+                    {% endif %}
+                </nav>
+            {% endif %}
+        {% endblock pagination %}
+    {% endif %}
+{% endblock table-wrapper %}

@@ -1,0 +1,94 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="govuk-template">
+    <head>
+        <meta charset="utf-8">
+        <title>{{ TITLE }}</title>
+        <meta name="viewport"
+              content="width=device-width, initial-scale=1, viewport-fit=cover">
+        <meta name="theme-color" content="#0b0c0c">
+        <link rel="icon"
+              sizes="48x48"
+              type="image/x-icon"
+              href="{% static 'gds/assets/images/favicon.ico' %}">
+        <link rel="icon"
+              sizes="any"
+              href="{% static 'gds/assets/images/favicon.svg' %}"
+              type="image/svg+xml">
+        <link rel="mask-icon"
+              href="{% static 'gds/assets/images/govuk-icon-mask.svg' %}"
+              color="#0b0c0c">
+        <link rel="apple-touch-icon"
+              href="{% static 'gds/assets/images/govuk-icon-180.png' %}">
+        <link rel="manifest" href="{% static 'gds/assets/manifest.json' %}">
+        <link rel="stylesheet"
+              href="{% static 'gds/govuk-frontend-5.12.0.min.css' %}">
+        <link rel="stylesheet" href="{% static 'moj-frontend/all.min.css' %}">
+        <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+        <link rel="stylesheet" href="{% static 'css/dwp.css' %}">
+        <link rel="stylesheet"
+              href="{% static 'accessible-autocomplete/accessible-autocomplete.min.css' %}">
+    </head>
+    <body class="govuk-template__body">
+        {% if analytics_enabled and analytics_consent_granted %}
+            <!-- Google tag (gtag.js) -->
+            <script async
+                    src="https://www.googletagmanager.com/gtag/js?id={{ google_analytics_id }}"
+                    nonce="{{request.csp_nonce}}"></script>
+            <script nonce="{{request.csp_nonce}}">
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '{{ google_analytics_id }}');
+            </script>
+        {% endif %}
+        <script nonce="{{request.csp_nonce}}">
+    document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prototype ? ' govuk-frontend-supported' : '');
+        </script>
+        {% if analytics_enabled %}
+            {% include "webapp/components/cookie_banner/cookie_banner.html" %}
+        {% endif %}
+        <script src="{% static 'js/cookie-consent.js' %}"></script>
+        <a href="#main-content"
+           class="govuk-skip-link"
+           data-module="govuk-skip-link">Skip to main content</a>
+        {% include "webapp/components/service_header_nav_bar/service_header_nav_bar.html" %}
+        <div class="govuk-width-container printable-area" style="max-width: 96%;">
+            {% if environment == "dev" or environment == "staging" %}
+                {% include "webapp/components/environment_banner/environment_banner.html" %}
+            {% endif %}
+            {% include "webapp/components/phase_banner/phase_banner.html" %}
+            {% block breadcrumbs %}
+                <div class="govuk-!-display-none-print">
+                    <nav aria-label="Breadcrumb"
+                         class="govuk-breadcrumbs govuk-breadcrumbs--collapse-on-mobile">
+                        <ol class="govuk-breadcrumbs__list">
+                            {% include "webapp/components/breadcrumbs/home_link.html" %}
+                            {% block breadcrumb_content %}
+                            {% endblock breadcrumb_content %}
+                        </ol>
+                    </nav>
+                </div>
+            {% endblock breadcrumbs %}
+            <main id="main-content">
+                {% block content %}
+                {% endblock content %}
+            </main>
+        </div>
+        {% include "webapp/components/footer/footer.html" %}
+        <script type="module" src="{% static 'gds/govuk-frontend-5.12.0.min.js' %}"></script>
+        <script type="module" nonce="{{request.csp_nonce}}">
+            import {
+              initAll
+            } from "{% static 'gds/govuk-frontend-5.12.0.min.js' %}"
+            initAll()
+        </script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+                integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+                crossorigin="anonymous"></script>
+        <script src="{% static 'moj-frontend/moj-frontend.min.js' %}"></script>
+        <script nonce="{{request.csp_nonce}}">window.MOJFrontend.initAll();</script>
+        {% block extra_js %}
+        {% endblock extra_js %}
+    </body>
+</html>

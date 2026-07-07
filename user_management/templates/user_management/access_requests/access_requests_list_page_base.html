@@ -1,0 +1,7 @@
+{% extends "user_management/base.html" %}
+{% block selected_tab %}
+    <h2 class="govuk-heading-l">Manage access requests</h2>
+    {% block access_request_list_table %}
+        {% include "user_management/access_requests/access_requests_list.html" %}
+    {% endblock access_request_list_table %}
+{% endblock selected_tab %}

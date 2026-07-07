@@ -1,0 +1,13 @@
+<h1 class="govuk-heading-xl govuk-!-margin-top-9 govuk-!-margin-bottom-9">
+    {% if caption %}<span class="govuk-caption-xl">{{ caption }}</span>{% endif %}
+    {% if tag %}
+        <span style="display: inline-flex; align-items: center; flex-wrap: wrap">
+            <span class="govuk-!-margin-right-3">{{ page_heading }}</span>
+            <strong class="govuk-tag govuk-tag--{{ tag_colour|default:'grey' }}">
+                <span class="govuk-visually-hidden">Status:&nbsp;</span>{{ tag }}
+            </strong>
+        </span>
+    {% else %}
+        {{ page_heading }}
+    {% endif %}
+</h1>

@@ -1,0 +1,7 @@
+{% extends "reassignment_requests/reassignment_requests_tabs_view_base.html" %}
+{% load django_tables2 %}
+{% block selected_tab %}
+    <h3 class="govuk-heading-m">{{ title }}</h3>
+    <p class="govuk-body">{{ description }}</p>
+    {% include "webapp/components/tables/table_with_filters.html" %}
+{% endblock selected_tab %}

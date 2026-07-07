@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block breadcrumb_content %}
+    <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link"
+           href="{% url 'user-management:access-request-intro' %}">Request access to data</a>
+    </li>
+    {% for breadcrumb in breadcrumbs %}
+        <li class="govuk-breadcrumbs__list-item">
+            {% if breadcrumb.url %}
+                <a class="govuk-breadcrumbs__link" href="{% url breadcrumb.url %}">{{ breadcrumb.name }}</a>
+            {% else %}
+                {{ breadcrumb.name }}
+            {% endif %}
+        </li>
+    {% endfor %}
+{% endblock breadcrumb_content %}
+{% load filters %}
+{% block content %}
+    {% include "webapp/components/heading/heading.html" with page_heading="Your request" %}
+    {% if object|access_request_is_rejected or object|access_request_is_approved %}
+        <div class="govuk-warning-text">
+            <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+            <strong class="govuk-warning-text__text">
+                <span class="govuk-visually-hidden">Warning</span>
+                {% if object|access_request_is_rejected %}
+                    Your request for access has been rejected.
+                {% else %}
+                    Your request for access has been approved.
+                {% endif %}
+            </strong>
+        </div>
+    {% endif %}
+    {% include "webapp/components/record_tabs/record_summary_list.html" %}
+    <a href="{% url "webapp:landing-page" %}"
+       class="govuk-button govuk-button--primary">Back</a>
+{% endblock content %}

@@ -1,0 +1,27 @@
+{% load notification_banner_extras %}
+{% if messages %}
+    {% for message in messages %}
+        <div class="govuk-notification-banner {% if message.level|message_level_to_notification_banner_variant %}govuk-notification-banner--{{ message.level|message_level_to_notification_banner_variant }}{% endif %}"
+             role="region"
+             aria-labelledby="govuk-notification-banner-title"
+             data-module="govuk-notification-banner">
+            <div class="govuk-notification-banner__header">
+                <h2 class="govuk-notification-banner__title"
+                    id="govuk-notification-banner-title">
+                    {{ message.level|message_level_to_notification_banner_title }}
+                </h2>
+            </div>
+            <div class="govuk-notification-banner__content">
+                {% if "html_safe" in message.tags %}
+                    <p class="govuk-notification-banner__heading{% if 'content_full_width' in message.tags %} max-width-none{% endif %}">
+                        {{ message|safe }}
+                    </p>
+                {% else %}
+                    <p class="govuk-notification-banner__heading{% if 'content_full_width' in message.tags %} max-width-none{% endif %}">
+                        {{ message }}
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+{% endif %}

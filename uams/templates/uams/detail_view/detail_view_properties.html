@@ -1,0 +1,26 @@
+{% extends "uams/detail_view/detail_view_base.html" %}
+{% block selected_tab %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <h4 class="govuk-heading-l">Properties</h4>
+        </div>
+        <div class="govuk-grid-column-one-half">
+            <h4 class="govuk-heading-m">Sponsor details</h4>
+            {% include "webapp/components/record_tabs/record_summary_list.html" with fields=sponsor_details %}
+            <h4 class="govuk-heading-m govuk-!-margin-top-8">Over 16s at the accommodation</h4>
+            {% include "webapp/components/record_tabs/record_summary_list.html" with fields=cohabitant_details %}
+            <h4 class="govuk-heading-m govuk-!-margin-top-8">Accommodation</h4>
+            {% include "webapp/components/record_tabs/record_summary_list.html" with fields=accommodation_details %}
+            <h4 class="govuk-heading-m govuk-!-margin-top-8">Child guest</h4>
+            {% include "webapp/components/record_tabs/record_summary_list.html" with fields=child_guest_details %}
+        </div>
+        <div class="govuk-grid-column-one-half">
+            <h4 class="govuk-heading-m">Reference numbers and key details</h4>
+            {% include "webapp/components/record_tabs/record_summary_list.html" with fields=reference_details %}
+            <h4 class="govuk-heading-m govuk-!-margin-top-8">Parental consent</h4>
+            {% include "webapp/components/record_tabs/record_summary_list.html" with fields=parental_consent_details %}
+            <h4 class="govuk-heading-m govuk-!-margin-top-8">Qualifying details</h4>
+            {% include "webapp/components/record_tabs/record_summary_list.html" with fields=qualifying_details %}
+        </div>
+    </div>
+{% endblock selected_tab %}

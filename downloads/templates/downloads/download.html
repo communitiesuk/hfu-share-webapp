@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags crispy_forms_gds %}
+{% block page_title %}
+    Download data
+{% endblock page_title %}
+{% block breadcrumb_content %}
+    <li class="govuk-breadcrumbs__list-item">Download data</li>
+{% endblock breadcrumb_content %}
+{% block content %}
+    <div>
+        {% error_summary form %}
+        {% include "webapp/components/heading/heading.html" with page_heading="Download data" %}
+        <div class="govuk-hint">
+            You can choose which type of data to download. Your file will include all records you have access to.
+        </div>
+        <div class="govuk-!-padding-top-5" id="form-content">
+            <form method="post">
+                {% csrf_token %}
+                {% crispy form %}
+            </form>
+        </div>
+    </div>
+{% endblock content %}

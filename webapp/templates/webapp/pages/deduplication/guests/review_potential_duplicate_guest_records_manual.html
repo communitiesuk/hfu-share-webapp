@@ -1,0 +1,7 @@
+{% extends "webapp/pages/deduplication/guests/review_potential_duplicate_guest_records_page_base.html" %}
+{% block selected_tab %}
+    <p class="govuk-body govuk-!-margin-top-5 govuk-!-margin-bottom-5 govuk-!-width-two-thirds">
+        Use the filter to find duplicate records. Select two or more records you want to review.
+    </p>
+    {% include "guests/guests_list.html" %}
+{% endblock selected_tab %}

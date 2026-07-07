@@ -1,0 +1,4 @@
+{% load safeguarding_extras %}
+<strong class="govuk-tag govuk-tag--{{ adverse_rematch_status|adverse_rematch_status_to_tag_colour }}"
+        style="white-space: nowrap;
+               max-width: 100%">{{ adverse_rematch_status|yesno:"Yes,No" }}</strong>

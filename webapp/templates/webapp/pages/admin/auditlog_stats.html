@@ -1,0 +1,39 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+{% block nav-breadcrumbs %}
+    <nav aria-label="{% translate "Breadcrumbs" %}">
+        <div class="breadcrumbs">
+            <a href="{% url 'admin:index' %}">{% translate "Home" %}</a>
+            ›
+            <a href="{% url 'admin:app_list' app_label='auditlog' %}">Auditlog</a>
+            ›
+            Statistics
+        </div>
+    </nav>
+{% endblock nav-breadcrumbs %}
+{% block content %}
+    <h3>User stats</h3>
+    <ul>
+        <li>Total users: {{ user_stats.total_users }}</li>
+        <li>Users active in the last 90 days: {{ user_stats.users_active_in_last_90_days }}</li>
+        <li>New users in the last 90 days: {{ user_stats.new_users_in_last_90_days }}</li>
+    </ul>
+    <h3>Audit log stats</h3>
+    <p>The table below lists the number of changes per model as recorded in the Django auditlog, since 1 January 2026.</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Model</th>
+                {% for month in month_names %}<th>{{ month }}</th>{% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for model, model_stats in all_stats.items %}
+                <tr>
+                    <td>{{ model }}</td>
+                    {% for when, value in model_stats.items %}<td>{{ value }}</td>{% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock content %}

@@ -1,0 +1,30 @@
+{% load visa_application_extras %}
+<table class="govuk-!-margin-bottom-7">
+    <tbody>
+        <tr>
+            <td class="govuk-!-font-weight-bold govuk-!-padding-right-8">Type of request</td>
+            <td>{{ latest_vir.request_type|get_requesttype_label }}</td>
+        </tr>
+        <tr>
+            <td class="govuk-!-font-weight-bold govuk-!-padding-right-8 govuk-!-padding-top-1"
+                style="vertical-align: top">
+                <span style="display: flex; align-items: flex-start;">Check needed</span>
+            </td>
+            <td class="govuk-!-padding-top-1">
+                {% if latest_vir.requested_check_type_id|length > 1 %}
+                    <ul class="govuk-list govuk-list--bullet govuk-!-margin-0">
+                        {% for check_id in latest_vir.requested_check_type_id %}<li>{{ check_id|get_checktype_label }}</li>{% endfor %}
+                    </ul>
+                {% elif latest_vir.requested_check_type_id|length == 1 %}
+                    <span>{{ latest_vir.requested_check_type_id.0|get_checktype_label }}</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% if latest_vir.closed_at %}
+            <tr>
+                <td class="govuk-!-font-weight-bold govuk-!-padding-right-8 govuk-!-padding-top-1">Closed date</td>
+                <td class="govuk-!-padding-top-1">{{ latest_vir.closed_at|format_vir_datetime }}</td>
+            </tr>
+        {% endif %}
+    </tbody>
+</table>

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block breadcrumb_content %}
+    <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="{% url 'sponsors:sponsors' %}">Sponsors and hosts</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">Sponsor and host record</li>
+{% endblock breadcrumb_content %}
+{% block content %}
+    {% include "webapp/components/notification_banner/notification_banner.html" %}
+    {% include "webapp/components/heading/heading.html" with caption="Sponsor and host record for" page_heading=object.get_full_name tag=is_duplicate|yesno:"Duplicate," %}
+    {% url 'sponsors:detail-overview' object.id as overview_url %}
+    {% url 'sponsors:detail-actions' object.id as actions_url %}
+    {% url 'sponsors:detail-linked-records' object.id as linked_records_url %}
+    {% url 'sponsors:detail-properties' object.id as properties_url %}
+    {% url 'sponsors:detail-history' object.id as history_url %}
+    <div class="govuk-tabs {% if request.path != properties_url %}govuk-!-width-one-half{% endif %}">
+        <h3 class="govuk-tabs__title">Contents</h3>
+        <ul class="govuk-tabs__list">
+            <li class="govuk-tabs__list-item {% if request.path == overview_url %}govuk-tabs__list-item--selected{% endif %}">
+                <a class="govuk-tabs__tab" href="{{ overview_url }}">Overview</a>
+            </li>
+            {% if show_actions_tab %}
+                <li class="govuk-tabs__list-item {% if request.path == actions_url %}govuk-tabs__list-item--selected{% endif %}">
+                    <a class="govuk-tabs__tab" href="{{ actions_url }}">Actions</a>
+                </li>
+            {% endif %}
+            <li class="govuk-tabs__list-item {% if request.path == linked_records_url %}govuk-tabs__list-item--selected{% endif %}">
+                <a class="govuk-tabs__tab" href="{{ linked_records_url }}">Linked records</a>
+            </li>
+            <li class="govuk-tabs__list-item {% if request.path == properties_url %}govuk-tabs__list-item--selected{% endif %}">
+                <a class="govuk-tabs__tab" href="{{ properties_url }}">Properties</a>
+            </li>
+            {% if show_history_tab %}
+                <li class="govuk-tabs__list-item {% if request.path == history_url %}govuk-tabs__list-item--selected{% endif %}">
+                    <a class="govuk-tabs__tab" href="{{ history_url }}">History</a>
+                </li>
+            {% endif %}
+        </ul>
+        <div class="govuk-tabs__panel">
+            {% block selected_tab %}
+            {% endblock selected_tab %}
+        </div>
+    </div>
+    <a href="{% url 'sponsors:sponsors' %}"
+       class="govuk-button govuk-button--secondary">Back to list of sponsors and hosts</a>
+{% endblock content %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block breadcrumb_content %}
+    <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="#">Review potential duplicate records</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">Review potential duplicate guest records</li>
+{% endblock breadcrumb_content %}
+{% block content %}
+    {% include "webapp/components/heading/heading.html" with page_heading="Review potential duplicate records" %}
+    <div class="govuk-tabs" data-module="govuk-tabs">
+        <h2 class="govuk-tabs__title">Contents</h2>
+        <ul class="govuk-tabs__list">
+            {% url 'webapp:review-duplicate-records-suggested' as suggested_duplicates_url %}
+            {% url 'webapp:review-duplicate-sponsor-records-manual' as manual_duplicates_url %}
+            <li class="govuk-tabs__list-item {% if request.path == suggested_duplicates_url %}govuk-tabs__list-item--selected{% endif %}">
+                <a class="govuk-tabs__tab" href="{{ suggested_duplicates_url }}">Suggested duplicates</a>
+            </li>
+            <li class="govuk-tabs__list-item {% if request.path == manual_duplicates_url %}govuk-tabs__list-item--selected{% endif %}">
+                <a class="govuk-tabs__tab" href="{{ manual_duplicates_url }}">Find duplicates</a>
+            </li>
+        </ul>
+        {% block selected_tab %}
+        {% endblock selected_tab %}
+    </div>
+{% endblock content %}

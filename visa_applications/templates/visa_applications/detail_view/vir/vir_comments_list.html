@@ -1,0 +1,6 @@
+{% if comments %}
+    {% for comment in comments %}
+        {% include "visa_applications/detail_view/vir/vir_comment.html" %}
+    {% endfor %}
+    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+{% endif %}

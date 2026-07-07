@@ -1,0 +1,48 @@
+{% load timeline_extras %}
+{% timeline_event_is_interaction event_type as is_interaction %}
+{% timeline_event_is_comment event_type as is_comment %}
+{% timeline_event_is_log_entry event_type as is_log_entry %}
+{% timeline_event_has_attached_file event as has_attached_file %}
+<div class="govuk-!-padding-bottom-3"
+     aria-describedby="event-title-{{ forloop.counter }}">
+    {% if title %}
+        <h5 class="govuk-heading-m govuk-!-margin-bottom-1"
+            id="event-title-{{ forloop.counter }}">{{ title }}</h5>
+    {% endif %}
+    <time class="govuk-body govuk-!-margin-bottom-2"
+          id="event-datetime-{{ forloop.counter }}"
+          datetime="{{ date|date:'Y-m-d\TH:i' }}"
+          aria-label="Event date">{{ date|date:"j F Y \\a\\t g:ia"|cut:"." }}</time>
+    {% if author_display_name %}
+        <p class="govuk-body-m govuk-hint govuk-!-margin-top-1">By {{ author_display_name }}</p>
+    {% endif %}
+    {% with counter_str=forloop.counter|stringformat:"i" page_param=request.GET.page %}
+        {% if request.GET.show_expanded_content == counter_str %}
+            <p id="event-content-{{ forloop.counter }}" class="govuk-body">{{ content|linebreaksbr }}</p>
+            {% if content|length > 2000 %}
+                <a id="event-show-less-link-{{ forloop.counter }}"
+                   class="govuk-link"
+                   href="{{ request.path }}{% if page_param %}?page={{ page_param }}{% endif %}#event-datetime-{{ forloop.counter }}">Show less</a>
+            {% endif %}
+        {% else %}
+            <p id="event-content-{{ forloop.counter }}"
+               class="govuk-body govuk-!-margin-top-2">{{ content|linebreaksbr|truncatechars:2000 }}</p>
+            {% if content|length > 2000 %}
+                <a id="event-show-more-link-{{ forloop.counter }}"
+                   class="govuk-link"
+                   href="{% if page_param %}?page={{ page_param }}&show_expanded_content={{ forloop.counter }}{% else %}?show_expanded_content={{ forloop.counter }}{% endif %}#event-datetime-{{ forloop.counter }}">Show more</a>
+            {% endif %}
+        {% endif %}
+        {% if event.id in events_with_files %}
+            {% if is_interaction %}
+                {% url 'accommodation-requests:interactions-download-attachment' pk=event.linked_accommodation_request_id interaction_id=event.id as download_url %}
+                {% include "webapp/components/timeline/timeline_interaction_file_table.html" with filename=event.filename download_url=download_url %}
+            {% elif is_comment %}
+                {% include "webapp/components/timeline/timeline_comment_file_table.html" %}
+            {% endif %}
+        {% endif %}
+        {% if has_attached_file %}
+            {% include "webapp/components/timeline/timeline_interaction_file_table.html" with filename=event.attached_file.filename download_url=event.attached_file.download_url %}
+        {% endif %}
+    {% endwith %}
+</div>

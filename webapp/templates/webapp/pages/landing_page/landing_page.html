@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block breadcrumbs %}
+{% endblock breadcrumbs %}
+{% block content %}
+    {% include "webapp/components/hero_banner/hero_banner.html" %}
+    <div class="govuk-grid-row govuk-!-margin-top-0">
+        <div class="govuk-grid-column-full govuk-!-padding-0">
+            {% if available_announcements %}
+                <div class="govuk-grid-row govuk-!-padding-left-3 govuk-!-padding-right-3"
+                     style="background-color: #f8f8f8">
+                    {% include "webapp/components/announcements/announcements.html" %}
+                </div>
+            {% endif %}
+        </div>
+        <div class="govuk-grid-column-three-quarters">
+            {% if available_links %}
+                <div class="govuk-grid-row govuk-!-margin-top-9">
+                    {% include "webapp/components/manage_records_panel/manage_records_panel.html" %}
+                </div>
+            {% endif %}
+            <div class="govuk-grid-row govuk-!-margin-top-9">
+                {% include "webapp/components/access_requests_panel/access_requests_panel.html" %}
+            </div>
+        </div>
+        {% include "webapp/components/guidance_and_support/guidance_and_support.html" %}
+    </div>
+{% endblock content %}
