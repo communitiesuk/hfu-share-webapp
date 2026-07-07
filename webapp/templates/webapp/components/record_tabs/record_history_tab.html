@@ -1,0 +1,8 @@
+{% load timeline_extras %}
+<h4 class="govuk-heading-l">History</h4>
+<p class="govuk-body">{{ history_description }}</p>
+{% if events|length == 0 %}
+    <p class="govuk-body govuk-hint govuk-!-padding-top-3">No events</p>
+{% else %}
+    {% timeline request events event_type %}
+{% endif %}

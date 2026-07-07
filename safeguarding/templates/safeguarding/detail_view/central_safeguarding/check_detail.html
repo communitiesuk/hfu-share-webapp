@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load static %}
+{% block breadcrumb_content %}
+    <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link"
+           href="{% url 'safeguarding:escalated_checks' %}">Escalated checks</a>
+    </li>
+    {% if person and central_safeguarding_url %}
+        <li class="govuk-breadcrumbs__list-item">
+            <a class="govuk-breadcrumbs__link" href="{{ central_safeguarding_url }}">{{ person.get_full_name }}</a>
+        </li>
+    {% endif %}
+    <li class="govuk-breadcrumbs__list-item">Alert</li>
+{% endblock breadcrumb_content %}
+{% block content %}
+    {% include "webapp/components/heading/heading.html" with page_heading="Alert" %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-half">
+            <h2 class="govuk-heading-m">{{ notification.name }}</h2>
+            <p class="govuk-body">{{ notification.created_at|date:"j F Y \\a\\t g:ia"|cut:"." }}</p>
+            {% if check_fields %}
+                {% include "webapp/components/safeguarding_check_tag/safeguarding_check_tag.html" with safeguarding_check_status=check.check_status %}
+                <div class="govuk-!-margin-top-3 govuk-!-margin-bottom-9 govuk-!-width-three-quarters">
+                    {% include "webapp/components/record_tabs/record_summary_list.html" with fields=check_fields %}
+                </div>
+            {% elif sponsor_withdrawn_fields %}
+                <div class="govuk-!-margin-top-3 govuk-!-margin-bottom-9 govuk-!-width-three-quarters">
+                    {% include "webapp/components/record_tabs/record_summary_list.html" with fields=sponsor_withdrawn_fields %}
+                </div>
+            {% else %}
+                <p class="govuk-body">{{ notification.description }}</p>
+            {% endif %}
+        </div>
+        <div class="govuk-grid-column-one-half">
+            <p class="govuk-heading-m">Visas affected by this alert</p>
+            {% if visa_applications %}
+                {% for va in visa_applications %}
+                    <div class="visa-application-details">
+                        <p class="govuk-heading-s">{{ va.title }}</p>
+                        {% include "webapp/components/record_tabs/record_summary_list.html" with fields=va.fields %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="govuk-body govuk-hint">No visa applications found</p>
+            {% endif %}
+        </div>
+    </div>
+    <div class="govuk-!-margin-top-3">
+        <a href="{{ central_safeguarding_url }}"
+           class="govuk-button govuk-button--primary"
+           role="button">Back to central safeguarding</a>
+    </div>
+{% endblock content %}

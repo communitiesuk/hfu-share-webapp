@@ -1,0 +1,5 @@
+{% extends "webapp/components/filtered_section/filtered_section.html" %}
+{% load django_tables2 %}
+{% block data_view %}
+    <div id="table-container" style="min-width: 0; flex-grow: 1;">{% render_table table %}</div>
+{% endblock data_view %}

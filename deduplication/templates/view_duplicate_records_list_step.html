@@ -1,0 +1,30 @@
+{% extends "select_records_list_step.html" %}
+{% load crispy_forms_gds %}
+{% load crispy_forms_tags %}
+{% block breadcrumb_content %}
+    <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="{{ type_list_url }}">{{ type_title_plural }}</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="{{ type_record_url }}">{{ type_title }} record</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">Undo deduplication</li>
+{% endblock breadcrumb_content %}
+{% block form %}
+    <div class="govuk-!-width-one-half">
+        {% include "webapp/components/heading/heading.html" with page_heading="View duplicate "|add:type|add:" records" %}
+    </div>
+    <div class="govuk-summary-card">
+        <div class="govuk-summary-card__title-wrapper">
+            <h2 class="govuk-summary-card__title">
+                Records deduplicated to create new principal {{ type }} record for {{ principal_record_name }}
+            </h2>
+        </div>
+        <div class="govuk-summary-card__content">{% include table_template_url %}</div>
+    </div>
+    <form class="govuk-button-group" method="post">
+        {% csrf_token %}
+        {{ wizard.management_form }}
+        {% crispy form %}
+    </form>
+{% endblock form %}

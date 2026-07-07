@@ -1,0 +1,62 @@
+<div class="govuk-cookie-banner"
+     data-module="govuk-cookie-banner"
+     data-consent-value="{{ cookie_consent }}"
+     data-analytics-id="{{ google_analytics_id }}"
+     data-nosnippet
+     role="region"
+     id="hfu-cookie-banner"
+     aria-label="Cookies on Share Homes for Ukraine data"
+     hidden>
+    <div class="govuk-cookie-banner__message govuk-width-container">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                <h2 class="govuk-cookie-banner__heading govuk-heading-m">Cookies on Share Homes for Ukraine data</h2>
+                <div class="govuk-cookie-banner__content">
+                    <p class="govuk-body">
+                        Analytics cookies help us understand how our service is being used, so that we can make improvements.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="cookie-banner-button-group govuk-button-group">
+            <button id="accept-button"
+                    type="button"
+                    class="govuk-button cookie-banner-button"
+                    data-accept-cookies="true"
+                    data-module="govuk-button">Accept analytics cookies</button>
+            <button id="reject-button"
+                    type="button"
+                    class="govuk-button cookie-banner-button"
+                    data-accept-cookies="false"
+                    data-module="govuk-button">Reject analytics cookies</button>
+            <a class="govuk-link" href="{% url "webapp:cookies" %}">How we use cookies</a>
+        </div>
+    </div>
+    <div id="confirmation"
+         class="govuk-cookie-banner__confirmation_message govuk-width-container"
+         role="alert"
+         tabindex="-1"
+         hidden>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                <div class="govuk-cookie-banner__content" id="accepted-confirmation">
+                    <p class="govuk-body">
+                        You’ve accepted analytics cookies. You can <a class="govuk-link" href="{% url "webapp:cookies" %}">change your cookie settings</a> at any time.
+                    </p>
+                </div>
+                <div class="govuk-cookie-banner__content" id="rejected-confirmation">
+                    <p class="govuk-body">
+                        You told us not to use analytics cookies. You can <a class="govuk-link" href="{% url "webapp:cookies" %}">change your cookie settings</a> at any time.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="govuk-button-group">
+            <button id="hide-cookie-message"
+                    type="button"
+                    class="govuk-cookie-banner__hide-button govuk-button"
+                    data-hide-cookie-banner="true"
+                    data-module="govuk-button">Hide cookie message</button>
+        </div>
+    </div>
+</div>

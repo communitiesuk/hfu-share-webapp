@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags crispy_forms_gds %}
+{% block page_title %}
+    Guest record for {{ object.first_name }} {{ object.last_name }}
+{% endblock page_title %}
+{% block back_link %}
+    {% url 'guests:detail-overview' object.pk %}
+{% endblock back_link %}
+{% block breadcrumb_content %}
+    <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="{% url 'guests:guests' %}">Guests</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">Guest record</li>
+{% endblock breadcrumb_content %}
+{% block content %}
+    <div class="govuk-!-margin-top-9">{% error_summary form %}</div>
+    <div class="govuk-!-width-one-half">
+        {% include "webapp/components/heading/heading.html" with caption="Guest record for" page_heading=object.get_full_name %}
+        <div class="govuk-!-padding-top-2" id="form-content">
+            {% block form_content %}
+            {% endblock form_content %}
+        </div>
+    </div>
+{% endblock content %}

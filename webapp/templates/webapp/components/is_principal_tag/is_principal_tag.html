@@ -1,0 +1,4 @@
+{% load safeguarding_extras %}
+<strong class="govuk-tag govuk-tag--{{ is_principal|is_principal_to_tag_colour }}"
+        style="white-space: nowrap;
+               max-width: 100%">{{ is_principal|yesno:"Yes,No" }}</strong>

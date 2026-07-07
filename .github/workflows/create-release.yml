@@ -1,0 +1,24 @@
+name: Create Release
+
+on:
+  push:
+    branches:
+      - main
+
+defaults:
+  run:
+    shell: bash
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@46dfc01594fc6ec99626bc73e479c52bdf554f88  # v5.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          config-file: release-config.json
+          manifest-file: release-manifest.json

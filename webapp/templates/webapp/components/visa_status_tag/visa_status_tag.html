@@ -1,0 +1,4 @@
+{% load visa_application_extras %}
+<strong class="govuk-tag govuk-tag--{{ visa_status|visa_status_to_tag_colour }}"
+        style="white-space: nowrap;
+               max-width: 100%">{{ visa_status }}</strong>

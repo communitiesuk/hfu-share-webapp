@@ -1,0 +1,5 @@
+{% extends "safeguarding/detail_view/detail_view_base.html" %}
+{% block selected_tab %}
+    <h4 class="govuk-heading-l">Safeguarding checks</h4>
+    {% include "webapp/components/record_tabs/record_summary_list.html" with fields=fields %}
+{% endblock selected_tab %}

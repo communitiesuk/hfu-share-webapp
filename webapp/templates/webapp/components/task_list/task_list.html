@@ -1,0 +1,31 @@
+<div>
+    <h2 class="govuk-heading-l govuk-!-margin-bottom-2 govuk-!-margin-left-0 govuk-!-margin-right-0">Tasks</h2>
+    <ul class="govuk-task-list">
+        <h3 class="govuk-heading-s govuk-!-margin-bottom-2 govuk-!-padding-top-4">
+            Children applying without parents or legal guardians (eligible/un-accompanied minors)
+        </h3>
+        {% include "webapp/components/task_list_item/task_list_item.html" with task_text="X eligible minors with incomplete checks (\"flow route\")" task_url="#" task_status="URGENT" %}
+        {% include "webapp/components/task_list_item/task_list_item.html" with task_text="X eligible minors without pre-approval checks" task_url="#" task_status="URGENT" %}
+        <h3 class="govuk-heading-s govuk-!-margin-bottom-2 govuk-!-padding-top-4">Re-assignment requests</h3>
+        {% include "webapp/components/task_list_item/task_list_item.html" with task_text="X reassignment requests to review" task_url="#" task_status="INCOMPLETE" %}
+        {% include "webapp/components/task_list_item/task_list_item.html" with task_text="X accommodation requests with multiple LAs" task_url="#" task_status="INCOMPLETE" %}
+        <h3 class="govuk-heading-s govuk-!-margin-bottom-2 govuk-!-padding-top-4">Suggested duplicates</h3>
+        {% url 'webapp:review-duplicate-records-suggested' as suggested_duplicate_guests_url %}
+        {% include "webapp/components/task_list_item/task_list_item.html" with task_text="X guest suggested duplicates pending action" task_url=suggested_duplicate_guests_url task_status="INCOMPLETE" %}
+        {% include "webapp/components/task_list_item/task_list_item.html" with task_text="X accommodation suggested duplicates pending action" task_url="#" task_status="INCOMPLETE" %}
+        {% include "webapp/components/task_list_item/task_list_item.html" with task_text="X sponsor suggested duplicates pending action" task_url="#" task_status="INCOMPLETE" %}
+        <h3 class="govuk-heading-s govuk-!-margin-bottom-2 govuk-!-padding-top-4">Outstanding checks</h3>
+        {% include "webapp/components/task_list_item/task_list_item.html" with task_text="X accommodation without an accommodation exists check" task_url="#" task_status="INCOMPLETE" %}
+        {% include "webapp/components/task_list_item/task_list_item.html" with task_text="X accommodation without an accommodation suitable check" task_url="#" task_status="INCOMPLETE" %}
+        {% include "webapp/components/task_list_item/task_list_item.html" with task_text="X sponsors without DBS checks" task_url="#" task_status="COMPLETE" %}
+        {% include "webapp/components/task_list_item/task_list_item.html" with task_text="X sponsors that host minors and require an enhanced DBS check" task_url="#" task_status="INCOMPLETE" %}
+        {% include "webapp/components/task_list_item/task_list_item.html" with task_text="X recent active cases without group arrived checks" task_url="#" task_status="INCOMPLETE" %}
+        {% include "webapp/components/task_list_item/task_list_item.html" with task_text="X recent active cases without safeguarding checks complete" task_url="#" task_status="INCOMPLETE" %}
+        {% include "webapp/components/task_list_item/task_list_item.html" with task_text="X Visa Information Requests requiring response" task_url="#" task_status="INCOMPLETE" %}
+        <h3 class="govuk-heading-s govuk-!-margin-bottom-2 govuk-!-padding-top-4">Rematches</h3>
+        {% include "webapp/components/task_list_item/task_list_item.html" with task_text="X accommodation requests marked as rematch required" task_url="#" task_status="INCOMPLETE" %}
+        {% include "webapp/components/task_list_item/task_list_item.html" with task_text="X accommodation requests that are missing a linked host relationship" task_url="#" task_status="INCOMPLETE" %}
+        <h3 class="govuk-heading-s govuk-!-margin-bottom-2 govuk-!-padding-top-4">Admin tasks</h3>
+        {% include "webapp/components/task_list_item/task_list_item.html" with task_text="Your Local Authority's contact details are missing from the LA directory" task_url="#" task_status="INCOMPLETE" %}
+    </ul>
+</div>

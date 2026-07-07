@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block breadcrumb_content %}
+    <li class="govuk-breadcrumbs__list-item">Unassigned Accommodation requests</li>
+{% endblock breadcrumb_content %}
+{% block content %}
+    {% include "webapp/components/heading/heading.html" with page_heading="Manage unassigned accommodation requests" %}
+    <p class="govuk-body">
+        Move guests to the correct local authority from the 'actions' tab of the accommodation request (AR).
+    </p>
+    <p class="govuk-body">Raise a support ticket to ask for new postcodes to be added to Share.</p>
+    {% block accommodation_request_list_table %}
+    {% endblock accommodation_request_list_table %}
+{% endblock content %}

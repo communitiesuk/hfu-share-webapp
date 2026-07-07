@@ -1,0 +1,6 @@
+.github
+.idea
+.ruff_cache
+.vscode
+tests
+venv

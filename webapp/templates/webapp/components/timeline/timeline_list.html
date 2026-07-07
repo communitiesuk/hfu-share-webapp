@@ -1,0 +1,23 @@
+{% load timeline_extras %}
+{% timeline_event_is_interaction event_type as is_interaction %}
+{% timeline_event_is_comment event_type as is_comment %}
+{% timeline_event_is_log_entry event_type as is_log_entry %}
+<div class="govuk-!-padding-top-2 govuk-!-padding-bottom-2 govuk-!-padding-right-4"
+     aria-label="Events timeline">
+    <ol class="timeline-list" role="list">
+        {% for event in events %}
+            <li class="timeline-item"
+                role="listitem"
+                {% if forloop.last and events.paginator.num_pages|default:1 == events.number|default:1 %}data-final="True"{% endif %}>
+                {% if is_interaction %}
+                    {% include "webapp/components/timeline/timeline_item.html" with date=event.created_at title=event.title content=event.interaction_notes|format_interaction_content author_display_name=event.created_by forloop=forloop events_with_files=events_with_files %}
+                {% elif is_log_entry %}
+                    {% include "webapp/components/timeline/timeline_item.html" with date=event.date title=event.title content=event.content author_display_name=event.author_display_name forloop=forloop %}
+                {% else %}
+                    {% include "webapp/components/timeline/timeline_item.html" with date=event.created_at content=event.content author_display_name=event.created_by forloop=forloop events_with_files=events_with_files %}
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ol>
+    {% include "webapp/components/pagination/pagination.html" with paginated_objs=events %}
+</div>

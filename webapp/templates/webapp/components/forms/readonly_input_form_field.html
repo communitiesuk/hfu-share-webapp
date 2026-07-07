@@ -1,0 +1,21 @@
+{% load filters %}
+<div class="govuk-form-group {% if label == "Visa status" %}govuk-visually-hidden{% endif %}">
+    <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">{{ label }}</legend>
+    <div class="govuk-hint govuk-!-margin-bottom-2">{{ help_text }}</div>
+    <p class="govuk-body">
+        {% if value|is_list %}
+            {% for item in formatted_value %}
+                {{ item|safe }}
+                <br>
+                <br>
+            {% endfor %}
+        {% else %}
+            {{ formatted_value|safe }}
+        {% endif %}
+    </p>
+    {% if value|is_list %}
+        {% for item in value %}<input type="hidden" name="{{ name }}" value="{{ item }}">{% endfor %}
+    {% else %}
+        <input type="hidden" name="{{ name }}" value="{{ value }}">
+    {% endif %}
+</div>

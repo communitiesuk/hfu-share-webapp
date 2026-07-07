@@ -1,0 +1,189 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+# GitHub recommends pinning actions to a commit SHA.
+# To get a newer version, you will need to update the SHA.
+# You can also reference a tag or branch, but the action may change without warning.
+
+name: Deploy to Amazon ECS
+
+on:
+  push:
+    branches:
+      - 'main'
+  workflow_dispatch:
+    inputs:
+      refToDeploy:
+        description: "Branch, tag or commit SHA1 to deploy"
+        required: true
+        type: string
+        default: 'main'
+      environment:
+        description: 'Deployment Environment'
+        required: true
+        default: 'aws-dev'
+        type: choice
+        options:
+          - aws-dev
+          - aws-staging
+          - aws-prod
+
+defaults:
+  run:
+    shell: bash
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: deploy-${{ inputs.environment || 'aws-dev' }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to ${{ inputs.environment || 'aws-dev' }}
+    runs-on: ubuntu-latest
+    if: ${{ github.actor != 'dependabot[bot]' }}
+    environment: ${{ inputs.environment || 'aws-dev' }}
+    outputs:
+      deploy_env: ${{ steps.output-deploy-env-name.outputs.deploy_env }}
+    steps:
+      - name: Output deploy environment name
+        id: output-deploy-env-name
+        run: |
+          echo "deploy_env=${{ inputs.environment || 'aws-dev' }}" >> $GITHUB_OUTPUT
+
+      - name: Cache static files directory
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7  # v5.0.4
+        with:
+          path: ./staticfiles
+          key: ${{ inputs.refToDeploy || 'main' }}-${{ inputs.environment || 'aws-dev' }}-cache-staticfiles-${{ github.sha }}
+
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          ref: ${{ inputs.refToDeploy || 'main' }}
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: '3.13'
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
+        with:
+          aws-region: ${{ vars.AWS_REGION }}
+          role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          role-session-name: BuildAndTest-${{ github.run_id }}
+
+      - name: Get CodeArtifact Token
+        id: codeartifact_token
+        run: |
+          echo "token=$(aws codeartifact get-authorization-token \
+            --domain mhclg-prod-domain \
+            --domain-owner ${{ secrets.AWS_CODEARTIFACT_ACCOUNT_ID }} \
+            --query authorizationToken \
+            --output text)" >> $GITHUB_OUTPUT
+
+      - name: Install Dependencies from Codeartifact
+        env:
+          CODEARTIFACT_URL: https://mhclg-prod-domain-${{ secrets.AWS_CODEARTIFACT_ACCOUNT_ID }}.d.codeartifact.eu-west-2.amazonaws.com/pypi/mhclg-prod-pypi/simple/
+          TOKEN: ${{ steps.codeartifact_token.outputs.token }}
+        run: |
+          poetry source add --priority=primary codeartifact "$CODEARTIFACT_URL"
+          poetry config http-basic.codeartifact aws "$TOKEN"
+          poetry lock
+          poetry install
+
+      - name: Collect static files
+        run: |
+          poetry run python manage.py collectstatic
+        continue-on-error: false
+
+      - name: Get timestamp
+        id: timestamp
+        run: echo "formatted-timestamp=$(date +'%Y-%m-%d-%H-%M-%S')" >> $GITHUB_OUTPUT
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@183a1442edf41672e66566b7fc560e297a290896  # v2.1.1
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          TIMESTAMP_IMAGE_TAG: ${{ steps.timestamp.outputs.formatted-timestamp }}
+          LATEST_IMAGE_TAG: latest
+          CODEARTIFACT_TOKEN: ${{ steps.codeartifact_token.outputs.token }}
+          CODEARTIFACT_URL: https://mhclg-prod-domain-${{ secrets.AWS_CODEARTIFACT_ACCOUNT_ID }}.d.codeartifact.eu-west-2.amazonaws.com/pypi/mhclg-prod-pypi/simple/
+          DOCKER_BULDKIT: "1"
+        run: |
+          # Build a docker container and
+          # push it to ECR so that it can
+          # be deployed to ECS.
+          docker build \
+          --load \
+          --secret id=codeartifact_token,env=CODEARTIFACT_TOKEN \
+          --secret id=codeartifact_url,env=CODEARTIFACT_URL \
+          -t $ECR_REGISTRY/${{ vars.ECR_REPOSITORY }}:$TIMESTAMP_IMAGE_TAG \
+          -f Dockerfile .
+          docker push $ECR_REGISTRY/${{ vars.ECR_REPOSITORY }}:$TIMESTAMP_IMAGE_TAG
+          echo "image=$ECR_REGISTRY/${{ vars.ECR_REPOSITORY }}:$TIMESTAMP_IMAGE_TAG" >> $GITHUB_OUTPUT
+          # # Re-build and push to ECR with the 'latest' tag
+          docker build \
+          --load \
+          --secret id=codeartifact_token,env=CODEARTIFACT_TOKEN \
+          --secret id=codeartifact_url,env=CODEARTIFACT_URL \
+          -t $ECR_REGISTRY/${{ vars.ECR_REPOSITORY }}:$LATEST_IMAGE_TAG \
+          -f Dockerfile .
+          docker push $ECR_REGISTRY/${{ vars.ECR_REPOSITORY }}:$LATEST_IMAGE_TAG
+          echo "image=$ECR_REGISTRY/${{ vars.ECR_REPOSITORY }}:$LATEST_IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Run DB migrations
+        id: db-migrate
+        env:
+          ECS_CLUSTER: ${{ vars.ECS_CLUSTER }}
+          ECS_MIGRATION_TASK_DEFINITION: ${{ vars.ECS_MIGRATION_TASK_DEFINITION }}
+          ECS_MIGRATION_SUBNET_ID_LIST: ${{ vars.ECS_MIGRATION_SUBNET_ID_LIST }}
+          ECS_MIGRATION_SECURITY_GROUP_LIST: ${{ vars.ECS_MIGRATION_SECURITY_GROUP_LIST }}
+          AWS_REGION: ${{ vars.AWS_REGION }}
+        run: ./.github/workflows/scripts/run_db_migrations.sh
+
+      - name: Force deployment
+        id: force-deploy
+        run: |
+          aws ecs update-service --cluster ${{ vars.ECS_CLUSTER }} \
+          --service ${{ vars.ECS_SERVICE }} \
+          --force-new-deployment
+
+      - name: Wait until ECS service stable
+        id: wait-for-stable-ecs-service
+        run: |
+          aws ecs wait services-stable --cluster ${{ vars.ECS_CLUSTER }} \
+          --services ${{ vars.ECS_SERVICE }}
+
+      - name: Deploy static files
+        id: deploy-static-files
+        run: |
+          aws s3 sync --delete ./staticfiles s3://${{ vars.STATIC_FILES_S3_BUCKET }}/static
+
+  notify_slack_about_a_deployment:
+    name: Notify Slack
+    needs: [ deploy ]
+    if: ${{ always() }}  # Run even if the deploy job fails
+    uses: ./.github/workflows/notify-slack.yml
+    with:
+      environment: ${{ needs.deploy.outputs.deploy_env }}
+      success_or_failure: ${{ needs.deploy.result }}
+      job_type: 'Release'
+      message_text: Triggered by ${{ github.actor }}. See workflow run at https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    secrets:
+      SLACK_SUCCESS_WEBHOOK_URL: ${{ secrets.SLACK_SUCCESS_WEBHOOK_URL }}
+      SLACK_FAILURE_WEBHOOK_URL: ${{ secrets.SLACK_FAILURE_WEBHOOK_URL }}

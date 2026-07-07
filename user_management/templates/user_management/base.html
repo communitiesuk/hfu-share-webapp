@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block breadcrumb_content %}
+    <li class="govuk-breadcrumbs__list-item">Manage people, access requests and groups</li>
+{% endblock breadcrumb_content %}
+{% block content %}
+    {% include "webapp/components/heading/heading.html" with page_heading="Manage people, access requests and groups" %}
+    <div class="govuk-tabs">
+        <h2 class="govuk-tabs__title">Contents</h2>
+        <ul class="govuk-tabs__list govuk-!-margin-bottom-6">
+            {% url 'user-management:users' as users_url %}
+            {% url 'user-management:access-requests' as access_requests_url %}
+            {% url 'user-management:groups' as groups_url %}
+            <li class="govuk-tabs__list-item {% if request.path == users_url %}govuk-tabs__list-item--selected{% endif %}">
+                <a class="govuk-tabs__tab" href="{{ users_url }}">Manage people</a>
+            </li>
+            <li class="govuk-tabs__list-item {% if request.path == access_requests_url %}govuk-tabs__list-item--selected{% endif %}">
+                <a class="govuk-tabs__tab"
+                   href="{{ access_requests_url|add:"?status=PENDING&sort=-created_at" }}">Manage access requests</a>
+            </li>
+            <li class="govuk-tabs__list-item {% if request.path == groups_url %}govuk-tabs__list-item--selected{% endif %}">
+                <a class="govuk-tabs__tab" href="{{ groups_url }}">Manage groups</a>
+            </li>
+        </ul>
+        {% block selected_tab %}
+        {% endblock selected_tab %}
+    </div>
+{% endblock content %}

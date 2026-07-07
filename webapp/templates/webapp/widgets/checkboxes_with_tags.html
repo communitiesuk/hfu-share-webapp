@@ -1,0 +1,22 @@
+{% for group, options, index in widget.optgroups %}
+    <div class="govuk-checkboxes govuk-checkboxes--small"
+         data-module="govuk-checkboxes">
+        {% for option in options %}
+            <div class="govuk-checkboxes__item">
+                <input class="govuk-checkboxes__input"
+                       id="{{ option.attrs.id }}"
+                       name="{{ option.name }}"
+                       {% if option.attrs.checked %}checked="checked"{% endif %}
+                       type="checkbox"
+                       value="{{ option.value }}">
+                <label class="govuk-label govuk-checkboxes__label"
+                       style="max-width: 80%"
+                       for="{{ option.attrs.id }}">
+                    <strong class="govuk-tag {{ option.label_tag_colour_class }}"
+                            style="white-space: nowrap;
+                                   max-width: 100%">{{ option.label }}</strong>
+                </label>
+            </div>
+        {% endfor %}
+    </div>
+{% endfor %}

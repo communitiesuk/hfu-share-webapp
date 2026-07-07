@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block breadcrumb_content %}
+    <li class="govuk-breadcrumbs__list-item">Escalated checks</li>
+{% endblock breadcrumb_content %}
+{% block content %}
+    {% include "webapp/components/heading/heading.html" with page_heading="Escalated checks" %}
+    {% if user_can_download %}
+        <div class="govuk-body">
+            You can download the data on this table as well as other data, including sponsor details, guest details and deferral statuses.
+            <br>
+            <br>
+            This will download a CSV (comma separated value) file to your device.
+        </div>
+        <div class="govuk-warning-text govuk-!-margin-top-6 govuk-!-margin-bottom-6">
+            <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+            <strong class="govuk-warning-text__text">
+                <span class="govuk-visually-hidden">Warning</span>
+                We recommend using the filters to reduce the amount of results returned before downloading them. If you try to download a large amount of records the download might fail.
+            </strong>
+        </div>
+    {% endif %}
+    <div class="visa-applications-table">{% include "safeguarding/escalated_checks_table.html" %}</div>
+{% endblock content %}

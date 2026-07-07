@@ -1,0 +1,7 @@
+{% extends "webapp/pages/deduplication/guests/review_potential_duplicate_guest_records_page_base.html" %}
+{% block selected_tab %}
+    <p class="govuk-body govuk-!-margin-top-5 govuk-!-margin-bottom-5 govuk-!-width-two-thirds">
+        The records below may be duplicates of the same guest. Review the details below to check you want to merge these records. You can reject the suggestion to remove it from the task list. Or continue to select the correct information on the next screen.
+    </p>
+    {% include "webapp/pages/deduplication/guests/suggested_guest_duplicates_list.html" with suggested_duplicates=object_list %}
+{% endblock selected_tab %}

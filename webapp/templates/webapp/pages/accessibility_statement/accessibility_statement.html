@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block breadcrumb_content %}
+    <li class="govuk-breadcrumbs__list-item">Accessibility Statement</li>
+{% endblock breadcrumb_content %}
+{% block content %}
+    <div id="form-content">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds govuk-!-margin-bottom-9">
+                {% include "webapp/components/heading/heading.html" with page_heading="Accessibility statement for Share Homes for Ukraine data (Share)" %}
+                <div class="govuk-!-margin-bottom-6">
+                    <p class="govuk-body">This accessibility statement applies to the Share Homes for Ukraine data (Share) system.</p>
+                    <p class="govuk-body">
+                        This website is run by the Ministry for Housing, Communities and Local Government (MHCLG). We want as
+                        many people as possible to be able to use this website. For example, that means you should be able to:
+                    </p>
+                    <ul class="govuk-list govuk-list--bullet">
+                        <li>change colours, contrast levels and fonts using browser or device settings</li>
+                        <li>navigate most of the website using a keyboard or speech recognition software</li>
+                        <li>
+                            listen to most of the website using a screen reader (including the most recent versions of JAWS, NVDA and VoiceOver)
+                        </li>
+                    </ul>
+                    <p class="govuk-body">We've also made the website text as simple as possible to understand.</p>
+                    <p class="govuk-body">
+                        <a class="govuk-link" href="https://mcmw.abilitynet.org.uk/">AbilityNet</a> has advice on making your device easier to use if you have a disability.
+                    </p>
+                </div>
+                <h2 class="govuk-heading-m govuk-!-margin-top-9 govuk-!-padding-top-1">How accessible this website is</h2>
+                <p class="govuk-body">We know some parts of this website are not fully accessible:</p>
+                <ul class="govuk-list govuk-list--bullet">
+                    <li>some descriptive links are missing</li>
+                    <li>screen magnification on some components does not work without the text covering other text</li>
+                    <li>some of the link text is not in the usual link text colour</li>
+                    <li>some speech recognition and keyboard functionality does not work fully on the service</li>
+                </ul>
+                <h2 class="govuk-heading-m govuk-!-margin-top-9 govuk-!-padding-top-1">Feedback and contact information</h2>
+                <p class="govuk-body">
+                    If you find any problems not listed on this page or think we’re not meeting accessibility requirements, <a class="govuk-link"
+    href="https://mhclgdigital.atlassian.net/servicedesk/customer/portal/7">raise a support ticket</a>.
+                </p>
+                <p class="govuk-body">
+                    If you need information on this website in a different format like accessible PDF, large print, easy read, audio recording or braille:
+                </p>
+                <ul class="govuk-list govuk-list--bullet">
+                    <li>
+                        <a class="govuk-link"
+                           href="https://mhclgdigital.atlassian.net/servicedesk/customer/portal/7">Raise a support ticket</a>
+                    </li>
+                    <li>call 0303 4444 445 Monday to Friday 9am to 6pm</li>
+                </ul>
+                <p class="govuk-body">We'll consider your request and get back to you within 5 working days.</p>
+                <h2 class="govuk-heading-m govuk-!-margin-top-9 govuk-!-padding-top-1">Enforcement procedure</h2>
+                <p class="govuk-body">
+                    The Equality and Human Rights Commission (EHRC) is responsible for enforcing the Public Sector Bodies
+                    (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018 (the ‘accessibility regulations’).
+                    If you’re not happy with how we respond to your complaint, <a class="govuk-link" href="https://www.equalityadvisoryservice.com/">contact the Equality Advisory and Support Service (EASS)</a>.
+                </p>
+                <h2 class="govuk-heading-m govuk-!-margin-top-9 govuk-!-padding-top-1">
+                    Technical information about this website’s accessibility
+                </h2>
+                <p class="govuk-body">
+                    MHCLG is committed to making its website accessible, in accordance with the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018.
+                </p>
+                <h2 class="govuk-heading-m govuk-!-margin-top-9 govuk-!-padding-top-1">Compliance status</h2>
+                <p class="govuk-body">
+                    The website has been tested against the <a class="govuk-link" href="https://www.w3.org/TR/WCAG22/">Web Content Accessibility Guidelines (WCAG) 2.2</a> AA standard.
+                </p>
+                <p class="govuk-body">
+                    This website is partially compliant with the Web Content Accessibility Guidelines version 2.2 AA standard, due to the non-compliances listed below.
+                </p>
+                <h2 class="govuk-heading-m govuk-!-margin-top-9 govuk-!-padding-top-1">Non-accessible content</h2>
+                <p class="govuk-body">The content listed below is non-accessible for the following reasons.</p>
+                <h2 class="govuk-heading-m govuk-!-margin-top-9 govuk-!-padding-top-1">
+                    Non-compliance with the accessibility regulations
+                </h2>
+                <p class="govuk-body">
+                    On some screens text in our top navigation bar cannot be resized without assistive technology, so if people magnify it up to and over 200% the text sits on top of other text. This fails WCAG success criterion 1.4.4 Resize Text (Level AA).
+                </p>
+                <p class="govuk-body">
+                    Descriptive links are missing for most of the buttons on the service. This fails WCAG 2.2 success criterion:
+                </p>
+                <ul class="govuk-list govuk-list--bullet">
+                    <li>2.4.4 (AA) Link Purpose (In Context)</li>
+                    <li>2.4.9 (AAA) Link Purpose (Link only)</li>
+                    <li>1.3.1 (A) Info and relationships</li>
+                    <li>4.1.2 (A) Name, role, value</li>
+                </ul>
+                <p class="govuk-body">
+                    When using a screen reader some of the pronunciations of acronyms like UTLA and LTLA are pronounced incorrectly. This fails WCAG 2.2 success criterion:
+                </p>
+                <ul class="govuk-list govuk-list--bullet">
+                    <li>
+                        3.1.4 (AAA) Abbreviations – a mechanism is available for identifying the expanded form or meaning of abbreviations
+                    </li>
+                    <li>3.1.2 (AA) Language of parts</li>
+                    <li>3.1.1 (A) Language of page</li>
+                    <li>1.3.1 (A) Info and relationships</li>
+                </ul>
+                <p class="govuk-body">
+                    When requesting access to the service and selecting your relevant Local Authority (LA) a screen reader will not read out the LA. This fails WCAG 2.2 success criterion:
+                </p>
+                <ul class="govuk-list govuk-list--bullet">
+                    <li>1.3.1 (A) Info and relationships</li>
+                    <li>4.1.2 (A) Name, role, value</li>
+                    <li>1.3.2 (A) Meaningful sequence</li>
+                </ul>
+                <p class="govuk-body">
+                    When requesting access to the service if you need to change the LA you have selected, the dropdown box is difficult to select. It may take 5 or 6 clicks. This fails WCAG 2.2 success criterion:
+                </p>
+                <ul class="govuk-list govuk-list--bullet">
+                    <li>2.1.1 (A) Keyboard accessibility</li>
+                    <li>3.2.1 (A) On focus – when a component receives focus, it must not trigger unexpected context changes</li>
+                </ul>
+                <p class="govuk-body">
+                    When requesting access to the service, when you select your LA, the down arrow on the drop-down list is not accessible using a keyboard only. This fails WCAG 2.2 success criterion:
+                </p>
+                <ul class="govuk-list govuk-list--bullet">
+                    <li>2.1.1 (A) Keyboard accessibility – all functionality must be operable through a keyboard</li>
+                    <li>2.4.7 (AA) Focus visible</li>
+                    <li>1.3.1 (A) Info and relationships</li>
+                </ul>
+                <p class="govuk-body">
+                    When requesting access to the service, when you select your LA. You cannot select an option from the dropdown with voice control only. This fails WCAG 2.2 success criterion:
+                </p>
+                <ul class="govuk-list govuk-list--bullet">
+                    <li>4.1.2 (A) Name, role, value</li>
+                    <li>1.3.1 (A) Info and relationships</li>
+                </ul>
+                <p class="govuk-body">
+                    On form pages. The keyboard navigation will skip straight to the text box instead of going through all the content on the page. This fails WCAG 2.2 success criterion:
+                </p>
+                <ul class="govuk-list govuk-list--bullet">
+                    <li>2.4.3 (A) Focus order</li>
+                    <li>1.3.1 (A) Info and relationships</li>
+                    <li>2.4.6 (AA) Headings and labels</li>
+                    <li>1.3.2 (A) Meaningful sequence</li>
+                </ul>
+                <p class="govuk-body">
+                    When pressing Enter on a keyboard to select an option from radio buttons, an error message ‘field is required’ is triggered. This fails WCAG 2.2 success criterion:
+                </p>
+                <ul class="govuk-list govuk-list--bullet">
+                    <li>2.1.1 (A) Keyboard accessibility</li>
+                    <li>3.3.1 (A) Error identification</li>
+                    <li>3.2.2 (A) On input</li>
+                </ul>
+                <p class="govuk-body">
+                    On the home page, you can't access approved, requested or rejected request links using your voice. This fails WCAG 2.2 success criterion:
+                </p>
+                <ul class="govuk-list govuk-list--bullet">
+                    <li>2.4.3 (A) Focus order</li>
+                    <li>2.4.4 (A) Link purpose (in context)</li>
+                    <li>1.3.1 (A) Info and relationships</li>
+                </ul>
+                <p class="govuk-body">We plan to fix these issues as soon after launch on Monday 15 September, as we can.</p>
+                <h2 class="govuk-heading-m govuk-!-margin-top-9 govuk-!-padding-top-1">Preparation of this accessibility statement</h2>
+                <p class="govuk-body">This statement was prepared on Monday 15 September 2025. It has not been reviewed yet.</p>
+                <p class="govuk-body">We plan to test this website in October 2025 against the WCAG 2.2 AA standard.</p>
+                <p class="govuk-body">
+                    The test was carried out by our user research team using assistive technologies available to them and following the WCAG 2.2 criteria. A further audit of the website is due to be carried out to the WCAG 2.2 AA standard in October.
+                </p>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

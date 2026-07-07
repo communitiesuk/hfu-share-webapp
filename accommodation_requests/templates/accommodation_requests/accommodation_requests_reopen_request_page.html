@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load crispy_forms_gds %}
+{% load crispy_forms_tags %}
+{% block breadcrumb_content %}
+    <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link"
+           href="{% url 'accommodation-requests:accommodation-requests' %}">Accommodation requests</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link"
+           href="{% url 'accommodation-requests:detail-actions' object.id %}">Accommodation request record</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">Reopen accommodation request</li>
+{% endblock breadcrumb_content %}
+{% block content %}
+    {% include "webapp/components/heading/heading.html" with caption="Reopen accommodation request for" page_heading=object.title %}
+    <div class="govuk-!-width-one-half">
+        {% error_summary form %}
+        {% crispy form %}
+    </div>
+{% endblock content %}

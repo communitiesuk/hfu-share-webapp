@@ -1,0 +1,14 @@
+<div style="display: flex; flex-direction: column; gap: 32px">
+    {% for sub_widget in widget.subwidgets %}
+        <div style="display: flex; flex-direction: column">
+            <label for="{{ sub_widget.attrs.id }}" class="govuk-label govuk-label--s">{{ sub_widget.attrs.label }}</label>
+            <div style="display: flex;
+                        flex-direction: row;
+                        align-items: baseline;
+                        gap: 0.5rem">
+                {% include sub_widget.template_name with widget=sub_widget %}
+                <span class="govuk-hint">{{ widget.attrs.unit_hint }}</span>
+            </div>
+        </div>
+    {% endfor %}
+</div>

@@ -1,0 +1,31 @@
+{% extends "visa_applications/detail_view/detail_view_base.html" %}
+{% load crispy_forms_filters crispy_forms_tags crispy_forms_gds visa_application_extras %}
+{% block selected_tab %}
+    {% if virs|length == 0 %}
+        <h2 class="govuk-heading-l">Start a VIR</h2>
+        <form method="post">
+            {% csrf_token %}
+            {% crispy start_vir_form %}
+        </form>
+    {% else %}
+        <h2 class="govuk-heading-l">VIR comments</h2>
+        {% with latest_vir=virs|first %}
+            {% include "visa_applications/detail_view/vir/vir_request_details_table.html" with latest_vir=latest_vir %}
+            {% if add_comment_form %}
+                <form method="post">
+                    {% csrf_token %}
+                    {% crispy add_comment_form %}
+                </form>
+            {% endif %}
+            {% if user_can_reopen_vir %}
+                <a href="{% url 'visa-applications:reopen-vir-confirm' latest_vir.visa_application.visa_application_id %}"
+                   class="govuk-button">Re-open</a>
+            {% endif %}
+            {% with latest_comments=conversations|get_item:latest_vir.visa_information_request_id %}
+                {% include "visa_applications/detail_view/vir/vir_comments_list.html" with comments=latest_comments %}
+            {% endwith %}
+        {% endwith %}
+        <a href="{% url 'visa-applications:visa-information-requests' %}"
+           class="govuk-button govuk-button--secondary govuk-!-margin-top-5">Back to visa information request list</a>
+    {% endif %}
+{% endblock selected_tab %}

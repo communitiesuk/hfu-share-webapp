@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load crispy_forms_filters crispy_forms_tags crispy_forms_gds %}
+{% block breadcrumb_content %}
+    <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link"
+           href="{% url 'visa-applications:visa-applications' %}">Visa applications</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="{{ return_url }}">Visa application record</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">Close VIR</li>
+{% endblock breadcrumb_content %}
+{% block content %}
+    {% include "webapp/components/notification_banner/notification_banner.html" %}
+    {% error_summary form %}
+    {% include "webapp/components/heading/heading.html" with page_heading="Close VIR" %}
+    <form method="post">
+        {% csrf_token %}
+        {% crispy form %}
+    </form>
+{% endblock content %}

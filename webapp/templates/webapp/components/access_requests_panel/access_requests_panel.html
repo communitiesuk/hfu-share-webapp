@@ -1,0 +1,19 @@
+{% load django_tables2 %}
+<div>
+    <h2 class="govuk-heading-l">Request access to data</h2>
+    <div class="govuk-warning-text">
+        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+        <strong class="govuk-warning-text__text">
+            <span class="govuk-visually-hidden">Warning</span>
+            You cannot access data until your request is approved by MHCLG.
+        </strong>
+    </div>
+    <h3 class="govuk-heading-s govuk-!-margin-bottom-0">Pending requests</h3>
+    {% render_table tables.0 %}
+    <h3 class="govuk-heading-s govuk-!-margin-bottom-0">Rejected requests</h3>
+    {% render_table tables.1 %}
+    <h3 class="govuk-heading-s govuk-!-margin-bottom-0">Approved requests</h3>
+    {% render_table tables.2 %}
+    <a class="govuk-button govuk-!-margin-top-3"
+       href="{% url "user-management:access-request-intro" %}">Request access</a>
+</div>

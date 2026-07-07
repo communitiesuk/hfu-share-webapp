@@ -1,0 +1,8 @@
+{% extends "guests/edit_view/edit_view_base.html" %}
+{% load crispy_forms_filters crispy_forms_tags crispy_forms_gds %}
+{% block form_content %}
+    <form method="post">
+        {% csrf_token %}
+        {% crispy form %}
+    </form>
+{% endblock form_content %}

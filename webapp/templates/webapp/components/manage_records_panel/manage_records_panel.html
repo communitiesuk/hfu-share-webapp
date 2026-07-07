@@ -1,0 +1,45 @@
+<h2 class="govuk-heading-l govuk-!-margin-top-0 govuk-!-margin-left-0 govuk-!-margin-bottom-6 govuk-!-margin-right-0">
+    Manage records
+</h2>
+<div class="govuk-grid-row govuk-card__flex-container">
+    {% if available_links.escalated_checks %}
+        {% include "webapp/components/selectable_card/selectable_card.html" with heading="Escalated checks" target="safeguarding:escalated_checks" body="Review failed safeguarding checks." %}
+    {% endif %}
+    {% if available_links.accommodation_requests %}
+        {% include "webapp/components/selectable_card/selectable_card.html" with heading="Accommodation requests" target="accommodation_requests:accommodation-requests" body="Find accommodation requests and safeguarding checks.  You can also move guests (rematch and reassign), withdraw sponsors or close and reopen accommodation requests." %}
+    {% endif %}
+    {% if available_links.accommodation %}
+        {% include "webapp/components/selectable_card/selectable_card.html" with heading="Accommodation" target="accommodations:accommodations" body="Look at and update accommodation records." %}
+    {% endif %}
+    {% if available_links.guests %}
+        {% include "webapp/components/selectable_card/selectable_card.html" with heading="Guests" target="guests:guests" body="Look at and update guest records." %}
+    {% endif %}
+    {% if available_links.sponsors_hosts %}
+        {% include "webapp/components/selectable_card/selectable_card.html" with heading="Sponsors and hosts" target="sponsors:sponsors" body="Look at and update sponsor and host records." %}
+    {% endif %}
+    {% if available_links.visa_applications %}
+        {% include "webapp/components/selectable_card/selectable_card.html" with heading="Visa applications" target="visa_applications:visa-applications" body="Find visa applications for guests and check their status." %}
+    {% endif %}
+    {% if available_links.reassignment_requests %}
+        {% include "webapp/components/selectable_card/selectable_card.html" with heading="Reassignment requests" target="reassignment-requests:received" body="Review requests made to reassign guests to your local authority." badge_value=pending_reassignments %}
+    {% endif %}
+    {% if available_links.fix_duplicate_records %}
+        {% if show_guests_option %}
+            {% include "webapp/components/selectable_card/selectable_card.html" with heading="Fix duplicate records" target="deduplication:select-record-type" body="Find and deduplicate 2 records that represent the same accommodation, guest or sponsor and host." %}
+        {% else %}
+            {% include "webapp/components/selectable_card/selectable_card.html" with heading="Fix duplicate records" target="deduplication:select-record-type" body="Find and deduplicate 2 records that represent the same accommodation or sponsor and host." %}
+        {% endif %}
+    {% endif %}
+    {% if available_links.download_data %}
+        {% include "webapp/components/selectable_card/selectable_card.html" with heading="Download data" target="downloads:download-page" body="Download data for sponsors and hosts, accommodation, guests, and visa applications. You can also download all data." %}
+    {% endif %}
+    {% if available_links.uam %}
+        {% include "webapp/components/selectable_card/selectable_card.html" with heading="Applications to sponsor a child" target="uams:uams" body="View requests to sponsor a Ukrainian child (eligible children or minors) who will be living in the UK without a parent or guardian. Checks must be completed offline before the guest applies for a visa." %}
+    {% endif %}
+    {% if available_links.manage_permissions %}
+        {% include "webapp/components/selectable_card/selectable_card.html" with heading="Manage people, access and permissions" target="user-management:users" body="Manage people, access and permissions." %}
+    {% endif %}
+    {% if available_links.visa_information_requests %}
+        {% include "webapp/components/selectable_card/selectable_card.html" with heading="Visa Information Requests" target="visa_applications:visa-information-requests" body="Check for current Visa Information Requests that you need to respond to." badge_value=pending_virs %}
+    {% endif %}
+</div>

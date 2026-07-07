@@ -1,0 +1,59 @@
+{% extends "user_management/access_request_form/access_request_form_base.html" %}
+{% block form-content %}
+    {% include "webapp/components/heading/heading.html" with page_heading="Request access to data" %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {% if has_access %}
+                <div class="govuk-notification-banner"
+                     role="region"
+                     aria-labelledby="govuk-notification-banner-title"
+                     data-module="govuk-notification-banner">
+                    <div class="govuk-notification-banner__header">
+                        <h2 class="govuk-notification-banner__title"
+                            id="govuk-notification-banner-title">Important</h2>
+                    </div>
+                    <div class="govuk-notification-banner__content">
+                        <p class="govuk-notification-banner__heading">You already have access to Homes for Ukraine data</p>
+                        <p class="govuk-body">You do not need to request access again unless you need access to data for other areas.</p>
+                    </div>
+                </div>
+            {% endif %}
+            <div class="govuk-!-margin-bottom-6">
+                <p class="govuk-body govuk-!-font-size-24">
+                    You will not have access to any data until your request is approved by MHCLG.
+                </p>
+                <p class="govuk-body govuk-!-font-size-24">
+                    <strong>To request access to data</strong>
+                </p>
+                <ol class="govuk-list govuk-list--number">
+                    <li>You need to know which areas in the UK you need access to data for.</li>
+                    <li>Select ‘Start’.</li>
+                    <li>Answer the questions to find the most suitable access for you.</li>
+                    <li>Give a reason why you need access to the data. Give as much detail as possible.</li>
+                    <li>Your request is reviewed by admin in MHCLG.</li>
+                    <li>Check your home page for updates about access approval.</li>
+                </ol>
+                <p class="govuk-body">
+                    If your request is rejected you will be given a reason why. If you think you should have been given access you can submit another request with a more detailed reason why you need access.
+                </p>
+                <p class="govuk-body">If you make a mistake in your application you will need to submit a new request.</p>
+            </div>
+            <a href="{% url 'user-management:access-request-form' %}"
+               role="button"
+               draggable="false"
+               class="govuk-button govuk-button--start"
+               data-module="govuk-button">
+                Start
+                <svg class="govuk-button__start-icon"
+                     xmlns="http://www.w3.org/2000/svg"
+                     width="17.5"
+                     height="19"
+                     viewBox="0 0 33 40"
+                     aria-hidden="true"
+                     focusable="false">
+                    <path fill="currentColor" d="M0 0h13l20 20-20 20H0l20-20z" />
+                </svg>
+            </a>
+        </div>
+    </div>
+{% endblock form-content %}

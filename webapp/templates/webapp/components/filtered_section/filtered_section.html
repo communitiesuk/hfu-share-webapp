@@ -1,0 +1,116 @@
+{% load crispy_forms_filters crispy_forms_tags crispy_forms_gds %}
+{% load filters %}
+<div>
+    {% if filter %}
+        <div style="display: flex; align-items: center;">
+            <a id="show-filter-link"
+               class="govuk-button govuk-button--secondary"
+               href="{% if filter.show_filters_panel %}{% url_remove request.get_full_path 'show_filters_panel' %} {% else %} {% url_replace request.get_full_path 'show_filters_panel' True %} {% endif %}">
+                {{ filter.show_filters_panel|yesno:"Hide,Show" }} filters
+            </a>
+            {% block extra_buttons %}
+            {% endblock extra_buttons %}
+        </div>
+    {% endif %}
+    <div style="display: flex;">
+        {% if filter %}
+            <div>
+                <form action="" method="get" id="filter-form">
+                    <input type="hidden"
+                           id="show_filters_panel"
+                           name="show_filters_panel"
+                           value="{{ filter.show_filters_panel|yesno:'True,False' }}">
+                    <div id="filter-container"
+                         style="display: {{ filter.show_filters_panel|yesno:"block,none" }};
+                                width: 400px;
+                                margin-right: 16px"
+                         class="moj-filter">
+                        <div class="moj-filter__header">
+                            <div class="moj-filter__header-title">
+                                <span class="govuk-heading-m">Filters</span>
+                            </div>
+                        </div>
+                        {% if filter.show_selected_filters_section %}
+                            <div class="moj-filter__content">
+                                <div class="moj-filter__selected">
+                                    <div class="moj-filter__selected-heading">
+                                        <div class="moj-filter__heading-title">
+                                            <h2 class="govuk-heading-m">Selected filters</h2>
+                                        </div>
+                                        <div class="moj-filter__heading-action">
+                                            <p>
+                                                <a class="govuk-link govuk-link--no-visited-state"
+                                                   href="{{ filter.clear_filters_link }}">Clear filters</a>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    {% for filter in filter.applied_filters %}
+                                        <h3 class="govuk-heading-s govuk-!-margin-bottom-0">{{ filter.name }}</h3>
+                                        <ul class="moj-filter-tags">
+                                            {% for option_text, option_remove_link in filter.options %}
+                                                <li>
+                                                    <a class="moj-filter__tag" href="{{ option_remove_link }}"><span class="govuk-visually-hidden">Remove this filter</span> {{ option_text }}</a>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+                        <div class="moj-filter__options">
+                            <input class="govuk-visually-hidden" type="submit" />
+                            {% crispy filter.form %}
+                            <button class="govuk-button govuk-!-margin-top-5"
+                                    data-module="govuk-button"
+                                    type="submit">Apply filters</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        {% endif %}
+        {% block data_view %}
+        {% endblock data_view %}
+    </div>
+</div>
+<script nonce="{{ request.csp_nonce }}">
+  document.addEventListener('DOMContentLoaded', function() {
+    const filterContainer = document.getElementById('filter-container');
+    const showFilterLink = document.getElementById('show-filter-link');
+    const input = document.getElementById('show_filters_panel');
+    const viewKey = 'filtersPanelOpen_' + window.location.pathname;
+    const isOpen = localStorage.getItem(viewKey);
+
+    if (isOpen === 'true') {
+      filterContainer.style.display = 'block';
+      showFilterLink.textContent = 'Hide filters';
+      if (input) input.value = 'True';
+      updateUrlParam(true);
+    } else {
+      filterContainer.style.display = 'none';
+      showFilterLink.textContent = 'Show filters';
+      if (input) input.value = 'False';
+      updateUrlParam(false);
+    }
+
+    showFilterLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      const currentlyOpen = filterContainer.style.display === 'block';
+      const newState = !currentlyOpen;
+      filterContainer.style.display = newState ? 'block' : 'none';
+      showFilterLink.textContent = newState ? 'Hide filters' : 'Show filters';
+      localStorage.setItem(viewKey, newState ? 'true' : 'false');
+      if (input) input.value = newState ? 'True' : 'False';
+      updateUrlParam(newState);
+    });
+
+    function updateUrlParam(open) {
+      const url = new URL(window.location.href);
+      if (open) {
+        url.searchParams.set('show_filters_panel', 'True');
+      } else {
+        url.searchParams.delete('show_filters_panel');
+      }
+      window.history.replaceState({}, '', url);
+    }
+  });
+</script>

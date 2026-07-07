@@ -1,0 +1,7 @@
+{% extends "webapp/components/tables/table_with_filters.html" %}
+{% block extra_buttons %}
+    {% if request.get_full_path == '/review-potential-duplicate-records/accommodation-requests/manual' %}
+        <button id="review-selected-records-button"
+                class="govuk-button govuk-button--primary govuk-!-margin-left-2">Review selected records</button>
+    {% endif %}
+{% endblock extra_buttons %}

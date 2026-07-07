@@ -1,0 +1,34 @@
+<div class="govuk-grid-column-one-third govuk-selectable-card__flex-item govuk-!-padding-bottom-4">
+    <div class="govuk-card govuk-card--contained govuk-card--selectable">
+        {% if target|first in '/' %}
+            <a href="{{ target }}"></a>
+        {% elif target %}
+            <a href="{% url target %}{% if 'deduplication' in target %}?reset=true{% endif %}"></a>
+        {% else %}
+            <a href="#"></a>
+        {% endif %}
+        <div class="govuk-card__content govuk-!-padding-top-0 govuk-!-padding-left-1 govuk-!-padding-right-4 govuk-!-margin-bottom-4">
+            <div class="tile-header">
+                <div class="{% if badge_value is not None %} govuk-!-margin-right-3 {% endif %}">
+                    <h3 class="govuk-heading-m govuk-!-margin-bottom-2">{{ heading }}</h3>
+                </div>
+                <div class="badge-container">
+                    {% if badge_value is not None %}
+                        <div class="badge-circle {% if badge_value > 0 %}active{% else %}inactive{% endif %}">
+                            <span class="badge-value"
+                                  {% if badge_value > 1000 %} data-badge-size="overflow" {% elif badge_value > 100 %} data-badge-size="compact" {% endif %}>
+                                {% if badge_value > 1000 %}
+                                    999+
+                                {% else %}
+                                    {{ badge_value }}
+                                {% endif %}
+                            </span>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% if number != '' %}<p class="govuk-body" style="color:grey">{{ number }}</p>{% endif %}
+            <p class="govuk-body govuk-!-margin-top-0">{{ body }}</p>
+        </div>
+    </div>
+</div>

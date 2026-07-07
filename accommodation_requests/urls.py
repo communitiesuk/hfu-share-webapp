@@ -1,0 +1,136 @@
+from django.urls import path
+
+from .views import (
+    MOVE_GUESTS_FORM_CONDITIONAL_DICT,
+    REASSIGN_GUESTS_FORMS,
+    REMATCH_GUESTS_FORMS,
+    AccommodationRequestCloseForGuests,
+    AccommodationRequestCommentsDownloadAttachmentView,
+    AccommodationRequestDetailActionsView,
+    AccommodationRequestDetailCommentsView,
+    AccommodationRequestDetailHistoryView,
+    AccommodationRequestDetailLinkedRecordsView,
+    AccommodationRequestDetailOverviewView,
+    AccommodationRequestDetailPropertiesView,
+    AccommodationRequestDetailSafeguardingChecksView,
+    AccommodationRequestInteractionsDownloadAttachmentView,
+    AccommodationRequestReopenRequestView,
+    AccommodationRequestsListView,
+    AccommodationRequestUpdateSafeguardingChecksView,
+    AccommodationRequestWithdrawSponsorView,
+    MoveGuestsIsStayingInLaFormView,
+    ReassignGuestsFormWizard,
+    RematchGuestsFormWizard,
+)
+
+rematch_guests_wizard = RematchGuestsFormWizard.as_view(
+    REMATCH_GUESTS_FORMS,
+    url_name="accommodation-requests:rematch-guests-step",
+    condition_dict=MOVE_GUESTS_FORM_CONDITIONAL_DICT,
+)
+
+reassign_guests_wizard = ReassignGuestsFormWizard.as_view(
+    REASSIGN_GUESTS_FORMS,
+    url_name="accommodation-requests:reassign-guests-step",
+    condition_dict=MOVE_GUESTS_FORM_CONDITIONAL_DICT,
+)
+
+
+app_name = "accommodation-requests"
+urlpatterns = [
+    path(
+        "",
+        AccommodationRequestsListView.as_view(),
+        name="accommodation-requests",
+    ),
+    path(
+        "<str:pk>/overview",
+        AccommodationRequestDetailOverviewView.as_view(),
+        name="detail-overview",
+    ),
+    path(
+        "<str:pk>/safeguarding-checks",
+        AccommodationRequestDetailSafeguardingChecksView.as_view(),
+        name="detail-safeguarding-checks",
+    ),
+    path(
+        "<str:pk>/update-safeguarding-checks",
+        AccommodationRequestUpdateSafeguardingChecksView.as_view(),
+        name="update-safeguarding-checks",
+    ),
+    path(
+        "<str:pk>/actions",
+        AccommodationRequestDetailActionsView.as_view(),
+        name="detail-actions",
+    ),
+    path(
+        "<str:pk>/linked-records",
+        AccommodationRequestDetailLinkedRecordsView.as_view(),
+        name="detail-linked-records",
+    ),
+    path(
+        "<str:pk>/properties",
+        AccommodationRequestDetailPropertiesView.as_view(),
+        name="detail-properties",
+    ),
+    path(
+        "<str:pk>/history",
+        AccommodationRequestDetailHistoryView.as_view(),
+        name="detail-history",
+    ),
+    path(
+        "<str:pk>/close-for-guests",
+        AccommodationRequestCloseForGuests.as_view(),
+        name="close-for-guests",
+    ),
+    path(
+        "<str:pk>/reopen",
+        AccommodationRequestReopenRequestView.as_view(),
+        name="reopen",
+    ),
+    path(
+        "<str:pk>/withdraw-sponsor",
+        AccommodationRequestWithdrawSponsorView.as_view(),
+        name="withdraw-sponsor",
+    ),
+    path(
+        "<str:pk>/rematch-guests/<str:step>/",
+        rematch_guests_wizard,
+        name="rematch-guests-step",
+    ),
+    path(
+        "<str:pk>/rematch-guests",
+        rematch_guests_wizard,
+        name="rematch-guests",
+    ),
+    path(
+        "<str:pk>/reassign-guests/<str:step>/",
+        reassign_guests_wizard,
+        name="reassign-guests-step",
+    ),
+    path(
+        "<str:pk>/reassign-guests",
+        reassign_guests_wizard,
+        name="reassign-guests",
+    ),
+    path(
+        "<str:pk>/move-guests",
+        MoveGuestsIsStayingInLaFormView.as_view(),
+        name="move-guests",
+    ),
+    path(
+        "<str:pk>/interactions/<str:interaction_id>/download",
+        AccommodationRequestInteractionsDownloadAttachmentView.as_view(),
+        name="interactions-download-attachment",
+    ),
+    path(
+        "<str:pk>/comments",
+        AccommodationRequestDetailCommentsView.as_view(),
+        name="detail-comments",
+    ),
+    path(
+        "<str:pk>/comments/<str:comment_id>/downloadt/<str:attachment_id>",
+        AccommodationRequestCommentsDownloadAttachmentView.as_view(),
+        name="comments-download-attachment",
+    ),
+]

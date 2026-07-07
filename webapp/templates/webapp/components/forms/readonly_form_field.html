@@ -1,0 +1,14 @@
+{% load filters %}
+<div class="govuk-form-group">
+    <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">{{ label }}</legend>
+    <p class="govuk-body">
+        {% if value|is_list %}
+            {% for item in value %}
+                {{ item }}
+                <br />
+            {% endfor %}
+        {% else %}
+            {{ value }}
+        {% endif %}
+    </p>
+</div>

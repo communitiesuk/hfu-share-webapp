@@ -1,0 +1,9 @@
+{% extends "webapp/components/tables/table_with_filters.html" %}
+{% block extra_buttons %}
+    {% if user_can_download %}
+        <div style="margin-left: auto;">
+            <a href="{% url 'safeguarding:escalated_checks_download_csv' %}?{{ request.GET.urlencode }}"
+               class="govuk-button govuk-button--secondary">Download data in the table</a>
+        </div>
+    {% endif %}
+{% endblock extra_buttons %}

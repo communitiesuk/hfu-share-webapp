@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load crispy_forms_gds %}
+{% load crispy_forms_tags %}
+{% block breadcrumb_content %}
+    <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link"
+           href="{% url 'accommodation-requests:accommodation-requests' %}">Accommodation requests</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link"
+           href="{% url 'accommodation-requests:detail-actions' object.id %}">Accommodation request record</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">Move guests</li>
+{% endblock breadcrumb_content %}
+{% block content %}
+    {% block form %}
+    {% endblock form %}
+{% endblock content %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block page_title %}
+    Sponsor and host record for {{ object.get_full_name }}
+{% endblock page_title %}
+{% block back_link %}
+    {% url 'sponsors:detail-overview' object.pk %}
+{% endblock back_link %}
+{% block breadcrumb_content %}
+    <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="{% url 'sponsors:sponsors' %}">Sponsors and hosts</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">Sponsor and host record</li>
+{% endblock breadcrumb_content %}
+{% block content %}
+    <div class="govuk-!-width-one-half">
+        {% include "webapp/components/heading/heading.html" with caption="Sponsor and host record for" page_heading=object.get_full_name %}
+        <div class="govuk-!-padding-top-2" id="form-content">
+            {% block form_content %}
+            {% endblock form_content %}
+        </div>
+    </div>
+{% endblock content %}

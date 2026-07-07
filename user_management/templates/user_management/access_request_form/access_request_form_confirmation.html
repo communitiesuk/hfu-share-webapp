@@ -1,0 +1,30 @@
+{% extends "user_management/access_request_form/access_request_form_base.html" %}
+{% block breadcrumb_content %}
+    <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link"
+           href="{% url 'user-management:access-request-intro' %}">Request access to data</a>
+    </li>
+    {% for breadcrumb in breadcrumbs %}
+        <li class="govuk-breadcrumbs__list-item">
+            {% if breadcrumb.url %}
+                <a class="govuk-breadcrumbs__link" href="{% url breadcrumb.url %}">{{ breadcrumb.name }}</a>
+            {% else %}
+                {{ breadcrumb.name }}
+            {% endif %}
+        </li>
+    {% endfor %}
+{% endblock breadcrumb_content %}
+{% block form-content %}
+    <div class="govuk-!-width-two-thirds">
+        <div class="govuk-panel govuk-panel--confirmation">
+            <h1 class="govuk-panel__title">Request submitted</h1>
+        </div>
+        <div class="govuk-!-margin-top-7">
+            <p class="govuk-body">Your request for access to data is submitted.</p>
+            <p class="govuk-body">Your request will be reviewed manually by an approver; timing may vary.</p>
+            <p class="govuk-body">Check your homepage for updates about your request.</p>
+        </div>
+        <a href="{% url 'webapp:landing-page' %}"
+           class="govuk-button govuk-body govuk-!-margin-top-3">Return to homepage</a>
+    </div>
+{% endblock form-content %}

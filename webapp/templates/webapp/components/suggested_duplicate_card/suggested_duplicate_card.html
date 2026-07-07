@@ -1,0 +1,46 @@
+<div class="govuk-summary-card">
+    <div class="govuk-summary-card__title-wrapper">
+        <h2 class="govuk-heading-l govuk-!-margin-bottom-0">{{ title }}</h2>
+    </div>
+    <div class="govuk-summary-card__content">
+        <table class="govuk-table">
+            <thead class="govuk-table__head">
+                <tr class="govuk-table__row">
+                    <th scope="col" class="govuk-table__header">Name</th>
+                    <th scope="col" class="govuk-table__header">Age</th>
+                    <th scope="col" class="govuk-table__header">Sex</th>
+                    <th scope="col" class="govuk-table__header">Date of birth</th>
+                    <th scope="col" class="govuk-table__header">Email address</th>
+                    <th scope="col" class="govuk-table__header">Phone number</th>
+                    <th scope="col" class="govuk-table__header">Visa status</th>
+                    <th scope="col" class="govuk-table__header">Application number</th>
+                    <th scope="col" class="govuk-table__header">Passport ID</th>
+                </tr>
+            </thead>
+            <tbody class="govuk-table__body">
+                {% for person in person_records %}
+                    <tr class="govuk-table__row">
+                        <td class="govuk-table__cell">{{ person.get_full_name|default_if_none:"" }}</td>
+                        <td class="govuk-table__cell">{{ person.age|default_if_none:"" }}</td>
+                        <td class="govuk-table__cell">{{ person.gender|default_if_none:"" }}</td>
+                        <td class="govuk-table__cell">{{ person.date_of_birth|date:"j M Y"|default_if_none:"" }}</td>
+                        <td class="govuk-table__cell">{{ person.email|join:", "|default_if_none:"" }}</td>
+                        <td class="govuk-table__cell">{{ person.phone|join:", "|default_if_none:"" }}</td>
+                        <td class="govuk-table__cell">
+                            {% if person.visa_status %}
+                                {% include "webapp/components/visa_status_tag/visa_status_tag.html" with visa_status=person.visa_status %}
+                            {% else %}
+                            {% endif %}
+                        </td>
+                        <td class="govuk-table__cell">{{ person.application_number|join:", "|default_if_none:"" }}</td>
+                        <td class="govuk-table__cell">{{ person.passport_id|join:", "|default_if_none:"" }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div style="display: flex; gap: 16px">
+            <button class="govuk-button">Continue</button>
+            <button class="govuk-button govuk-button--warning">Reject suggestion</button>
+        </div>
+    </div>
+</div>

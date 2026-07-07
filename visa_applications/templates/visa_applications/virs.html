@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block breadcrumb_content %}
+    <li class="govuk-breadcrumbs__list-item">Visa Information Requests</li>
+{% endblock breadcrumb_content %}
+{% block content %}
+    {% include "webapp/components/heading/heading.html" with page_heading="Visa Information Requests" %}
+    {% if has_virs %}
+        <div class="visa-applications-table">{% include "visa_applications/virs_table.html" with table=table %}</div>
+    {% else %}
+        <p>&nbsp;</p>
+        <p class="govuk-body">You have no visa information requests</p>
+        <p>&nbsp;</p>
+        <div style="margin-left: auto;">
+            <a class="govuk-button" href="{% url 'home' %}">
+                <span class="govuk-button__text">Return to homepage</span>
+            </a>
+        </div>
+    {% endif %}
+{% endblock content %}

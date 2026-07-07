@@ -1,0 +1,20 @@
+{% extends "safeguarding/detail_view/detail_view_base.html" %}
+{% load crispy_forms_tags crispy_forms_gds django_tables2 %}
+{% block selected_tab %}
+    <h4 class="govuk-heading-l">Central safeguarding</h4>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <p class="govuk-body">
+                <b>GWF:</b> {{ gwfs }}
+            </p>
+            {% include "safeguarding/detail_view/central_safeguarding/checks_list.html" %}
+        </div>
+        <div class="govuk-grid-column-one-third">
+            <form method="post">
+                {% csrf_token %}
+                {{ wizard.management_form }}
+                {% crispy form %}
+            </form>
+        </div>
+    </div>
+{% endblock selected_tab %}

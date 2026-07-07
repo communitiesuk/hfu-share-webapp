@@ -1,0 +1,30 @@
+{% load filters %}
+{% if value|is_list %}
+    {% if value|length > 1 %}
+        <ul class="govuk-list govuk-list--bullet">
+            {% for item in value %}
+                {% if item %}
+                    <li>{% include "webapp/components/record_tabs/record_value.html" with value=item %}</li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    {% elif value|length == 1 %}
+        <div>{% include "webapp/components/record_tabs/record_value.html" with value=value.0 %}</div>
+    {% else %}
+        <span class="govuk-hint">No value</span>
+    {% endif %}
+{% elif value|is_linked_record %}
+    {% linked_record_link value linked_from_object label %}
+{% elif value|is_date %}
+    {{ value|date:"j F Y" }}
+{% elif value|is_datetime %}
+    {{ value|date:"j F Y \\a\\t g:ia"|cut:"." }}
+{% elif value|is_bool %}
+    {{ value|yesno:"Yes,No" }}
+{% elif "visa status" in label|lower and value is not None %}
+    {% include "webapp/components/visa_status_tag/visa_status_tag.html" with visa_status=value %}
+{% elif value is not None and value != "" %}
+    {{ value }}
+{% else %}
+    <span class="govuk-hint">No value</span>
+{% endif %}

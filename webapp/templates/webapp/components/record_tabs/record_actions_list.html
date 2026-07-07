@@ -1,0 +1,17 @@
+<dl class="govuk-summary-list">
+    {% if actions and actions|length > 0 %}
+        {% for action in actions %}
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">{{ action.label }}</dt>
+                <dd class="govuk-summary-list__value">
+                    {{ action.content|default_if_none:""|safe }}
+                </dd>
+                <dd class="govuk-summary-list__actions">
+                    {{ action.value }}
+                </dd>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p class="govuk-body govuk-hint">There are no actions available</p>
+    {% endif %}
+</dl>
