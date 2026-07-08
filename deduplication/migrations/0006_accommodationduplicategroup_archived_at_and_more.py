@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="accommodationduplicategroup",
             name="is_archived",
-            field=models.BooleanField(db_column="is_archived", default=False),
+            field=models.BooleanField(default=False),
         ),
         migrations.AddField(
             model_name="guestduplicategroup",
@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="guestduplicategroup",
             name="is_archived",
-            field=models.BooleanField(db_column="is_archived", default=False),
+            field=models.BooleanField(default=False),
         ),
         migrations.AddField(
             model_name="sponsorduplicategroup",
@@ -39,7 +39,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="sponsorduplicategroup",
             name="is_archived",
-            field=models.BooleanField(db_column="is_archived", default=False),
+            field=models.BooleanField(default=False),
         ),
         migrations.AlterField(
             model_name="accommodationduplicategroup",

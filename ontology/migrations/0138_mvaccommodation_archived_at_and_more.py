@@ -12,31 +12,31 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="mvaccommodation",
             name="archived_at",
-            field=models.DateTimeField(blank=True, db_column="archived_at", null=True),
+            field=models.DateTimeField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name="mvaccommodation",
             name="is_archived",
-            field=models.BooleanField(db_column="is_archived", default=False),
+            field=models.BooleanField(default=False),
         ),
         migrations.AddField(
             model_name="mvperson",
             name="archived_at",
-            field=models.DateTimeField(blank=True, db_column="archived_at", null=True),
+            field=models.DateTimeField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name="mvperson",
             name="is_archived",
-            field=models.BooleanField(db_column="is_archived", default=False),
+            field=models.BooleanField(default=False),
         ),
         migrations.AddField(
             model_name="mvvolunteer",
             name="archived_at",
-            field=models.DateTimeField(blank=True, db_column="archived_at", null=True),
+            field=models.DateTimeField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name="mvvolunteer",
             name="is_archived",
-            field=models.BooleanField(db_column="is_archived", default=False),
+            field=models.BooleanField(default=False),
         ),
     ]
