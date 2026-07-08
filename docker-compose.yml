@@ -16,7 +16,7 @@ services:
       - "AWS_SECRET_ACCESS_KEY=test"
       - "AWS_ENDPOINT_URL=http://localstack:4566/"
   database:
-    image: postgres:16.8
+    image: postgres:16.11
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     environment:
