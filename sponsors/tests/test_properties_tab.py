@@ -179,3 +179,18 @@ class SponsorsPropertiesTestCase(
         self.assertContains(response, self.scottish_sponsor.id)
         self.assertContains(response, self.scottish_sponsor.first_name)
         self.assertContains(response, self.scottish_sponsor.last_name)
+
+    def test_excluded_fields_are_not_shown(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse(
+                "sponsors:detail-properties",
+                args=[self.sponsor.pk],
+            )
+        )
+
+        self.assertNotContains(response, "Archived at")
+        self.assertNotContains(response, "Is archived")
+        self.assertNotContains(response, "Viewer group names")

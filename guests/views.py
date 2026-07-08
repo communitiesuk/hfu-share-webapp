@@ -664,7 +664,11 @@ class GuestDetailPropertiesView(
         return context
 
     class Meta:
-        exclude_fields = "personmasterrecord"
+        exclude_fields = [
+            "personmasterrecord",
+            "archived_at",
+            "is_archived",
+        ]
 
 
 class GuestDetailHistoryView(

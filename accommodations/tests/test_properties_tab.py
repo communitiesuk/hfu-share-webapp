@@ -110,3 +110,14 @@ class AccommodationPropertiesTestCase(TestSessionTokenMixin, TestCase):
             )
         )
         self.assertEqual(response.status_code, http.client.NOT_FOUND)
+
+    def test_excluded_fields_are_not_shown(self):
+        user = get_la_user()
+        self.client.force_login(user)
+        response = self.client.get(
+            reverse(
+                "accommodations:detail-properties", kwargs={"pk": self.accommodation.id}
+            )
+        )
+        self.assertNotContains(response, "Archived at")
+        self.assertNotContains(response, "Is archived")
