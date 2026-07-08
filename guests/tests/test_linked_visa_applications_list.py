@@ -40,7 +40,7 @@ class LinkedVisaApplicationsListTestCase(
 
         self.visa_application_within_la = VisaApplicationFactory(
             ltla_name=self.ltla_one_a_name,
-            application_unique_application_number="111",
+            application_unique_application_number="111111",
             title="Visa application for guest within la",
             visa_status="Pending",
             application_event_datetime=datetime(
@@ -52,7 +52,7 @@ class LinkedVisaApplicationsListTestCase(
         )
         self.visa_application_outside_la = VisaApplicationFactory(
             ltla_name=self.ltla_two_a_name,
-            application_unique_application_number="222",
+            application_unique_application_number="222222",
             title="Visa application for guest outside la",
             visa_status="Rejected",
             application_event_datetime=datetime(
@@ -64,7 +64,7 @@ class LinkedVisaApplicationsListTestCase(
         )
         self.visa_application_not_linked_to_guest = VisaApplicationFactory(
             ltla_name=self.ltla_one_a_name,
-            application_unique_application_number="333",
+            application_unique_application_number="333333",
             title="Visa application not linked to guest",
         )
 
