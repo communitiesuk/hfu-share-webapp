@@ -273,6 +273,10 @@ class MvPerson(models.Model):
     edited_in_app = models.BooleanField(
         null=True, blank=True, db_column="edited_in_app"
     )
+    archived_at = models.DateTimeField(null=True, blank=True, db_column="archived_at")
+    is_archived = models.BooleanField(
+        null=False, default=False, db_column="is_archived"
+    )
 
     class Meta:
         verbose_name = "Guest"

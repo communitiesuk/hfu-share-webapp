@@ -139,7 +139,7 @@ class SponsorDuplicateGroup(models.Model):
 
     principal_record = models.ForeignKey(
         "ontology.MvVolunteer",
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         null=True,
         db_column="principal_record_id",
     )
@@ -150,6 +150,10 @@ class SponsorDuplicateGroup(models.Model):
     )
     created_at = models.DateTimeField(default=timezone.now)
     source_sponsor_ar_mapping = ArrayField(models.JSONField(), default=list)
+    archived_at = models.DateTimeField(null=True, blank=True)
+    is_archived = models.BooleanField(
+        null=False, default=False, db_column="is_archived"
+    )
 
     def _format_sponsor_names(self, sponsors):
         names = [str(s.full_name) for s in sponsors]
@@ -721,7 +725,7 @@ class AccommodationDuplicateGroup(models.Model):
 
     principal_record = models.ForeignKey(
         "ontology.MvAccommodation",
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         null=True,
         db_column="principal_record_id",
     )
@@ -732,6 +736,10 @@ class AccommodationDuplicateGroup(models.Model):
     )
     created_at = models.DateTimeField(default=timezone.now)
     source_accommodation_ar_mapping = ArrayField(models.JSONField(), default=list)
+    archived_at = models.DateTimeField(null=True, blank=True)
+    is_archived = models.BooleanField(
+        null=False, default=False, db_column="is_archived"
+    )
 
     def _format_accommodation_addresses(self, accommodations):
         addresses = [str(s.full_address) for s in accommodations]
@@ -1304,7 +1312,7 @@ class GuestDuplicateGroup(models.Model):
 
     principal_record = models.ForeignKey(
         "ontology.MvPerson",
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         null=True,
         db_column="principal_record_id",
     )
@@ -1315,6 +1323,10 @@ class GuestDuplicateGroup(models.Model):
     )
     created_at = models.DateTimeField(default=timezone.now)
     source_guest_ar_mapping = ArrayField(models.JSONField(), default=list)
+    archived_at = models.DateTimeField(null=True, blank=True)
+    is_archived = models.BooleanField(
+        null=False, default=False, db_column="is_archived"
+    )
 
     def format_guest_names(self, guests):
         names = [str(g.get_full_name()) for g in guests]
