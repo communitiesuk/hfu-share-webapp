@@ -29,7 +29,7 @@ from ontology.utils import LinkedRecordData
 logger = logging.getLogger(__name__)
 
 
-class MvAccommodationQueryset(models.QuerySet):
+class MvAccommodationRequestQueryset(models.QuerySet):
     def _la_names(self, la_field_name: str) -> QuerySet[str]:
         flatted_column_name = f"{la_field_name}_flat"
         return (
@@ -135,7 +135,7 @@ class MvAccommodationRequestManager(
     LocalAuthorityPermissionsManagerMixin, models.Manager
 ):
     def get_queryset(self):
-        return MvAccommodationQueryset(self.model, using=self._db)
+        return MvAccommodationRequestQueryset(self.model, using=self._db)
 
     def with_checks(self):
         return self.get_queryset().with_checks()

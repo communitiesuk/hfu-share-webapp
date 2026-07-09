@@ -25,7 +25,6 @@ from accounts.enums import GroupType
 from deduplication.models import AccommodationDuplicateGroup
 from ontology.models import (
     MvAccommodation,
-    MvAccommodationRequest,
     MvInteraction,
     MvPerson,
     MvUkPostcode,
@@ -95,8 +94,7 @@ class AccommodationFilter(FilterSet, FilterPanelMixin):
 
     ltla_name = LazyChoiceFilter(
         choices=lambda: [
-            (ltla, ltla)
-            for ltla in MvAccommodationRequest.objects.get_queryset().ltla_names()
+            (ltla, ltla) for ltla in MvAccommodation.objects.get_queryset().ltla_names()
         ],
         label="Lower tier local authority (LTLA)",
         empty_label="",
@@ -106,8 +104,7 @@ class AccommodationFilter(FilterSet, FilterPanelMixin):
 
     utla_name = LazyChoiceFilter(
         choices=lambda: [
-            (utla, utla)
-            for utla in MvAccommodationRequest.objects.get_queryset().utla_names()
+            (utla, utla) for utla in MvAccommodation.objects.get_queryset().utla_names()
         ],
         label="Upper tier local authority (UTLA)",
         empty_label="",
