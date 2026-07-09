@@ -319,6 +319,12 @@ class AccommodationDetailPropertiesView(
         )
         return ctx
 
+    class Meta:
+        exclude_fields = [
+            "archived_at",
+            "is_archived",
+        ]
+
 
 class AccommodationDetailActionsView(
     PIISafeRecordNameMixin, PermissionsMixin, IsDuplicateMixin, ActionsListView

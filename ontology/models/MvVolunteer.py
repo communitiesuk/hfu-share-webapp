@@ -182,6 +182,8 @@ class MvVolunteer(models.Model):
     edited_in_app = models.BooleanField(
         null=True, blank=True, db_column="edited_in_app"
     )
+    archived_at = models.DateTimeField(null=True, blank=True)
+    is_archived = models.BooleanField(null=False, default=False)
 
     def build_full_name(self):
         if self.first_name or self.last_name:

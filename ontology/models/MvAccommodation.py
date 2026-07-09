@@ -284,6 +284,8 @@ class MvAccommodation(models.Model):
     edited_in_app = models.BooleanField(
         null=True, blank=True, db_column="edited_in_app"
     )
+    archived_at = models.DateTimeField(null=True, blank=True)
+    is_archived = models.BooleanField(null=False, default=False)
 
     @property
     def ltla_group_info(self) -> GroupInfo | None:

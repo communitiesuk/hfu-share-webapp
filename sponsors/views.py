@@ -515,6 +515,8 @@ class SponsorDetailPropertiesView(
     class Meta:
         exclude_fields = [
             "viewer_group_names",
+            "archived_at",
+            "is_archived",
         ]
 
 
