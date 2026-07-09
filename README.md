@@ -46,6 +46,8 @@ docker compose up -d database
 poetry run dev
 ```
 
+#### 5. Access at http://localhost:8000
+
 ### Running on local using docker compose
 
 #### 1. Set up environment
@@ -60,6 +62,8 @@ docker compose up
 # Hint: If you need to run any command:
 docker compose run web python manage.py
 ```
+
+#### 3. Access at http://localhost:8010
 
 These instructions will get the app running.  You may also want to seed the database. See [seed data](#seed-data).
 
@@ -219,7 +223,7 @@ Use the admin interface while logged in as superuser.
 
 ## Using the admin site
 
-Django includes a built-in admin site at [localhost:8000/admin](http://localhost:8000/admin). You'll need to create a super user account to be able to access it, see [creating a super user](#creating-a-superuser).
+Django includes a built-in admin site at [localhost:8000/admin](http://localhost:8000/admin) (if running with Poetry) or [localhost:8010/admin](http://localhost:8010/admin) (if running with Docker). You'll need to create a super user account to be able to access it, see [creating a super user](#creating-a-superuser).
 
 ## Troubleshooting
 
