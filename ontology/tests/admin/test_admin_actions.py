@@ -5,8 +5,9 @@ from ontology.admin_actions import (
     process_single_accommodation_exists_check,
     process_single_accommodation_suitable_check,
     process_single_sponsor_check,
+    process_update_guest_titles,
 )
-from ontology.models import CheckType, DevCheckV2, SafeguardingReferral
+from ontology.models import CheckType, DevCheckV2, MvPerson, SafeguardingReferral
 from ontology.tests.factories import (
     AccommodationMasterRecordFactory,
     DevCheckV2Factory,
@@ -751,3 +752,27 @@ class ProcessSingleAccommodationSuitableCheckTest(TestCase):
         self.assertEqual(
             f"[{id}]: End - Solving check on duplicate record", messages[-1]
         )
+
+
+class ProcessUpdateGuestTitlesTest(TestCase):
+    def test_does_not_alter_already_correct_title(self):
+        guest = MvPerson.objects.create(
+            first_name="Guest", last_name="One", title="Guest One"
+        )
+
+        messages = process_update_guest_titles(guest)
+
+        guest.refresh_from_db()
+        self.assertEqual(guest.title, "Guest One")
+        self.assertEqual("Title already correct, no changes made.", messages[-1])
+
+    def test_updates_incorrect_title(self):
+        guest = MvPerson.objects.create(
+            first_name="Guest", last_name="One", title="Guest Two"
+        )
+
+        messages = process_update_guest_titles(guest)
+
+        guest.refresh_from_db()
+        self.assertEqual(guest.title, "Guest One")
+        self.assertEqual("Title updated.", messages[-1])

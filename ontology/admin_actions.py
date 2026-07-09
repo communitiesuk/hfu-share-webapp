@@ -12,6 +12,7 @@ from ontology.models import (
     DevCheckV2,
     MvAccommodation,
     MvAccommodationRequest,
+    MvPerson,
     MvVolunteer,
     SafeguardingNotification,
 )
@@ -466,5 +467,20 @@ def process_single_accommodation_suitable_check(check: DevCheckV2) -> list[str]:
             messages.append(
                 f"[{check.id}]: End - Solving check on duplicate record",
             )
+
+    return messages
+
+
+def process_update_guest_titles(guest: MvPerson) -> list[str]:
+    messages = []
+
+    correct_title = f"{guest.first_name} {guest.last_name}"
+
+    if correct_title == guest.title:
+        messages.append("Title already correct, no changes made.")
+    else:
+        guest.title = correct_title
+        guest.save()
+        messages.append("Title updated.")
 
     return messages
