@@ -267,6 +267,7 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
 */
 .autocomplete__dropdown-arrow-down {
     z-index: 0 !important;
+    pointer-events: none;
 }
 
 .custom-govuk-side-card h1 {

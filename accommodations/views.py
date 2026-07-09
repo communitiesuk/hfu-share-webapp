@@ -106,8 +106,8 @@ class AccommodationFilter(FilterSet, FilterPanelMixin):
 
     utla_name = LazyChoiceFilter(
         choices=lambda: [
-            (ltla, ltla)
-            for ltla in MvAccommodationRequest.objects.get_queryset().ltla_names()
+            (utla, utla)
+            for utla in MvAccommodationRequest.objects.get_queryset().utla_names()
         ],
         label="Upper tier local authority (UTLA)",
         empty_label="",
