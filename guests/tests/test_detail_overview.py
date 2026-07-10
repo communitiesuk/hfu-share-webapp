@@ -191,17 +191,17 @@ class GuestDetailOverviewViewTests(TestSessionTokenMixin, TestCase):
 
         self.assertRegex(
             response.content.decode(),
-            r"<a href=/guests/\d+/overview>"
+            r"<a class=\"govuk-link\" href=/guests/\d+/overview>"
             f"guest record for "
             f"{self.dup_principal_record.get_full_name()}"
             f"</a>",
         )
 
-        # self.assertContains(
-        #     response,
-        #     "If this was a mistake you can undo the deduplication "
-        #     "from the actions tab.",
-        # )
+        self.assertContains(
+            response,
+            "If this was a mistake you can undo the deduplication "
+            "from the actions tab.",
+        )
 
         response = self.client.get(
             reverse(

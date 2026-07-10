@@ -25,7 +25,7 @@ class DeduplicationAccommodationCheckAndCompleteViewTestCase(
             ltla_name="ltla_somerset",
             utla_name="ltla_somerset",
             postcode=MvUkPostcodeFactory(postcode="PP2EE1"),
-            is_principal=False,
+            is_principal=True,
         )
         self.step_prefix = "select-correct-details-"
         self.new_principal_accommodation = {
@@ -290,6 +290,104 @@ class DeduplicationAccommodationCheckAndCompleteViewTestCase(
         )
         self.assertContains(response, self.second_accommodation.ltla_name)
         self.assertContains(response, self.second_accommodation.utla_name)
+
+    def test_redirects_to_select_record_with_success_message_on_submission(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        # Go through the wizard steps to reach check and complete
+        response = self.client.post(
+            reverse(
+                "deduplication:accommodations:select-and-review-records-manual-step",
+                kwargs={"step": SelectAndReviewRecordsStep.SELECT_RECORD},
+            ),
+            {
+                "select-record-accommodation_record": [
+                    self.first_accommodation.id,
+                    self.second_accommodation.id,
+                ],
+                "SelectAndReviewRecordsFormWizard-current_step": (
+                    SelectAndReviewRecordsStep.SELECT_RECORD,
+                ),
+            },
+            follow=True,
+        )
+
+        self.assertContains(response, "View selected record")
+
+        response = self.client.post(
+            reverse(
+                "deduplication:accommodations:select-and-review-records-manual-step",
+                kwargs={"step": SelectAndReviewRecordsStep.VIEW_SELECTED_RECORDS},
+            ),
+            {
+                "select-record-accommodation_record": [
+                    self.first_accommodation.id,
+                    self.second_accommodation.id,
+                ],
+                "SelectAndReviewRecordsFormWizard-current_step": (
+                    SelectAndReviewRecordsStep.VIEW_SELECTED_RECORDS,
+                ),
+            },
+            follow=True,
+        )
+
+        self.assertContains(response, "Deduplicate selected records")
+
+        response = self.client.post(
+            reverse(
+                "deduplication:accommodations:select-and-review-records-manual-step",
+                kwargs={"step": SelectAndReviewRecordsStep.REVIEW_SELECTED_RECORDS},
+            ),
+            {
+                "select-record-accommodation_record": [
+                    self.first_accommodation.id,
+                    self.second_accommodation.id,
+                ],
+                "SelectAndReviewRecordsFormWizard-current_step": (
+                    SelectAndReviewRecordsStep.REVIEW_SELECTED_RECORDS,
+                ),
+            },
+            follow=True,
+        )
+
+        self.assertContains(response, "Select correct details")
+
+        response = self.client.post(
+            reverse(
+                "deduplication:accommodations:select-and-review-records-manual-step",
+                kwargs={"step": SelectAndReviewRecordsStep.SELECT_CORRECT_DETAILS},
+            ),
+            self.new_principal_accommodation,
+            follow=True,
+        )
+
+        self.assertContains(response, "Check details and complete deduplication")
+
+        response = self.client.post(
+            reverse(
+                "deduplication:accommodations:select-and-review-records-manual-step",
+                kwargs={"step": SelectAndReviewRecordsStep.CHECK_AND_COMPLETE},
+            ),
+            {
+                "SelectAndReviewRecordsFormWizard-current_step": (
+                    SelectAndReviewRecordsStep.CHECK_AND_COMPLETE,
+                ),
+            },
+            follow=True,
+        )
+
+        self.assertContains(response, "Fix duplicate accommodation records")
+
+        self.assertContains(response, "Success")
+        self.assertContains(response, "You have deduplicated 2 accommodation records")
+        self.assertContains(response, "A new principal record has been created for")
+        self.assertContains(response, "2 DEQ Road, PP2 EE1")
+        self.assertContains(
+            response,
+            "You can undo the deduplication from the "
+            "principal record in the actions tab.",
+        )
 
     def test_redirects_with_named_error_if_record_no_longer_principal(self):
         user = get_admin_user()
