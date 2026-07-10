@@ -33,6 +33,7 @@ from ontology.admin_filters import (
     ARsCreatedOrModifiedSinceShareGoLiveFilter,
     ChecksSinceShareGoLiveFilter,
     DateRangeFilter,
+    GuestsWithIncorrectTitlesExcludingDuplicatesFilter,
 )
 from ontology.models import (
     Announcement,
@@ -203,7 +204,11 @@ class MvPersonAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
     list_display = ["first_name", "last_name", "id", "visa_status"]
     search_fields = ["first_name", "last_name", "id", "gwf"]
     readonly_fields = ["devcheckv2_detail_view"]
-    list_filter = ["visa_status", "is_principal"]
+    list_filter = [
+        "visa_status",
+        "is_principal",
+        GuestsWithIncorrectTitlesExcludingDuplicatesFilter,
+    ]
     actions = ["update_guest_titles_action"]
 
     def get_queryset(self, request):
