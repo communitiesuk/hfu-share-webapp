@@ -35,7 +35,11 @@ class MvPersonQuerySet(models.QuerySet):
 
 class MvPersonManager(LocalAuthorityPermissionsManagerMixin, models.Manager):
     def get_queryset(self):
-        return MvPersonQuerySet(self.model, using=self._db).with_full_name()
+        return (
+            MvPersonQuerySet(self.model, using=self._db)
+            .with_full_name()
+            .filter(is_archived=False)
+        )
 
     def _filter_by_ltla_name(self, ltla_names: list[str]) -> Q:
         return Q(accommodation_request__ltla_name__overlap=ltla_names) & ~Q(

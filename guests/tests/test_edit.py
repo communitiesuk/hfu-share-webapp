@@ -1,5 +1,5 @@
 import http.client
-from datetime import date
+from datetime import date, datetime, timezone
 
 from django.test import TestCase
 from django.urls import reverse
@@ -57,6 +57,14 @@ class GuestEditViewTests(TestSessionTokenMixin, TestCase):
             "guests:detail-overview", kwargs={"pk": self.guest.pk}
         )
 
+        self.archived_guest = MvPersonFactory(
+            first_name="Archived",
+            last_name="Sponsor",
+            is_principal=True,
+            is_archived=True,
+            archived_at=datetime(2025, 12, 25, tzinfo=timezone.utc),
+        )
+
     def test_edit_view_get_loads_correctly(self):
         self.client.force_login(self.user)
         response = self.client.get(self.edit_url)
@@ -68,6 +76,15 @@ class GuestEditViewTests(TestSessionTokenMixin, TestCase):
         self.assertContains(response, 'id="id_last_name">\nGuest')
         self.assertContains(response, 'value="15/05/1990"')
         self.assertContains(response, 'value="Female" selected')
+
+    def test_edit_view_returns_404_for_archived_guest(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+        response = self.client.get(
+            reverse("guests:detail-edit", kwargs={"pk": self.archived_guest.pk})
+        )
+
+        self.assertEqual(response.status_code, http.client.NOT_FOUND)
 
     def test_edit_view_post_updates_guest(self):
         self.client.force_login(self.user)

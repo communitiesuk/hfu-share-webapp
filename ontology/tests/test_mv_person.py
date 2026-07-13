@@ -125,3 +125,9 @@ class MvPersonTest(LocalAuthorityBaseTestCaseMixin):
         data = person.display_link_data(None, None)
 
         self.assertEqual(data.title, "(abc@example.com)")
+
+    def test_mv_person_factory_does_not_create_archived_record(self):
+        sponsor = MvPersonFactory()
+
+        self.assertFalse(sponsor.is_archived)
+        self.assertIsNone(sponsor.archived_at)

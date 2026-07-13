@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from django.test import TestCase
 from django.urls import reverse
 
@@ -28,6 +30,13 @@ class DeduplicationAccommodationListViewTestCase(TestSessionTokenMixin, TestCase
         self.non_principal_accommodation = MvAccommodationFactory(
             full_address="321 Avenue",
             is_principal=False,
+        )
+
+        self.archived_accommodation = MvAccommodationFactory(
+            full_address="Archived address",
+            is_principal=True,
+            is_archived=True,
+            archived_at=datetime(2025, 12, 25, tzinfo=timezone.utc),
         )
 
     def test_renders_accommodation_list_with_correct_layout(self):
@@ -73,6 +82,18 @@ class DeduplicationAccommodationListViewTestCase(TestSessionTokenMixin, TestCase
         )
 
         self.assertNotContains(response, self.non_principal_accommodation.full_address)
+
+    def test_does_not_render_archived_accommodation(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse(
+                "accommodations:accommodations",
+            )
+        )
+
+        self.assertNotContains(response, self.archived_accommodation.full_address)
 
     def test_admin_user_can_access_list_view(self):
         user = get_admin_user()
