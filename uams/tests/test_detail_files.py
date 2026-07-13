@@ -1,4 +1,5 @@
 import http.client
+from unittest import mock
 
 from django.urls import reverse
 
@@ -480,3 +481,34 @@ class UamDetailFilesViewTests(TestSessionTokenMixin, UamsBaseTestCase, S3TestCas
         )
 
         self.assertNotContains(response, '<table class="govuk-table">')
+
+    @mock.patch("uams.views.s3_file_exists")
+    def test_files_view_with_govuk_forms_attachment(self, s3_file_exists):
+        s3_file_exists.return_value = True
+
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        uam = SponsorshipCertificationFormFactory(
+            reference="GOVUKFORMS-UAM12345",
+            ltla_name=[self.ltla_one_a_name],
+            utla_name=[self.utla_one_name],
+            uk_parental_consent_filename="uk.pdf",
+            ukraine_parental_consent_filename="ukraine.jpg",
+        )
+
+        response = self.client.get(
+            reverse(
+                "uams:detail-files",
+                kwargs={"pk": uam.pk},
+            )
+        )
+
+        self.assertContains(response, "uk.pdf")
+        self.assertContains(
+            response, "/uams/GOVUKFORMS-UAM12345/download-forms-attachment/uk"
+        )
+        self.assertContains(response, "ukraine.jpg")
+        self.assertContains(
+            response, "/uams/GOVUKFORMS-UAM12345/download-forms-attachment/ukraine"
+        )

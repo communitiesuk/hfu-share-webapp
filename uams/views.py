@@ -394,38 +394,73 @@ class UamsFilesView(PIISafeRecordNameMixin, PermissionsMixin, DetailView):
         context = super().get_context_data(**kwargs)
         uam = self.object
 
-        if uam.attachments_metadata and uam.attachments_metadata.count() > 0:
-            attachments = uam.attachments_metadata.all()
-        else:
-            person = uam.get_person_restrict_for_user(self.request.user)
-            if person is None or person.checks is None:
-                return context
-            attachments = SponsorshipCertificationAttachmentMetadata.objects.filter(
-                rid__in=person.checks.filter(
-                    check_type__id__in=[
-                        CheckType.Id.UK_FORM_UPLOADED,
-                        CheckType.Id.UKR_FORM_UPLOADED,
-                    ]
-                ).values_list("document", flat=True)
-            )
+        if uam.reference and uam.reference.startswith("SPON-"):
+            # Legacy UAM attachment journey
+            if uam.attachments_metadata and uam.attachments_metadata.count() > 0:
+                attachments = uam.attachments_metadata.all()
+            else:
+                person = uam.get_person_restrict_for_user(self.request.user)
+                if person is None or person.checks is None:
+                    return context
+                attachments = SponsorshipCertificationAttachmentMetadata.objects.filter(
+                    rid__in=person.checks.filter(
+                        check_type__id__in=[
+                            CheckType.Id.UK_FORM_UPLOADED,
+                            CheckType.Id.UKR_FORM_UPLOADED,
+                        ]
+                    ).values_list("document", flat=True)
+                )
 
-        context["attachments"] = [
-            {
-                "url": reverse(
-                    "uams:download-attachment",
-                    kwargs={
-                        "pk": uam.pk,
-                        "metadata_id": attachment.id,
-                    },
-                ),
-                "name": attachment.filename or "Consent form",
-            }
-            for attachment in attachments
+            context["attachments"] = [
+                {
+                    "url": reverse(
+                        "uams:download-attachment",
+                        kwargs={
+                            "pk": uam.pk,
+                            "metadata_id": attachment.id,
+                        },
+                    ),
+                    "name": attachment.filename or "Consent form",
+                }
+                for attachment in attachments
+                if s3_file_exists(
+                    bucket_name=FILE_DOWNLOAD_S3_BUCKET_NAME,
+                    file_key=f"uams/{attachment.file_path}",
+                )
+            ]
+
+        elif uam.reference:
+            # GOV.UK Forms attachments are retrieved differently
+            # Bucket path will be /uams/YYYYMMDDThhmmssZ_ABCD1234/filename.jpg
+            context["attachments"] = []
+
             if s3_file_exists(
                 bucket_name=FILE_DOWNLOAD_S3_BUCKET_NAME,
-                file_key=f"uams/{attachment.file_path}",
-            )
-        ]
+                file_key=get_govuk_forms_attachment_filepath(uam, "uk"),
+            ):
+                context["attachments"].append(
+                    {
+                        "url": reverse(
+                            "uams:download-govuk-forms-attachment",
+                            kwargs={"pk": uam.pk, "consent_file_type": "uk"},
+                        ),
+                        "name": uam.uk_parental_consent_filename or "Consent form",
+                    }
+                )
+
+            if s3_file_exists(
+                bucket_name=FILE_DOWNLOAD_S3_BUCKET_NAME,
+                file_key=get_govuk_forms_attachment_filepath(uam, "ukraine"),
+            ):
+                context["attachments"].append(
+                    {
+                        "url": reverse(
+                            "uams:download-govuk-forms-attachment",
+                            kwargs={"pk": uam.pk, "consent_file_type": "ukraine"},
+                        ),
+                        "name": uam.ukraine_parental_consent_filename or "Consent form",
+                    }
+                )
 
         return context
 
