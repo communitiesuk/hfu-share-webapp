@@ -4,6 +4,7 @@ import boto3
 from botocore.exceptions import ClientError
 
 from case_management.settings import AWS_REGION
+from ontology.models import SponsorshipCertificationForm
 
 PRESIGNED_LINK_EXPIRY_SECONDS = 1000
 
@@ -55,3 +56,21 @@ def s3_file_exists(bucket_name: str, file_key: str):
         return True
     except ClientError:
         return False
+
+
+def get_govuk_forms_attachment_filepath(
+    uam: SponsorshipCertificationForm, consent_file_type: str
+) -> str:
+    if uam.created_at:
+        submission_datestring: str = uam.created_at.strftime("%Y%m%dT%H%M%SZ")
+    else:
+        return ""
+
+    if consent_file_type == "uk":
+        filename: str = uam.uk_parental_consent_filename
+    elif consent_file_type == "ukraine":
+        filename = uam.ukraine_parental_consent_filename
+    else:
+        return ""
+
+    return f"uams/{submission_datestring}_{uam.reference}/{filename}"
