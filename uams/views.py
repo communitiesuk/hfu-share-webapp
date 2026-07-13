@@ -29,7 +29,11 @@ from ontology.models import (
 )
 from webapp.constants import UAMS_SEARCH_FIELDS
 from webapp.mixins import FilterPanelMixin, PermissionsMixin, PIISafeRecordNameMixin
-from webapp.s3 import get_presigned_download_url, s3_file_exists
+from webapp.s3 import (
+    get_govuk_forms_attachment_filepath,
+    get_presigned_download_url,
+    s3_file_exists,
+)
 from webapp.search import perform_search
 from webapp.utils import (
     CustomDateColumn,
@@ -479,6 +483,48 @@ class UamsDownloadAttachmentView(PermissionsMixin, SingleObjectMixin, View):
             bucket_name=FILE_DOWNLOAD_S3_BUCKET_NAME,
             file_key=f"uams/{self.file_path}",
             filename=self.file_name,
+        )
+
+        return redirect(presigned_url)
+
+
+class UamsDownloadGOVUKFormsAttachmentView(PermissionsMixin, SingleObjectMixin, View):
+    group_type = [
+        GroupType.DEV,
+        GroupType.LOCAL_AUTHORITY,
+        GroupType.DEVOLVED_ADMINISTRATION,
+        GroupType.MHCLG,
+        GroupType.HOME_OFFICE,
+        GroupType.SERVICE_SUPPORT,
+    ]
+    model = SponsorshipCertificationForm
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.uam = None
+        self.consent_file_type = None
+        self.filename = None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.uam = self.get_object()
+        self.consent_file_type = kwargs.get("consent_file_type")
+
+        if self.consent_file_type == "uk":
+            self.filename = self.uam.uk_parental_consent_filename
+        elif self.consent_file_type == "ukraine":
+            self.filename = self.uam.ukraine_parental_consent_filename
+        else:
+            raise Http404("Consent file type not found")
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, *_args, **_kwargs):
+        presigned_url = get_presigned_download_url(
+            bucket_name=FILE_DOWNLOAD_S3_BUCKET_NAME,
+            file_key=get_govuk_forms_attachment_filepath(
+                self.uam, self.consent_file_type
+            ),
+            filename=self.filename,
         )
 
         return redirect(presigned_url)
