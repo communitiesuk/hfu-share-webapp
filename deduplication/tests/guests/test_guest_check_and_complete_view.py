@@ -295,19 +295,12 @@ class DeduplicationGuestSelectedViewTests(TestSessionTokenMixin, TestCase):
             "Check that the correct details are selected for the new principal record",
         )
 
-        # self.assertContains(
-        #     response,
-        #     "This will create a new principal record with the information shown. The "
-        #     "original guest records will be marked as duplicates and you "
-        #     "will not be able to change them, unless you first undo the "
-        #     "deduplication.",
-        # ) TODO: replace below when undo deduplication is re-enabled
-
         self.assertContains(
             response,
             "This will create a new principal record with the information shown. The "
             "original guest records will be marked as duplicates and you "
-            "will not be able to change them.",
+            "will not be able to change them, unless you first undo the "
+            "deduplication.",
         )
 
         self.assertContains(

@@ -175,18 +175,12 @@ class DeduplicationAccommodationCheckAndCompleteViewTestCase(
         self.assertContains(
             response, "Are you sure you want to complete the deduplication?"
         )
-        # self.assertContains(
-        #     response,
-        #     "This will create a new principal record with the information shown. The "
-        #     "original accommodation records will be marked as duplicates and you "
-        #     "will not be able to change them, unless you first undo the "
-        #     "deduplication.",
-        # ) TODO: replace below when undo deduplication is re-enabled
         self.assertContains(
             response,
             "This will create a new principal record with the information shown. The "
             "original accommodation records will be marked as duplicates and you "
-            "will not be able to change them.",
+            "will not be able to change them, unless you first undo the "
+            "deduplication.",
         )
         self.assertContains(
             response,
