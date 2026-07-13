@@ -474,7 +474,7 @@ def process_single_accommodation_suitable_check(check: DevCheckV2) -> list[str]:
 def process_update_guest_titles(guest: MvPerson) -> list[str]:
     messages = []
 
-    correct_title = f"{guest.first_name} {guest.last_name}"
+    correct_title = guest.get_full_name()
 
     if correct_title == guest.title:
         messages.append("Title already correct, no changes made.")

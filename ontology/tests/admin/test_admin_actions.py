@@ -776,3 +776,12 @@ class ProcessUpdateGuestTitlesTest(TestCase):
         guest.refresh_from_db()
         self.assertEqual(guest.title, "Guest One")
         self.assertEqual("Title updated.", messages[-1])
+
+    def test_handles_empty_name_values(self):
+        guest = MvPerson.objects.create(first_name="Guest", title="Guest Two")
+
+        messages = process_update_guest_titles(guest)
+
+        guest.refresh_from_db()
+        self.assertEqual(guest.title, "Guest")
+        self.assertEqual("Title updated.", messages[-1])

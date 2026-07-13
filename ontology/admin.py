@@ -227,9 +227,9 @@ class MvPersonAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
             try:
                 message = process_update_guest_titles(person)
 
-                if "Title updated." in message:
+                if message[0] == "Title updated.":
                     success_count += 1
-                elif "Title already correct, no changes made." in message:
+                elif message[0] == "Title already correct, no changes made.":
                     already_correct_count += 1
             except Exception:
                 error_count += 1
