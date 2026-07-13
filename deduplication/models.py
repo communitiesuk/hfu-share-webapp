@@ -441,8 +441,13 @@ class SponsorDuplicateGroup(models.Model):
                         },
                     )
 
-        # Sets principal record to None
-        self.principal_record = None
+        # Archives old principal record
+        self.principal_record.is_principal = False
+        self.principal_record.is_archived = True
+        self.principal_record.archived_at = timezone.now()
+        self.principal_record.save()
+        self.is_archived = True
+        self.archived_at = timezone.now()
         self.save()
 
         log_dedup_persistence_check(
@@ -1179,8 +1184,13 @@ class AccommodationDuplicateGroup(models.Model):
                         },
                     )
 
-        # Sets principal record to None
-        self.principal_record = None
+        # Archives old principal record
+        self.principal_record.is_principal = False
+        self.principal_record.is_archived = True
+        self.principal_record.archived_at = timezone.now()
+        self.principal_record.save()
+        self.is_archived = True
+        self.archived_at = timezone.now()
         self.save()
 
         log_dedup_persistence_check(
@@ -1578,8 +1588,13 @@ class GuestDuplicateGroup(models.Model):
         # Links ARs back to relevant sponsor
         self._undo_deduplication_handle_linked_accommodation_requests(guests, user)
 
-        # Sets principal record to None
-        self.principal_record = None
+        # Archives old principal record
+        self.principal_record.is_principal = False
+        self.principal_record.is_archived = True
+        self.principal_record.archived_at = timezone.now()
+        self.principal_record.save()
+        self.is_archived = True
+        self.archived_at = timezone.now()
         self.save()
 
         log_dedup_persistence_check(

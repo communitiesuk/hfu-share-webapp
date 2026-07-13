@@ -2723,11 +2723,8 @@ class UndoDeduplicationSponsorRecordsFormWizard(UndoDeduplicationRecordsFormWiza
         dedup_group = SponsorDuplicateGroup.objects.prefetch_related("sponsors").get(
             principal_record_id=sponsor_id
         )
-        principal_record = MvVolunteer.objects.get(pk=sponsor_id)
         try:
             dedup_group.undo_deduplication(user=self.request.user)
-            principal_record.delete()
-            dedup_group.delete()
         except Exception:
             messages.error(
                 self.request,
@@ -3174,11 +3171,8 @@ class UndoDeduplicationGuestRecordsFormWizard(UndoDeduplicationRecordsFormWizard
         )
         if not dedup_group.can_undo_deduplication(guest_id):
             return redirect("guests:detail-actions", guest_id)
-        principal_record = MvPerson.objects.get(pk=guest_id)
         try:
             dedup_group.undo_deduplication(user=self.request.user)
-            principal_record.delete()
-            dedup_group.delete()
         except Exception:
             messages.error(
                 self.request,
@@ -3574,11 +3568,8 @@ class UndoDeduplicationAccommodationRecordsFormWizard(
         dedup_group = AccommodationDuplicateGroup.objects.prefetch_related(
             "accommodations"
         ).get(principal_record_id=accommodation_id)
-        principal_record = MvAccommodation.objects.get(pk=accommodation_id)
         try:
             dedup_group.undo_deduplication(user=self.request.user)
-            principal_record.delete()
-            dedup_group.delete()
         except Exception:
             messages.error(
                 self.request,
