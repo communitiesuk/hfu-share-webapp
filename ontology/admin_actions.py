@@ -471,16 +471,12 @@ def process_single_accommodation_suitable_check(check: DevCheckV2) -> list[str]:
     return messages
 
 
-def process_update_guest_titles(guest: MvPerson) -> list[str]:
-    messages = []
-
+def process_update_guest_titles(guest: MvPerson) -> bool:
     correct_title = guest.get_full_name()
 
     if correct_title == guest.title:
-        messages.append("Title already correct, no changes made.")
+        return False
     else:
         guest.title = correct_title
         guest.save()
-        messages.append("Title updated.")
-
-    return messages
+        return True

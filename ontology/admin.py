@@ -225,11 +225,11 @@ class MvPersonAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
 
         for person in queryset:
             try:
-                message = process_update_guest_titles(person)
+                result = process_update_guest_titles(person)
 
-                if message[0] == "Title updated.":
+                if result:
                     success_count += 1
-                elif message[0] == "Title already correct, no changes made.":
+                else:
                     already_correct_count += 1
             except Exception:
                 error_count += 1

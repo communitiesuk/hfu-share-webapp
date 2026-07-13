@@ -760,28 +760,28 @@ class ProcessUpdateGuestTitlesTest(TestCase):
             first_name="Guest", last_name="One", title="Guest One"
         )
 
-        messages = process_update_guest_titles(guest)
+        result = process_update_guest_titles(guest)
 
         guest.refresh_from_db()
         self.assertEqual(guest.title, "Guest One")
-        self.assertEqual("Title already correct, no changes made.", messages[-1])
+        self.assertFalse(result)
 
     def test_updates_incorrect_title(self):
         guest = MvPerson.objects.create(
             first_name="Guest", last_name="One", title="Guest Two"
         )
 
-        messages = process_update_guest_titles(guest)
+        result = process_update_guest_titles(guest)
 
         guest.refresh_from_db()
         self.assertEqual(guest.title, "Guest One")
-        self.assertEqual("Title updated.", messages[-1])
+        self.assertTrue(result)
 
     def test_handles_empty_name_values(self):
         guest = MvPerson.objects.create(first_name="Guest", title="Guest Two")
 
-        messages = process_update_guest_titles(guest)
+        result = process_update_guest_titles(guest)
 
         guest.refresh_from_db()
         self.assertEqual(guest.title, "Guest")
-        self.assertEqual("Title updated.", messages[-1])
+        self.assertTrue(result)
