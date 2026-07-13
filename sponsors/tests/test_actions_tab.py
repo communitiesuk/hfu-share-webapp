@@ -1,4 +1,4 @@
-import http
+import http.client
 from datetime import datetime, timezone
 
 from django.test import TestCase
@@ -8,10 +8,18 @@ from accounts.tests.base import TestSessionTokenMixin
 from deduplication.tests.factories import SponsorDuplicateGroupFactory
 from ontology.models import MvVolunteer
 from ontology.tests.factories import (
+    MvAccommodationFactory,
     MvAccommodationRequestFactory,
     MvVolunteerFactory,
 )
-from user_management.tests.base import get_admin_user
+from user_management.tests.base import (
+    get_admin_user,
+    get_da_user,
+    get_la_user,
+    get_mhclg_user,
+    get_service_support_user,
+    get_ukvi_user,
+)
 from webapp.mixins import SummaryListTestCaseMixin
 
 
@@ -89,6 +97,27 @@ class SponsorsActionsTestCase(
         )
         sponsor_duplicate_group_further.save()
 
+        self.ltla_sponsor = MvVolunteerFactory(
+            first_name="LA Sponsor",
+            last_name="Spon",
+        )
+        self.ltla_accommodation = MvAccommodationFactory(
+            full_address="Somerset LTLA Address",
+            ltla_name="ltla_somerset",
+        )
+        self.ltla_accommodation.hosts.set([self.ltla_sponsor.id])
+
+        self.da_sponsor = MvVolunteerFactory(
+            first_name="DA Sponsor",
+            last_name="Spon",
+        )
+        self.da_accommodation = MvAccommodationFactory(
+            full_address="Scotland DA address",
+            ltla_name="Aberdeenshire",
+            utla_name="Aberdeenshire",
+        )
+        self.da_accommodation.hosts.set([self.da_sponsor.id])
+
     def test_admin_user_is_allowed_access(self):
         user = get_admin_user()
         self.client.force_login(user)
@@ -97,6 +126,66 @@ class SponsorsActionsTestCase(
             reverse(
                 "sponsors:detail-actions",
                 args=[self.sponsor.pk],
+            )
+        )
+        self.assertEqual(response.status_code, http.client.OK)
+
+    def test_ukvi_user_is_not_allowed_access(self):
+        user = get_ukvi_user()
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse(
+                "sponsors:detail-actions",
+                args=[self.sponsor.pk],
+            )
+        )
+        self.assertEqual(response.status_code, http.client.NOT_FOUND)
+
+    def test_mhclg_user_is_allowed_access(self):
+        user = get_mhclg_user()
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse(
+                "sponsors:detail-actions",
+                args=[self.sponsor.pk],
+            )
+        )
+        self.assertEqual(response.status_code, http.client.OK)
+
+    def test_service_support_user_is_allowed_access(self):
+        user = get_service_support_user()
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse(
+                "sponsors:detail-actions",
+                args=[self.sponsor.pk],
+            )
+        )
+        self.assertEqual(response.status_code, http.client.OK)
+
+    def test_la_user_is_allowed_access(self):
+        user = get_la_user()
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse(
+                "sponsors:detail-actions",
+                args=[self.ltla_sponsor.pk],
+            )
+        )
+        self.assertEqual(response.status_code, http.client.OK)
+
+    def test_da_user_is_not_allowed_access(self):
+        user = get_da_user()
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse(
+                "sponsors:detail-actions",
+                args=[self.da_sponsor.pk],
             )
         )
         self.assertEqual(response.status_code, http.client.OK)

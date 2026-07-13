@@ -29,7 +29,10 @@ from django_tables2 import (
 from accounts.enums import GroupType
 from deduplication.models import SponsorDuplicateGroup
 from ontology.models import MvInteraction, MvVolunteer
-from webapp.constants import SPONSORS_SEARCH_FIELDS
+from webapp.constants import (
+    FIX_DUPLICATE_RECORDS_ALLOWED_GROUP_TYPES,
+    SPONSORS_SEARCH_FIELDS,
+)
 from webapp.mixins import (
     AuditLogTimelineEventsMixin,
     FilterPanelMixin,
@@ -316,7 +319,7 @@ class SponsorDetailActionsView(
     IsDuplicateMixin,
     ActionsListView,
 ):
-    group_type = [GroupType.DEV]
+    group_type = list(FIX_DUPLICATE_RECORDS_ALLOWED_GROUP_TYPES)
     template_name = "sponsors/detail_view/detail_view_actions.html"
     model = MvVolunteer
 

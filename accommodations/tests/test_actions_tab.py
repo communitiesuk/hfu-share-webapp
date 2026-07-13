@@ -1,4 +1,4 @@
-import http
+import http.client
 from datetime import datetime, timezone
 
 from django.urls import reverse
@@ -52,6 +52,16 @@ class AccommodationsActionsTestCase(
         )
         accommodation_duplicate_group.save()
 
+        self.ltla_accommodation = MvAccommodationFactory(
+            full_address="Somerset LTLA Address",
+            ltla_name="ltla_somerset",
+        )
+        self.da_accommodation = MvAccommodationFactory(
+            full_address="Scotland DA address",
+            ltla_name="Aberdeenshire",
+            utla_name="Aberdeenshire",
+        )
+
     def test_admin_user_is_allowed_access(self):
         user = get_admin_user()
         self.client.force_login(user)
@@ -64,29 +74,29 @@ class AccommodationsActionsTestCase(
         )
         self.assertEqual(response.status_code, http.client.OK)
 
-    def test_la_user_is_not_allowed_access(self):
+    def test_la_user_is_allowed_access(self):
         user = get_la_user()
         self.client.force_login(user)
 
         response = self.client.get(
             reverse(
                 "accommodations:detail-actions",
-                args=[self.accommodation.pk],
+                args=[self.ltla_accommodation.pk],
             )
         )
-        self.assertEqual(response.status_code, http.client.FORBIDDEN)
+        self.assertEqual(response.status_code, http.client.OK)
 
-    def test_da_user_is_not_allowed_access(self):
+    def test_da_user_is_allowed_access(self):
         user = get_da_user()
         self.client.force_login(user)
 
         response = self.client.get(
             reverse(
                 "accommodations:detail-actions",
-                args=[self.accommodation.pk],
+                args=[self.da_accommodation.pk],
             )
         )
-        self.assertEqual(response.status_code, http.client.FORBIDDEN)
+        self.assertEqual(response.status_code, http.client.OK)
 
     def test_ukvi_user_is_not_allowed_access(self):
         user = get_ukvi_user()
@@ -98,9 +108,9 @@ class AccommodationsActionsTestCase(
                 args=[self.accommodation.pk],
             )
         )
-        self.assertEqual(response.status_code, http.client.FORBIDDEN)
+        self.assertEqual(response.status_code, http.client.NOT_FOUND)
 
-    def test_ops_user_is_not_allowed_access(self):
+    def test_ops_user_is_allowed_access(self):
         user = get_mhclg_user()
         self.client.force_login(user)
 
@@ -110,9 +120,9 @@ class AccommodationsActionsTestCase(
                 args=[self.accommodation.pk],
             )
         )
-        self.assertEqual(response.status_code, http.client.FORBIDDEN)
+        self.assertEqual(response.status_code, http.client.OK)
 
-    def test_service_support_user_is_not_allowed_access(self):
+    def test_service_support_user_is_allowed_access(self):
         user = get_service_support_user()
         self.client.force_login(user)
 
@@ -122,7 +132,7 @@ class AccommodationsActionsTestCase(
                 args=[self.accommodation.pk],
             )
         )
-        self.assertEqual(response.status_code, http.client.FORBIDDEN)
+        self.assertEqual(response.status_code, http.client.OK)
 
     def test_records_not_from_dedupes_show_no_actions(self):
         user = get_admin_user()
