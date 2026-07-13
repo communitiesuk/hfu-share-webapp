@@ -14,8 +14,7 @@ class UAMSPageTitlesTestCase(TestSessionTokenMixin, TestCase):
         super().setUp()
         self.service_name = settings.SERVICE_NAME
         self.overview_tab_uam = SponsorshipCertificationFormFactory(
-            given_name="Test",
-            family_name="User",
+            given_name="Test", family_name="User", reference="SPON-UAM12345"
         )
 
         self.overview_tab_uam_no_surname = SponsorshipCertificationFormFactory(

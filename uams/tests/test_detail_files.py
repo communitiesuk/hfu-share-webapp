@@ -159,7 +159,7 @@ class UamDetailFilesViewTests(TestSessionTokenMixin, UamsBaseTestCase, S3TestCas
         self.client.force_login(user)
 
         uam = SponsorshipCertificationFormFactory(
-            reference="UAM12345",
+            reference="SPON-UAM12345",
             ltla_name=[self.ltla_one_a_name],
             utla_name=[self.utla_one_name],
         )
@@ -205,7 +205,7 @@ class UamDetailFilesViewTests(TestSessionTokenMixin, UamsBaseTestCase, S3TestCas
         self.client.force_login(user)
 
         uam = SponsorshipCertificationFormFactory(
-            reference="UAM12345",
+            reference="SPON-UAM12345",
             ltla_name=[self.ltla_one_a_name],
             utla_name=[self.utla_one_name],
         )
@@ -237,7 +237,7 @@ class UamDetailFilesViewTests(TestSessionTokenMixin, UamsBaseTestCase, S3TestCas
         self.client.force_login(user)
 
         uam = SponsorshipCertificationFormFactory(
-            reference="UAM12345",
+            reference="SPON-UAM12345",
             ltla_name=[self.ltla_one_a_name],
             utla_name=[self.utla_one_name],
         )
@@ -271,7 +271,7 @@ class UamDetailFilesViewTests(TestSessionTokenMixin, UamsBaseTestCase, S3TestCas
 
         # filenames are set to fail fetching from S3
         uam = SponsorshipCertificationFormFactory(
-            reference="UAM12345",
+            reference="SPON-UAM12345",
             ltla_name=[self.ltla_one_a_name],
             utla_name=[self.utla_one_name],
         )
@@ -318,7 +318,7 @@ class UamDetailFilesViewTests(TestSessionTokenMixin, UamsBaseTestCase, S3TestCas
         self.client.force_login(user)
 
         uam = SponsorshipCertificationFormFactory(
-            reference="UAM12345",
+            reference="SPON-UAM12345",
             ltla_name=[self.ltla_one_a_name],
             utla_name=[self.utla_one_name],
         )
@@ -365,7 +365,7 @@ class UamDetailFilesViewTests(TestSessionTokenMixin, UamsBaseTestCase, S3TestCas
         self.client.force_login(user)
 
         uam = SponsorshipCertificationFormFactory(
-            reference="UAM12345",
+            reference="SPON-UAM12345",
             ltla_name=[self.ltla_one_a_name],
             utla_name=[self.utla_one_name],
             uk_parental_consent_filename="uk_parental_consent.txt",
@@ -408,7 +408,7 @@ class UamDetailFilesViewTests(TestSessionTokenMixin, UamsBaseTestCase, S3TestCas
         self.client.force_login(user)
 
         uam = SponsorshipCertificationFormFactory(
-            reference="UAM12345",
+            reference="SPON-UAM12345",
             ltla_name=[self.ltla_one_a_name],
             utla_name=[self.utla_one_name],
         )
@@ -441,7 +441,7 @@ class UamDetailFilesViewTests(TestSessionTokenMixin, UamsBaseTestCase, S3TestCas
         self.client.force_login(user)
 
         uam = SponsorshipCertificationFormFactory(
-            reference="UAM12345",
+            reference="SPON-UAM12345",
             ltla_name=[self.ltla_one_a_name],
             utla_name=[self.utla_one_name],
         )
