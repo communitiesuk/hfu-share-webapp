@@ -6,6 +6,7 @@ from auditlog.filters import ResourceTypeFilter
 from auditlog.mixins import AuditlogHistoryAdminMixin
 from auditlog.models import LogEntry
 from django.contrib import admin
+from django.db import DatabaseError
 from django.db.models import (
     DateTimeField,
     F,
@@ -231,7 +232,7 @@ class MvPersonAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
                     success_count += 1
                 else:
                     already_correct_count += 1
-            except Exception:
+            except DatabaseError:
                 error_count += 1
 
         summary = (
