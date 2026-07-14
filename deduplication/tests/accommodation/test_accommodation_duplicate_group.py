@@ -21,10 +21,7 @@ class AccommodationDuplicateGroupTestCase(TestCase):
         self.duplicate_group.accommodations.add(self.accommodation_two)
         self.duplicate_group.save()
 
-    def _check_object_in_results(self, obj, results):
-        return str(obj.pk) in [str(result.pk) for result in results]
-
     def test_archived_accommodation_is_not_in_results(self):
         results = AccommodationDuplicateGroup.objects.all()
 
-        self.assertFalse(self._check_object_in_results(self.duplicate_group, results))
+        self.assertNotIn(self.duplicate_group, results)
