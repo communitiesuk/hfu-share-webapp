@@ -60,12 +60,12 @@ jobs:
             status: ":x: ${{ inputs.success_or_failure }}"
             blocks:[
               {
-                type: "section",
+              - type: "section",
+                text: {
+                  type: "mrkdwn",
+                  text: github_actor
+                },
                 fields: [
-                  {
-                    type: "mrkdwn",
-                    text: github_actor
-                  },
                   {
                     type: "mrkdwn",
                     text: workflow_run
