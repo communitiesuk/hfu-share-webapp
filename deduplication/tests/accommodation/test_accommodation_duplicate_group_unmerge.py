@@ -89,4 +89,4 @@ class AccommodationDuplicateGroupUndoDeduplicationTestCase(TestCase):
         self.assertEqual(duplicate_group.principal_record.archived_at, timezone.now())
         self.assertEqual(duplicate_group.archived_at, timezone.now())
         self.assertTrue(duplicate_group.is_archived)
-        self.assertIsNotNone(self.duplicate_group.principal_record)
+        self.assertIsNotNone(duplicate_group.principal_record)
