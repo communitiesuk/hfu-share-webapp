@@ -7,6 +7,7 @@ from case_management.settings import AWS_REGION
 from ontology.models import SponsorshipCertificationForm
 
 PRESIGNED_LINK_EXPIRY_SECONDS = 1000
+GOVUK_FORMS_ATTACHMENT_FOLDER = "uams/govuk_forms"
 
 
 def get_s3_client():
@@ -73,4 +74,4 @@ def get_govuk_forms_attachment_filepath(
     else:
         return ""
 
-    return f"uams/govuk_forms/{submission_datestring}_{uam.reference}/{filename}"
+    return f"{GOVUK_FORMS_ATTACHMENT_FOLDER}/{submission_datestring}_{uam.reference}/{filename}"  # noqa E501

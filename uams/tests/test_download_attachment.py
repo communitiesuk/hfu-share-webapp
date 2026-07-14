@@ -19,6 +19,7 @@ from user_management.tests.base import (
     get_service_support_user,
     get_ukvi_user,
 )
+from webapp.s3 import GOVUK_FORMS_ATTACHMENT_FOLDER
 from webapp.tests.test_s3 import S3TestCaseMixin
 
 
@@ -414,7 +415,7 @@ class UamGOVUKFormsAttachmentViewTests(
         # Check if the response is a redirect to the presigned URL
         self.assertEqual(response.status_code, http.client.FOUND)
         self.assertIn(
-            "uams/govuk_forms/20260701T130203Z_UAM123/uk_parental_consent.txt",
+            f"{GOVUK_FORMS_ATTACHMENT_FOLDER}/20260701T130203Z_UAM123/uk_parental_consent.txt",
             response.url,
         )
 
@@ -435,7 +436,7 @@ class UamGOVUKFormsAttachmentViewTests(
         # Check if the response is a redirect to the presigned URL
         self.assertEqual(response.status_code, http.client.FOUND)
         self.assertIn(
-            "uams/govuk_forms/20260701T130203Z_UAM123/ukraine_parental_consent.txt",
+            f"{GOVUK_FORMS_ATTACHMENT_FOLDER}/20260701T130203Z_UAM123/ukraine_parental_consent.txt",
             response.url,
         )
 

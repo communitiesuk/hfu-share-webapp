@@ -431,7 +431,8 @@ class UamsFilesView(PIISafeRecordNameMixin, PermissionsMixin, DetailView):
 
         elif uam.reference:
             # GOV.UK Forms attachments are retrieved differently
-            # Bucket path will be /uams/YYYYMMDDThhmmssZ_ABCD1234/filename.jpg
+            # Bucket path will be:
+            # /uams/govuk_forms/YYYYMMDDThhmmssZ_ABCD1234/filename.jpg
             context["attachments"] = []
 
             if s3_file_exists(
@@ -444,7 +445,7 @@ class UamsFilesView(PIISafeRecordNameMixin, PermissionsMixin, DetailView):
                             "uams:download-govuk-forms-attachment",
                             kwargs={"pk": uam.pk, "consent_file_type": "uk"},
                         ),
-                        "name": uam.uk_parental_consent_filename or "Consent form",
+                        "name": uam.uk_parental_consent_filename,
                     }
                 )
 
@@ -458,7 +459,7 @@ class UamsFilesView(PIISafeRecordNameMixin, PermissionsMixin, DetailView):
                             "uams:download-govuk-forms-attachment",
                             kwargs={"pk": uam.pk, "consent_file_type": "ukraine"},
                         ),
-                        "name": uam.ukraine_parental_consent_filename or "Consent form",
+                        "name": uam.ukraine_parental_consent_filename,
                     }
                 )
 

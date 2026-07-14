@@ -9,6 +9,7 @@ from django.test import TestCase
 from moto import mock_aws
 
 from webapp.s3 import (
+    GOVUK_FORMS_ATTACHMENT_FOLDER,
     get_file_header,
     get_govuk_forms_attachment_filepath,
     get_presigned_download_url,
@@ -28,7 +29,6 @@ class S3TestCaseMixin(TestCase):
         self.aws_region = "eu-west-2"
         self.test_bucket = "test-bucket"
         self.uam_folder_name = "uams"
-        self.govuk_forms_uam_folder_name = "uams/govuk_forms"
         self.interactions_folder_name = "interactions"
         self.comments_folder_name = "comments"
 
@@ -63,8 +63,8 @@ class S3TestCaseMixin(TestCase):
         self.file_key_5 = f"{self.comments_folder_name}/comment_attachment.txt"
 
         # GOV.UK Forms attachments
-        self.file_key_6 = f"{self.govuk_forms_uam_folder_name}/20260701T130203Z_UAM123/uk_parental_consent.txt"  # noqa E501
-        self.file_key_7 = f"{self.govuk_forms_uam_folder_name}/20260701T130203Z_UAM123/ukraine_parental_consent.txt"  # noqa E501
+        self.file_key_6 = f"{GOVUK_FORMS_ATTACHMENT_FOLDER}/20260701T130203Z_UAM123/uk_parental_consent.txt"  # noqa E501
+        self.file_key_7 = f"{GOVUK_FORMS_ATTACHMENT_FOLDER}/20260701T130203Z_UAM123/ukraine_parental_consent.txt"  # noqa E501
 
         conn.put_object(
             Bucket=self.test_bucket,
@@ -204,13 +204,13 @@ class TestGetGovukFormsAttachmentFilePath(TestCase):
     def test_get_govuk_forms_attachment_file_uk(self):
         self.assertEqual(
             get_govuk_forms_attachment_filepath(self.uam, "uk"),
-            "uams/govuk_forms/20260701T130203Z_UAM123/uk_parental_consent.txt",
+            f"{GOVUK_FORMS_ATTACHMENT_FOLDER}/20260701T130203Z_UAM123/uk_parental_consent.txt",
         )
 
     def test_get_govuk_forms_attachment_file_ukraine(self):
         self.assertEqual(
             get_govuk_forms_attachment_filepath(self.uam, "ukraine"),
-            "uams/govuk_forms/20260701T130203Z_UAM123/ukraine_parental_consent.txt",
+            f"{GOVUK_FORMS_ATTACHMENT_FOLDER}/20260701T130203Z_UAM123/ukraine_parental_consent.txt",
         )
 
     def test_get_govuk_forms_attachment_file_invalid_type(self):
