@@ -414,7 +414,8 @@ class UamGOVUKFormsAttachmentViewTests(
         # Check if the response is a redirect to the presigned URL
         self.assertEqual(response.status_code, http.client.FOUND)
         self.assertIn(
-            "uams/20260701T130203Z_UAM123/uk_parental_consent.txt", response.url
+            "uams/govuk_forms/20260701T130203Z_UAM123/uk_parental_consent.txt",
+            response.url,
         )
 
     def test_dev_user_is_granted_access_to_ukraine_form_attachment(self):
@@ -434,7 +435,8 @@ class UamGOVUKFormsAttachmentViewTests(
         # Check if the response is a redirect to the presigned URL
         self.assertEqual(response.status_code, http.client.FOUND)
         self.assertIn(
-            "uams/20260701T130203Z_UAM123/ukraine_parental_consent.txt", response.url
+            "uams/govuk_forms/20260701T130203Z_UAM123/ukraine_parental_consent.txt",
+            response.url,
         )
 
     def test_unauthorised_user_cannot_download_attachment(self):

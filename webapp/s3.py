@@ -73,4 +73,4 @@ def get_govuk_forms_attachment_filepath(
     else:
         return ""
 
-    return f"uams/{submission_datestring}_{uam.reference}/{filename}"
+    return f"uams/govuk_forms/{submission_datestring}_{uam.reference}/{filename}"
