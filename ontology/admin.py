@@ -202,6 +202,9 @@ class MvPersonAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
     readonly_fields = ["devcheckv2_detail_view"]
     list_filter = ["visa_status", "is_principal"]
 
+    def get_queryset(self, request):
+        return MvPerson.all_objects.all()
+
     def devcheckv2_detail_view(self, obj):
         return devcheckv2_detail_view(obj)
 
@@ -226,6 +229,9 @@ class AccommodationAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
     list_display = ["full_address", "is_available_for_rematch", "accommodation_type"]
     list_filter = ["accommodation_type", "notional_data", "is_principal"]
     readonly_fields = ["detail_view"]
+
+    def get_queryset(self, request):
+        return MvAccommodation.all_objects.all()
 
     def detail_view(self, obj):
         if obj.pk:
@@ -334,6 +340,9 @@ class MvVolunteerAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
     ]
     search_fields = ["full_name", "email", "application_unique_application_number"]
     list_filter = ["sponsor_type", "is_sponsor", "notional_data", "is_principal"]
+
+    def get_queryset(self, request):
+        return MvVolunteer.all_objects.all()
 
 
 class MvInteractionAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):

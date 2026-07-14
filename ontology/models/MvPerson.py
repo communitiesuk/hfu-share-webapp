@@ -33,13 +33,9 @@ class MvPersonQuerySet(models.QuerySet):
         )
 
 
-class MvPersonManager(LocalAuthorityPermissionsManagerMixin, models.Manager):
+class MvPersonBaseManager(LocalAuthorityPermissionsManagerMixin, models.Manager):
     def get_queryset(self):
-        return (
-            MvPersonQuerySet(self.model, using=self._db)
-            .with_full_name()
-            .filter(is_archived=False)
-        )
+        return MvPersonQuerySet(self.model, using=self._db).with_full_name()
 
     def _filter_by_ltla_name(self, ltla_names: list[str]) -> Q:
         return Q(accommodation_request__ltla_name__overlap=ltla_names) & ~Q(
@@ -55,6 +51,11 @@ class MvPersonManager(LocalAuthorityPermissionsManagerMixin, models.Manager):
         return Q(viewer_group_names__overlap=viewer_group_names)
 
 
+class MvPersonManager(MvPersonBaseManager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_archived=False)
+
+
 class MvPerson(models.Model):
     class UPEVisaStatus(models.TextChoices):
         NO_OUTCOME = "NO_OUTCOME", "No UPE visa application outcome"
@@ -64,6 +65,7 @@ class MvPerson(models.Model):
         WITHDRAWN = "UPE_VISA_WITHDRAWN", "UPE visa withdrawn"
 
     objects = MvPersonManager()
+    all_objects = MvPersonBaseManager()
     checks: QuerySet[DevCheckV2]
 
     accommodation_request = models.ForeignKey(

@@ -17,10 +17,7 @@ def generate_id():
     return f"sponsor-{uuid.uuid4()}"
 
 
-class MvVolunteerManager(LocalAuthorityPermissionsManagerMixin, models.Manager):
-    def get_queryset(self):
-        return super().get_queryset().filter(is_archived=False)
-
+class MvVolunteerBaseManager(LocalAuthorityPermissionsManagerMixin, models.Manager):
     def _filter_by_ltla_name(self, ltla_names: list[str]) -> Q:
         return Q(accommodations__ltla_name__in=ltla_names)
 
@@ -31,8 +28,14 @@ class MvVolunteerManager(LocalAuthorityPermissionsManagerMixin, models.Manager):
         return Q(viewer_group_names__overlap=viewer_group_names)
 
 
+class MvVolunteerManager(MvVolunteerBaseManager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_archived=False)
+
+
 class MvVolunteer(models.Model):
     objects = MvVolunteerManager()
+    all_objects = MvVolunteerBaseManager()
     checks: QuerySet[DevCheckV2]
 
     class SponsorType(models.TextChoices):
