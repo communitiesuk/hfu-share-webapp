@@ -58,22 +58,13 @@ jobs:
           payload: |
             deployment: "${{ inputs.job_type }} to ${{ inputs.environment }}"
             status: ":x: ${{ inputs.success_or_failure }}"
-            blocks:[
-              {
+            blocks:
               - type: "section",
-                text: {
-                  type: "mrkdwn",
+                text:
+                  type: "mrkdwn"
                   text: github_actor
-                },
-                fields: [
-                  {
-                    type: "mrkdwn",
+                fields:
+                  - type: "mrkdwn"
                     text: workflow_run
-                  },
-                  {
-                    type: "mrkdwn",
+                  - type: "mrkdwn"
                     text: release_notes
-                  }
-                ]
-              }
-            ]
