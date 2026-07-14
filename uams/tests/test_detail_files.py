@@ -512,3 +512,34 @@ class UamDetailFilesViewTests(TestSessionTokenMixin, UamsBaseTestCase, S3TestCas
         self.assertContains(
             response, "/uams/GOVUKFORMS-UAM12345/download-forms-attachment/ukraine"
         )
+
+    @mock.patch("uams.views.s3_file_exists")
+    def test_files_view_with_missing_govuk_forms_attachments(self, s3_file_exists):
+        s3_file_exists.return_value = False
+
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        uam = SponsorshipCertificationFormFactory(
+            reference="GOVUKFORMS-UAM12345",
+            ltla_name=[self.ltla_one_a_name],
+            utla_name=[self.utla_one_name],
+            uk_parental_consent_filename="uk.pdf",
+            ukraine_parental_consent_filename="ukraine.jpg",
+        )
+
+        response = self.client.get(
+            reverse(
+                "uams:detail-files",
+                kwargs={"pk": uam.pk},
+            )
+        )
+
+        self.assertNotContains(response, "uk.pdf")
+        self.assertNotContains(
+            response, "/uams/GOVUKFORMS-UAM12345/download-forms-attachment/uk"
+        )
+        self.assertNotContains(response, "ukraine.jpg")
+        self.assertNotContains(
+            response, "/uams/GOVUKFORMS-UAM12345/download-forms-attachment/ukraine"
+        )
