@@ -11,6 +11,15 @@ on:
       message_text:
         required: true
         type: string
+      github_actor:
+        required: true
+        type: string
+      workflow_run:
+        required: true
+        type: string
+      release_notes:
+        required: true
+        type: string
       success_or_failure:
         required: true
         type: string
