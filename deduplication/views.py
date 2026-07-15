@@ -80,6 +80,22 @@ from webapp.widgets import CheckboxSelectMultipleWithTags, DatePicker, StackedRa
 logger = logging.getLogger(__name__)
 
 
+def get_non_principal_records(records):
+    return [record for record in records if not record.is_principal]
+
+
+def non_principal_records_error_message(record_names: List[str]) -> str:
+    outcome = "No new principal record was created."
+    if len(record_names) == 1:
+        return f"The {record_names[0]} record has already been deduplicated. {outcome}"
+
+    joined_names = ", ".join(record_names)
+    return (
+        f"The following records have already been deduplicated: {joined_names}. "
+        f"{outcome}"
+    )
+
+
 class SelectAndReviewRecordsStep(StrEnum):
     SELECT_RECORD = "select-record"
     VIEW_SELECTED_RECORDS = "view-selected-records"
@@ -2256,6 +2272,20 @@ class SelectAndViewRecordsFormWizard(
             "Implement this to provide the review records list step view"
         )
 
+    def get_record_display_names(self, records):
+        raise NotImplementedError(
+            "Implement this to provide display names for the selected records"
+        )
+
+    def redirect_with_non_principal_records_error(self, non_principal_records):
+        messages.error(
+            self.request,
+            non_principal_records_error_message(
+                self.get_record_display_names(non_principal_records)
+            ),
+        )
+        return redirect(self.get_step_url(SelectAndReviewRecordsStep.SELECT_RECORD))
+
 
 class UndoDeduplicationRecordsFormWizard(
     PermissionsMixin,
@@ -2464,8 +2494,22 @@ class SelectAndReviewSponsorRecordsFormWizard(SelectAndViewRecordsFormWizard):
             + "?reset=true"
         )
 
+    def get_record_display_names(self, records):
+        return [sponsor.full_name for sponsor in records]
+
     def done(self, form_list, **kwargs):
         try:
+            selected_sponsors = list(
+                self.get_cleaned_data_for_step(
+                    SelectAndReviewRecordsStep.SELECT_RECORD
+                )["sponsor_record"]
+            )
+            non_principal_sponsors = get_non_principal_records(selected_sponsors)
+            if non_principal_sponsors:
+                return self.redirect_with_non_principal_records_error(
+                    non_principal_sponsors
+                )
+
             ps = self.get_cleaned_data_for_step(
                 SelectAndReviewRecordsStep.SELECT_CORRECT_DETAILS
             )
@@ -2483,11 +2527,7 @@ class SelectAndReviewSponsorRecordsFormWizard(SelectAndViewRecordsFormWizard):
             }
 
             dedup_sponsor_group = SponsorDuplicateGroup.objects.create()
-            dedup_sponsor_group.sponsors.set(
-                self.get_cleaned_data_for_step(
-                    SelectAndReviewRecordsStep.SELECT_RECORD
-                )["sponsor_record"]
-            )
+            dedup_sponsor_group.sponsors.set(selected_sponsors)
             dedup_sponsor_group.deduplicate(
                 principal_sponsor_details, user=self.request.user
             )
@@ -2891,8 +2931,22 @@ class SelectAndReviewGuestRecordsFormWizard(SelectAndViewRecordsFormWizard):
             + "?reset=true"
         )
 
+    def get_record_display_names(self, records):
+        return [guest.get_full_name() for guest in records]
+
     def done(self, form_list, **kwargs):
         try:
+            selected_guests = list(
+                self.get_cleaned_data_for_step(
+                    SelectAndReviewRecordsStep.SELECT_RECORD
+                )["guest_record"]
+            )
+            non_principal_guests = get_non_principal_records(selected_guests)
+            if non_principal_guests:
+                return self.redirect_with_non_principal_records_error(
+                    non_principal_guests
+                )
+
             ps = self.get_cleaned_data_for_step(
                 SelectAndReviewRecordsStep.SELECT_CORRECT_DETAILS
             )
@@ -2922,11 +2976,7 @@ class SelectAndReviewGuestRecordsFormWizard(SelectAndViewRecordsFormWizard):
                 principal_guest_details["accommodation_request"] = ar
 
             dedup_guest_group = GuestDuplicateGroup.objects.create()
-            dedup_guest_group.guests.set(
-                self.get_cleaned_data_for_step(
-                    SelectAndReviewRecordsStep.SELECT_RECORD
-                )["guest_record"]
-            )
+            dedup_guest_group.guests.set(selected_guests)
 
             dedup_guest_group.deduplicate(
                 principal_guest_details, user=self.request.user
@@ -3287,8 +3337,24 @@ class SelectAndReviewAccommodationRecordsFormWizard(SelectAndViewRecordsFormWiza
             + "?reset=true"
         )
 
+    def get_record_display_names(self, records):
+        return [accommodation.full_address for accommodation in records]
+
     def done(self, form_list, **kwargs):
         try:
+            selected_accommodations = list(
+                self.get_cleaned_data_for_step(
+                    SelectAndReviewRecordsStep.SELECT_RECORD
+                )["accommodation_record"]
+            )
+            non_principal_accommodations = get_non_principal_records(
+                selected_accommodations
+            )
+            if non_principal_accommodations:
+                return self.redirect_with_non_principal_records_error(
+                    non_principal_accommodations
+                )
+
             ps = self.get_cleaned_data_for_step(
                 SelectAndReviewRecordsStep.SELECT_CORRECT_DETAILS
             )
@@ -3302,11 +3368,7 @@ class SelectAndReviewAccommodationRecordsFormWizard(SelectAndViewRecordsFormWiza
             }
 
             dedup_accommodation_group = AccommodationDuplicateGroup.objects.create()
-            dedup_accommodation_group.accommodations.set(
-                self.get_cleaned_data_for_step(
-                    SelectAndReviewRecordsStep.SELECT_RECORD
-                )["accommodation_record"]
-            )
+            dedup_accommodation_group.accommodations.set(selected_accommodations)
             dedup_accommodation_group.deduplicate(
                 principal_accommodation_details, user=self.request.user
             )
