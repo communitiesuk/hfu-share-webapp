@@ -1,7 +1,7 @@
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, QuerySet
 
 from accounts.enums import GroupType
 from accounts.models import GroupInfo, User
@@ -12,9 +12,26 @@ from ontology.models.VisaApplication import VisaApplication
 from ontology.utils import LinkedRecordData
 
 
+class MvAccommodationQueryset(models.QuerySet):
+    def _la_names(self, la_field_name: str) -> QuerySet[str]:
+        return (
+            self.values_list(la_field_name, flat=True)
+            .distinct()
+            .order_by(la_field_name)
+        )
+
+    def ltla_names(self) -> QuerySet[str]:
+        return self._la_names("ltla_name")
+
+    def utla_names(self) -> QuerySet[str]:
+        return self._la_names("utla_name")
+
+
 class MvAccommodationBaseManager(LocalAuthorityPermissionsManagerMixin, models.Manager):
     def get_queryset(self):
-        return super().get_queryset().select_related("postcode")
+        return MvAccommodationQueryset(self.model, using=self._db).select_related(
+            "postcode"
+        )
 
     def _filter_by_ltla_name(self, ltla_names: list[str]) -> Q:
         return Q(ltla_name__in=ltla_names)
