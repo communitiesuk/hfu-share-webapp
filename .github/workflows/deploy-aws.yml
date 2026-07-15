@@ -183,7 +183,9 @@ jobs:
       environment: ${{ needs.deploy.outputs.deploy_env }}
       success_or_failure: ${{ needs.deploy.result }}
       job_type: 'Release'
-      message_text: Triggered by ${{ github.actor }}. See workflow run at https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      github_actor: Triggered by ${{ github.actor }}.
+      workflow_run: See workflow run at https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      release_notes: See latest release at https://github.com/communitiesuk/hfu-share-webapp/releases/tag/${{ inputs.refToDeploy }}
     secrets:
       SLACK_SUCCESS_WEBHOOK_URL: ${{ secrets.SLACK_SUCCESS_WEBHOOK_URL }}
       SLACK_FAILURE_WEBHOOK_URL: ${{ secrets.SLACK_FAILURE_WEBHOOK_URL }}
