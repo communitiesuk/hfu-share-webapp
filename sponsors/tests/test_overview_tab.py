@@ -75,6 +75,14 @@ class SponsorsLinkedRecordsTestCase(
         )
         self.da_accommodation.hosts.set([self.da_sponsor.id])
 
+        self.archived_sponsor = MvVolunteerFactory(
+            first_name="Archived",
+            last_name="Sponsor",
+            is_principal=True,
+            is_archived=True,
+            archived_at=datetime(2025, 12, 25, tzinfo=timezone.utc),
+        )
+
     def test_la_user_is_allowed_access(self):
         user = get_la_user()
         self.client.force_login(user)
@@ -121,6 +129,19 @@ class SponsorsLinkedRecordsTestCase(
                 args=[self.sponsor.pk],
             )
         )
+        self.assertEqual(response.status_code, http.client.NOT_FOUND)
+
+    def test_archived_sponsor_cannot_be_viewed(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse(
+                "sponsors:detail-overview",
+                args=[self.archived_sponsor.pk],
+            )
+        )
+
         self.assertEqual(response.status_code, http.client.NOT_FOUND)
 
     def test_overview_should_display_sponsor_first_name(self):

@@ -31,3 +31,9 @@ class MvVolunteerTestCase(TestCase):
         data = sponsor.display_link_data(None, None)
 
         self.assertEqual(data.title, "(abc@example.com)")
+
+    def test_mv_volunteer_factory_does_not_create_archived_record(self):
+        sponsor = MvVolunteerFactory()
+
+        self.assertFalse(sponsor.is_archived)
+        self.assertIsNone(sponsor.archived_at)

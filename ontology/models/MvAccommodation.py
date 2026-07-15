@@ -14,7 +14,9 @@ from ontology.utils import LinkedRecordData
 
 class MvAccommodationManager(LocalAuthorityPermissionsManagerMixin, models.Manager):
     def get_queryset(self):
-        return super().get_queryset().select_related("postcode")
+        return (
+            super().get_queryset().select_related("postcode").filter(is_archived=False)
+        )
 
     def _filter_by_ltla_name(self, ltla_names: list[str]) -> Q:
         return Q(ltla_name__in=ltla_names)

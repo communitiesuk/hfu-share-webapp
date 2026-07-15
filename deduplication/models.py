@@ -109,6 +109,9 @@ def _exists_when_logging(queryset: models.QuerySet) -> bool | None:
 class SponsorDuplicateGroupManager(
     LocalAuthorityPermissionsManagerMixin, models.Manager
 ):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_archived=False)
+
     def _filter_by_ltla_name(self, ltla_names: list[str]) -> Q:
         sponsors_cannot_view = MvVolunteer.objects.exclude(
             MvVolunteer.objects._filter_by_ltla_name(ltla_names)
@@ -693,6 +696,9 @@ class SponsorDuplicateGroup(models.Model):
 class AccommodationDuplicateGroupManager(
     LocalAuthorityPermissionsManagerMixin, models.Manager
 ):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_archived=False)
+
     def _filter_by_ltla_name(self, ltla_names: list[str]) -> Q:
         accommodations_cannot_view = MvAccommodation.objects.exclude(
             MvAccommodation.objects._filter_by_ltla_name(ltla_names)
@@ -1278,6 +1284,9 @@ class AccommodationDuplicateGroup(models.Model):
 
 
 class GuestDuplicateGroupManager(LocalAuthorityPermissionsManagerMixin, models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_archived=False)
+
     def _filter_by_ltla_name(self, ltla_names: list[str]) -> Q:
         guests_cannot_view = MvPerson.objects.exclude(
             MvPerson.objects._filter_by_ltla_name(ltla_names)

@@ -54,6 +54,26 @@ class AccommodationOverviewTestCase(
         self.dup_group.accommodations.set([self.dup_record_one, self.dup_record_two])
         self.dup_group.save()
 
+        self.archived_accommodation = MvAccommodationFactory(
+            full_address="Archived address",
+            is_principal=True,
+            is_archived=True,
+            archived_at=datetime(2025, 12, 25, tzinfo=timezone.utc),
+        )
+
+    def test_archived_accommodation_cannot_be_viewed(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse(
+                "accommodations:detail-overview",
+                args=[self.archived_accommodation.pk],
+            )
+        )
+
+        self.assertEqual(response.status_code, http.client.NOT_FOUND)
+
     def test_overview_should_display_accomm_full_address(self):
         user = get_admin_user()
         self.client.force_login(user)

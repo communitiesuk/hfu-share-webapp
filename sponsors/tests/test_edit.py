@@ -1,5 +1,5 @@
 import http.client
-from datetime import date
+from datetime import date, datetime, timezone
 
 from django.test import TestCase
 from django.urls import reverse
@@ -87,6 +87,14 @@ class SponsorEditViewTests(TestSessionTokenMixin, TestCase):
             "sponsors:detail-overview", kwargs={"pk": self.sponsor.pk}
         )
 
+        self.archived_sponsor = SponsorFactory(
+            first_name="Archived",
+            last_name="Sponsor",
+            is_principal=True,
+            is_archived=True,
+            archived_at=datetime(2025, 12, 25, tzinfo=timezone.utc),
+        )
+
     def test_edit_view_get_loads_correctly_for_da_users(self):
         user = get_da_user()
         self.client.force_login(user)
@@ -129,6 +137,15 @@ class SponsorEditViewTests(TestSessionTokenMixin, TestCase):
             reverse("sponsors:detail-edit", kwargs={"pk": self.uneditable_sponsor.id}),
             form_data={},
             follow=True,
+        )
+
+        self.assertEqual(response.status_code, http.client.NOT_FOUND)
+
+    def test_edit_view_returns_404_for_archived_sponsor(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+        response = self.client.get(
+            reverse("sponsors:detail-edit", kwargs={"pk": self.archived_sponsor.id})
         )
 
         self.assertEqual(response.status_code, http.client.NOT_FOUND)

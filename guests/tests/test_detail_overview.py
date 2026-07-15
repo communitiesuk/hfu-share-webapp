@@ -57,6 +57,24 @@ class GuestDetailOverviewViewTests(TestSessionTokenMixin, TestCase):
         self.dup_group.guests.set([self.dup_record_one, self.dup_record_two])
         self.dup_group.save()
 
+        self.archived_guest = MvPersonFactory(
+            first_name="Archived",
+            last_name="Sponsor",
+            is_principal=True,
+            is_archived=True,
+            archived_at=datetime(2025, 12, 25, tzinfo=timezone.utc),
+        )
+
+    def test_archived_guest_cannot_be_viewed(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse("guests:detail-overview", kwargs={"pk": self.archived_guest.pk})
+        )
+
+        self.assertEqual(response.status_code, http.client.NOT_FOUND)
+
     def test_show_upe_visa_status_la_user(self):
         la_user = get_la_user()
         view = GuestDetailOverviewView()

@@ -18,6 +18,9 @@ def generate_id():
 
 
 class MvVolunteerManager(LocalAuthorityPermissionsManagerMixin, models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_archived=False)
+
     def _filter_by_ltla_name(self, ltla_names: list[str]) -> Q:
         return Q(accommodations__ltla_name__in=ltla_names)
 

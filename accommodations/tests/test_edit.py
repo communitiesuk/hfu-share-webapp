@@ -1,5 +1,5 @@
 import http.client
-from datetime import date
+from datetime import date, datetime, timezone
 
 from django.test import TestCase
 from django.urls import reverse
@@ -64,6 +64,13 @@ class AccommodationEditViewTests(TestSessionTokenMixin, TestCase):
             utla_name="Aberdeenshire",
         )
 
+        self.archived_accommodation = AccommodationFactory(
+            full_address="Archived address",
+            is_principal=True,
+            is_archived=True,
+            archived_at=datetime(2025, 12, 25, tzinfo=timezone.utc),
+        )
+
         self.edit_url = reverse(
             "accommodations:edit", kwargs={"pk": self.accommodation.id}
         )
@@ -118,6 +125,16 @@ class AccommodationEditViewTests(TestSessionTokenMixin, TestCase):
         response = self.client.get(
             reverse(
                 "accommodations:edit", kwargs={"pk": self.uneditable_accommodation.id}
+            )
+        )
+
+        self.assertEqual(response.status_code, http.client.NOT_FOUND)
+
+    def test_edit_view_returns_404_for_archived_accommodation(self):
+        self.client.force_login(self.user)
+        response = self.client.get(
+            reverse(
+                "accommodations:edit", kwargs={"pk": self.archived_accommodation.id}
             )
         )
 

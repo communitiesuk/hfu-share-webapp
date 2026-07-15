@@ -39,6 +39,14 @@ class DeduplicationGuestListViewTestCase(TestSessionTokenMixin, TestCase):
             is_principal=False,
         )
 
+        self.archived_guest = MvPersonFactory(
+            first_name="Archived",
+            last_name="Sponsor",
+            is_principal=True,
+            is_archived=True,
+            archived_at=datetime(2025, 12, 25, tzinfo=timezone.utc),
+        )
+
     def test_renders_guest_list_with_correct_layout(self):
         user = get_admin_user()
         self.client.force_login(user)
@@ -96,6 +104,18 @@ class DeduplicationGuestListViewTestCase(TestSessionTokenMixin, TestCase):
         )
 
         self.assertNotContains(response, self.non_principal_guest.get_full_name())
+
+    def test_does_not_render_archived_guest(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse(
+                "guests:guests",
+            )
+        )
+
+        self.assertNotContains(response, self.archived_guest.get_full_name())
 
     def test_admin_user_can_access_list_view(self):
         user = get_admin_user()
