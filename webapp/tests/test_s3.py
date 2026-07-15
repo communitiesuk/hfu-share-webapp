@@ -1,4 +1,6 @@
 import os
+from datetime import datetime, timezone
+from unittest import mock
 from unittest.mock import patch
 
 import boto3
@@ -6,7 +8,12 @@ from botocore.exceptions import ClientError
 from django.test import TestCase
 from moto import mock_aws
 
-from webapp.s3 import get_file_header, get_presigned_download_url
+from webapp.s3 import (
+    GOVUK_FORMS_ATTACHMENT_FOLDER,
+    get_file_header,
+    get_govuk_forms_attachment_filepath,
+    get_presigned_download_url,
+)
 
 
 class S3TestCaseMixin(TestCase):
@@ -55,6 +62,10 @@ class S3TestCaseMixin(TestCase):
         )
         self.file_key_5 = f"{self.comments_folder_name}/comment_attachment.txt"
 
+        # GOV.UK Forms attachments
+        self.file_key_6 = f"{GOVUK_FORMS_ATTACHMENT_FOLDER}/20260701T130203Z_UAM123/uk_parental_consent.txt"  # noqa E501
+        self.file_key_7 = f"{GOVUK_FORMS_ATTACHMENT_FOLDER}/20260701T130203Z_UAM123/ukraine_parental_consent.txt"  # noqa E501
+
         conn.put_object(
             Bucket=self.test_bucket,
             Key=self.file_key_1,
@@ -79,6 +90,16 @@ class S3TestCaseMixin(TestCase):
             Bucket=self.test_bucket,
             Key=self.file_key_5,
             Body="Example content in comment file",
+        )
+        conn.put_object(
+            Bucket=self.test_bucket,
+            Key=self.file_key_6,
+            Body="Example content in Forms UAM UK file",
+        )
+        conn.put_object(
+            Bucket=self.test_bucket,
+            Key=self.file_key_7,
+            Body="Example content in Forms UAM Ukraine file",
         )
 
     def tearDown(self):
@@ -162,3 +183,43 @@ class TestGetPresignedDownloadUrl(S3TestCaseMixin):
         response = context.exception.response
         self.assertEqual(response["ResponseMetadata"]["HTTPStatusCode"], 404)
         self.assertEqual(response["Error"]["Message"], "Not Found")
+
+
+class TestGetGovukFormsAttachmentFilePath(TestCase):
+    def setUp(self):
+        created_at = datetime(2026, 7, 1, 13, 2, 3, tzinfo=timezone.utc)
+        self.uam = mock.Mock(
+            created_at=created_at,
+            reference="UAM123",
+            uk_parental_consent_filename="uk_parental_consent.txt",
+            ukraine_parental_consent_filename="ukraine_parental_consent.txt",
+        )
+        self.uam_without_created_date = mock.Mock(
+            created_at=None,
+            reference="UAM123",
+            uk_parental_consent_filename="uk_parental_consent.txt",
+            ukraine_parental_consent_filename="ukraine_parental_consent.txt",
+        )
+
+    def test_get_govuk_forms_attachment_file_uk(self):
+        self.assertEqual(
+            get_govuk_forms_attachment_filepath(self.uam, "uk"),
+            f"{GOVUK_FORMS_ATTACHMENT_FOLDER}/20260701T130203Z_UAM123/uk_parental_consent.txt",
+        )
+
+    def test_get_govuk_forms_attachment_file_ukraine(self):
+        self.assertEqual(
+            get_govuk_forms_attachment_filepath(self.uam, "ukraine"),
+            f"{GOVUK_FORMS_ATTACHMENT_FOLDER}/20260701T130203Z_UAM123/ukraine_parental_consent.txt",
+        )
+
+    def test_get_govuk_forms_attachment_file_invalid_type(self):
+        self.assertEqual(get_govuk_forms_attachment_filepath(self.uam, "invalid"), "")
+
+    def test_get_govuk_forms_attachment_file_invalid_created_date(self):
+        self.assertEqual(
+            get_govuk_forms_attachment_filepath(
+                self.uam_without_created_date, "ukraine"
+            ),
+            "",
+        )

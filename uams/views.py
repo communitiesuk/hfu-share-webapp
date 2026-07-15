@@ -29,7 +29,11 @@ from ontology.models import (
 )
 from webapp.constants import UAMS_SEARCH_FIELDS
 from webapp.mixins import FilterPanelMixin, PermissionsMixin, PIISafeRecordNameMixin
-from webapp.s3 import get_presigned_download_url, s3_file_exists
+from webapp.s3 import (
+    get_govuk_forms_attachment_filepath,
+    get_presigned_download_url,
+    s3_file_exists,
+)
 from webapp.search import perform_search
 from webapp.utils import (
     CustomDateColumn,
@@ -390,38 +394,74 @@ class UamsFilesView(PIISafeRecordNameMixin, PermissionsMixin, DetailView):
         context = super().get_context_data(**kwargs)
         uam = self.object
 
-        if uam.attachments_metadata and uam.attachments_metadata.count() > 0:
-            attachments = uam.attachments_metadata.all()
-        else:
-            person = uam.get_person_restrict_for_user(self.request.user)
-            if person is None or person.checks is None:
-                return context
-            attachments = SponsorshipCertificationAttachmentMetadata.objects.filter(
-                rid__in=person.checks.filter(
-                    check_type__id__in=[
-                        CheckType.Id.UK_FORM_UPLOADED,
-                        CheckType.Id.UKR_FORM_UPLOADED,
-                    ]
-                ).values_list("document", flat=True)
-            )
+        if uam.reference and uam.reference.startswith("SPON-"):
+            # Legacy UAM attachment journey
+            if uam.attachments_metadata and uam.attachments_metadata.count() > 0:
+                attachments = uam.attachments_metadata.all()
+            else:
+                person = uam.get_person_restrict_for_user(self.request.user)
+                if person is None or person.checks is None:
+                    return context
+                attachments = SponsorshipCertificationAttachmentMetadata.objects.filter(
+                    rid__in=person.checks.filter(
+                        check_type__id__in=[
+                            CheckType.Id.UK_FORM_UPLOADED,
+                            CheckType.Id.UKR_FORM_UPLOADED,
+                        ]
+                    ).values_list("document", flat=True)
+                )
 
-        context["attachments"] = [
-            {
-                "url": reverse(
-                    "uams:download-attachment",
-                    kwargs={
-                        "pk": uam.pk,
-                        "metadata_id": attachment.id,
-                    },
-                ),
-                "name": attachment.filename or "Consent form",
-            }
-            for attachment in attachments
+            context["attachments"] = [
+                {
+                    "url": reverse(
+                        "uams:download-attachment",
+                        kwargs={
+                            "pk": uam.pk,
+                            "metadata_id": attachment.id,
+                        },
+                    ),
+                    "name": attachment.filename or "Consent form",
+                }
+                for attachment in attachments
+                if s3_file_exists(
+                    bucket_name=FILE_DOWNLOAD_S3_BUCKET_NAME,
+                    file_key=f"uams/{attachment.file_path}",
+                )
+            ]
+
+        elif uam.reference:
+            # GOV.UK Forms attachments are retrieved differently
+            # Bucket path will be:
+            # /uams/govuk_forms/YYYYMMDDThhmmssZ_ABCD1234/filename.jpg
+            context["attachments"] = []
+
             if s3_file_exists(
                 bucket_name=FILE_DOWNLOAD_S3_BUCKET_NAME,
-                file_key=f"uams/{attachment.file_path}",
-            )
-        ]
+                file_key=get_govuk_forms_attachment_filepath(uam, "uk"),
+            ):
+                context["attachments"].append(
+                    {
+                        "url": reverse(
+                            "uams:download-govuk-forms-attachment",
+                            kwargs={"pk": uam.pk, "consent_file_type": "uk"},
+                        ),
+                        "name": uam.uk_parental_consent_filename,
+                    }
+                )
+
+            if s3_file_exists(
+                bucket_name=FILE_DOWNLOAD_S3_BUCKET_NAME,
+                file_key=get_govuk_forms_attachment_filepath(uam, "ukraine"),
+            ):
+                context["attachments"].append(
+                    {
+                        "url": reverse(
+                            "uams:download-govuk-forms-attachment",
+                            kwargs={"pk": uam.pk, "consent_file_type": "ukraine"},
+                        ),
+                        "name": uam.ukraine_parental_consent_filename,
+                    }
+                )
 
         return context
 
@@ -479,6 +519,48 @@ class UamsDownloadAttachmentView(PermissionsMixin, SingleObjectMixin, View):
             bucket_name=FILE_DOWNLOAD_S3_BUCKET_NAME,
             file_key=f"uams/{self.file_path}",
             filename=self.file_name,
+        )
+
+        return redirect(presigned_url)
+
+
+class UamsDownloadGOVUKFormsAttachmentView(PermissionsMixin, SingleObjectMixin, View):
+    group_type = [
+        GroupType.DEV,
+        GroupType.LOCAL_AUTHORITY,
+        GroupType.DEVOLVED_ADMINISTRATION,
+        GroupType.MHCLG,
+        GroupType.HOME_OFFICE,
+        GroupType.SERVICE_SUPPORT,
+    ]
+    model = SponsorshipCertificationForm
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.uam = None
+        self.consent_file_type = None
+        self.filename = None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.uam = self.get_object()
+        self.consent_file_type = kwargs.get("consent_file_type")
+
+        if self.consent_file_type == "uk":
+            self.filename = self.uam.uk_parental_consent_filename
+        elif self.consent_file_type == "ukraine":
+            self.filename = self.uam.ukraine_parental_consent_filename
+        else:
+            raise Http404("Consent file type not found")
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, *_args, **_kwargs):
+        presigned_url = get_presigned_download_url(
+            bucket_name=FILE_DOWNLOAD_S3_BUCKET_NAME,
+            file_key=get_govuk_forms_attachment_filepath(
+                self.uam, self.consent_file_type
+            ),
+            filename=self.filename,
         )
 
         return redirect(presigned_url)

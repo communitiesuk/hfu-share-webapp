@@ -1,4 +1,5 @@
 import http.client
+from datetime import datetime, timezone
 
 from botocore.exceptions import ClientError
 from django.urls import reverse
@@ -18,6 +19,7 @@ from user_management.tests.base import (
     get_service_support_user,
     get_ukvi_user,
 )
+from webapp.s3 import GOVUK_FORMS_ATTACHMENT_FOLDER
 from webapp.tests.test_s3 import S3TestCaseMixin
 
 
@@ -369,3 +371,121 @@ class UamDownloadAttachmentViewTests(
             response = context.exception.response
             self.assertEqual(response["ResponseMetadata"]["HTTPStatusCode"], 404)
             self.assertEqual(response["Error"]["Message"], "Not Found")
+
+
+class UamGOVUKFormsAttachmentViewTests(
+    TestSessionTokenMixin, UamsBaseTestCase, S3TestCaseMixin
+):
+    def setUp(self):
+        super().setUp()
+
+        created_at = datetime(2026, 7, 1, 13, 2, 3, tzinfo=timezone.utc)
+        self.uam = SponsorshipCertificationFormFactory(
+            reference="UAM123",
+            created_at=created_at,
+            ltla_name=[self.ltla_one_a_name],
+            utla_name=[self.utla_one_name],
+            uk_parental_consent_filename="uk_parental_consent.txt",
+            ukraine_parental_consent_filename="ukraine_parental_consent.txt",
+        )
+
+        self.uam_with_missing_file = SponsorshipCertificationFormFactory(
+            reference="UAM1234",
+            created_at=created_at,
+            ltla_name=[self.ltla_one_a_name],
+            utla_name=[self.utla_one_name],
+            uk_parental_consent_filename="uk_file_not_found.txt",
+            ukraine_parental_consent_filename="ukraine_parental_consent.txt",
+        )
+
+    def test_dev_user_is_granted_access_to_uk_form_attachment(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse(
+                "uams:download-govuk-forms-attachment",
+                kwargs={
+                    "pk": self.uam.pk,
+                    "consent_file_type": "uk",
+                },
+            )
+        )
+
+        # Check if the response is a redirect to the presigned URL
+        self.assertEqual(response.status_code, http.client.FOUND)
+        self.assertIn(
+            f"{GOVUK_FORMS_ATTACHMENT_FOLDER}/20260701T130203Z_UAM123/uk_parental_consent.txt",
+            response.url,
+        )
+
+    def test_dev_user_is_granted_access_to_ukraine_form_attachment(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse(
+                "uams:download-govuk-forms-attachment",
+                kwargs={
+                    "pk": self.uam.pk,
+                    "consent_file_type": "ukraine",
+                },
+            )
+        )
+
+        # Check if the response is a redirect to the presigned URL
+        self.assertEqual(response.status_code, http.client.FOUND)
+        self.assertIn(
+            f"{GOVUK_FORMS_ATTACHMENT_FOLDER}/20260701T130203Z_UAM123/ukraine_parental_consent.txt",
+            response.url,
+        )
+
+    def test_unauthorised_user_cannot_download_attachment(self):
+        la_user = self.ltla_two_a_user
+        self.client.force_login(la_user)
+
+        response = self.client.get(
+            reverse(
+                "uams:download-govuk-forms-attachment",
+                kwargs={
+                    "pk": self.uam.pk,
+                    "consent_file_type": "ukraine",
+                },
+            )
+        )
+        self.assertEqual(response.status_code, http.client.NOT_FOUND)
+
+    def test_incorrect_attachment_consent_file_type_returns_404(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse(
+                "uams:download-govuk-forms-attachment",
+                kwargs={
+                    "pk": self.uam.pk,
+                    "consent_file_type": "wrong_file_type",
+                },
+            )
+        )
+
+        self.assertEqual(response.status_code, http.client.NOT_FOUND)
+
+    def test_missing_file_attachment_returns_404(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        with self.assertRaises(ClientError) as context:
+            self.client.get(
+                reverse(
+                    "uams:download-govuk-forms-attachment",
+                    kwargs={
+                        "pk": self.uam_with_missing_file.pk,
+                        "consent_file_type": "uk",
+                    },
+                )
+            )
+
+        response = context.exception.response
+        self.assertEqual(response["ResponseMetadata"]["HTTPStatusCode"], 404)
+        self.assertEqual(response["Error"]["Message"], "Not Found")

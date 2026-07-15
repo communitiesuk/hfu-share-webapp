@@ -5,6 +5,7 @@ from .views import (
     UamsDetailOverviewView,
     UamsDetailPropertiesView,
     UamsDownloadAttachmentView,
+    UamsDownloadGOVUKFormsAttachmentView,
     UamsFilesView,
     UamsListView,
 )
@@ -40,5 +41,10 @@ urlpatterns = [
         "<str:pk>/download-attachment/<str:metadata_id>",
         UamsDownloadAttachmentView.as_view(),
         name="download-attachment",
+    ),
+    path(
+        "<str:pk>/download-forms-attachment/<str:consent_file_type>",
+        UamsDownloadGOVUKFormsAttachmentView.as_view(),
+        name="download-govuk-forms-attachment",
     ),
 ]

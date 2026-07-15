@@ -932,25 +932,30 @@ class UamsBaseTestCase(LocalAuthorityBaseTestCaseMixin):
         super().setUp()
 
         self.ltla_one_a_uam = SponsorshipCertificationFormFactory(
+            reference="SPON-1",
             ltla_name=[self.ltla_one_a_name],
             utla_name=[self.utla_one_name],
         )
         self.ltla_two_a_uam = SponsorshipCertificationFormFactory(
+            reference="SPON-2",
             ltla_name=[self.ltla_two_a_name],
             utla_name=[self.utla_two_name],
         )
 
         self.scotland_da_uam = SponsorshipCertificationFormFactory(
+            reference="SPON-3",
             ltla_name=["Aberdeenshire"],
             utla_name=["Aberdeenshire"],
         )
 
         self.multiple_ltlas = SponsorshipCertificationFormFactory(
+            reference="SPON-4",
             ltla_name=[self.ltla_one_a_name, self.ltla_one_b_name],
             utla_name=[self.utla_one_name],
         )
 
         self.multiple_utlas = SponsorshipCertificationFormFactory(
+            reference="SPON-5",
             ltla_name=[self.ltla_two_a_name],
             utla_name=[self.utla_one_name, self.utla_two_name],
         )
