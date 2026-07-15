@@ -454,12 +454,7 @@ class SponsorDuplicateGroup(models.Model):
         log_dedup_persistence_check(
             "SponsorDuplicateGroup.undo_deduplication: finished",
             group_id=self.pk,
-            changes={
-                "principal_record_id": (
-                    self.principal_record_id,
-                    _db_values(self, "principal_record_id").get("principal_record_id"),
-                ),
-            },
+            changes={},
         )
 
         # Add interactions for undo deduplication event
@@ -1198,12 +1193,7 @@ class AccommodationDuplicateGroup(models.Model):
         log_dedup_persistence_check(
             "AccommodationDuplicateGroup.undo_deduplication: finished",
             group_id=self.pk,
-            changes={
-                "principal_record_id": (
-                    self.principal_record_id,
-                    _db_values(self, "principal_record_id").get("principal_record_id"),
-                ),
-            },
+            changes={},
         )
 
         # Add interactions for undo deduplication event
@@ -1603,12 +1593,7 @@ class GuestDuplicateGroup(models.Model):
         log_dedup_persistence_check(
             "GuestDuplicateGroup.undo_deduplication: finished",
             group_id=self.pk,
-            changes={
-                "principal_record_id": (
-                    self.principal_record_id,
-                    _db_values(self, "principal_record_id").get("principal_record_id"),
-                ),
-            },
+            changes={},
         )
 
         # Add interactions for undo deduplication event
