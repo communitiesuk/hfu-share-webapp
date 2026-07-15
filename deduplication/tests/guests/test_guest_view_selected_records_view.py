@@ -505,7 +505,7 @@ class DeduplicationSponsorSelectedViewTests(TestSessionTokenMixin, TestCase):
             response,
             "Select another record from the same lower tier local authority to review.",
         )
-        self.assertContains(response, "You can now review the selected records.")
+        self.assertContains(response, "You can now review your selected records.")
 
         self.assertContains(
             response,

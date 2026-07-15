@@ -10,16 +10,21 @@
             {% include "webapp/components/heading/heading.html" with page_heading="View selected record"|add:suffix %}
         {% endwith %}
     </div>
+    {% if object_list|length > 1 %}
+        <p class="govuk-body govuk-!-margin-top-5 govuk-!-margin-bottom-5 govuk-!-width-two-thirds">
+            You can now review your selected records.
+        </p>
+    {% endif %}
     {% include table_template_url %}
-    <p class="govuk-body govuk-!-margin-top-5 govuk-!-margin-bottom-5 govuk-!-width-two-thirds">
-        {% if object_list|length == 0 %}
+    {% if object_list|length == 0 %}
+        <p class="govuk-body govuk-!-margin-top-5 govuk-!-margin-bottom-5 govuk-!-width-two-thirds">
             All selected records have been removed.
-        {% elif object_list|length <= 1 %}
+        </p>
+    {% elif object_list|length <= 1 %}
+        <p class="govuk-body govuk-!-margin-top-5 govuk-!-margin-bottom-5 govuk-!-width-two-thirds">
             Select another record from the same lower tier local authority to review.
-        {% else %}
-            You can now review the selected records.
-        {% endif %}
-    </p>
+        </p>
+    {% endif %}
     <form class="govuk-button-group" method="post">
         {% csrf_token %}
         {{ wizard.management_form }}

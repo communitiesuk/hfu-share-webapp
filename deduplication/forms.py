@@ -127,11 +127,7 @@ class ReviewSelectedRecordsStepForm(forms.Form):
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            HTML(
-                '<button type="submit"class="govuk-button">'
-                "Continue deduplication"
-                "</button>"
-            ),
+            HTML('<button type="submit"class="govuk-button">Continue</button>'),
             HTML('<a class="govuk-link" href="{{ cancel_url }}">Cancel</a>'),
         )
 
