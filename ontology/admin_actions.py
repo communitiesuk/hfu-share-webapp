@@ -12,6 +12,7 @@ from ontology.models import (
     DevCheckV2,
     MvAccommodation,
     MvAccommodationRequest,
+    MvPerson,
     MvVolunteer,
     SafeguardingNotification,
 )
@@ -468,3 +469,14 @@ def process_single_accommodation_suitable_check(check: DevCheckV2) -> list[str]:
             )
 
     return messages
+
+
+def process_update_guest_titles(guest: MvPerson) -> bool:
+    correct_title = guest.get_full_name()
+
+    if correct_title == guest.title:
+        return False
+    else:
+        guest.title = correct_title
+        guest.save()
+        return True

@@ -6,6 +6,7 @@ from auditlog.filters import ResourceTypeFilter
 from auditlog.mixins import AuditlogHistoryAdminMixin
 from auditlog.models import LogEntry
 from django.contrib import admin
+from django.db import DatabaseError
 from django.db.models import (
     DateTimeField,
     F,
@@ -25,11 +26,15 @@ from ontology.actions.reassignment_request_actions import (
     fill_missing_ltla_utla,
     normalise_outcome_values,
 )
-from ontology.admin_actions import solve_duplicate_record_sponsor_checks
+from ontology.admin_actions import (
+    process_update_guest_titles,
+    solve_duplicate_record_sponsor_checks,
+)
 from ontology.admin_filters import (
     ARsCreatedOrModifiedSinceShareGoLiveFilter,
     ChecksSinceShareGoLiveFilter,
     DateRangeFilter,
+    GuestsWithIncorrectTitlesExcludingDuplicatesFilter,
 )
 from ontology.models import (
     Announcement,
@@ -200,13 +205,44 @@ class MvPersonAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
     list_display = ["first_name", "last_name", "id", "visa_status"]
     search_fields = ["first_name", "last_name", "id", "gwf"]
     readonly_fields = ["devcheckv2_detail_view"]
-    list_filter = ["visa_status", "is_principal"]
+    list_filter = [
+        "visa_status",
+        "is_principal",
+        GuestsWithIncorrectTitlesExcludingDuplicatesFilter,
+    ]
+    actions = ["update_guest_titles_action"]
 
     def get_queryset(self, request):
         return MvPerson.all_objects.all()
 
     def devcheckv2_detail_view(self, obj):
         return devcheckv2_detail_view(obj)
+
+    @admin.action(description="Update selected guest titles")
+    def update_guest_titles_action(self, request, queryset):
+        success_count = 0
+        already_correct_count = 0
+        error_count = 0
+
+        for person in queryset:
+            try:
+                result = process_update_guest_titles(person)
+
+                if result:
+                    success_count += 1
+                else:
+                    already_correct_count += 1
+            except DatabaseError:
+                error_count += 1
+
+        summary = (
+            f"Guest title processing complete: "
+            f"{success_count} updated successfully, "
+            f"{already_correct_count} already correct (skipped), "
+            f"{error_count} failed due to errors."
+        )
+
+        self.message_user(request, summary)
 
 
 class DevCheckV2Admin(AuditlogHistoryAdminMixin, OntologyAdmin):

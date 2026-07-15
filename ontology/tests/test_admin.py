@@ -1,11 +1,20 @@
 import http.client
 from datetime import datetime, timezone
+from unittest.mock import patch
 
+from django.contrib.admin import AdminSite
+from django.db import DatabaseError
 from django.test import TestCase
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
-from ontology.tests.base import UamsBaseTestCase, VisaApplicationBaseTestCase
+from ontology.admin import MvPersonAdmin
+from ontology.models import MvPerson
+from ontology.tests.base import (
+    MvPersonBaseTestCase,
+    UamsBaseTestCase,
+    VisaApplicationBaseTestCase,
+)
 from ontology.tests.factories import (
     MvAccommodationFactory,
     MvPersonFactory,
@@ -131,3 +140,22 @@ class ArchivedMvPersonAdminAccessTest(BaseArchivedModelAdminAccessTest, TestCase
 class ArchivedMvVolunteerAdminAccessTest(BaseArchivedModelAdminAccessTest, TestCase):
     factory = MvVolunteerFactory
     model_url_name = "mvvolunteer"
+
+
+class MvPersonAdminReadOnlyModelsTestCase(TestSessionTokenMixin, MvPersonBaseTestCase):
+    def test_db_error_on_guest_title_update(self):
+        person_admin = MvPersonAdmin(MvPerson, AdminSite())
+
+        with patch(
+            "ontology.admin.process_update_guest_titles", side_effect=DatabaseError
+        ):
+            with patch.object(person_admin, "message_user") as mock_message:
+                person_admin.update_guest_titles_action({}, [MvPerson()])
+
+        expected_summary = (
+            "Guest title processing complete: "
+            "0 updated successfully, "
+            "0 already correct (skipped), "
+            "1 failed due to errors."
+        )
+        mock_message.assert_called_once_with({}, expected_summary)

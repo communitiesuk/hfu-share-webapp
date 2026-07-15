@@ -2,7 +2,8 @@ from datetime import date, datetime, time, timezone
 from typing import TypedDict
 
 from django.contrib.admin import FieldListFilter, SimpleListFilter
-from django.db.models import DateTimeField, Q, QuerySet
+from django.db.models import CharField, DateTimeField, F, Q, QuerySet, Value
+from django.db.models.functions import Concat
 from django.utils import timezone as django_timezone
 from django.utils.safestring import SafeString
 
@@ -61,6 +62,32 @@ class ARsCreatedOrModifiedSinceShareGoLiveFilter(SimpleListFilter):
             return queryset.filter(
                 Q(last_modified_at__gte=GO_LIVE_DATE) | Q(created_at__gte=GO_LIVE_DATE)
             )
+
+
+class GuestsWithIncorrectTitlesExcludingDuplicatesFilter(SimpleListFilter):
+    title = "Incorrect titles"
+    parameter_name = "incorrect_titles"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("exclude_duplicates", "Yes (Exclude Duplicates)"),
+            ("include_duplicates", "Yes (Include Duplicates)"),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() in ["exclude_duplicates", "include_duplicates"]:
+            qs = queryset.annotate(
+                expected_title=Concat(
+                    "first_name", Value(" "), "last_name", output_field=CharField()
+                )
+            ).exclude(title=F("expected_title"))
+
+            if self.value() == "exclude_duplicates":
+                qs = qs.exclude(title__contains="[Duplicate]")
+
+            return qs
+
+        return None
 
 
 class ListFilterChoices(TypedDict):
