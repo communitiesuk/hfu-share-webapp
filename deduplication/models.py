@@ -444,10 +444,11 @@ class SponsorDuplicateGroup(models.Model):
         # Archives old principal record
         self.principal_record.is_principal = False
         self.principal_record.is_archived = True
-        self.principal_record.archived_at = timezone.now()
+        archived_time = timezone.now()
+        self.principal_record.archived_at = archived_time
         self.principal_record.save()
         self.is_archived = True
-        self.archived_at = timezone.now()
+        self.archived_at = archived_time
         self.save()
 
         log_dedup_persistence_check(
@@ -1187,10 +1188,11 @@ class AccommodationDuplicateGroup(models.Model):
         # Archives old principal record
         self.principal_record.is_principal = False
         self.principal_record.is_archived = True
-        self.principal_record.archived_at = timezone.now()
+        archived_time = timezone.now()
+        self.principal_record.archived_at = archived_time
         self.principal_record.save()
         self.is_archived = True
-        self.archived_at = timezone.now()
+        self.archived_at = archived_time
         self.save()
 
         log_dedup_persistence_check(
@@ -1591,10 +1593,11 @@ class GuestDuplicateGroup(models.Model):
         # Archives old principal record
         self.principal_record.is_principal = False
         self.principal_record.is_archived = True
-        self.principal_record.archived_at = timezone.now()
+        archived_time = timezone.now()
+        self.principal_record.archived_at = archived_time
         self.principal_record.save()
         self.is_archived = True
-        self.archived_at = timezone.now()
+        self.archived_at = archived_time
         self.save()
 
         log_dedup_persistence_check(
