@@ -28,7 +28,7 @@ on:
         required: true
       SLACK_FAILURE_WEBHOOK_URL:
         required: true
-      SLACK_TESTING_ALERTS_WEBHOOK_URL
+      SLACK_TESTING_ALERTS_WEBHOOK_URL:
         required: true
 
 defaults:
