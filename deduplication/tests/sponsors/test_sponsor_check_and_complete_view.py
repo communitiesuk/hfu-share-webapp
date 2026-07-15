@@ -474,6 +474,89 @@ class DeduplicationSponsorSelectedViewTests(TestSessionTokenMixin, TestCase):
         #     "principal record in the actions tab.",
         # ) TODO: put back in when undo deduplication is re-enabled
 
+    def test_redirects_with_named_error_if_record_no_longer_principal(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        self.client.post(
+            reverse(
+                "deduplication:sponsors:select-and-review-records-manual-step",
+                kwargs={"step": SelectAndReviewRecordsStep.SELECT_RECORD},
+            ),
+            {
+                "select-record-sponsor_record": [
+                    self.first_sponsor.id,
+                    self.second_sponsor.id,
+                ],
+                "SelectAndReviewRecordsFormWizard-current_step": (
+                    SelectAndReviewRecordsStep.SELECT_RECORD,
+                ),
+            },
+            follow=True,
+        )
+
+        self.client.post(
+            reverse(
+                "deduplication:sponsors:select-and-review-records-manual-step",
+                kwargs={"step": SelectAndReviewRecordsStep.VIEW_SELECTED_RECORDS},
+            ),
+            {
+                "select-record": [self.first_sponsor.id, self.second_sponsor.id],
+                "SelectAndReviewRecordsFormWizard-current_step": (
+                    SelectAndReviewRecordsStep.VIEW_SELECTED_RECORDS,
+                ),
+            },
+            follow=True,
+        )
+
+        self.client.post(
+            reverse(
+                "deduplication:sponsors:select-and-review-records-manual-step",
+                kwargs={"step": SelectAndReviewRecordsStep.REVIEW_SELECTED_RECORDS},
+            ),
+            {
+                "select-record": [self.first_sponsor.id, self.second_sponsor.id],
+                "SelectAndReviewRecordsFormWizard-current_step": (
+                    SelectAndReviewRecordsStep.REVIEW_SELECTED_RECORDS,
+                ),
+            },
+            follow=True,
+        )
+
+        self.client.post(
+            reverse(
+                "deduplication:sponsors:select-and-review-records-manual-step",
+                kwargs={"step": SelectAndReviewRecordsStep.SELECT_CORRECT_DETAILS},
+            ),
+            self.new_principal_sponsor,
+            follow=True,
+        )
+
+        self.first_sponsor.is_principal = False
+        self.first_sponsor.save()
+
+        response = self.client.post(
+            reverse(
+                "deduplication:sponsors:select-and-review-records-manual-step",
+                kwargs={"step": SelectAndReviewRecordsStep.CHECK_AND_COMPLETE},
+            ),
+            {
+                "SelectAndReviewRecordsFormWizard-current_step": (
+                    SelectAndReviewRecordsStep.CHECK_AND_COMPLETE,
+                ),
+            },
+            follow=True,
+        )
+
+        self.assertContains(response, "Fix duplicate sponsor and host records")
+        self.assertContains(response, "There is a problem")
+        self.assertContains(
+            response,
+            f"The {self.first_sponsor.full_name} record has already been "
+            "deduplicated. No new principal record was created.",
+        )
+        self.assertNotContains(response, "A new principal record has been created for")
+
     def test_redirects_to_select_record_with_error_message_if_system_error(self):
         user = get_admin_user()
         self.client.force_login(user)

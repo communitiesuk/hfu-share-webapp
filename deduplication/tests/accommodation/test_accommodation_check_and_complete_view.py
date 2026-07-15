@@ -290,3 +290,92 @@ class DeduplicationAccommodationCheckAndCompleteViewTestCase(
         )
         self.assertContains(response, self.second_accommodation.ltla_name)
         self.assertContains(response, self.second_accommodation.utla_name)
+
+    def test_redirects_with_named_error_if_record_no_longer_principal(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        self.second_accommodation.is_principal = True
+        self.second_accommodation.save()
+
+        self.client.post(
+            reverse(
+                "deduplication:accommodations:select-and-review-records-manual-step",
+                kwargs={"step": SelectAndReviewRecordsStep.SELECT_RECORD},
+            ),
+            {
+                "select-record-accommodation_record": [
+                    self.first_accommodation.id,
+                    self.second_accommodation.id,
+                ],
+                "SelectAndReviewRecordsFormWizard-current_step": (
+                    SelectAndReviewRecordsStep.SELECT_RECORD,
+                ),
+            },
+            follow=True,
+        )
+        self.client.post(
+            reverse(
+                "deduplication:accommodations:select-and-review-records-manual-step",
+                kwargs={"step": SelectAndReviewRecordsStep.VIEW_SELECTED_RECORDS},
+            ),
+            {
+                "select-record-accommodation_record": [
+                    self.first_accommodation.id,
+                    self.second_accommodation.id,
+                ],
+                "SelectAndReviewRecordsFormWizard-current_step": (
+                    SelectAndReviewRecordsStep.VIEW_SELECTED_RECORDS,
+                ),
+            },
+            follow=True,
+        )
+        self.client.post(
+            reverse(
+                "deduplication:accommodations:select-and-review-records-manual-step",
+                kwargs={"step": SelectAndReviewRecordsStep.REVIEW_SELECTED_RECORDS},
+            ),
+            {
+                "select-record-accommodation_record": [
+                    self.first_accommodation.id,
+                    self.second_accommodation.id,
+                ],
+                "SelectAndReviewRecordsFormWizard-current_step": (
+                    SelectAndReviewRecordsStep.REVIEW_SELECTED_RECORDS,
+                ),
+            },
+            follow=True,
+        )
+        self.client.post(
+            reverse(
+                "deduplication:accommodations:select-and-review-records-manual-step",
+                kwargs={"step": SelectAndReviewRecordsStep.SELECT_CORRECT_DETAILS},
+            ),
+            self.new_principal_accommodation,
+            follow=True,
+        )
+
+        self.first_accommodation.is_principal = False
+        self.first_accommodation.save()
+
+        response = self.client.post(
+            reverse(
+                "deduplication:accommodations:select-and-review-records-manual-step",
+                kwargs={"step": SelectAndReviewRecordsStep.CHECK_AND_COMPLETE},
+            ),
+            {
+                "SelectAndReviewRecordsFormWizard-current_step": (
+                    SelectAndReviewRecordsStep.CHECK_AND_COMPLETE,
+                ),
+            },
+            follow=True,
+        )
+
+        self.assertContains(response, "Fix duplicate accommodation records")
+        self.assertContains(response, "There is a problem")
+        self.assertContains(
+            response,
+            f"The {self.first_accommodation.full_address} record has already "
+            "been deduplicated. No new principal record was created.",
+        )
+        self.assertNotContains(response, "A new principal record has been created for")
