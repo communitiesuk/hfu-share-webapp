@@ -58,8 +58,11 @@ jobs:
           webhook-type: incoming-webhook
           webhook: ${{ secrets.SLACK_TESTING_ALERTS_WEBHOOK_URL }}
           payload: |
-            {
-              "deployment": "${{ inputs.job_type }} to ${{ inputs.environment }}",
-              "status": ":x: ${{ inputs.success_or_failure }}",
-              "blocks": "${{ inputs.github_actor }}\n\n${{ inputs.workflow_run }}\n\n${{ inputs.release_notes }}"
-            }
+          deployment: "${{ inputs.job_type }} to ${{ inputs.environment }}"
+          status: ":x: ${{ inputs.success_or_failure }}"
+          blocks: |
+            ${{ inputs.github_actor }}
+
+            ${{ inputs.workflow_run }}
+
+            ${{ inputs.release_notes }}
