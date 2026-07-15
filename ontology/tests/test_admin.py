@@ -1,7 +1,16 @@
+import http.client
+from datetime import datetime, timezone
+
+from django.test import TestCase
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
 from ontology.tests.base import UamsBaseTestCase, VisaApplicationBaseTestCase
+from ontology.tests.factories import (
+    MvAccommodationFactory,
+    MvPersonFactory,
+    MvVolunteerFactory,
+)
 from user_management.tests.base import get_admin_user
 
 
@@ -52,3 +61,73 @@ class VisaApplicationsAdminReadOnlyModelsTestCase(
         self.assertNotContains(response, "Save")
         self.assertNotContains(response, "Save and add another")
         self.assertNotContains(response, "Save and continue editing")
+
+
+class BaseArchivedModelAdminAccessTest(TestSessionTokenMixin):
+    def setUp(self):
+        super().setUp()
+
+        self.record = self.factory()
+        self.archived_record = self.factory(
+            is_archived=True,
+            archived_at=datetime(2025, 12, 25, tzinfo=timezone.utc),
+        )
+
+    def test_can_see_archived_record_in_changelist(self):
+        user = get_admin_user()
+        user.is_staff = True
+        user.is_superuser = True  # Give permissions to view this admin table
+        user.save()
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse(f"admin:ontology_{self.model_url_name}_changelist")
+        )
+
+        self.assertEqual(response.status_code, http.client.OK)
+
+        self.assertIn(self.record, response.context["cl"].queryset)
+        self.assertIn(self.archived_record, response.context["cl"].queryset)
+
+    def test_can_see_archived_record_change(self):
+        user = get_admin_user()
+        user.is_staff = True
+        user.is_superuser = True  # Give permissions to view this admin table
+        user.save()
+        self.client.force_login(user)
+
+        # Test for normal record
+        response = self.client.get(
+            reverse(
+                f"admin:ontology_{self.model_url_name}_change", args=[self.record.pk]
+            )
+        )
+
+        self.assertEqual(response.status_code, http.client.OK)
+
+        # Test for archived record
+        response = self.client.get(
+            reverse(
+                f"admin:ontology_{self.model_url_name}_change",
+                args=[self.archived_record.pk],
+            )
+        )
+
+        self.assertEqual(response.status_code, http.client.OK)
+
+
+class ArchivedMvAccommodationAdminAccessTest(
+    BaseArchivedModelAdminAccessTest, TestCase
+):
+    factory = MvAccommodationFactory
+    model_url_name = "mvaccommodation"
+
+
+class ArchivedMvPersonAdminAccessTest(BaseArchivedModelAdminAccessTest, TestCase):
+    factory = MvPersonFactory
+    model_url_name = "mvperson"
+
+
+class ArchivedMvVolunteerAdminAccessTest(BaseArchivedModelAdminAccessTest, TestCase):
+    factory = MvVolunteerFactory
+    model_url_name = "mvvolunteer"

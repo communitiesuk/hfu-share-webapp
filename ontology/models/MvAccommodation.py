@@ -12,11 +12,9 @@ from ontology.models.VisaApplication import VisaApplication
 from ontology.utils import LinkedRecordData
 
 
-class MvAccommodationManager(LocalAuthorityPermissionsManagerMixin, models.Manager):
+class MvAccommodationBaseManager(LocalAuthorityPermissionsManagerMixin, models.Manager):
     def get_queryset(self):
-        return (
-            super().get_queryset().select_related("postcode").filter(is_archived=False)
-        )
+        return super().get_queryset().select_related("postcode")
 
     def _filter_by_ltla_name(self, ltla_names: list[str]) -> Q:
         return Q(ltla_name__in=ltla_names)
@@ -28,8 +26,14 @@ class MvAccommodationManager(LocalAuthorityPermissionsManagerMixin, models.Manag
         return Q(viewer_group_names__overlap=viewer_group_names)
 
 
+class MvAccommodationManager(MvAccommodationBaseManager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_archived=False)
+
+
 class MvAccommodation(models.Model):
     objects = MvAccommodationManager()
+    all_objects = MvAccommodationBaseManager()
 
     class AccommodationType(models.TextChoices):
         SPONSOR_ACCOMMODATION = ("Sponsor Accommodation",)
