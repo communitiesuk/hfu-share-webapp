@@ -85,7 +85,7 @@ class DeduplicationAccommodationSelectedViewTests(TestSessionTokenMixin, TestCas
         self.assertContains(response, "Lower tier LA")
         self.assertContains(response, "Upper tier LA")
 
-        self.assertNotContains(response, "You can now review the selected records.")
+        self.assertNotContains(response, "You can now review your selected records.")
         self.assertContains(
             response,
             "Select another record from the same lower tier local authority to review.",
@@ -470,7 +470,7 @@ class DeduplicationAccommodationSelectedViewTests(TestSessionTokenMixin, TestCas
         self.assertContains(response, "View selected records")
 
         self.assertNotContains(response, "Select another record to review.")
-        self.assertContains(response, "You can now review the selected records.")
+        self.assertContains(response, "You can now review your selected records.")
 
         self.assertContains(
             response,
