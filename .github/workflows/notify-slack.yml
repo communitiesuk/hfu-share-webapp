@@ -28,8 +28,6 @@ on:
         required: true
       SLACK_FAILURE_WEBHOOK_URL:
         required: true
-      SLACK_TESTING_ALERTS_WEBHOOK_URL:
-        required: true
 
 defaults:
   run:
@@ -56,7 +54,7 @@ jobs:
         uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95 # v3.0.1
         with:
           webhook-type: incoming-webhook
-          webhook: ${{ secrets.SLACK_TESTING_ALERTS_WEBHOOK_URL }}
+          webhook: ${{ secrets.SLACK_FAILURE_WEBHOOK_URL }}
           payload: |
             {
               "deployment": "${{ inputs.job_type }} to ${{ inputs.environment }}",
