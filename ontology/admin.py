@@ -213,7 +213,7 @@ class MvPersonAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
     actions = ["update_guest_titles_action"]
 
     def get_queryset(self, request):
-        return MvPerson.all_objects.all()
+        return MvPerson.objects_including_archived.all()
 
     def devcheckv2_detail_view(self, obj):
         return devcheckv2_detail_view(obj)
@@ -267,7 +267,7 @@ class AccommodationAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
     readonly_fields = ["detail_view"]
 
     def get_queryset(self, request):
-        return MvAccommodation.all_objects.all()
+        return MvAccommodation.objects_including_archived.all()
 
     def detail_view(self, obj):
         if obj.pk:
@@ -378,7 +378,7 @@ class MvVolunteerAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
     list_filter = ["sponsor_type", "is_sponsor", "notional_data", "is_principal"]
 
     def get_queryset(self, request):
-        return MvVolunteer.all_objects.all()
+        return MvVolunteer.objects_including_archived.all()
 
 
 class MvInteractionAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):

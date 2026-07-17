@@ -1,6 +1,8 @@
 from unittest.mock import patch
 
 from django.test import TestCase, override_settings
+from django.utils import timezone
+from freezegun import freeze_time
 
 from deduplication.tests.factories import SponsorDuplicateGroupFactory
 from ontology.models import CheckType, DevCheckV2, MvAccommodationRequest, MvVolunteer
@@ -150,7 +152,8 @@ class SponsorDuplicateGroupUndoDeduplicationTestCase(TestCase):
         self.assertEqual(accommodation_request_one.active_host, sponsor_one)
         self.assertEqual(accommodation_request_two.active_host, sponsor_two)
 
-    def test_should_set_principal_record_to_none(self):
+    @freeze_time("2026-02-25 12:00:00")
+    def test_should_set_principal_record_to_archived(self):
         self.sponsor_one = MvVolunteerFactory(is_principal=True)
         self.sponsor_two = MvVolunteerFactory(is_principal=True)
 
@@ -170,7 +173,15 @@ class SponsorDuplicateGroupUndoDeduplicationTestCase(TestCase):
 
         self.duplicate_group.undo_deduplication(user=get_admin_user())
 
-        self.assertIsNone(self.duplicate_group.principal_record)
+        self.principal_record.refresh_from_db()
+        self.duplicate_group.refresh_from_db()
+
+        self.assertFalse(self.principal_record.is_principal)
+        self.assertTrue(self.principal_record.is_archived)
+        self.assertEqual(self.principal_record.archived_at, timezone.now())
+        self.assertEqual(self.duplicate_group.archived_at, timezone.now())
+        self.assertTrue(self.duplicate_group.is_archived)
+        self.assertIsNotNone(self.duplicate_group.principal_record)
 
     def test_undo_handles_null_sponsor_id_returned_via_primary_sponsor(self):
         sponsor_one = MvVolunteerFactory(is_principal=True)

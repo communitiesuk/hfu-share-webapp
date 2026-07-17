@@ -33,7 +33,7 @@ class MvPersonQuerySet(models.QuerySet):
         )
 
 
-class MvPersonBaseManager(LocalAuthorityPermissionsManagerMixin, models.Manager):
+class MvPersonManager(LocalAuthorityPermissionsManagerMixin, models.Manager):
     def get_queryset(self):
         return MvPersonQuerySet(self.model, using=self._db).with_full_name()
 
@@ -51,7 +51,7 @@ class MvPersonBaseManager(LocalAuthorityPermissionsManagerMixin, models.Manager)
         return Q(viewer_group_names__overlap=viewer_group_names)
 
 
-class MvPersonManager(MvPersonBaseManager):
+class MvPersonExcludingArchivedManager(MvPersonManager):
     def get_queryset(self):
         return super().get_queryset().filter(is_archived=False)
 
@@ -64,8 +64,8 @@ class MvPerson(models.Model):
         REJECTED = "UPE_VISA_REJECTED", "UPE visa rejected"
         WITHDRAWN = "UPE_VISA_WITHDRAWN", "UPE visa withdrawn"
 
-    objects = MvPersonManager()
-    all_objects = MvPersonBaseManager()
+    objects = MvPersonExcludingArchivedManager()
+    objects_including_archived = MvPersonManager()
     checks: QuerySet[DevCheckV2]
 
     accommodation_request = models.ForeignKey(

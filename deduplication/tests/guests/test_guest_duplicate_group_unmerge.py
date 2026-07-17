@@ -2,6 +2,8 @@ from datetime import date
 from unittest.mock import patch
 
 from django.test import TestCase, override_settings
+from django.utils import timezone
+from freezegun import freeze_time
 
 from deduplication.tests.factories import GuestDuplicateGroupFactory
 from ontology.models import (
@@ -144,7 +146,8 @@ class GuestDuplicateGroupUndoDeduplicationTestCase(TestCase):
         self.assertEqual(guest_two.accommodation_request, accommodation_request_two)
         self.assertEqual(accommodation_request_two.person_id, [guest_two.pk])
 
-    def test_should_set_principal_record_to_none(self):
+    @freeze_time("2026-02-25 12:00:00")
+    def test_should_set_principal_record_to_archived(self):
         self.guest_one = MvPersonFactory(is_principal=True)
         self.guest_two = MvPersonFactory(is_principal=True)
 
@@ -164,7 +167,15 @@ class GuestDuplicateGroupUndoDeduplicationTestCase(TestCase):
 
         self.duplicate_group.undo_deduplication(user=get_admin_user())
 
-        self.assertIsNone(self.duplicate_group.principal_record)
+        self.principal_record.refresh_from_db()
+        self.duplicate_group.refresh_from_db()
+
+        self.assertFalse(self.principal_record.is_principal)
+        self.assertTrue(self.principal_record.is_archived)
+        self.assertEqual(self.principal_record.archived_at, timezone.now())
+        self.assertEqual(self.duplicate_group.archived_at, timezone.now())
+        self.assertTrue(self.duplicate_group.is_archived)
+        self.assertIsNotNone(self.duplicate_group.principal_record)
 
     def test_undeduplication_restores_title_and_count_on_same_ar(self):
         guest_one = MvPersonFactory(

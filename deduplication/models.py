@@ -109,9 +109,6 @@ def _exists_when_logging(queryset: models.QuerySet) -> bool | None:
 class SponsorDuplicateGroupManager(
     LocalAuthorityPermissionsManagerMixin, models.Manager
 ):
-    def get_queryset(self):
-        return super().get_queryset().filter(is_archived=False)
-
     def _filter_by_ltla_name(self, ltla_names: list[str]) -> Q:
         sponsors_cannot_view = MvVolunteer.objects.exclude(
             MvVolunteer.objects._filter_by_ltla_name(ltla_names)
@@ -137,8 +134,14 @@ class SponsorDuplicateGroupManager(
         )
 
 
+class SponsorDuplicateGroupExcludingArchivedManager(SponsorDuplicateGroupManager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_archived=False)
+
+
 class SponsorDuplicateGroup(models.Model):
-    objects = SponsorDuplicateGroupManager()
+    objects = SponsorDuplicateGroupExcludingArchivedManager()
+    objects_including_archived = SponsorDuplicateGroupManager()
 
     principal_record = models.ForeignKey(
         "ontology.MvVolunteer",
@@ -441,8 +444,14 @@ class SponsorDuplicateGroup(models.Model):
                         },
                     )
 
-        # Sets principal record to None
-        self.principal_record = None
+        # Archives old principal record
+        self.principal_record.is_principal = False
+        self.principal_record.is_archived = True
+        archived_time = timezone.now()
+        self.principal_record.archived_at = archived_time
+        self.principal_record.save()
+        self.is_archived = True
+        self.archived_at = archived_time
         self.save()
 
         log_dedup_persistence_check(
@@ -696,9 +705,6 @@ class SponsorDuplicateGroup(models.Model):
 class AccommodationDuplicateGroupManager(
     LocalAuthorityPermissionsManagerMixin, models.Manager
 ):
-    def get_queryset(self):
-        return super().get_queryset().filter(is_archived=False)
-
     def _filter_by_ltla_name(self, ltla_names: list[str]) -> Q:
         accommodations_cannot_view = MvAccommodation.objects.exclude(
             MvAccommodation.objects._filter_by_ltla_name(ltla_names)
@@ -724,8 +730,16 @@ class AccommodationDuplicateGroupManager(
         )
 
 
+class AccommodationDuplicateGroupExcludingArchivedManager(
+    AccommodationDuplicateGroupManager
+):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_archived=False)
+
+
 class AccommodationDuplicateGroup(models.Model):
-    objects = AccommodationDuplicateGroupManager()
+    objects = AccommodationDuplicateGroupExcludingArchivedManager()
+    objects_including_archived = AccommodationDuplicateGroupManager()
 
     principal_record = models.ForeignKey(
         "ontology.MvAccommodation",
@@ -1179,8 +1193,14 @@ class AccommodationDuplicateGroup(models.Model):
                         },
                     )
 
-        # Sets principal record to None
-        self.principal_record = None
+        # Archives old principal record
+        self.principal_record.is_principal = False
+        self.principal_record.is_archived = True
+        archived_time = timezone.now()
+        self.principal_record.archived_at = archived_time
+        self.principal_record.save()
+        self.is_archived = True
+        self.archived_at = archived_time
         self.save()
 
         log_dedup_persistence_check(
@@ -1284,9 +1304,6 @@ class AccommodationDuplicateGroup(models.Model):
 
 
 class GuestDuplicateGroupManager(LocalAuthorityPermissionsManagerMixin, models.Manager):
-    def get_queryset(self):
-        return super().get_queryset().filter(is_archived=False)
-
     def _filter_by_ltla_name(self, ltla_names: list[str]) -> Q:
         guests_cannot_view = MvPerson.objects.exclude(
             MvPerson.objects._filter_by_ltla_name(ltla_names)
@@ -1312,8 +1329,14 @@ class GuestDuplicateGroupManager(LocalAuthorityPermissionsManagerMixin, models.M
         )
 
 
+class GuestDuplicateGroupExcludingArchivedManager(GuestDuplicateGroupManager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_archived=False)
+
+
 class GuestDuplicateGroup(models.Model):
-    objects = GuestDuplicateGroupManager()
+    objects = GuestDuplicateGroupExcludingArchivedManager()
+    objects_including_archived = GuestDuplicateGroupManager()
 
     principal_record = models.ForeignKey(
         "ontology.MvPerson",
@@ -1578,8 +1601,14 @@ class GuestDuplicateGroup(models.Model):
         # Links ARs back to relevant sponsor
         self._undo_deduplication_handle_linked_accommodation_requests(guests, user)
 
-        # Sets principal record to None
-        self.principal_record = None
+        # Archives old principal record
+        self.principal_record.is_principal = False
+        self.principal_record.is_archived = True
+        archived_time = timezone.now()
+        self.principal_record.archived_at = archived_time
+        self.principal_record.save()
+        self.is_archived = True
+        self.archived_at = archived_time
         self.save()
 
         log_dedup_persistence_check(
