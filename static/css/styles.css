@@ -73,12 +73,6 @@ th.orderable.govuk-table__header:last-child {
     left: 0;
 }
 
-.govuk-footer__copyright-logo {
-  color: black;
-  background-image: url("/static/gds/assets/images/govuk-crest.svg");
-  background-repeat: no-repeat;
-}
-
 .full-width {
   margin: 0 calc((100vw - 100%)/-2);
 }

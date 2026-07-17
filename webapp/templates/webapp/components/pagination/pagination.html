@@ -27,10 +27,9 @@
             {% block pagination.range %}
                 <ul class="govuk-pagination__list">
                     {% for p in paginated_objs|table_page_range:paginated_objs.paginator %}
-                        <li class="govuk-pagination__item {% if p == paginated_objs.number %}govuk-pagination__item--current{% endif %}">
+                        <li class="govuk-pagination__item{% if p == paginated_objs.number %} govuk-pagination__item--current{% endif %}{% if p == '...' %} govuk-pagination__item--ellipses{% endif %}">
                             {% if p == '...' %}
-                                <a href="#"
-                                   class="govuk-link govuk-link--no-visited-state govuk-pagination__link ">{{ p }}</a>
+                                ⋯
                             {% else %}
                                 <a href="?page={{ p }}"
                                    class="govuk-link govuk-link--no-visited-state govuk-pagination__link {% if p == paginated_objs.number %}govuk-pagination__item--current{% endif %}">
