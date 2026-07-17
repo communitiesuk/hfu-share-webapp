@@ -71,7 +71,12 @@ def log_persistence_check(
 
 
 def db_values(instance: models.Model, *fields: str) -> dict[str, Any]:
-    return type(instance).objects.filter(pk=instance.pk).values(*fields).first() or {}
+    if hasattr(type(instance), "all_objects"):
+        objects = type(instance).all_objects  # type: ignore[attr-defined]
+    else:
+        objects = type(instance).objects
+
+    return objects.filter(pk=instance.pk).values(*fields).first() or {}
 
 
 def in_memory_values(instance: models.Model, *fields: str) -> dict[str, Any]:

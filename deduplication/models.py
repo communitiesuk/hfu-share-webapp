@@ -106,12 +106,9 @@ def _exists_when_logging(queryset: models.QuerySet) -> bool | None:
     return exists_when_logging(queryset)
 
 
-class SponsorDuplicateGroupManager(
+class SponsorDuplicateGroupBaseManager(
     LocalAuthorityPermissionsManagerMixin, models.Manager
 ):
-    def get_queryset(self):
-        return super().get_queryset().filter(is_archived=False)
-
     def _filter_by_ltla_name(self, ltla_names: list[str]) -> Q:
         sponsors_cannot_view = MvVolunteer.objects.exclude(
             MvVolunteer.objects._filter_by_ltla_name(ltla_names)
@@ -137,8 +134,14 @@ class SponsorDuplicateGroupManager(
         )
 
 
+class SponsorDuplicateGroupManager(SponsorDuplicateGroupBaseManager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_archived=False)
+
+
 class SponsorDuplicateGroup(models.Model):
     objects = SponsorDuplicateGroupManager()
+    all_objects = SponsorDuplicateGroupBaseManager()
 
     principal_record = models.ForeignKey(
         "ontology.MvVolunteer",
@@ -699,12 +702,9 @@ class SponsorDuplicateGroup(models.Model):
         )
 
 
-class AccommodationDuplicateGroupManager(
+class AccommodationDuplicateGroupBaseManager(
     LocalAuthorityPermissionsManagerMixin, models.Manager
 ):
-    def get_queryset(self):
-        return super().get_queryset().filter(is_archived=False)
-
     def _filter_by_ltla_name(self, ltla_names: list[str]) -> Q:
         accommodations_cannot_view = MvAccommodation.objects.exclude(
             MvAccommodation.objects._filter_by_ltla_name(ltla_names)
@@ -730,8 +730,14 @@ class AccommodationDuplicateGroupManager(
         )
 
 
+class AccommodationDuplicateGroupManager(AccommodationDuplicateGroupBaseManager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_archived=False)
+
+
 class AccommodationDuplicateGroup(models.Model):
     objects = AccommodationDuplicateGroupManager()
+    all_objects = AccommodationDuplicateGroupBaseManager()
 
     principal_record = models.ForeignKey(
         "ontology.MvAccommodation",
@@ -1295,10 +1301,9 @@ class AccommodationDuplicateGroup(models.Model):
                 )
 
 
-class GuestDuplicateGroupManager(LocalAuthorityPermissionsManagerMixin, models.Manager):
-    def get_queryset(self):
-        return super().get_queryset().filter(is_archived=False)
-
+class GuestDuplicateGroupBaseManager(
+    LocalAuthorityPermissionsManagerMixin, models.Manager
+):
     def _filter_by_ltla_name(self, ltla_names: list[str]) -> Q:
         guests_cannot_view = MvPerson.objects.exclude(
             MvPerson.objects._filter_by_ltla_name(ltla_names)
@@ -1324,8 +1329,14 @@ class GuestDuplicateGroupManager(LocalAuthorityPermissionsManagerMixin, models.M
         )
 
 
+class GuestDuplicateGroupManager(GuestDuplicateGroupBaseManager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_archived=False)
+
+
 class GuestDuplicateGroup(models.Model):
     objects = GuestDuplicateGroupManager()
+    all_objects = GuestDuplicateGroupBaseManager()
 
     principal_record = models.ForeignKey(
         "ontology.MvPerson",
