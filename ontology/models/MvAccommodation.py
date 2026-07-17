@@ -27,7 +27,7 @@ class MvAccommodationQueryset(models.QuerySet):
         return self._la_names("utla_name")
 
 
-class MvAccommodationBaseManager(LocalAuthorityPermissionsManagerMixin, models.Manager):
+class MvAccommodationManager(LocalAuthorityPermissionsManagerMixin, models.Manager):
     def get_queryset(self):
         return MvAccommodationQueryset(self.model, using=self._db).select_related(
             "postcode"
@@ -43,14 +43,14 @@ class MvAccommodationBaseManager(LocalAuthorityPermissionsManagerMixin, models.M
         return Q(viewer_group_names__overlap=viewer_group_names)
 
 
-class MvAccommodationManager(MvAccommodationBaseManager):
+class MvAccommodationExcludingArchivedManager(MvAccommodationManager):
     def get_queryset(self):
         return super().get_queryset().filter(is_archived=False)
 
 
 class MvAccommodation(models.Model):
-    objects = MvAccommodationManager()
-    all_objects = MvAccommodationBaseManager()
+    objects = MvAccommodationExcludingArchivedManager()
+    objects_including_archived = MvAccommodationManager()
 
     class AccommodationType(models.TextChoices):
         SPONSOR_ACCOMMODATION = ("Sponsor Accommodation",)

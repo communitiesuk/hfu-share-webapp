@@ -71,8 +71,8 @@ def log_persistence_check(
 
 
 def db_values(instance: models.Model, *fields: str) -> dict[str, Any]:
-    if hasattr(type(instance), "all_objects"):
-        objects = type(instance).all_objects  # type: ignore[attr-defined]
+    if hasattr(type(instance), "objects_including_archived"):
+        objects = type(instance).objects_including_archived  # type: ignore[attr-defined]
     else:
         objects = type(instance).objects
 
