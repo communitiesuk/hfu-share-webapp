@@ -1,14 +1,34 @@
-from django.test import RequestFactory
+import http.client
 
+from django.test import RequestFactory
+from django.urls import reverse
+
+from accounts.tests.base import TestSessionTokenMixin
 from ontology.tests.base import UamsBaseTestCase
 from uams.views import UamsListView
-from user_management.tests.base import get_da_user
+from user_management.tests.base import get_admin_user, get_da_user
 
 
-class UamsListViewTestCase(UamsBaseTestCase):
+class UamsListViewTestCase(TestSessionTokenMixin, UamsBaseTestCase):
     def setUp(self):
         super().setUp()
         self.request = RequestFactory().get("/")
+
+    def test_layout(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+        response = self.client.get(reverse("uams:uams"))
+
+        self.assertEqual(response.status_code, http.client.OK)
+        self.assertContains(response, "Applications to sponsor a child")
+        self.assertContains(
+            response,
+            "These are applications to sponsor a child fleeing Ukraine, not "
+            "travelling with or joining a parent or legal guardian. They must be under "
+            "18 years old. These children are also referred to as eligible children or "
+            "unaccompanied minors (UAMs).",
+            html=True,
+        )
 
     def test_get_queryset_for_ltla_user(self):
         """
