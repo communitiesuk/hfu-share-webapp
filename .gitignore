@@ -182,5 +182,8 @@ pyrightconfig.json
 *.json
 *.sql
 
+# Do not ignore the GOV.UK Front manifest.json
+!static/gds/assets/manifest.json
+
 # Playwright
 test-results/
