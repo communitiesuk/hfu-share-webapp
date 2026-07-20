@@ -1,5 +1,6 @@
 import datetime
 import re
+from functools import wraps
 from typing import Iterable, Type
 
 from django.db import models
@@ -26,6 +27,18 @@ _CONTROL_CHARACTERS_PATTERN = rf"^[{re.escape(''.join(CONTROL_CHARACTERS))}]+"
 
 def _escape_leading_control_characters(value: str) -> str:
     return re.sub(_CONTROL_CHARACTERS_PATTERN, "", value)
+
+
+def escape_leading_control_characters_in_row(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        row = func(*args, **kwargs)
+        return [
+            cell if cell is None else _escape_leading_control_characters(cell)
+            for cell in row
+        ]
+
+    return wrapper
 
 
 def build_csv_header(
@@ -59,6 +72,7 @@ def build_csv_header(
     return field_names
 
 
+@escape_leading_control_characters_in_row
 def build_csv_row(
     model_object: Type[models.Model],
     field_names: list[str],
@@ -91,11 +105,7 @@ def build_csv_row(
                     row.append("")
                 continue
 
-            row.append(
-                _escape_leading_control_characters(str(value))
-                if value is not None
-                else ""
-            )
+            row.append(str(value) if value is not None else "")
 
     return row
 

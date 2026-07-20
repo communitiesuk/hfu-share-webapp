@@ -39,6 +39,7 @@ from django_tables2 import (
 
 from accounts.enums import GroupType
 from accounts.models import User
+from downloads.helpers import escape_leading_control_characters_in_row
 from ontology.models import (
     CheckType,
     DevCheckV2,
@@ -253,6 +254,7 @@ class DownloadEscalatedChecksCSVView(PermissionsMixin, View):
         return str(value)
 
     @classmethod
+    @escape_leading_control_characters_in_row
     def build_csv_row(cls, referral):
         person = referral.person
         return [

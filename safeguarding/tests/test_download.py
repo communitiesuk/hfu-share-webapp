@@ -33,7 +33,7 @@ class EscalatedChecksCSVDownloadViewTestCase(TestSessionTokenMixin, TestCase):
         self.client.force_login(get_ukvi_user())
         self.url = reverse("safeguarding:escalated_checks_download_csv")
         self.sponsor1 = MvVolunteerFactory(
-            first_name="Sponsor",
+            first_name="=Sponsor",
             last_name="One",
             date_of_birth=datetime(1970, 1, 1),
             residential_postcodes=["AB12 3CD"],
