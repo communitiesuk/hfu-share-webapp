@@ -1,4 +1,5 @@
 import datetime
+import re
 from typing import Iterable, Type
 
 from django.db import models
@@ -11,6 +12,20 @@ from downloads.constants import (
     SPONSOR_FIELDS,
 )
 from downloads.forms import DownloadType
+
+CONTROL_CHARACTERS = (
+    "=",
+    "+",
+    "-",
+    "@",
+    "\t",  # Tab
+    "\r",  # Carriage Return
+)
+_CONTROL_CHARACTERS_PATTERN = rf"^[{re.escape(''.join(CONTROL_CHARACTERS))}]+"
+
+
+def _escape_leading_control_characters(value: str) -> str:
+    return re.sub(_CONTROL_CHARACTERS_PATTERN, "", value)
 
 
 def build_csv_header(
@@ -76,7 +91,11 @@ def build_csv_row(
                     row.append("")
                 continue
 
-            row.append(str(value) if value is not None else "")
+            row.append(
+                _escape_leading_control_characters(str(value))
+                if value is not None
+                else ""
+            )
 
     return row
 

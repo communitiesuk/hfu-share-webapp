@@ -11,7 +11,12 @@ from downloads.constants import (
     SPONSOR_FIELDS,
 )
 from downloads.forms import DownloadType
-from downloads.helpers import build_csv_header, build_csv_row, determine_redacted_fields
+from downloads.helpers import (
+    CONTROL_CHARACTERS,
+    build_csv_header,
+    build_csv_row,
+    determine_redacted_fields,
+)
 from ontology.models import (
     ExportToolObject,
     MvAccommodationRequest,
@@ -116,6 +121,41 @@ class TestBuildCSVRow(SimpleTestCase):
 
         assert row[0] == "Jane"
         assert row[1] == "AR-123-123"
+
+    def test_build_csv_row_escapes_leading_control_characters(self):
+        for control_character in CONTROL_CHARACTERS:
+            with self.subTest(control_character=control_character):
+                person = MvPerson(
+                    first_name=f"{control_character}J@ne",
+                    last_name="Doe",
+                    email="john.doe@example.com",
+                )
+
+                field_names = ["first_name", "last_name", "email"]
+
+                row = build_csv_row(person, field_names, set())
+
+                assert row == ["J@ne", "Doe", "john.doe@example.com"]
+
+        for control_character_a, control_character_b in zip(
+            CONTROL_CHARACTERS,
+            CONTROL_CHARACTERS[3:] + CONTROL_CHARACTERS[:3],
+            strict=False,
+        ):
+            with self.subTest(
+                control_character=f"{control_character_a}{control_character_b}"
+            ):
+                person = MvPerson(
+                    first_name=f"{control_character_a}{control_character_b}J@ne",
+                    last_name="Doe",
+                    email="john.doe@example.com",
+                )
+
+                field_names = ["first_name", "last_name", "email"]
+
+                row = build_csv_row(person, field_names, set())
+
+                assert row == ["J@ne", "Doe", "john.doe@example.com"]
 
 
 ATTR_SPEC = [
