@@ -131,7 +131,7 @@
                         {% block pagination.range %}
                             <ul class="govuk-pagination__list">
                                 {% for p in table.page|table_page_range:table.paginator %}
-                                    <li class="govuk-pagination__item{% if p == table.page.number %} govuk-pagination__item--current{% endif %}{% if p == '...' %} govuk-pagination__item--ellipses{% endif %}">
+                                    <li class="govuk-pagination__item{% if p == table.page.number %} govuk-pagination__item--current{% endif %}{% if p == '...' %} govuk-pagination__item--ellipsis{% endif %}">
                                         {% if p == '...' %}
                                             ⋯
                                         {% else %}

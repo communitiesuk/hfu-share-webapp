@@ -23,7 +23,7 @@
               href="{% static 'gds/assets/images/govuk-icon-180.png' %}">
         <link rel="manifest" href="{% static 'gds/assets/manifest.json' %}">
         <link rel="stylesheet"
-              href="{% static 'gds/govuk-frontend-5.12.0.min.css' %}">
+              href="{% static 'gds/govuk-frontend-6.4.0.min.css' %}">
         <link rel="stylesheet" href="{% static 'moj-frontend/all.min.css' %}">
         <link rel="stylesheet" href="{% static 'css/styles.css' %}">
         <link rel="stylesheet" href="{% static 'css/dwp.css' %}">
@@ -34,15 +34,18 @@
         <a href="#main-content"
            class="govuk-skip-link"
            data-module="govuk-skip-link">Skip to main content</a>
-        <header class="govuk-header govuk-header--full-width-border govuk-!-display-none-print app-brand-border-bottom"
-                data-module="govuk-header">
-            <div class="govuk-header__container govuk-width-container">
-                <a href="/"
-                   class="govuk-header__link govuk-header__service-name govuk-!-margin-bottom-0">Share Homes for Ukraine data</a>
+        <header class="govuk-template__header">
+            <div class="govuk-generic-header govuk-generic-header--full-width-border govuk-!-display-none-print">
+                <div class="govuk-generic-header__container govuk-width-container"
+                     style="max-width: 95%">
+                    <div class="govuk-generic-header__logo">
+                        <a href="/" class="govuk-generic-header__homepage-link">Share Homes for Ukraine data</a>
+                    </div>
+                </div>
             </div>
+            {% include "webapp/components/phase_banner/phase_banner.html" %}
         </header>
         <div class="govuk-width-container printable-area">
-            {% include "webapp/components/phase_banner/phase_banner.html" %}
             <main class="govuk-main-wrapper" id="main-content">
                 {% include "webapp/components/heading/heading.html" with page_heading="Sorry, there is a problem with the service" %}
                 <p class="govuk-body">Try again later.</p>
@@ -73,7 +76,7 @@
             </main>
         </div>
         {% include "webapp/components/footer/footer.html" %}
-        <script type="module" src="{% static 'gds/govuk-frontend-5.12.0.min.js' %}"></script>
+        <script type="module" src="{% static 'gds/govuk-frontend-6.4.0.min.js' %}"></script>
     </body>
 </html>
 <!-- djlint:on -->

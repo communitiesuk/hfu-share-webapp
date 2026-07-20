@@ -1,19 +1,17 @@
-<header class="govuk-header govuk-header--full-width-border app-brand-border-bottom"
-        data-module="govuk-header">
-    <div class="govuk-header__container govuk-width-container">
-        <div class="govuk-header__logo">
-            <span class="govuk-service-navigation__service-name govuk-!-padding-top-2 govuk-!-padding-bottom-2">
+<header class="govuk-template__header">
+    <div class="govuk-generic-header govuk-generic-header--full-width-border">
+        <div class="govuk-generic-header__container govuk-width-container"
+             style="max-width: 95%">
+            <div class="govuk-generic-header__logo">
                 <a href="{% url 'webapp:landing-page' %}"
-                   class="govuk-service-navigation__link"
-                   style="color: #fff;
-                          font-size: 1.5rem">{{ SERVICE_NAME }}</a>
-            </span>
+                   class="govuk-generic-header__homepage-link">{{ SERVICE_NAME }}</a>
+            </div>
         </div>
     </div>
 </header>
 {% if available_links or user.is_authenticated %}
     <section aria-label="Service information"
-             class="govuk-service-navigation"
+             class="govuk-service-navigation app-brand-border-bottom"
              data-module="govuk-service-navigation">
         <div class="govuk-width-container">
             <div class="govuk-service-navigation__container">
@@ -90,3 +88,8 @@
         </div>
     </section>
 {% endif %}
+{% if environment == "dev" or environment == "staging" %}
+    {% include "webapp/components/environment_banner/environment_banner.html" %}
+{% endif %}
+{% include "webapp/components/phase_banner/phase_banner.html" %}
+</header>

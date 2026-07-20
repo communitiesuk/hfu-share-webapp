@@ -2,9 +2,9 @@ from django.test import TestCase
 
 from ontology.models import MvAccommodationRequest
 from webapp.constants import (
+    BLUE,
     GREEN,
     GREY,
-    LIGHT_BLUE,
     ORANGE,
     PINK,
     PURPLE,
@@ -33,7 +33,7 @@ class StatusToTagColourTest(TestCase):
     def test_status_to_tag_colour(self):
         self.assert_status_to_tag_colour("visa_status", "Arrived", GREEN)
         self.assert_status_to_tag_colour("visa_status", "Issued", TURQUOISE)
-        self.assert_status_to_tag_colour("visa_status", "Confirmed", LIGHT_BLUE)
+        self.assert_status_to_tag_colour("visa_status", "Confirmed", BLUE)
         self.assert_status_to_tag_colour("visa_status", "Flow Visa Pending", PURPLE)
         self.assert_status_to_tag_colour("visa_status", "Pending", YELLOW)
         self.assert_status_to_tag_colour("visa_status", "Refused", RED)
@@ -60,7 +60,7 @@ class StatusToTagColourTest(TestCase):
         self.assert_status_to_tag_colour(
             "accommodation_checks_status",
             MvAccommodationRequest.ChecksStatus.CHECKS_PARTIALLY_COMPLETED,
-            LIGHT_BLUE,
+            BLUE,
         )
         self.assert_status_to_tag_colour(
             "accommodation_checks_status",
@@ -123,14 +123,10 @@ class SafeguardingTemplateTagTest(TestCase):
         self.assertEqual(safeguarding_check_status_to_tag_colour("PASSED"), GREEN)
 
     def test_safeguarding_check_templatetag_colour_converts_space_to_underscore(self):
-        self.assertEqual(
-            safeguarding_check_status_to_tag_colour("IN PROGRESS"), LIGHT_BLUE
-        )
+        self.assertEqual(safeguarding_check_status_to_tag_colour("IN PROGRESS"), BLUE)
 
     def test_safeguarding_check_templatetag_colour_handles_existing_underscore(self):
-        self.assertEqual(
-            safeguarding_check_status_to_tag_colour("IN_PROGRESS"), LIGHT_BLUE
-        )
+        self.assertEqual(safeguarding_check_status_to_tag_colour("IN_PROGRESS"), BLUE)
 
     def test_safeguarding_check_templatetag_colour_handles_no_longer_required_case(
         self,

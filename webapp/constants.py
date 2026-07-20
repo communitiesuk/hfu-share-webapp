@@ -17,7 +17,6 @@ GREY = "grey"
 GREEN = "green"
 TURQUOISE = "turquoise"
 BLUE = "blue"
-LIGHT_BLUE = "light-blue"
 PURPLE = "purple"
 PINK = "pink"
 RED = "red"
@@ -37,7 +36,7 @@ class VisaStatus:
 visa_status_list = [
     VisaStatus(1, "Arrived", GREEN, 5),
     VisaStatus(2, "Issued", TURQUOISE, 4),
-    VisaStatus(3, "Confirmed", LIGHT_BLUE, 3),
+    VisaStatus(3, "Confirmed", BLUE, 3),
     VisaStatus(4, "Flow Visa Pending", PURPLE, 9),  # specific to UAMs
     VisaStatus(5, "Pending", YELLOW, 2),
     VisaStatus(6, "Refused", RED, 7),
@@ -74,7 +73,7 @@ accommodation_request_checks_status_tag_colours = {
     MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED: YELLOW,
     MvAccommodationRequest.ChecksStatus.PRE_ARRIVAL_CHECKS_COMPLETE: PINK,
     MvAccommodationRequest.ChecksStatus.CHECKS_COMPLETED: GREEN,
-    MvAccommodationRequest.ChecksStatus.CHECKS_PARTIALLY_COMPLETED: LIGHT_BLUE,
+    MvAccommodationRequest.ChecksStatus.CHECKS_PARTIALLY_COMPLETED: BLUE,
     MvAccommodationRequest.ChecksStatus.SOME_CHECKS_FAILED: RED,
     MvAccommodationRequest.ChecksStatus.CLOSED_DUPLICATE: ORANGE,
     MvAccommodationRequest.ChecksStatus.CLOSED_LEFT_PROGRAMME: ORANGE,
@@ -92,7 +91,7 @@ accommodation_request_status_tag_colours = {
 }
 
 access_request_status_tag_colours = {
-    AccessRequest.Status.PENDING: LIGHT_BLUE,
+    AccessRequest.Status.PENDING: BLUE,
     AccessRequest.Status.APPROVED: GREEN,
     AccessRequest.Status.REJECTED: RED,
 }
@@ -106,7 +105,7 @@ reassignment_request_outcome_tag_colours = {
 
 safeguarding_check_status_tag_colours = {
     DevCheckV2.CheckStatus.NOT_STARTED: GREY,
-    DevCheckV2.CheckStatus.IN_PROGRESS: LIGHT_BLUE,
+    DevCheckV2.CheckStatus.IN_PROGRESS: BLUE,
     DevCheckV2.CheckStatus.NO_LONGER_NEEDED: GREY,
     DevCheckV2.CheckStatus.PASSED: GREEN,
     DevCheckV2.CheckStatus.FAILED: RED,

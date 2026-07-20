@@ -75,6 +75,7 @@ th.orderable.govuk-table__header:last-child {
 
 :root {
   --app-brand-colour: #006660;
+  --app-surface-colour: #80B3B0;
 }
 
 .app-band {
@@ -94,11 +95,11 @@ th.orderable.govuk-table__header:last-child {
 }
 
 .app-band--grey {
-  --app-band-colour: #f8f8f8;
+  --app-band-colour: var(--govuk-template-background-colour);
 }
 
 .app-brand-border-bottom {
-  border-bottom-color: var(--app-brand-colour);
+  border-bottom-color: var(--app-surface-colour);
 }
 
 .app-brand-border-top {
@@ -191,7 +192,7 @@ th.orderable.govuk-table__header:last-child {
 }
 
 .govuk-card--contained {
-  background-color: #f8f8f8;
+  background-color: var(--govuk-template-background-colour);
 }
 
 .govuk-card--contained--on-background {
