@@ -131,10 +131,9 @@
                         {% block pagination.range %}
                             <ul class="govuk-pagination__list">
                                 {% for p in table.page|table_page_range:table.paginator %}
-                                    <li class="govuk-pagination__item {% if p == table.page.number %}govuk-pagination__item--current{% endif %}">
+                                    <li class="govuk-pagination__item{% if p == table.page.number %} govuk-pagination__item--current{% endif %}{% if p == '...' %} govuk-pagination__item--ellipses{% endif %}">
                                         {% if p == '...' %}
-                                            <a href="#"
-                                               class="govuk-link govuk-link--no-visited-state govuk-pagination__link ">{{ p }}</a>
+                                            ⋯
                                         {% else %}
                                             <a href="{% querystring table.prefixed_page_field=p %}"
                                                class="govuk-link govuk-link--no-visited-state govuk-pagination__link {% if p == table.page.number %}govuk-pagination__item--current{% endif %}">
