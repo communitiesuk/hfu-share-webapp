@@ -11,13 +11,86 @@ from downloads.constants import (
     SPONSOR_FIELDS,
 )
 from downloads.forms import DownloadType
-from downloads.helpers import build_csv_header, build_csv_row, determine_redacted_fields
+from downloads.helpers import (
+    CONTROL_CHARACTERS,
+    _escape_leading_control_characters,
+    build_csv_header,
+    build_csv_row,
+    determine_redacted_fields,
+    escape_leading_control_characters_in_row,
+)
 from ontology.models import (
     ExportToolObject,
     MvAccommodationRequest,
     MvPerson,
     SponsorshipCertificationForm,
 )
+
+
+class TestEscapeLeadingControlCharactersInRow(SimpleTestCase):
+    def test_escape_leading_control_characters(self):
+        for value, expected in [
+            ("=hello", "hello"),
+            ("+hello", "hello"),
+            ("-hello", "hello"),
+            ("@hello", "hello"),
+            ("\thello", "hello"),
+            ("\rhello", "hello"),
+            ("+=@hello", "hello"),
+            ("\t\r=+@-hello", "hello"),
+            ("hello", "hello"),
+            (".hello", ".hello"),
+            ("2hello", "2hello"),
+            ("he=llo", "he=llo"),
+            ("", ""),
+        ]:
+            with self.subTest(value=value):
+                assert _escape_leading_control_characters(value) == expected
+
+    def test_decorator_sanitises_each_cell(self):
+        @escape_leading_control_characters_in_row
+        def get_row():
+            return [
+                "=formula",
+                "+value",
+                "normal",
+                "@email",
+            ]
+
+        assert get_row() == [
+            "formula",
+            "value",
+            "normal",
+            "email",
+        ]
+
+    def test_decorator_preserves_none_values(self):
+        @escape_leading_control_characters_in_row
+        def get_row():
+            return [
+                None,
+                "=formula",
+                None,
+            ]
+
+        assert get_row() == [
+            None,
+            "formula",
+            None,
+        ]
+
+    def test_decorator_removes_multiple_leading_control_characters(self):
+        @escape_leading_control_characters_in_row
+        def get_row():
+            return [
+                "+=@value",
+                "\t-=test",
+            ]
+
+        assert get_row() == [
+            "value",
+            "test",
+        ]
 
 
 class TestBuildCSVHeader(SimpleTestCase):
@@ -116,6 +189,41 @@ class TestBuildCSVRow(SimpleTestCase):
 
         assert row[0] == "Jane"
         assert row[1] == "AR-123-123"
+
+    def test_build_csv_row_escapes_leading_control_characters(self):
+        for control_character in CONTROL_CHARACTERS:
+            with self.subTest(control_character=control_character):
+                person = MvPerson(
+                    first_name=f"{control_character}J@ne",
+                    last_name="Doe",
+                    email="john.doe@example.com",
+                )
+
+                field_names = ["first_name", "last_name", "email"]
+
+                row = build_csv_row(person, field_names, set())
+
+                assert row == ["J@ne", "Doe", "john.doe@example.com"]
+
+        for control_character_a, control_character_b in zip(
+            CONTROL_CHARACTERS,
+            CONTROL_CHARACTERS[3:] + CONTROL_CHARACTERS[:3],
+            strict=False,
+        ):
+            with self.subTest(
+                control_character=f"{control_character_a}{control_character_b}"
+            ):
+                person = MvPerson(
+                    first_name=f"{control_character_a}{control_character_b}J@ne",
+                    last_name="Doe",
+                    email="john.doe@example.com",
+                )
+
+                field_names = ["first_name", "last_name", "email"]
+
+                row = build_csv_row(person, field_names, set())
+
+                assert row == ["J@ne", "Doe", "john.doe@example.com"]
 
 
 ATTR_SPEC = [
