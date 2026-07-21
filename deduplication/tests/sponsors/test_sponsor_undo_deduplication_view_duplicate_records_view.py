@@ -1,3 +1,4 @@
+import http.client
 from datetime import datetime, timezone
 
 from django.test import TestCase
@@ -10,7 +11,14 @@ from ontology.models import MvVolunteer
 from ontology.tests.factories import (
     MvVolunteerFactory,
 )
-from user_management.tests.base import get_admin_user
+from user_management.tests.base import (
+    get_admin_user,
+    get_da_user,
+    get_la_user,
+    get_mhclg_user,
+    get_service_support_user,
+    get_ukvi_user,
+)
 from webapp.mixins import SummaryListTestCaseMixin
 
 
@@ -59,13 +67,120 @@ class UndoDeduplicationSponsorViewDeduplicatedRecordsViewTestCase(
             is_principal=True,
             sponsor_type=MvVolunteer.SponsorType.INDIVIDUAL,
         )
-
-        sponsor_duplicate_group = SponsorDuplicateGroupFactory.create(
-            principal_record=self.new_principal_sponsor,
-            created_at=datetime(2026, 1, 1, 9, 30, tzinfo=timezone.utc),
+        self.new_principal_ltla_sponsor = MvVolunteerFactory(
+            first_name="LA Sponsor",
+            last_name="Spon",
+            is_principal=True,
         )
-        sponsor_duplicate_group.sponsors.set([self.first_sponsor, self.second_sponsor])
-        sponsor_duplicate_group.save()
+        self.new_principal_da_sponsor = MvVolunteerFactory(
+            first_name="DA Sponsor",
+            last_name="Spon",
+            is_principal=True,
+        )
+
+        for new_principal_sponsor in [
+            self.new_principal_sponsor,
+            self.new_principal_ltla_sponsor,
+            self.new_principal_da_sponsor,
+        ]:
+            sponsor_duplicate_group = SponsorDuplicateGroupFactory.create(
+                principal_record=new_principal_sponsor,
+                created_at=datetime(2026, 1, 1, 9, 30, tzinfo=timezone.utc),
+            )
+            sponsor_duplicate_group.sponsors.set(
+                [self.first_sponsor, self.second_sponsor]
+            )
+            sponsor_duplicate_group.save()
+
+    def test_admin_user_is_allowed_access(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse(
+                "deduplication:sponsors:undo-deduplication-records-manual-step",
+                kwargs={
+                    "step": UndoDeduplicationRecordsStep.VIEW_DUPLICATE_RECORDS,
+                    "id": self.new_principal_sponsor.pk,
+                },
+            )
+        )
+        self.assertEqual(response.status_code, http.client.OK)
+
+    def test_la_user_is_allowed_access(self):
+        user = get_la_user()
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse(
+                "deduplication:sponsors:undo-deduplication-records-manual-step",
+                kwargs={
+                    "step": UndoDeduplicationRecordsStep.VIEW_DUPLICATE_RECORDS,
+                    "id": self.new_principal_ltla_sponsor.pk,
+                },
+            )
+        )
+        self.assertEqual(response.status_code, http.client.OK)
+
+    def test_da_user_is_allowed_access(self):
+        user = get_da_user()
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse(
+                "deduplication:sponsors:undo-deduplication-records-manual-step",
+                kwargs={
+                    "step": UndoDeduplicationRecordsStep.VIEW_DUPLICATE_RECORDS,
+                    "id": self.new_principal_da_sponsor.pk,
+                },
+            )
+        )
+        self.assertEqual(response.status_code, http.client.OK)
+
+    def test_ukvi_user_is_not_allowed_access(self):
+        user = get_ukvi_user()
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse(
+                "deduplication:sponsors:undo-deduplication-records-manual-step",
+                kwargs={
+                    "step": UndoDeduplicationRecordsStep.VIEW_DUPLICATE_RECORDS,
+                    "id": self.new_principal_sponsor.pk,
+                },
+            )
+        )
+        self.assertEqual(response.status_code, http.client.NOT_FOUND)
+
+    def test_ops_user_is_allowed_access(self):
+        user = get_mhclg_user()
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse(
+                "deduplication:sponsors:undo-deduplication-records-manual-step",
+                kwargs={
+                    "step": UndoDeduplicationRecordsStep.VIEW_DUPLICATE_RECORDS,
+                    "id": self.new_principal_sponsor.pk,
+                },
+            )
+        )
+        self.assertEqual(response.status_code, http.client.OK)
+
+    def test_service_support_user_is_allowed_access(self):
+        user = get_service_support_user()
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse(
+                "deduplication:sponsors:undo-deduplication-records-manual-step",
+                kwargs={
+                    "step": UndoDeduplicationRecordsStep.VIEW_DUPLICATE_RECORDS,
+                    "id": self.new_principal_sponsor.pk,
+                },
+            )
+        )
+        self.assertEqual(response.status_code, http.client.OK)
 
     def test_view_duplicate_sponsor_and_host_records_displays_correct_content(self):
         user = get_admin_user()

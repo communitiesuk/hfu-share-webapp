@@ -1,4 +1,4 @@
-import http
+import http.client
 from datetime import datetime, timezone
 
 from django.test import TestCase
@@ -15,6 +15,7 @@ from ontology.tests.factories import (
 from user_management.tests.base import (
     get_admin_user,
     get_da_user,
+    get_la_user,
     get_mhclg_user,
     get_service_support_user,
     get_ukvi_user,
@@ -76,6 +77,31 @@ class GuestsActionsTestCase(TestSessionTokenMixin, SummaryListTestCaseMixin, Tes
         )
         guest_further_duplicate_group.save()
 
+        self.ltla_accommodation_request = MvAccommodationRequestFactory(
+            ltla_name=["ltla_somerset"],
+            person_id=["person-2"],
+            number_of_people=1,
+        )
+        self.ltla_guest = MvPersonFactory(
+            pk="person-2",
+            first_name="LTLA",
+            last_name="Last",
+            accommodation_request=self.ltla_accommodation_request,
+        )
+
+        self.da_accommodation_request = MvAccommodationRequestFactory(
+            ltla_name=["Aberdeenshire"],
+            utla_name=["Aberdeenshire"],
+            person_id=["person-3"],
+            number_of_people=1,
+        )
+        self.da_guest = MvPersonFactory(
+            pk="person-3",
+            first_name="DA",
+            last_name="Last",
+            accommodation_request=self.da_accommodation_request,
+        )
+
     def test_admin_user_is_allowed_access(self):
         user = get_admin_user()
         self.client.force_login(user)
@@ -124,6 +150,18 @@ class GuestsActionsTestCase(TestSessionTokenMixin, SummaryListTestCaseMixin, Tes
         )
         self.assertEqual(response.status_code, http.client.FORBIDDEN)
 
+    def test_la_user_is_not_allowed_access(self):
+        user = get_la_user()
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse(
+                "guests:detail-actions",
+                args=[self.ltla_guest.pk],
+            )
+        )
+        self.assertEqual(response.status_code, http.client.FORBIDDEN)
+
     def test_da_user_is_not_allowed_access(self):
         user = get_da_user()
         self.client.force_login(user)
@@ -131,7 +169,7 @@ class GuestsActionsTestCase(TestSessionTokenMixin, SummaryListTestCaseMixin, Tes
         response = self.client.get(
             reverse(
                 "guests:detail-actions",
-                args=[self.guest.pk],
+                args=[self.da_guest.pk],
             )
         )
         self.assertEqual(response.status_code, http.client.FORBIDDEN)
