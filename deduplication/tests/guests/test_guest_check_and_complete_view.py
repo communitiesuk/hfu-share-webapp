@@ -295,19 +295,12 @@ class DeduplicationGuestSelectedViewTests(TestSessionTokenMixin, TestCase):
             "Check that the correct details are selected for the new principal record",
         )
 
-        # self.assertContains(
-        #     response,
-        #     "This will create a new principal record with the information shown. The "
-        #     "original guest records will be marked as duplicates and you "
-        #     "will not be able to change them, unless you first undo the "
-        #     "deduplication.",
-        # ) TODO: replace below when undo deduplication is re-enabled
-
         self.assertContains(
             response,
             "This will create a new principal record with the information shown. The "
             "original guest records will be marked as duplicates and you "
-            "will not be able to change them.",
+            "will not be able to change them, unless you first undo the "
+            "deduplication.",
         )
 
         self.assertContains(
@@ -535,11 +528,11 @@ class DeduplicationGuestSelectedViewTests(TestSessionTokenMixin, TestCase):
         self.assertContains(response, "You have deduplicated 2 guest records")
         self.assertContains(response, "A new principal record has been created for")
         self.assertContains(response, "test1firstname test1lastname")
-        # self.assertContains(
-        #     response,
-        #     "You can undo the deduplication from the "
-        #     "principal record in the actions tab.",
-        # ) TODO: put back in when undo deduplication is re-enabled
+        self.assertContains(
+            response,
+            "You can undo the deduplication from the "
+            "principal record in the actions tab.",
+        )
 
     def test_handles_multi_uan_guests(self):
         user = get_admin_user()
@@ -627,11 +620,11 @@ class DeduplicationGuestSelectedViewTests(TestSessionTokenMixin, TestCase):
         self.assertContains(response, "You have deduplicated 2 guest records")
         self.assertContains(response, "A new principal record has been created for")
         self.assertContains(response, "test1firstname test1lastname")
-        # self.assertContains(
-        #     response,
-        #     "You can undo the deduplication from the "
-        #     "principal record in the actions tab.",
-        # ) TODO: put back in when undo deduplication is re-enabled
+        self.assertContains(
+            response,
+            "You can undo the deduplication from the "
+            "principal record in the actions tab.",
+        )
 
     def test_redirects_with_named_error_if_record_no_longer_principal(self):
         user = get_admin_user()

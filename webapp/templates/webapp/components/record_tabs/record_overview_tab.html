@@ -13,8 +13,8 @@
 {% if is_duplicate and available_links.fix_duplicate_records %}
     <div class="govuk-inset-text">
         This record is a duplicate and cannot be changed. It was combined with another duplicate to create a new principal
-        <a href={{ dedup_principal_url }}>{{ dedup_principal_url_text }}</a>.
-        <!-- If this was a mistake you can undo the deduplication from the actions tab. -->
+        <a class="govuk-link" href={{ dedup_principal_url }}>{{ dedup_principal_url_text }}</a>.
+        If this was a mistake you can undo the deduplication from the actions tab.
     </div>
 {% endif %}
 {% include "webapp/components/record_tabs/record_summary_list.html" %}

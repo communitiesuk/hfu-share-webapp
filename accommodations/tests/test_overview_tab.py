@@ -370,17 +370,17 @@ class AccommodationOverviewTestCase(
 
         self.assertRegex(
             response.content.decode(),
-            r"<a href=/accommodations/\d+/overview>"
+            r"<a class=\"govuk-link\" href=/accommodations/\d+/overview>"
             f"accommodation record for "
             f"{self.dup_principal_record.full_address}"
             f"</a>",
         )
 
-        # self.assertContains(
-        #     response,
-        #     "If this was a mistake you can undo the deduplication "
-        #     "from the actions tab.",
-        # )
+        self.assertContains(
+            response,
+            "If this was a mistake you can undo the deduplication "
+            "from the actions tab.",
+        )
 
         response = self.client.get(
             reverse(
