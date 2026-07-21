@@ -53,7 +53,7 @@
            class="govuk-skip-link"
            data-module="govuk-skip-link">Skip to main content</a>
         {% include "webapp/components/service_header_nav_bar/service_header_nav_bar.html" %}
-        <div class="govuk-width-container printable-area" style="max-width: 96%;">
+        <div class="govuk-width-container printable-area">
             {% if environment == "dev" or environment == "staging" %}
                 {% include "webapp/components/environment_banner/environment_banner.html" %}
             {% endif %}
@@ -70,7 +70,8 @@
                     </nav>
                 </div>
             {% endblock breadcrumbs %}
-            <main id="main-content">
+            <main id="main-content"
+                  class="govuk-main-wrapper {% block main_classes %}{% endblock main_classes %}">
                 {% block content %}
                 {% endblock content %}
             </main>
