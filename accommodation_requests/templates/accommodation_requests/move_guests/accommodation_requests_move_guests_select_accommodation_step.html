@@ -3,7 +3,7 @@
 {% load crispy_forms_tags %}
 {% block form %}
     <div class="govuk-!-width-one-half">
-        <div class="govuk-!-margin-top-9">{% error_summary form %}</div>
+        {% error_summary form %}
         {% include "webapp/components/heading/heading.html" with caption="Move guests for" page_heading=object.title %}
     </div>
     <div class="govuk-!-width-two-thirds">
