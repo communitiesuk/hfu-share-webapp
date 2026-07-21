@@ -1,17 +1,16 @@
-<div class="govuk-grid-row full-width">
-    <div class="govuk-grid-column-full full-width"
-         style="background-color:#006660">
-        <div class="govuk-grid-row govuk-!-padding-left-3 govuk-!-padding-right-3 hero-banner-container">
+{% load static %}
+<div class="full-width" style="background-color:#006660">
+    <div class="govuk-width-container app-width-container">
+        <div class="govuk-grid-row hero-banner-container">
             <div class="govuk-grid-column-two-thirds govuk-!-padding-right-0">
-                <h1 class="govuk-heading-xl govuk-!-margin-bottom-0 govuk-!-padding-bottom-4 govuk-!-padding-left-0 govuk-!-padding-right-0"
+                <h1 class="govuk-heading-xl govuk-!-margin-bottom-0 govuk-!-padding-bottom-4"
                     style="color: white">Welcome</h1>
                 <p class="govuk-body govuk-!-margin-bottom-0" style="color: white;">
                     Use this service to record and manage sponsor and guest data relating to the Homes for Ukraine scheme.
                 </p>
             </div>
-            <div class="govuk-grid-column-one-third govuk-!-padding-0"
+            <div class="govuk-grid-column-one-third govuk-!-padding-right-0"
                  style="max-height: 100%">
-                {% load static %}
                 <img src="{% static 'mhclg/assets/images/MHCLG_Lesser_Arms_Stacked_White.png' %}"
                      alt="MHCLG Crest"
                      style="color:white"

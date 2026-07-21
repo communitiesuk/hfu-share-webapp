@@ -77,6 +77,10 @@ th.orderable.govuk-table__header:last-child {
   margin: 0 calc((100vw - 100%)/-2);
 }
 
+.govuk-width-container.app-width-container {
+  max-width: 95%;
+}
+
 .max-width-none {
     max-width: none;
 }
