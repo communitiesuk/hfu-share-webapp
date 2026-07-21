@@ -1,14 +1,13 @@
 {% extends "base.html" %}
 {% block breadcrumbs %}
 {% endblock breadcrumbs %}
+{% block main_classes %}
+    govuk-!-padding-top-0
+{% endblock main_classes %}
 {% block content %}
     {% include "webapp/components/hero_banner/hero_banner.html" %}
     {% if available_announcements %}
-        <div class="full-width" style="background-color: #f8f8f8">
-            <div class="govuk-width-container app-width-container">
-                {% include "webapp/components/announcements/announcements.html" %}
-            </div>
-        </div>
+        <div class="app-band app-band--grey">{% include "webapp/components/announcements/announcements.html" %}</div>
     {% endif %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-three-quarters">
