@@ -96,7 +96,7 @@ class UndoDeduplicationGuestUndoDeduplicatedRecordsViewTestCase(
         self.assertRegex(
             response.url,
             r"/deduplication"
-            r"/guests/undo-deduplication/undo-deduplicate-records/\d+/",
+            r"/guests/undo-deduplicate-records/\d+/",
         )
 
     def test_undo_deduplicate_guest_and_host_records_displays_correct_content(self):

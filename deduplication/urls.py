@@ -70,12 +70,12 @@ def manual_deduplication_patterns(select_records_wizard, undo_deduplication_wiza
             name="select-and-review-records-manual",
         ),
         path(
-            "undo-deduplication/<str:step>/<str:id>/",
+            "<str:step>/<str:id>/",
             undo_deduplication_wizard,
             name="undo-deduplication-records-manual-step",
         ),
         path(
-            "undo-deduplication/<str:step>/complete/",
+            "<str:step>/complete/",
             undo_deduplication_wizard,
             name="complete-undo-deduplication-records-manual-step",
         ),
