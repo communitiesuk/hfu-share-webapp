@@ -59,13 +59,6 @@
                                        {% if app_name == 'accommodation-requests' %}aria-current="true"{% endif %}>Accommodation requests</a>
                                 </li>
                             {% endif %}
-                            {% if available_links.dedupe_records %}
-                                <li class="govuk-service-navigation__item {% if app_name == 'deduplication' %}govuk-service-navigation__item--active{% endif %}">
-                                    <a href="{% url 'webapp:review-potential-duplicate-records' %}"
-                                       class="govuk-service-navigation__link"
-                                       {% if app_name == 'deduplication' %}aria-current="true"{% endif %}>Deduplicate records</a>
-                                </li>
-                            {% endif %}
                             {% if available_links.download_data %}
                                 <li class="govuk-service-navigation__item {% if app_name == 'downloads' %}govuk-service-navigation__item--active{% endif %}">
                                     <a href="{% url 'downloads:download-page' %}"
