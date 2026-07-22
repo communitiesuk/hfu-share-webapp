@@ -46,10 +46,7 @@ class DeduplicationAccommodationListViewTestCase(TestSessionTokenMixin, TestCase
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
             response.url,
-            "/review-potential-duplicate-records-manual"
-            "/accommodations"
-            "/deduplicate"
-            "/select-record/",
+            "/deduplication/accommodations/select-record/",
         )
 
     def test_renders_accommodation_list_with_correct_layout(self):

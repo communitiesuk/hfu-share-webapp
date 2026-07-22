@@ -85,10 +85,7 @@ class DeduplicationSponsorListViewTestCase(TestSessionTokenMixin, TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
             response.url,
-            "/review-potential-duplicate-records-manual"
-            "/sponsors"
-            "/deduplicate"
-            "/select-record/",
+            "/deduplication/sponsors/select-record/",
         )
 
     def test_renders_sponsor_list_with_correct_layout(self):

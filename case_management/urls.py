@@ -52,7 +52,7 @@ urlpatterns = (
             include("reassignment_requests.urls", namespace="reassignment_requests"),
         ),
         path(
-            "review-potential-duplicate-records-manual/",
+            "deduplication/",
             include("deduplication.urls", namespace="deduplication"),
         ),
         path(

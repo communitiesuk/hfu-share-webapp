@@ -60,8 +60,7 @@ class DeduplicationSponsorSelectedViewTests(TestSessionTokenMixin, TestCase):
 
         self.assertEqual(
             response.url,
-            "/review-potential-duplicate-records-manual"
-            "/guests/deduplicate/view-selected-records/",
+            "/deduplication/guests/view-selected-records/",
         )
 
     def test_renders_selected_list_with_correct_layout(self):
@@ -129,8 +128,8 @@ class DeduplicationSponsorSelectedViewTests(TestSessionTokenMixin, TestCase):
             response,
             "<a "
             'class="govuk-link govuk-link--no-visited-state "'
-            'href="/review-potential-duplicate-records-manual/'
-            'guests/deduplicate/?reset=true">'
+            'href="/deduplication/'
+            'guests/?reset=true">'
             "Cancel"
             "</a>",
             html=True,
@@ -195,7 +194,7 @@ class DeduplicationSponsorSelectedViewTests(TestSessionTokenMixin, TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
             response.url,
-            "/review-potential-duplicate-records-manual/guests/deduplicate/select-record/",
+            "/deduplication/guests/select-record/",
         )
 
     def test_selected_record_does_not_show_on_return_to_select_guest_list(self):

@@ -64,8 +64,8 @@ class UndoDeduplicationSponsorUndoDeduplicatedRecordsViewTestCase(
         self.assertEqual(response.status_code, 302)
         self.assertRegex(
             response.url,
-            r"/review-potential-duplicate-records-manual"
-            r"/accommodations/undo-deduplication/undo-deduplicate-records/\d+/",
+            r"/deduplication"
+            r"/accommodations/undo-deduplicate-records/\d+/",
         )
 
     def test_undo_deduplicate_accommodation_records_displays_correct_content(self):

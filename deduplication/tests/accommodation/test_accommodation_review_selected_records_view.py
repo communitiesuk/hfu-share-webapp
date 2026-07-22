@@ -50,7 +50,7 @@ class DeduplicationAccommodationSelectedViewTests(TestSessionTokenMixin, TestCas
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
             response.url,
-            "/review-potential-duplicate-records-manual/accommodations/deduplicate/view-selected-records/",
+            "/deduplication/accommodations/view-selected-records/",
         )
 
         response = self.client.post(
@@ -72,7 +72,7 @@ class DeduplicationAccommodationSelectedViewTests(TestSessionTokenMixin, TestCas
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
             response.url,
-            "/review-potential-duplicate-records-manual/accommodations/deduplicate/review-selected-records/",
+            "/deduplication/accommodations/review-selected-records/",
         )
 
     def test_renders_review_list_with_correct_layout(self):
@@ -137,8 +137,8 @@ class DeduplicationAccommodationSelectedViewTests(TestSessionTokenMixin, TestCas
         )
         self.assertContains(
             response,
-            '<a class="govuk-link" href="/review-potential-duplicate-records-manual'
-            '/accommodations/deduplicate/?reset=true">Cancel</a>',
+            '<a class="govuk-link" href="/deduplication'
+            '/accommodations/?reset=true">Cancel</a>',
             html=True,
         )
 
