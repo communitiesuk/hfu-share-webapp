@@ -345,12 +345,12 @@ class LandingPageView(UserActionsMixin, MultiTableMixin, TemplateView):
         return [table_pending, table_rejected, table_approved]
 
 
-class AccessibilityStatementView(UserActionsMixin, TemplateView):
+class AccessibilityStatementView(TemplateView):
     # pylint: disable=view-missing-access-control
     template_name = "webapp/pages/accessibility_statement/accessibility_statement.html"
 
 
-class CookiesView(UserActionsMixin, TemplateView):
+class CookiesView(TemplateView):
     # pylint: disable=view-missing-access-control
     template_name = "webapp/pages/cookies/cookies.html"
 
@@ -879,7 +879,7 @@ class ActionsListView(DetailView):
 
 
 @method_decorator(csrf_exempt, name="dispatch")
-class CSPReportView(UserActionsMixin, View):
+class CSPReportView(View):
     """
     This view is only used if SENTRY_CSP_REPORT_URI environment var is not configured.
     """

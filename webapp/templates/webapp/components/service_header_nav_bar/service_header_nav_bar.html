@@ -27,49 +27,57 @@
                             {% if available_links.visa_applications %}
                                 <li class="govuk-service-navigation__item{% if app_name == 'visa-applications' %} govuk-service-navigation__item--active{% endif %}">
                                     <a href="{% url 'visa-applications:visa-applications' %}"
-                                       class="govuk-service-navigation__link">Visa applications</a>
+                                       class="govuk-service-navigation__link"
+                                       {% if app_name == 'visa-applications' %}aria-current="true"{% endif %}>Visa applications</a>
                                 </li>
                             {% endif %}
                             {% if available_links.guests %}
                                 <li class="govuk-service-navigation__item {% if app_name == 'guests' %}govuk-service-navigation__item--active{% endif %}">
                                     <a href="{% url 'guests:guests' %}"
-                                       class="govuk-service-navigation__link">Guests</a>
+                                       class="govuk-service-navigation__link"
+                                       {% if app_name == 'guests' %}aria-current="true"{% endif %}>Guests</a>
                                 </li>
                             {% endif %}
                             {% if available_links.sponsors_hosts %}
                                 <li class="govuk-service-navigation__item {% if app_name == 'sponsors' %}govuk-service-navigation__item--active{% endif %}">
                                     <a href="{% url 'sponsors:sponsors' %}"
-                                       class="govuk-service-navigation__link">Sponsors and hosts</a>
+                                       class="govuk-service-navigation__link"
+                                       {% if app_name == 'sponsors' %}aria-current="true"{% endif %}>Sponsors and hosts</a>
                                 </li>
                             {% endif %}
                             {% if available_links.accommodation %}
                                 <li class="govuk-service-navigation__item {% if app_name == 'accommodations' %}govuk-service-navigation__item--active{% endif %}">
                                     <a href="{% url 'accommodations:accommodations' %}"
-                                       class="govuk-service-navigation__link">Accommodation</a>
+                                       class="govuk-service-navigation__link"
+                                       {% if app_name == 'accommodations' %}aria-current="true"{% endif %}>Accommodation</a>
                                 </li>
                             {% endif %}
                             {% if available_links.accommodation_requests %}
                                 <li class="govuk-service-navigation__item {% if app_name == 'accommodation-requests' %}govuk-service-navigation__item--active{% endif %}">
                                     <a href="{% url 'accommodation-requests:accommodation-requests' %}"
-                                       class="govuk-service-navigation__link">Accommodation requests</a>
+                                       class="govuk-service-navigation__link"
+                                       {% if app_name == 'accommodation-requests' %}aria-current="true"{% endif %}>Accommodation requests</a>
                                 </li>
                             {% endif %}
                             {% if available_links.dedupe_records %}
                                 <li class="govuk-service-navigation__item {% if app_name == 'webapp' %}govuk-service-navigation__item--active{% endif %}">
                                     <a href="{% url 'webapp:review-potential-duplicate-records' %}"
-                                       class="govuk-service-navigation__link">Deduplicate records</a>
+                                       class="govuk-service-navigation__link"
+                                       {% if app_name == 'webapp' %}aria-current="true"{% endif %}>Deduplicate records</a>
                                 </li>
                             {% endif %}
                             {% if available_links.download_data %}
                                 <li class="govuk-service-navigation__item {% if app_name == 'downloads' %}govuk-service-navigation__item--active{% endif %}">
                                     <a href="{% url 'downloads:download-page' %}"
-                                       class="govuk-service-navigation__link">Download data</a>
+                                       class="govuk-service-navigation__link"
+                                       {% if app_name == 'downloads' %}aria-current="true"{% endif %}>Download data</a>
                                 </li>
                             {% endif %}
                             {% if user.is_authenticated %}
-                                <li class="govuk-service-navigation__item {% if app_name == 'user_management' %}govuk-service-navigation__item--active{% endif %}">
+                                <li class="govuk-service-navigation__item {% if app_name == 'user-management' %}govuk-service-navigation__item--active{% endif %}">
                                     <a href="{% url 'user-management:access-request-intro' %}"
-                                       class="govuk-service-navigation__link">Request access</a>
+                                       class="govuk-service-navigation__link"
+                                       {% if app_name == 'user-management' %}aria-current="true"{% endif %}>Request access</a>
                                 </li>
                             {% endif %}
                         {% endwith %}

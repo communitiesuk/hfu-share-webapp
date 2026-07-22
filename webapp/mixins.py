@@ -38,23 +38,7 @@ from ontology.models import (
     MvPerson,
     MvVolunteer,
 )
-from webapp.constants import (
-    ACCOMMODATION_ALLOWED_GROUP_TYPES,
-    ACCOMMODATION_REQUEST_ALLOWED_GROUP_TYPES,
-    AUDIT_EVENT_TYPE_ACTION,
-    DEDUPE_RECORDS_ALLOWED_GROUP_TYPES,
-    DOWNLOAD_DATA_ALLOWED_GROUP_TYPES,
-    ESCALATED_CHECKS_ALLOWED_GROUP_TYPES,
-    FIX_DUPLICATE_RECORDS_ALLOWED_GROUP_TYPES,
-    GUESTS_ALLOWED_GROUP_TYPES,
-    MANAGE_PERMISSIONS_ALLOWED_GROUP_TYPES,
-    REASSIGNMENT_REQUEST_ALLOWED_GROUP_TYPES,
-    REQUEST_DATA_ALLOWED_GROUP_TYPES,
-    SPONSORS_HOSTS_ALLOWED_GROUP_TYPES,
-    UAM_ALLOWED_GROUP_TYPES,
-    VISA_APPLICATIONS_ALLOWED_GROUP_TYPES,
-    VISA_INFORMATION_REQUESTS_ALLOWED_GROUP_TYPES,
-)
+from webapp.constants import AUDIT_EVENT_TYPE_ACTION
 from webapp.s3 import s3_file_exists
 from webapp.templatetags.timeline_extras import (
     AuditEventType,
@@ -333,7 +317,6 @@ class UserActionsMixin(UserUtilitiesMixin):
                 GroupType.MHCLG,
             ]
         )
-        ctx["available_links"] = self.get_available_views_for_user()
         ctx["available_announcements"] = self.get_announcements()
         return ctx
 
@@ -367,62 +350,6 @@ class UserActionsMixin(UserUtilitiesMixin):
         return Announcement.objects.filter(
             publish_at__lte=timezone.now(), hidden=False
         ).order_by("-publish_at")[:3]
-
-    def get_available_views_for_user(self):
-        request = getattr(self, "request", None)
-        if request is None:
-            return {}
-
-        has_session = hasattr(request, "session")
-        if has_session and "available_links" in request.session:
-            return request.session["available_links"]
-
-        user_group_types = self._get_user_group_types(request.user)
-
-        available_links = {
-            "accommodation": bool(user_group_types & ACCOMMODATION_ALLOWED_GROUP_TYPES),
-            "accommodation_requests": bool(
-                user_group_types & ACCOMMODATION_REQUEST_ALLOWED_GROUP_TYPES
-            ),
-            "dedupe_records": bool(
-                user_group_types & DEDUPE_RECORDS_ALLOWED_GROUP_TYPES
-            ),
-            "download_data": bool(user_group_types & DOWNLOAD_DATA_ALLOWED_GROUP_TYPES),
-            "escalated_checks": bool(
-                user_group_types & ESCALATED_CHECKS_ALLOWED_GROUP_TYPES
-            ),
-            "guests": bool(user_group_types & GUESTS_ALLOWED_GROUP_TYPES),
-            "manage_permissions": bool(
-                user_group_types & MANAGE_PERMISSIONS_ALLOWED_GROUP_TYPES
-            ),
-            "request_data": bool(user_group_types & REQUEST_DATA_ALLOWED_GROUP_TYPES),
-            "sponsors_hosts": bool(
-                user_group_types & SPONSORS_HOSTS_ALLOWED_GROUP_TYPES
-            ),
-            "visa_applications": bool(
-                user_group_types & VISA_APPLICATIONS_ALLOWED_GROUP_TYPES
-            ),
-            "reassignment_requests": bool(
-                user_group_types & REASSIGNMENT_REQUEST_ALLOWED_GROUP_TYPES
-            ),
-            "visa_information_requests": bool(
-                user_group_types & VISA_INFORMATION_REQUESTS_ALLOWED_GROUP_TYPES
-            ),
-            "uam": bool(user_group_types & UAM_ALLOWED_GROUP_TYPES),
-            "fix_duplicate_records": bool(user_group_types & {GroupType.DEV})
-            or (
-                settings.FIX_DUPLICATE_RECORDS_ENABLED
-                and bool(user_group_types & FIX_DUPLICATE_RECORDS_ALLOWED_GROUP_TYPES)
-            ),
-        }
-
-        if all(not value for value in available_links.values()):
-            return {}
-
-        if has_session:
-            request.session["available_links"] = available_links
-
-        return available_links
 
 
 class PermissionsMixin(UserActionsMixin, GroupRequiredMixin, LocalAuthorityAccessMixin):

@@ -149,6 +149,32 @@ class NavBarLinkVisibilityTests(TestSessionTokenMixin, TestCase):
         # Shouldn't see these links
         self.assertFalse(link_exists("Deduplicate records", html))
 
+    def test_links_shown_on_page_without_user_actions_mixin(self):
+        user = get_la_user()
+        self.client.force_login(user)
+        response = self.client.get(
+            reverse("user-management:access-request-confirmation")
+        )
+        html = response.content.decode()
+
+        self.assertTrue(link_exists("Guests", html))
+        self.assertTrue(link_exists("Accommodation requests", html))
+        self.assertTrue(link_exists("Sponsors and hosts", html))
+        self.assertTrue(link_exists("Visa applications", html))
+        self.assertTrue(link_exists("Request access", html))
+
+    def test_group_change_updates_links_without_logging_in_again(self):
+        user = get_user_with_no_access()
+        self.client.force_login(user)
+        html = self.client.get(reverse("webapp:landing-page")).content.decode()
+        self.assertFalse(link_exists("Guests", html))
+
+        la_user = get_la_user()
+        user.groups.set(la_user.groups.all())
+
+        html = self.client.get(reverse("webapp:landing-page")).content.decode()
+        self.assertTrue(link_exists("Guests", html))
+
     def test_multi_group_user_sees_expected_links(self):
         user = get_user_with_groups(
             [
