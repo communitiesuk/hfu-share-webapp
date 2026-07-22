@@ -152,6 +152,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "case_management.context_processors.app_context",
+                "webapp.context_processors.available_links",
             ],
         },
     },
