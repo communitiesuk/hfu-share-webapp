@@ -10,9 +10,9 @@
     {% url 'uams:detail-properties' object.pk as properties_url %}
     {% url 'uams:detail-linked-records' object.pk as linked_records_url %}
     {% url 'uams:detail-files' object.pk as files_url %}
+    {% include "webapp/components/notification_banner/notification_banner.html" %}
+    {% include "webapp/components/heading/heading.html" with caption="Application to sponsor a child record for" page_heading=object.given_name|add:" "|add:object.family_name %}
     <div class="govuk-tabs {% if request.path == properties_url %} govuk-!-width-full {% else %} govuk-!-width-two-thirds {% endif %}">
-        {% include "webapp/components/notification_banner/notification_banner.html" %}
-        {% include "webapp/components/heading/heading.html" with caption="Application to sponsor a child record for" page_heading=object.given_name|add:" "|add:object.family_name %}
         <h3 class="govuk-tabs__title">Contents</h3>
         <ul class="govuk-tabs__list">
             <li class="govuk-tabs__list-item {% if request.path == overview_url %}govuk-tabs__list-item--selected{% endif %}">

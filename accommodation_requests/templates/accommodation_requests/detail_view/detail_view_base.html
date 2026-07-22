@@ -14,9 +14,9 @@
     {% url 'accommodation-requests:detail-properties' object.id as properties_url %}
     {% url 'accommodation-requests:detail-comments' object.id as comments_url %}
     {% url 'accommodation-requests:detail-history' object.id as history_url %}
+    {% include "webapp/components/notification_banner/notification_banner.html" %}
+    {% include "webapp/components/heading/heading.html" with caption="Accommodation request record for" page_heading=object.title %}
     <div class="govuk-tabs tabs--tight {% if request.path != properties_url %}govuk-!-width-two-thirds{% endif %}">
-        {% include "webapp/components/notification_banner/notification_banner.html" %}
-        {% include "webapp/components/heading/heading.html" with caption="Accommodation request record for" page_heading=object.title %}
         <h3 class="govuk-tabs__title">Contents</h3>
         <ul class="govuk-tabs__list">
             <li class="govuk-tabs__list-item {% if request.path == overview_url %}govuk-tabs__list-item--selected{% endif %}">
