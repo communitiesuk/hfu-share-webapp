@@ -13,12 +13,14 @@
     <li class="govuk-breadcrumbs__list-item">Guest record</li>
 {% endblock breadcrumb_content %}
 {% block content %}
-    {% error_summary form %}
-    <div class="govuk-!-width-one-half">
-        {% include "webapp/components/heading/heading.html" with caption="Guest record for" page_heading=object.get_full_name %}
-        <div class="govuk-!-padding-top-2" id="form-content">
-            {% block form_content %}
-            {% endblock form_content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-half">
+            {% error_summary form %}
+            {% include "webapp/components/heading/heading.html" with caption="Guest record for" page_heading=object.get_full_name %}
+            <div class="govuk-!-padding-top-2" id="form-content">
+                {% block form_content %}
+                {% endblock form_content %}
+            </div>
         </div>
     </div>
 {% endblock content %}

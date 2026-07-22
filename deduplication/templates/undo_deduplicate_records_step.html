@@ -11,33 +11,43 @@
     <li class="govuk-breadcrumbs__list-item">Undo deduplication</li>
 {% endblock breadcrumb_content %}
 {% block form %}
-    <div class="govuk-!-width-one-half">
-        {% include "webapp/components/heading/heading.html" with page_heading="Undo deduplicate "|add:type|add:" records" %}
-    </div>
-    <div class="govuk-summary-card">
-        <div class="govuk-summary-card__title-wrapper">
-            <h2 class="govuk-summary-card__title">
-                Records deduplicated to create new principal {{ type }} record for {{ principal_record_name }}
-            </h2>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-half">
+            {% include "webapp/components/heading/heading.html" with page_heading="Undo deduplicate "|add:type|add:" records" %}
         </div>
-        <div class="govuk-summary-card__content">{% include table_template_url %}</div>
     </div>
-    <div class="govuk-warning-text">
-        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-        <strong class="govuk-warning-text__text">
-            <span class="govuk-visually-hidden">Warning</span>
-            This action will permanently delete the principal record for {{ principal_record_name }}. Any changes to the principal record for {{ principal_record_name }} will be lost.
-        </strong>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <div class="govuk-summary-card">
+                <div class="govuk-summary-card__title-wrapper">
+                    <h2 class="govuk-summary-card__title">
+                        Records deduplicated to create new principal {{ type }} record for {{ principal_record_name }}
+                    </h2>
+                </div>
+                <div class="govuk-summary-card__content">{% include table_template_url %}</div>
+            </div>
+        </div>
     </div>
-    <p class="govuk-body govuk-!-margin-top-5 govuk-!-margin-bottom-5 govuk-!-width-two-thirds">
-        This record was created on {{ date|date:"j F Y" }} at {{ date|date:"g:ia"|cut:"." }} by deduplicating two separate records. The original records for {{ deduplicated_records }} will be restored.
-    </p>
-    <p class="govuk-body govuk-!-margin-top-5 govuk-!-margin-bottom-5 govuk-!-width-two-thirds">
-        <strong>Are you sure you want to delete this {{ type }} record and restore the original records?</strong>
-    </p>
-    <form class="govuk-button-group" method="post">
-        {% csrf_token %}
-        {{ wizard.management_form }}
-        {% crispy form %}
-    </form>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-half">
+            <div class="govuk-warning-text">
+                <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                <strong class="govuk-warning-text__text">
+                    <span class="govuk-visually-hidden">Warning</span>
+                    This action will permanently delete the principal record for {{ principal_record_name }}. Any changes to the principal record for {{ principal_record_name }} will be lost.
+                </strong>
+            </div>
+            <p class="govuk-body">
+                This record was created on {{ date|date:"j F Y" }} at {{ date|date:"g:ia"|cut:"." }} by deduplicating two separate records. The original records for {{ deduplicated_records }} will be restored.
+            </p>
+            <p class="govuk-body">
+                <strong>Are you sure you want to delete this {{ type }} record and restore the original records?</strong>
+            </p>
+            <form class="govuk-button-group" method="post">
+                {% csrf_token %}
+                {{ wizard.management_form }}
+                {% crispy form %}
+            </form>
+        </div>
+    </div>
 {% endblock form %}

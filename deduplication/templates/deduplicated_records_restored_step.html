@@ -8,38 +8,44 @@
     <li class="govuk-breadcrumbs__list-item">Undo deduplication</li>
 {% endblock breadcrumb_content %}
 {% block form %}
-    <div class="govuk-notification-banner govuk-!-width-one-half govuk-notification-banner--success"
-         role="alert"
-         aria-labelledby="govuk-notification-banner-title"
-         data-module="govuk-notification-banner">
-        <div class="govuk-notification-banner__header">
-            <h2 class="govuk-notification-banner__title"
-                id="govuk-notification-banner-title">Success</h2>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-half">
+            <div class="govuk-notification-banner govuk-notification-banner--success"
+                 role="alert"
+                 aria-labelledby="govuk-notification-banner-title"
+                 data-module="govuk-notification-banner">
+                <div class="govuk-notification-banner__header">
+                    <h2 class="govuk-notification-banner__title"
+                        id="govuk-notification-banner-title">Success</h2>
+                </div>
+                <div class="govuk-notification-banner__content">
+                    <h3 class="govuk-notification-banner__heading max-width-none">
+                        You have restored {{ deduplicated_record_data|length }} {{ type }} records.
+                    </h3>
+                    <p class="govuk-body max-width-none">
+                        {{ deduplicated_records_names_list_formatted }} have been restored and the principal record {{ principal_record_name }} was deleted.
+                    </p>
+                </div>
+            </div>
+            {% include "webapp/components/heading/heading.html" with page_heading="Deduplicated records restored" %}
         </div>
-        <div class="govuk-notification-banner__content">
-            <h3 class="govuk-notification-banner__heading max-width-none">
-                You have restored {{ deduplicated_record_data|length }} {{ type }} records.
-            </h3>
-            <p class="govuk-body max-width-none">
-                {{ deduplicated_records_names_list_formatted }} have been restored and the principal record {{ principal_record_name }} was deleted.
+    </div>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <h4 class="govuk-heading-s">Review restored records</h4>
+            <p class="govuk-body govuk-!-margin-top-1 govuk-!-margin-bottom-5">
+                Review the restored {{ type }} records and linked accommodation requests.
             </p>
+            <ul class="govuk-list">
+                {% for record in deduplicated_record_data %}
+                    <li>
+                        <a class="govuk-link" href="{{ record.url }}">{{ record.name }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+            <br>
+            <a href="{{ type_list_url }}"
+               class="govuk-button govuk-button--secondary">Back to list of {{ type_title_plural|lower }}</a>
         </div>
     </div>
-    <div>
-        {% include "webapp/components/heading/heading.html" with page_heading="Deduplicated records restored" %}
-        <h4 class="govuk-heading-s">Review restored records</h4>
-        <p class="govuk-body govuk-!-width-full govuk-!-margin-top-1 govuk-!-margin-bottom-5">
-            Review the restored {{ type }} records and linked accommodation requests.
-        </p>
-        <ul class="govuk-list">
-            {% for record in deduplicated_record_data %}
-                <li>
-                    <a class="govuk-link" href="{{ record.url }}">{{ record.name }}</a>
-                </li>
-            {% endfor %}
-        </ul>
-        <br>
-    </div>
-    <a href="{{ type_list_url }}"
-       class="govuk-button govuk-button--secondary">Back to list of {{ type_title_plural|lower }}</a>
 {% endblock form %}

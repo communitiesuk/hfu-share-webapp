@@ -5,24 +5,34 @@
     <li class="govuk-breadcrumbs__list-item">Fix duplicate records</li>
 {% endblock breadcrumb_content %}
 {% block form %}
-    <div class="govuk-!-width-one-half">
-        {% include "webapp/components/heading/heading.html" with page_heading="Deduplicate selected records" %}
-    </div>
-    <p class="govuk-body govuk-!-margin-top-5 govuk-!-margin-bottom-5 govuk-!-width-two-thirds">
-        You confirmed the following records:
-    </p>
-    <div class="govuk-summary-card">
-        <div class="govuk-summary-card__title-wrapper">
-            <h2 class="govuk-summary-card__title">Records to be deduplicated</h2>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-half">
+            {% include "webapp/components/heading/heading.html" with page_heading="Deduplicate selected records" %}
         </div>
-        <div class="govuk-summary-card__content">{% include table_template_url %}</div>
     </div>
-    <p class="govuk-body govuk-!-margin-top-5 govuk-!-margin-bottom-5 govuk-!-width-two-thirds">
-        Click 'Continue' to proceed or 'Cancel' to keep the records separate.
-    </p>
-    <form class="govuk-button-group" method="post">
-        {% csrf_token %}
-        {{ wizard.management_form }}
-        {% crispy form %}
-    </form>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-half">
+            <p class="govuk-body">You confirmed the following records:</p>
+        </div>
+    </div>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <div class="govuk-summary-card">
+                <div class="govuk-summary-card__title-wrapper">
+                    <h2 class="govuk-summary-card__title">Records to be deduplicated</h2>
+                </div>
+                <div class="govuk-summary-card__content">{% include table_template_url %}</div>
+            </div>
+        </div>
+    </div>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-half">
+            <p class="govuk-body govuk-!-margin-bottom-5">Click 'Continue' to proceed or 'Cancel' to keep the records separate.</p>
+            <form class="govuk-button-group" method="post">
+                {% csrf_token %}
+                {{ wizard.management_form }}
+                {% crispy form %}
+            </form>
+        </div>
+    </div>
 {% endblock form %}
