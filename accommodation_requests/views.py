@@ -60,7 +60,6 @@ from ontology.models import (
     MvInteraction,
     MvInteractionAttachmentMetadata,
     MvPerson,
-    MvUkPostcode,
     ReassignmentRequest,
     SafeguardingNotification,
 )
@@ -1643,13 +1642,6 @@ class AccommodationTable(tables.Table):
             reverse("accommodations:detail-overview", args=[record.id]),
             value,
         )
-
-    def render_postcode(self, value: MvUkPostcode):
-        if value.postcode_formatted:
-            return value.postcode_formatted
-        if value.postcode:
-            return value.postcode
-        return ""
 
     def render_select(self, value):
         return format_html(
