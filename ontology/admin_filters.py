@@ -3,7 +3,7 @@ from typing import TypedDict
 
 from django.contrib.admin import FieldListFilter, SimpleListFilter
 from django.db.models import CharField, DateTimeField, F, Q, QuerySet, Value
-from django.db.models.functions import Concat
+from django.db.models.functions import Concat, Trim
 from django.utils import timezone as django_timezone
 from django.utils.safestring import SafeString
 
@@ -77,8 +77,10 @@ class GuestsWithIncorrectTitlesExcludingDuplicatesFilter(SimpleListFilter):
     def queryset(self, request, queryset):
         if self.value() in ["exclude_duplicates", "include_duplicates"]:
             qs = queryset.annotate(
-                expected_title=Concat(
-                    "first_name", Value(" "), "last_name", output_field=CharField()
+                expected_title=Trim(
+                    Concat(
+                        "first_name", Value(" "), "last_name", output_field=CharField()
+                    )
                 )
             ).exclude(title=F("expected_title"))
 
