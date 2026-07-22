@@ -73,8 +73,55 @@ th.orderable.govuk-table__header:last-child {
     left: 0;
 }
 
-.full-width {
-  margin: 0 calc((100vw - 100%)/-2);
+:root {
+  --app-brand-colour: #006660;
+}
+
+.app-band {
+  background-color: var(--app-band-colour);
+  box-shadow: 0 0 0 100vmax var(--app-band-colour);
+  clip-path: inset(0 -100vmax);
+}
+
+.app-band--brand {
+  --app-band-colour: var(--app-brand-colour);
+}
+
+.app-band--brand h1,
+.app-band--brand p,
+.app-band--brand img {
+  color: white;
+}
+
+.app-band--grey {
+  --app-band-colour: #f8f8f8;
+}
+
+.app-brand-border-bottom {
+  border-bottom-color: var(--app-brand-colour);
+}
+
+.app-brand-border-top {
+  border-top-color: var(--app-brand-colour);
+}
+
+/* App-wide overrides of the GOV.UK layout classes: a wider page and the
+   spacing-scale-9 vertical rhythm (40px/60px) the pages used before
+   adopting govuk-main-wrapper */
+.govuk-width-container {
+  max-width: 95%;
+}
+
+.govuk-main-wrapper {
+  padding-top: 40px;
+  padding-bottom: 40px;
+}
+
+@media (min-width: 40.0625em) {
+  .govuk-main-wrapper {
+    padding-top: 60px;
+    padding-bottom: 60px;
+  }
 }
 
 .max-width-none {
@@ -84,8 +131,8 @@ th.orderable.govuk-table__header:last-child {
 /* HERO BANNER */
 
 .mhclg-crest {
-  max-width: 100vw;
-  max-height: 100vw;
+  max-width: 100%;
+  height: auto;
 }
 
 .hero-banner-container {
@@ -114,7 +161,7 @@ th.orderable.govuk-table__header:last-child {
 }
 
 .govuk-card {
-  border-bottom: 5px solid #006660;
+  border-bottom: 5px solid var(--app-brand-colour);
   box-sizing: border-box;
   padding: 15px;
 
@@ -198,39 +245,6 @@ th.orderable.govuk-table__header:last-child {
 
 .govuk-card--selectable > a:focus {
   background-color: initial !important;
-}
-
-.govuk-card {
-  border-bottom: 5px solid #006660;
-  box-sizing: border-box;
-}
-
-.govuk-card__content {
-  padding-bottom: 0;
-  height: 100%;
-  max-height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.govuk-card__content :last-child {
-  margin-top: auto;
-}
-
-.govuk-card__content p {
-  margin-bottom: 0;
-}
-
-.govuk-card__actions {
-  padding-bottom: 0;
-}
-
-.govuk-card--contained {
-  background-color: #f8f8f8;
-}
-
-.govuk-card--contained--on-background {
-  background-color: white;
 }
 
 .moj-filter__tag::after {

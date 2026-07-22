@@ -1,3 +1,4 @@
+import http.client
 from datetime import datetime, timezone
 
 from django.test import TestCase
@@ -13,7 +14,14 @@ from ontology.tests.factories import (
     MvPersonFactory,
     ReassignmentRequestFactory,
 )
-from user_management.tests.base import get_admin_user
+from user_management.tests.base import (
+    get_admin_user,
+    get_da_user,
+    get_la_user,
+    get_mhclg_user,
+    get_service_support_user,
+    get_ukvi_user,
+)
 from webapp.mixins import SummaryListTestCaseMixin
 
 
@@ -67,13 +75,120 @@ class UndoDeduplicationGuestViewDeduplicatedRecordsViewTestCase(
             application_number=["9999-9999-9999-9999"],
             is_principal=True,
         )
-
-        guest_duplicate_group = GuestDuplicateGroupFactory.create(
-            principal_record=self.new_principal_guest,
-            created_at=datetime(2026, 1, 1, 9, 30, tzinfo=timezone.utc),
+        self.new_principal_ltla_guest = MvPersonFactory(
+            pk="person-2",
+            first_name="LTLA",
+            last_name="Last",
+            is_principal=True,
         )
-        guest_duplicate_group.guests.set([self.first_guest, self.second_guest])
-        guest_duplicate_group.save()
+        self.new_principal_da_guest = MvPersonFactory(
+            pk="person-3",
+            first_name="DA",
+            last_name="Last",
+            is_principal=True,
+        )
+
+        for new_principal_guest in [
+            self.new_principal_guest,
+            self.new_principal_ltla_guest,
+            self.new_principal_da_guest,
+        ]:
+            guest_duplicate_group = GuestDuplicateGroupFactory.create(
+                principal_record=new_principal_guest,
+                created_at=datetime(2026, 1, 1, 9, 30, tzinfo=timezone.utc),
+            )
+            guest_duplicate_group.guests.set([self.first_guest, self.second_guest])
+            guest_duplicate_group.save()
+
+    def test_admin_user_is_allowed_access(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse(
+                "deduplication:guests:undo-deduplication-records-manual-step",
+                kwargs={
+                    "step": UndoDeduplicationRecordsStep.VIEW_DUPLICATE_RECORDS,
+                    "id": self.new_principal_guest.pk,
+                },
+            )
+        )
+        self.assertEqual(response.status_code, http.client.OK)
+
+    def test_la_user_is_not_allowed_access(self):
+        user = get_la_user()
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse(
+                "deduplication:guests:undo-deduplication-records-manual-step",
+                kwargs={
+                    "step": UndoDeduplicationRecordsStep.VIEW_DUPLICATE_RECORDS,
+                    "id": self.new_principal_ltla_guest.pk,
+                },
+            )
+        )
+        self.assertEqual(response.status_code, http.client.FORBIDDEN)
+
+    def test_da_user_is_not_allowed_access(self):
+        user = get_da_user()
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse(
+                "deduplication:guests:undo-deduplication-records-manual-step",
+                kwargs={
+                    "step": UndoDeduplicationRecordsStep.VIEW_DUPLICATE_RECORDS,
+                    "id": self.new_principal_da_guest.pk,
+                },
+            )
+        )
+        self.assertEqual(response.status_code, http.client.FORBIDDEN)
+
+    def test_ukvi_user_is_not_allowed_access(self):
+        user = get_ukvi_user()
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse(
+                "deduplication:guests:undo-deduplication-records-manual-step",
+                kwargs={
+                    "step": UndoDeduplicationRecordsStep.VIEW_DUPLICATE_RECORDS,
+                    "id": self.new_principal_guest.pk,
+                },
+            )
+        )
+        self.assertEqual(response.status_code, http.client.FORBIDDEN)
+
+    def test_ops_user_is_not_allowed_access(self):
+        user = get_mhclg_user()
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse(
+                "deduplication:guests:undo-deduplication-records-manual-step",
+                kwargs={
+                    "step": UndoDeduplicationRecordsStep.VIEW_DUPLICATE_RECORDS,
+                    "id": self.new_principal_guest.pk,
+                },
+            )
+        )
+        self.assertEqual(response.status_code, http.client.FORBIDDEN)
+
+    def test_service_support_user_is_not_allowed_access(self):
+        user = get_service_support_user()
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse(
+                "deduplication:guests:undo-deduplication-records-manual-step",
+                kwargs={
+                    "step": UndoDeduplicationRecordsStep.VIEW_DUPLICATE_RECORDS,
+                    "id": self.new_principal_guest.pk,
+                },
+            )
+        )
+        self.assertEqual(response.status_code, http.client.FORBIDDEN)
 
     def test_view_duplicate_guest_and_host_records_displays_correct_content(self):
         user = get_admin_user()

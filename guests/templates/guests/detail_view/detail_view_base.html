@@ -6,7 +6,7 @@
     <li class="govuk-breadcrumbs__list-item">Guest record</li>
 {% endblock breadcrumb_content %}
 {% block content %}
-    <div class="govuk-!-margin-top-9">{% include "webapp/components/notification_banner/notification_banner.html" %}</div>
+    {% include "webapp/components/notification_banner/notification_banner.html" %}
     {% url 'guests:detail-overview' object.id as overview_url %}
     {% url 'guests:detail-actions' object.id as actions_url %}
     {% url 'guests:detail-linked-records' object.id as linked_records_url %}

@@ -2562,7 +2562,7 @@ class SelectAndReviewSponsorRecordsFormWizard(SelectAndViewRecordsFormWizard):
 
 class UndoDeduplicationSponsorRecordsFormWizard(UndoDeduplicationRecordsFormWizard):
     model = MvVolunteer
-    group_type = [GroupType.DEV]
+    group_type = list(FIX_DUPLICATE_RECORDS_ALLOWED_GROUP_TYPES)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -3399,9 +3399,7 @@ class UndoDeduplicationAccommodationRecordsFormWizard(
     UndoDeduplicationRecordsFormWizard
 ):
     model = MvAccommodation
-    group_type = [
-        GroupType.DEV,
-    ]
+    group_type = list(FIX_DUPLICATE_RECORDS_ALLOWED_GROUP_TYPES)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

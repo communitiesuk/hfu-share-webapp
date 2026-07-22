@@ -463,17 +463,17 @@ class SponsorsLinkedRecordsTestCase(
 
         self.assertRegex(
             response.content.decode(),
-            r"<a href=/sponsors/\d+/overview>"
+            r"<a class=\"govuk-link\" href=/sponsors/\d+/overview>"
             f"sponsor and host record for "
             f"{self.dup_principal_sponsor.full_name}"
             f"</a>",
         )
 
-        # self.assertContains(
-        #     response,
-        #     "If this was a mistake you can undo the deduplication "
-        #     "from the actions tab.",
-        # )
+        self.assertContains(
+            response,
+            "If this was a mistake you can undo the deduplication "
+            "from the actions tab.",
+        )
 
         response = self.client.get(
             reverse(

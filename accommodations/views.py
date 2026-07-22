@@ -29,7 +29,10 @@ from ontology.models import (
     MvPerson,
     MvUkPostcode,
 )
-from webapp.constants import ACCOMMODATION_SEARCH_FIELDS
+from webapp.constants import (
+    ACCOMMODATION_SEARCH_FIELDS,
+    FIX_DUPLICATE_RECORDS_ALLOWED_GROUP_TYPES,
+)
 from webapp.mixins import (
     AuditLogTimelineEventsMixin,
     FilterPanelMixin,
@@ -326,7 +329,7 @@ class AccommodationDetailPropertiesView(
 class AccommodationDetailActionsView(
     PIISafeRecordNameMixin, PermissionsMixin, IsDuplicateMixin, ActionsListView
 ):
-    group_type = [GroupType.DEV]
+    group_type = list(FIX_DUPLICATE_RECORDS_ALLOWED_GROUP_TYPES)
     template_name = "accommodations/detail_view/detail_view_actions.html"
     model = MvAccommodation
 

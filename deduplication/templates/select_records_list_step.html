@@ -7,7 +7,7 @@
     {% if messages %}
         {% for message in messages %}
             {% if message.level_tag == 'success' %}
-                <div class="govuk-notification-banner govuk-notification-banner--success govuk-!-width-one-half govuk-!-margin-top-8"
+                <div class="govuk-notification-banner govuk-notification-banner--success govuk-!-width-one-half"
                      role="alert"
                      aria-labelledby="govuk-notification-banner-title"
                      data-module="govuk-notification-banner">
@@ -19,7 +19,7 @@
                         <h3 class="govuk-notification-banner__heading">You have deduplicated 2 {{ type }} records</h3>
                         <p class="govuk-body max-width-none">
                             A new principal record has been created for {{ message|safe }}.
-                            {#                            You can undo the deduplication from the principal record in the actions tab.#}
+                            You can undo the deduplication from the principal record in the actions tab.
                         </p>
                     </div>
                 </div>

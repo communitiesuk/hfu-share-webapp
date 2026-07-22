@@ -40,7 +40,10 @@ from ontology.models import (
 from visa_applications.templatetags.visa_application_extras import (
     visa_status_to_tag_colour,
 )
-from webapp.constants import GUEST_SEARCH_FIELDS, visa_status_list
+from webapp.constants import (
+    GUEST_SEARCH_FIELDS,
+    visa_status_list,
+)
 from webapp.mixins import (
     AuditLogTimelineEventsMixin,
     FilterPanelMixin,
