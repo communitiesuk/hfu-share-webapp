@@ -65,8 +65,7 @@ class DeduplicationSponsorSelectedViewTests(TestSessionTokenMixin, TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
             response.url,
-            "/review-potential-duplicate-records-manual"
-            "/sponsors/deduplicate/view-selected-records/",
+            "/deduplication/sponsors/view-selected-records/",
         )
 
         response = self.client.post(
@@ -85,8 +84,7 @@ class DeduplicationSponsorSelectedViewTests(TestSessionTokenMixin, TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
             response.url,
-            "/review-potential-duplicate-records-manual"
-            "/sponsors/deduplicate/review-selected-records/",
+            "/deduplication/sponsors/review-selected-records/",
         )
 
     def test_renders_review_list_with_correct_layout(self):
@@ -159,7 +157,7 @@ class DeduplicationSponsorSelectedViewTests(TestSessionTokenMixin, TestCase):
             "<a "
             'class="govuk-link"'
             "href="
-            '"/review-potential-duplicate-records-manual/sponsors/deduplicate/?reset=true">'
+            '"/deduplication/sponsors/?reset=true">'
             "Cancel"
             "</a>",
             html=True,

@@ -132,8 +132,7 @@ class DeduplicationGuestSelectedViewTests(TestSessionTokenMixin, TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
             response.url,
-            "/review-potential-duplicate-records-manual"
-            "/guests/deduplicate/view-selected-records/",
+            "/deduplication/guests/view-selected-records/",
         )
 
         response = self.client.post(
@@ -152,8 +151,7 @@ class DeduplicationGuestSelectedViewTests(TestSessionTokenMixin, TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
             response.url,
-            "/review-potential-duplicate-records-manual"
-            "/guests/deduplicate/review-selected-records/",
+            "/deduplication/guests/review-selected-records/",
         )
 
         response = self.client.post(
@@ -172,8 +170,7 @@ class DeduplicationGuestSelectedViewTests(TestSessionTokenMixin, TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
             response.url,
-            "/review-potential-duplicate-records-manual"
-            "/guests/deduplicate/select-correct-details/",
+            "/deduplication/guests/select-correct-details/",
         )
 
     def test_renders_select_correct_details_view_with_correct_layout(self):
@@ -271,12 +268,7 @@ class DeduplicationGuestSelectedViewTests(TestSessionTokenMixin, TestCase):
 
         self.assertContains(
             response,
-            "<a "
-            'class="govuk-link"'
-            "href="
-            '"/review-potential-duplicate-records-manual/guests/deduplicate/?reset=true">'
-            "Cancel"
-            "</a>",
+            '<a class="govuk-link"href="/deduplication/guests/?reset=true">Cancel</a>',
             html=True,
         )
 

@@ -98,7 +98,7 @@ class DeduplicationAccommodationCheckAndCompleteViewTestCase(
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
             response.url,
-            "/review-potential-duplicate-records-manual/accommodations/deduplicate/check-and-complete/",
+            "/deduplication/accommodations/check-and-complete/",
         )
 
     def test_renders_check_and_complete_view_with_correct_layout(self):

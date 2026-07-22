@@ -51,10 +51,7 @@ class DeduplicationAccommodationSelectedViewTests(TestSessionTokenMixin, TestCas
 
         self.assertEqual(
             response.url,
-            "/review-potential-duplicate-records-manual"
-            "/accommodations"
-            "/deduplicate"
-            "/view-selected-records/",
+            "/deduplication/accommodations/view-selected-records/",
         )
 
     def test_renders_selected_list_with_correct_layout(self):
@@ -119,7 +116,7 @@ class DeduplicationAccommodationSelectedViewTests(TestSessionTokenMixin, TestCas
             "<a "
             'class="govuk-link govuk-link--no-visited-state "'
             "href="
-            '"/review-potential-duplicate-records-manual/accommodations/deduplicate/?reset=true">'
+            '"/deduplication/accommodations/?reset=true">'
             "Cancel"
             "</a>",
             html=True,
@@ -174,10 +171,7 @@ class DeduplicationAccommodationSelectedViewTests(TestSessionTokenMixin, TestCas
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
             response.url,
-            "/review-potential-duplicate-records-manual"
-            "/accommodations"
-            "/deduplicate"
-            "/select-record/",
+            "/deduplication/accommodations/select-record/",
         )
 
     def test_selected_record_does_not_show_on_return_to_select_accommodation_list(self):

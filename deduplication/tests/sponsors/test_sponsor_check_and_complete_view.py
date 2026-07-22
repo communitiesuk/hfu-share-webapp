@@ -84,8 +84,7 @@ class DeduplicationSponsorSelectedViewTests(TestSessionTokenMixin, TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
             response.url,
-            "/review-potential-duplicate-records-manual"
-            "/sponsors/deduplicate/view-selected-records/",
+            "/deduplication/sponsors/view-selected-records/",
         )
 
         response = self.client.post(
@@ -104,8 +103,7 @@ class DeduplicationSponsorSelectedViewTests(TestSessionTokenMixin, TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
             response.url,
-            "/review-potential-duplicate-records-manual"
-            "/sponsors/deduplicate/review-selected-records/",
+            "/deduplication/sponsors/review-selected-records/",
         )
 
         response = self.client.post(
@@ -124,8 +122,7 @@ class DeduplicationSponsorSelectedViewTests(TestSessionTokenMixin, TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
             response.url,
-            "/review-potential-duplicate-records-manual"
-            "/sponsors/deduplicate/select-correct-details/",
+            "/deduplication/sponsors/select-correct-details/",
         )
 
         response = self.client.post(
@@ -139,8 +136,7 @@ class DeduplicationSponsorSelectedViewTests(TestSessionTokenMixin, TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
             response.url,
-            "/review-potential-duplicate-records-manual/sponsors/deduplicate/"
-            "check-and-complete/",
+            "/deduplication/sponsors/check-and-complete/",
         )
 
     def test_renders_check_and_complete_view_with_correct_layout(self):

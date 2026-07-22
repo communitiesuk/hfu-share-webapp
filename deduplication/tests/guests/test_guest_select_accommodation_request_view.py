@@ -80,8 +80,7 @@ class DeduplicationGuestSelectedViewTests(TestSessionTokenMixin, TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
             response.url,
-            "/review-potential-duplicate-records-manual"
-            "/guests/deduplicate/view-selected-records/",
+            "/deduplication/guests/view-selected-records/",
         )
 
         response = self.client.post(
@@ -100,8 +99,7 @@ class DeduplicationGuestSelectedViewTests(TestSessionTokenMixin, TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
             response.url,
-            "/review-potential-duplicate-records-manual"
-            "/guests/deduplicate/review-selected-records/",
+            "/deduplication/guests/review-selected-records/",
         )
 
         response = self.client.post(
@@ -120,11 +118,11 @@ class DeduplicationGuestSelectedViewTests(TestSessionTokenMixin, TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertNotEqual(
             response.url,
-            "/review-potential-duplicate-records-manual/guests/deduplicate/select-accommodation-request/",
+            "/deduplication/guests/select-accommodation-request/",
         )
         self.assertEqual(
             response.url,
-            "/review-potential-duplicate-records-manual/guests/deduplicate/select-correct-details/",
+            "/deduplication/guests/select-correct-details/",
         )
 
     def test_redirects_to_select_accommodation_request_view_when_ars_are_different(
@@ -152,8 +150,7 @@ class DeduplicationGuestSelectedViewTests(TestSessionTokenMixin, TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
             response.url,
-            "/review-potential-duplicate-records-manual"
-            "/guests/deduplicate/view-selected-records/",
+            "/deduplication/guests/view-selected-records/",
         )
 
         response = self.client.post(
@@ -172,8 +169,7 @@ class DeduplicationGuestSelectedViewTests(TestSessionTokenMixin, TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
             response.url,
-            "/review-potential-duplicate-records-manual"
-            "/guests/deduplicate/review-selected-records/",
+            "/deduplication/guests/review-selected-records/",
         )
 
         response = self.client.post(
@@ -192,7 +188,7 @@ class DeduplicationGuestSelectedViewTests(TestSessionTokenMixin, TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
             response.url,
-            "/review-potential-duplicate-records-manual/guests/deduplicate/select-accommodation-request/",
+            "/deduplication/guests/select-accommodation-request/",
         )
 
     def test_renders_review_list_with_correct_layout(self):
@@ -218,8 +214,7 @@ class DeduplicationGuestSelectedViewTests(TestSessionTokenMixin, TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
             response.url,
-            "/review-potential-duplicate-records-manual"
-            "/guests/deduplicate/view-selected-records/",
+            "/deduplication/guests/view-selected-records/",
         )
 
         response = self.client.post(
@@ -238,8 +233,7 @@ class DeduplicationGuestSelectedViewTests(TestSessionTokenMixin, TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
             response.url,
-            "/review-potential-duplicate-records-manual"
-            "/guests/deduplicate/review-selected-records/",
+            "/deduplication/guests/review-selected-records/",
         )
 
         response = self.client.post(
@@ -297,7 +291,6 @@ class DeduplicationGuestSelectedViewTests(TestSessionTokenMixin, TestCase):
         )
         self.assertContains(
             response,
-            '<a class="govuk-link" href="/review-potential-duplicate-records-manual'
-            '/guests/deduplicate/?reset=true">Cancel</a>',
+            '<a class="govuk-link" href="/deduplication/guests/?reset=true">Cancel</a>',
             html=True,
         )

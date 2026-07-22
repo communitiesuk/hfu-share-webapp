@@ -60,10 +60,10 @@
                                 </li>
                             {% endif %}
                             {% if available_links.dedupe_records %}
-                                <li class="govuk-service-navigation__item {% if app_name == 'webapp' %}govuk-service-navigation__item--active{% endif %}">
+                                <li class="govuk-service-navigation__item {% if app_name == 'deduplication' %}govuk-service-navigation__item--active{% endif %}">
                                     <a href="{% url 'webapp:review-potential-duplicate-records' %}"
                                        class="govuk-service-navigation__link"
-                                       {% if app_name == 'webapp' %}aria-current="true"{% endif %}>Deduplicate records</a>
+                                       {% if app_name == 'deduplication' %}aria-current="true"{% endif %}>Deduplicate records</a>
                                 </li>
                             {% endif %}
                             {% if available_links.download_data %}
