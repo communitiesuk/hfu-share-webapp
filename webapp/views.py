@@ -159,7 +159,7 @@ class PendingAccessRequestsTable(tables.Table):
 
     def render_group_info(self, value, record):
         return format_html(
-            "<a href={}>{}</a>",
+            '<a class="govuk-link govuk-link--no-visited-state" href={}>{}</a>',
             reverse("user-management:access-request-your-request", args=[record.pk]),
             render_name_label_from_group_info(value),
         )
@@ -190,7 +190,7 @@ class RejectedAccessRequestsTable(tables.Table):
 
     def render_group_info(self, value, record):
         return format_html(
-            "<a href={}>{}</a>",
+            '<a class="govuk-link govuk-link--no-visited-state" href={}>{}</a>',
             reverse("user-management:access-request-your-request", args=[record.pk]),
             render_name_label_from_group_info(value),
         )
@@ -231,7 +231,7 @@ class ApprovedAccessRequestsTable(tables.Table):
 
     def render_group_info(self, value, record):
         return format_html(
-            "<a href={}>{}</a>",
+            '<a class="govuk-link govuk-link--no-visited-state" href={}>{}</a>',
             reverse("user-management:access-request-your-request", args=[record.pk]),
             render_name_label_from_group_info(value),
         )

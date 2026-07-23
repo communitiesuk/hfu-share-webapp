@@ -33,7 +33,7 @@ class UsersTable(tables.Table):
 
     def render_full_name_or_email(self, record: User, value):
         return format_html(
-            '<a href="{url}">{value}</a>',
+            '<a class="govuk-link" href="{url}">{value}</a>',
             url=reverse("user-management:user-details", args=[record.pk]),
             value=value,
         )
@@ -98,8 +98,8 @@ class UserDetailsView(
         return format_html_join(
             "",
             '<div style="display: flex; justify-content: space-between;">'
-            '<a href="{}" class="govuk-link--no-underline">{}</a>'
-            '<a href="{}" class="govuk-link--no-visited-state">Remove</a>'
+            '<a href="{}" class="govuk-link govuk-link--no-underline">{}</a>'
+            '<a href="{}" class="govuk-link govuk-link--no-visited-state">Remove</a>'
             "</div>",
             (
                 (

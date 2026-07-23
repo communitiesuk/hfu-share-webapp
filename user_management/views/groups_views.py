@@ -32,7 +32,7 @@ class GroupsTable(tables.Table):
 
     def render_name(self, record: GroupProxy):
         return format_html(
-            '<a href="{url}">{value}</a>',
+            '<a class="govuk-link" href="{url}">{value}</a>',
             url=reverse("user-management:group-details", args=[record.pk]),
             value=render_name_label_from_group(record),
         )
@@ -104,8 +104,8 @@ class GroupDetailsView(
         return format_html_join(
             "",
             '<div style="display: flex; justify-content: space-between;">'
-            '<a href="{}" class="govuk-link--no-underline">{}</a>'
-            '<a href="{}" class="govuk-link--no-visited-state">Remove</a>'
+            '<a href="{}" class="govuk-link govuk-link--no-underline">{}</a>'
+            '<a href="{}" class="govuk-link govuk-link--no-visited-state">Remove</a>'
             "</div>",
             (
                 (

@@ -231,6 +231,7 @@ class UndoDeduplicationSponsorViewDeduplicatedRecordsViewTestCase(
 
         self.assertRegex(
             response.content.decode(),
-            r'<a class="govuk-link" href="/sponsors/\d+/actions\?reset=true">'
+            r'<a class="govuk-link govuk-link--no-visited-state" '
+            r'href="/sponsors/\d+/actions\?reset=true">'
             r"Cancel</a>",
         )

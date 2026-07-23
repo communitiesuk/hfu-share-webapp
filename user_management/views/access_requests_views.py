@@ -52,7 +52,8 @@ class AccessRequestsTable(tables.Table):
     def render_requester(self, record: AccessRequest):
         if record.requester.first_name and record.requester.last_name:
             return format_html(
-                '<div style="white-space: nowrap"><a href="{}">{} {}</a></div>'
+                '<div style="white-space: nowrap">'
+                '<a class="govuk-link" href="{}">{} {}</a></div>'
                 "<div>({})</div>",
                 reverse(
                     "user-management:access-request-details",
@@ -64,7 +65,7 @@ class AccessRequestsTable(tables.Table):
             )
 
         return format_html(
-            '<a href="{url}">{value}</a>',
+            '<a class="govuk-link" href="{url}">{value}</a>',
             url=reverse(
                 "user-management:access-request-details", args=[record.reference_number]
             ),
