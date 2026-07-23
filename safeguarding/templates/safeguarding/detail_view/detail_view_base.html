@@ -7,37 +7,45 @@
     <li class="govuk-breadcrumbs__list-item">{{ object.get_full_name }}</li>
 {% endblock breadcrumb_content %}
 {% block content %}
-    {% include "webapp/components/notification_banner/notification_banner.html" %}
-    {% include "webapp/components/heading/heading.html" with caption="Escalated checks" page_heading=object.get_page_title %}
     {% url 'safeguarding:detail-overview' object.id referral_id as overview_url %}
     {% url 'safeguarding:detail-central-safeguarding' object.id referral_id as central_safeguarding_url %}
     {% url 'safeguarding:detail-safeguarding-checks' object.id referral_id as safeguarding_checks_url %}
     {% url 'safeguarding:detail-linked-records' object.id referral_id as linked_records_url %}
     {% url 'safeguarding:detail-properties' object.id referral_id as properties_url %}
-    <div class="govuk-tabs govuk-!-width-full">
-        <h3 class="govuk-tabs__title">Contents</h3>
-        <ul class="govuk-tabs__list">
-            <li class="govuk-tabs__list-item {% if request.path == overview_url %}govuk-tabs__list-item--selected{% endif %}">
-                <a class="govuk-tabs__tab" href="{{ overview_url }}">Overview</a>
-            </li>
-            <li class="govuk-tabs__list-item {% if request.path == central_safeguarding_url %}govuk-tabs__list-item--selected{% endif %}">
-                <a class="govuk-tabs__tab" href="{{ central_safeguarding_url }}">Central safeguarding</a>
-            </li>
-            <li class="govuk-tabs__list-item {% if request.path == safeguarding_checks_url %}govuk-tabs__list-item--selected{% endif %}">
-                <a class="govuk-tabs__tab" href="{{ safeguarding_checks_url }}">Safeguarding checks</a>
-            </li>
-            <li class="govuk-tabs__list-item {% if request.path == linked_records_url %}govuk-tabs__list-item--selected{% endif %}">
-                <a class="govuk-tabs__tab" href="{{ linked_records_url }}">Linked records</a>
-            </li>
-            <li class="govuk-tabs__list-item {% if request.path == properties_url %}govuk-tabs__list-item--selected{% endif %}">
-                <a class="govuk-tabs__tab" href="{{ properties_url }}">Properties</a>
-            </li>
-        </ul>
-        <div class="govuk-tabs__panel">
-            {% block selected_tab %}
-            {% endblock selected_tab %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-half">
+            {% include "webapp/components/notification_banner/notification_banner.html" %}
+            {% include "webapp/components/heading/heading.html" with caption="Escalated checks" page_heading=object.get_page_title %}
         </div>
     </div>
-    <a href="{% url 'safeguarding:escalated_checks' %}"
-       class="govuk-button govuk-button--secondary">Back to list of escalated checks</a>
+    <div class="govuk-grid-row">
+        <div class="{% if request.path != properties_url %}govuk-grid-column-two-thirds{% else %}govuk-grid-column-full{% endif %}">
+            <div class="govuk-tabs tabs--tight">
+                <h3 class="govuk-tabs__title">Contents</h3>
+                <ul class="govuk-tabs__list">
+                    <li class="govuk-tabs__list-item {% if request.path == overview_url %}govuk-tabs__list-item--selected{% endif %}">
+                        <a class="govuk-tabs__tab" href="{{ overview_url }}">Overview</a>
+                    </li>
+                    <li class="govuk-tabs__list-item {% if request.path == central_safeguarding_url %}govuk-tabs__list-item--selected{% endif %}">
+                        <a class="govuk-tabs__tab" href="{{ central_safeguarding_url }}">Central safeguarding</a>
+                    </li>
+                    <li class="govuk-tabs__list-item {% if request.path == safeguarding_checks_url %}govuk-tabs__list-item--selected{% endif %}">
+                        <a class="govuk-tabs__tab" href="{{ safeguarding_checks_url }}">Safeguarding checks</a>
+                    </li>
+                    <li class="govuk-tabs__list-item {% if request.path == linked_records_url %}govuk-tabs__list-item--selected{% endif %}">
+                        <a class="govuk-tabs__tab" href="{{ linked_records_url }}">Linked records</a>
+                    </li>
+                    <li class="govuk-tabs__list-item {% if request.path == properties_url %}govuk-tabs__list-item--selected{% endif %}">
+                        <a class="govuk-tabs__tab" href="{{ properties_url }}">Properties</a>
+                    </li>
+                </ul>
+                <div class="govuk-tabs__panel">
+                    {% block selected_tab %}
+                    {% endblock selected_tab %}
+                </div>
+            </div>
+            <a href="{% url 'safeguarding:escalated_checks' %}"
+               class="govuk-button govuk-button--secondary">Back to list of escalated checks</a>
+        </div>
+    </div>
 {% endblock content %}

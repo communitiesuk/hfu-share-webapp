@@ -15,16 +15,18 @@
     {% endfor %}
 {% endblock breadcrumb_content %}
 {% block form-content %}
-    <div class="govuk-!-width-two-thirds">
-        <div class="govuk-panel govuk-panel--confirmation">
-            <h1 class="govuk-panel__title">Request submitted</h1>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <div class="govuk-panel govuk-panel--confirmation">
+                <h1 class="govuk-panel__title">Request submitted</h1>
+            </div>
+            <div class="govuk-!-margin-top-7">
+                <p class="govuk-body">Your request for access to data is submitted.</p>
+                <p class="govuk-body">Your request will be reviewed manually by an approver; timing may vary.</p>
+                <p class="govuk-body">Check your homepage for updates about your request.</p>
+            </div>
+            <a href="{% url 'webapp:landing-page' %}"
+               class="govuk-button govuk-body govuk-!-margin-top-3">Return to homepage</a>
         </div>
-        <div class="govuk-!-margin-top-7">
-            <p class="govuk-body">Your request for access to data is submitted.</p>
-            <p class="govuk-body">Your request will be reviewed manually by an approver; timing may vary.</p>
-            <p class="govuk-body">Check your homepage for updates about your request.</p>
-        </div>
-        <a href="{% url 'webapp:landing-page' %}"
-           class="govuk-button govuk-body govuk-!-margin-top-3">Return to homepage</a>
     </div>
 {% endblock form-content %}

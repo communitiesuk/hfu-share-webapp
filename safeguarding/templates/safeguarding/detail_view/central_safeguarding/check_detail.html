@@ -20,12 +20,16 @@
             <p class="govuk-body">{{ notification.created_at|date:"j F Y \\a\\t g:ia"|cut:"." }}</p>
             {% if check_fields %}
                 {% include "webapp/components/safeguarding_check_tag/safeguarding_check_tag.html" with safeguarding_check_status=check.check_status %}
-                <div class="govuk-!-margin-top-3 govuk-!-margin-bottom-9 govuk-!-width-three-quarters">
-                    {% include "webapp/components/record_tabs/record_summary_list.html" with fields=check_fields %}
+                <div class="govuk-grid-row govuk-!-margin-top-3">
+                    <div class="govuk-grid-column-three-quarters">
+                        {% include "webapp/components/record_tabs/record_summary_list.html" with fields=check_fields %}
+                    </div>
                 </div>
             {% elif sponsor_withdrawn_fields %}
-                <div class="govuk-!-margin-top-3 govuk-!-margin-bottom-9 govuk-!-width-three-quarters">
-                    {% include "webapp/components/record_tabs/record_summary_list.html" with fields=sponsor_withdrawn_fields %}
+                <div class="govuk-grid-row govuk-!-margin-top-3">
+                    <div class="govuk-grid-column-three-quarters">
+                        {% include "webapp/components/record_tabs/record_summary_list.html" with fields=sponsor_withdrawn_fields %}
+                    </div>
                 </div>
             {% else %}
                 <p class="govuk-body">{{ notification.description }}</p>
@@ -45,9 +49,11 @@
             {% endif %}
         </div>
     </div>
-    <div class="govuk-!-margin-top-3">
-        <a href="{{ central_safeguarding_url }}"
-           class="govuk-button govuk-button--primary"
-           role="button">Back to central safeguarding</a>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-half">
+            <a href="{{ central_safeguarding_url }}"
+               class="govuk-button govuk-button--primary"
+               role="button">Back to central safeguarding</a>
+        </div>
     </div>
 {% endblock content %}

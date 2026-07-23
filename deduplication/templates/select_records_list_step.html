@@ -4,50 +4,51 @@
     <li class="govuk-breadcrumbs__list-item">Fix duplicate records</li>
 {% endblock breadcrumb_content %}
 {% block form %}
-    {% if messages %}
-        {% for message in messages %}
-            {% if message.level_tag == 'success' %}
-                <div class="govuk-notification-banner govuk-notification-banner--success govuk-!-width-one-half"
-                     role="alert"
-                     aria-labelledby="govuk-notification-banner-title"
-                     data-module="govuk-notification-banner">
-                    <div class="govuk-notification-banner__header">
-                        <h2 class="govuk-notification-banner__title"
-                            id="govuk-notification-banner-title">Success</h2>
-                    </div>
-                    <div class="govuk-notification-banner__content">
-                        <h3 class="govuk-notification-banner__heading">You have deduplicated 2 {{ type }} records</h3>
-                        <p class="govuk-body max-width-none">
-                            A new principal record has been created for {{ message|safe }}.
-                            You can undo the deduplication from the principal record in the actions tab.
-                        </p>
-                    </div>
-                </div>
-            {% else %}
-                <div class="govuk-error-summary govuk-!-width-one-half"
-                     data-module="govuk-error-summary">
-                    <div role="alert">
-                        <h2 class="govuk-error-summary__title">There is a problem</h2>
-                        <div class="govuk-error-summary__body">
-                            <p>{{ message|safe }}</p>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-half">
+            {% if messages %}
+                {% for message in messages %}
+                    {% if message.level_tag == 'success' %}
+                        <div class="govuk-notification-banner govuk-notification-banner--success"
+                             role="alert"
+                             aria-labelledby="govuk-notification-banner-title"
+                             data-module="govuk-notification-banner">
+                            <div class="govuk-notification-banner__header">
+                                <h2 class="govuk-notification-banner__title"
+                                    id="govuk-notification-banner-title">Success</h2>
+                            </div>
+                            <div class="govuk-notification-banner__content">
+                                <h3 class="govuk-notification-banner__heading">You have deduplicated 2 {{ type }} records</h3>
+                                <p class="govuk-body max-width-none">
+                                    A new principal record has been created for {{ message|safe }}.
+                                    You can undo the deduplication from the principal record in the actions tab.
+                                </p>
+                            </div>
                         </div>
-                    </div>
-                </div>
+                    {% else %}
+                        <div class="govuk-error-summary" data-module="govuk-error-summary">
+                            <div role="alert">
+                                <h2 class="govuk-error-summary__title">There is a problem</h2>
+                                <div class="govuk-error-summary__body">
+                                    <p>{{ message|safe }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
             {% endif %}
-        {% endfor %}
-    {% endif %}
-    <div class="govuk-!-width-one-half">
-        {% if selected_ids|length == 0 %}
-            {% include "webapp/components/heading/heading.html" with page_heading="Fix duplicate "|add:type|add:" records" %}
-        {% else %}
-            {% include "webapp/components/heading/heading.html" with page_heading="Select next record" %}
-        {% endif %}
+            {% if selected_ids|length == 0 %}
+                {% include "webapp/components/heading/heading.html" with page_heading="Fix duplicate "|add:type|add:" records" %}
+            {% else %}
+                {% include "webapp/components/heading/heading.html" with page_heading="Select next record" %}
+            {% endif %}
+            <p class="govuk-body">Select a record to review and deduplicate. You can use the filter panel to find records.</p>
+            <p class="govuk-body">
+                You cannot deduplicate records across lower tier local authorities (LAs). Records with links to multiple LAs are hidden from the list.
+            </p>
+        </div>
     </div>
-    <p class="govuk-body govuk-!-margin-top-5 govuk-!-margin-bottom-5 govuk-!-width-two-thirds">
-        Select a record to review and deduplicate. You can use the filter panel to find records.
-    </p>
-    <p class="govuk-body govuk-!-margin-top-5 govuk-!-margin-bottom-5 govuk-!-width-two-thirds">
-        You cannot deduplicate records across lower tier local authorities (LAs). Records with links to multiple LAs are hidden from the list.
-    </p>
-    {% include table_template_url %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">{% include table_template_url %}</div>
+    </div>
 {% endblock form %}

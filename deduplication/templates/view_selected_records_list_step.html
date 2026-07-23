@@ -5,29 +5,29 @@
     <li class="govuk-breadcrumbs__list-item">Fix duplicate records</li>
 {% endblock breadcrumb_content %}
 {% block form %}
-    <div class="govuk-!-width-one-half">
-        {% with suffix=object_list|length|pluralize %}
-            {% include "webapp/components/heading/heading.html" with page_heading="View selected record"|add:suffix %}
-        {% endwith %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-half">
+            {% with suffix=object_list|length|pluralize %}
+                {% include "webapp/components/heading/heading.html" with page_heading="View selected record"|add:suffix %}
+            {% endwith %}
+            {% if object_list|length > 1 %}<p class="govuk-body">You can now review your selected records.</p>{% endif %}
+        </div>
     </div>
-    {% if object_list|length > 1 %}
-        <p class="govuk-body govuk-!-margin-top-5 govuk-!-margin-bottom-5 govuk-!-width-two-thirds">
-            You can now review your selected records.
-        </p>
-    {% endif %}
-    {% include table_template_url %}
-    {% if object_list|length == 0 %}
-        <p class="govuk-body govuk-!-margin-top-5 govuk-!-margin-bottom-5 govuk-!-width-two-thirds">
-            All selected records have been removed.
-        </p>
-    {% elif object_list|length <= 1 %}
-        <p class="govuk-body govuk-!-margin-top-5 govuk-!-margin-bottom-5 govuk-!-width-two-thirds">
-            Select another record from the same lower tier local authority to review.
-        </p>
-    {% endif %}
-    <form class="govuk-button-group" method="post">
-        {% csrf_token %}
-        {{ wizard.management_form }}
-        {% crispy form %}
-    </form>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">{% include table_template_url %}</div>
+    </div>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-half">
+            {% if object_list|length == 0 %}
+                <p class="govuk-body">All selected records have been removed.</p>
+            {% elif object_list|length <= 1 %}
+                <p class="govuk-body">Select another record from the same lower tier local authority to review.</p>
+            {% endif %}
+            <form class="govuk-button-group" method="post">
+                {% csrf_token %}
+                {{ wizard.management_form }}
+                {% crispy form %}
+            </form>
+        </div>
+    </div>
 {% endblock form %}

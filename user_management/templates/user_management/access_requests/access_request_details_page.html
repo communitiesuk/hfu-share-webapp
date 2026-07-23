@@ -8,15 +8,19 @@
     <li class="govuk-breadcrumbs__list-item">{{ title }}</li>
 {% endblock breadcrumb_content %}
 {% block content %}
-    {% include "webapp/components/heading/heading.html" with page_heading=title %}
-    {% include "webapp/components/access_request/access_request_summary_list.html" with access_request_summary=access_request_summary.items %}
-    {% if status_pending %}
-        <form method="post" class="govuk-!-width-one-third">
-            {{ wizard.management_form }}
-            {% crispy wizard.form %}
-        </form>
-    {% else %}
-        <a href="{% url 'user-management:access-requests' %}"
-           class="govuk-button">Back</a>
-    {% endif %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {% include "webapp/components/heading/heading.html" with page_heading=title %}
+            {% include "webapp/components/access_request/access_request_summary_list.html" with access_request_summary=access_request_summary.items %}
+            {% if status_pending %}
+                <form method="post">
+                    {{ wizard.management_form }}
+                    {% crispy wizard.form %}
+                </form>
+            {% else %}
+                <a href="{% url 'user-management:access-requests' %}"
+                   class="govuk-button">Back</a>
+            {% endif %}
+        </div>
+    </div>
 {% endblock content %}

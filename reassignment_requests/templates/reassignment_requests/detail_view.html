@@ -8,13 +8,17 @@
     <li class="govuk-breadcrumbs__list-item">Review request</li>
 {% endblock breadcrumb_content %}
 {% block content %}
-    <div>
-        <div class="govuk-!-width-two-thirds">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
             {% error_summary form %}
             {% include "webapp/components/heading/heading.html" with page_heading="Request to move guests to a different local authority" %}
             {% include "webapp/components/record_tabs/record_summary_list.html" with fields=fields %}
+        </div>
+    </div>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-third">
             {% if show_accept_reject_form %}
-                <form method="post" class="govuk-!-width-one-half">
+                <form method="post">
                     {% csrf_token %}
                     {% crispy form %}
                 </form>
