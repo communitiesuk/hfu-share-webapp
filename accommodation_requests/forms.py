@@ -225,7 +225,10 @@ class AccommodationRequestUpdateSafeguardingChecksForm(forms.ModelForm):
             ),
             Div(
                 Button.secondary("submit_and_stay", "Save and add another check"),
-                HTML('<a class="govuk-link" href="{{ cancel_url }}">Cancel</a>'),
+                HTML(
+                    '<a class="govuk-link govuk-link--no-visited-state" '
+                    'href="{{ cancel_url }}">Cancel</a>'
+                ),
                 css_class="govuk-button-group  govuk-!-margin-top-0",
             ),
         )

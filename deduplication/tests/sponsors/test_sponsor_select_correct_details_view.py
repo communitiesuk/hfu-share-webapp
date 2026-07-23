@@ -236,7 +236,7 @@ class DeduplicationSponsorSelectedViewTests(TestSessionTokenMixin, TestCase):
         self.assertContains(
             response,
             "<a "
-            'class="govuk-link"'
+            'class="govuk-link govuk-link--no-visited-state"'
             "href="
             '"/deduplication/sponsors/?reset=true">'
             "Cancel"

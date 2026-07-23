@@ -128,7 +128,10 @@ class ReviewSelectedRecordsStepForm(forms.Form):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             HTML('<button type="submit"class="govuk-button">Continue</button>'),
-            HTML('<a class="govuk-link" href="{{ cancel_url }}">Cancel</a>'),
+            HTML(
+                '<a class="govuk-link govuk-link--no-visited-state" '
+                'href="{{ cancel_url }}">Cancel</a>'
+            ),
         )
 
 
@@ -172,7 +175,7 @@ class SelectAccommodationRequestStepForm(forms.Form):
                 'class="govuk-button">'
                 "Continue deduplication"
                 "</button>"
-                '<a class="govuk-link" '
+                '<a class="govuk-link govuk-link--no-visited-state" '
                 'href="{{ cancel_url }}">'
                 "Cancel"
                 "</a>"
@@ -221,7 +224,7 @@ class SelectCorrectDetailsStepForm(ReadOnlyFieldsMixin, forms.Form):
                 '    <button type="submit" class="govuk-button">'
                 "       Continue deduplication"
                 "    </button>"
-                '    <a class="govuk-link"\n'
+                '    <a class="govuk-link govuk-link--no-visited-state"\n'
                 '       href="{{ cancel_url }}">Cancel</a>'
                 "</div>"
             ),
@@ -985,7 +988,10 @@ class UndoDeduplicationRecordsStepForm(forms.Form):
             HTML(
                 '<button type="submit"class="govuk-button">Undo deduplication</button>'
             ),
-            HTML(f'<a class="govuk-link" href="{self.cancel_url}">Cancel</a>'),
+            HTML(
+                '<a class="govuk-link govuk-link--no-visited-state" '
+                f'href="{self.cancel_url}">Cancel</a>'
+            ),
         )
 
 

@@ -137,7 +137,8 @@ class DeduplicationAccommodationSelectedViewTests(TestSessionTokenMixin, TestCas
         )
         self.assertContains(
             response,
-            '<a class="govuk-link" href="/deduplication'
+            '<a class="govuk-link govuk-link--no-visited-state"'
+            ' href="/deduplication'
             '/accommodations/?reset=true">Cancel</a>',
             html=True,
         )
