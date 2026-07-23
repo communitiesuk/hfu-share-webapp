@@ -1,5 +1,25 @@
 # Changelog
 
+## [2.4.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.3.0...2.4.0) (2026-07-23)
+
+
+### Features
+
+* available links context processor and update nav ([#38](https://github.com/communitiesuk/hfu-share-webapp/issues/38)) ([9683aec](https://github.com/communitiesuk/hfu-share-webapp/commit/9683aeca787c50715bf8182a8aafec9b3c4cb146))
+* mount deduplication app at /deduplication and consolidate its urls ([#39](https://github.com/communitiesuk/hfu-share-webapp/issues/39)) ([75bd059](https://github.com/communitiesuk/hfu-share-webapp/commit/75bd059b9b1f11d8cf45fbc5798faca32f2e4264))
+
+
+### Bug Fixes
+
+* HFURB-2797 horizontal margins across pages consistency ([#30](https://github.com/communitiesuk/hfu-share-webapp/issues/30)) ([d59623f](https://github.com/communitiesuk/hfu-share-webapp/commit/d59623f5f726ab542add8ed0d3bb5a07e11600d7))
+* HFURB-2797++ move includes to the right position in two base templates ([#34](https://github.com/communitiesuk/hfu-share-webapp/issues/34)) ([dc074c2](https://github.com/communitiesuk/hfu-share-webapp/commit/dc074c21cc968954ecbdf3cc7c40e96466510bcf))
+* HFURB-3322 make the page layouts use the grid classes rather than override ([#37](https://github.com/communitiesuk/hfu-share-webapp/issues/37)) ([f01479a](https://github.com/communitiesuk/hfu-share-webapp/commit/f01479a8a0fa078c5466eb6a3652d97bfba0578a))
+* make some minor improvements to the service navigation ([#32](https://github.com/communitiesuk/hfu-share-webapp/issues/32)) ([8c3f3bb](https://github.com/communitiesuk/hfu-share-webapp/commit/8c3f3bb94d23ce019ed43ec69b6c8d1960023833))
+* remove redundant margin classes from accessibility and cookies templates ([#41](https://github.com/communitiesuk/hfu-share-webapp/issues/41)) ([5da614c](https://github.com/communitiesuk/hfu-share-webapp/commit/5da614c96b391ff50f43804a3c27e34b8bb4d744))
+* remove redundant margin-top classes from various templates ([#33](https://github.com/communitiesuk/hfu-share-webapp/issues/33)) ([35e2e14](https://github.com/communitiesuk/hfu-share-webapp/commit/35e2e14f60478fa3c311d9b16c529f83681057b9))
+* update guest filter to handle trailing white space (HFURB-2458) ([#36](https://github.com/communitiesuk/hfu-share-webapp/issues/36)) ([2fefa48](https://github.com/communitiesuk/hfu-share-webapp/commit/2fefa4812fca129076d079be123d81d10adcc4d7))
+* update style on some links ([#35](https://github.com/communitiesuk/hfu-share-webapp/issues/35)) ([2d1d125](https://github.com/communitiesuk/hfu-share-webapp/commit/2d1d1250e46359cd929f0ecff3f33f00b7ea976c))
+
 ## [2.3.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.2.0...2.3.0) (2026-07-21)
 
 
