@@ -30,6 +30,8 @@ defaults:
   run:
     shell: bash
 
+permissions: {}
+
 jobs:
   notify_slack:
     name: Slack notification
