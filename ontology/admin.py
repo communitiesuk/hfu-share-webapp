@@ -44,6 +44,7 @@ from ontology.models import (
     CommentAttachmentMetadata,
     DevCheckV2,
     ExportToolObject,
+    HiddenUnassignedAccommodationRequest,
     MvAccommodation,
     MvAccommodationRequest,
     MvInteraction,
@@ -276,6 +277,24 @@ class AccommodationAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
                 reverse("accommodations:detail-overview", args=[obj.pk]),
             )
         return "-"
+
+
+class HiddenUnassignedAccommodationRequestAdmin(
+    AuditlogHistoryAdminMixin, OntologyAdmin
+):
+    show_auditlog_history_link = True
+    list_display = ["accommodation_request", "hidden_by", "hidden_at"]
+    list_filter = [("hidden_at", DateRangeFilter)]
+    search_fields = ["accommodation_request__id"]
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 class ReassignmentRequestAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
@@ -682,6 +701,10 @@ admin.site.register(VisaInformationRequest, VisaInformationRequestAdmin)
 admin.site.register(VisaInformationRequestComments, VisaInformationRequestCommentsAdmin)
 admin.site.register(Announcement, AnnouncementAdmin)
 admin.site.register(ExportToolObject, ExportToolObjectAdmin)
+admin.site.register(
+    HiddenUnassignedAccommodationRequest,
+    HiddenUnassignedAccommodationRequestAdmin,
+)
 admin.site.register(
     SponsorshipCertificationAttachmentMetadata,
     SponsorshipCertificationAttachmentMetadataAdmin,
