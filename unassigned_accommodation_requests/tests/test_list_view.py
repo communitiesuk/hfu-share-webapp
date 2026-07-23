@@ -12,7 +12,14 @@ from ontology.tests.factories import (
     ReassignmentRequestFactory,
 )
 from ontology.tests.factories import MvAccommodationRequestFactory as AccReqFactory
-from user_management.tests.base import get_admin_user, get_la_user
+from user_management.tests.base import (
+    get_admin_user,
+    get_da_user,
+    get_la_user,
+    get_mhclg_user,
+    get_service_support_user,
+    get_ukvi_user,
+)
 
 
 class UnassignedAccommodationRequestListViewTestCase(TestSessionTokenMixin, TestCase):
@@ -135,8 +142,6 @@ class UnassignedAccommodationRequestListViewTestCase(TestSessionTokenMixin, Test
             title="Test Eight",
         )
 
-        self.client.force_login(get_admin_user())
-
     def get_page(self, query_string=""):
         url = reverse(
             "unassigned-accommodation-requests:unassigned-accommodation-requests"
@@ -157,6 +162,8 @@ class UnassignedAccommodationRequestListViewTestCase(TestSessionTokenMixin, Test
         return self.get_table(query_string).find("tbody").find_all("tr")
 
     def test_default_order_is_newest_application_date_first(self):
+        self.client.force_login(get_admin_user())
+
         titles = self.get_displayed_titles()
 
         self.assertEqual(
@@ -173,9 +180,13 @@ class UnassignedAccommodationRequestListViewTestCase(TestSessionTokenMixin, Test
         )
 
     def test_records_assigned_to_a_local_authority_are_not_listed(self):
+        self.client.force_login(get_admin_user())
+
         self.assertNotIn("Test Two", self.get_displayed_titles())
 
     def test_sort_by_address_ascending(self):
+        self.client.force_login(get_admin_user())
+
         titles = self.get_displayed_titles("?sort=address")
 
         self.assertEqual(
@@ -192,6 +203,8 @@ class UnassignedAccommodationRequestListViewTestCase(TestSessionTokenMixin, Test
         )
 
     def test_sort_by_address_descending(self):
+        self.client.force_login(get_admin_user())
+
         titles = self.get_displayed_titles("?sort=-address")
 
         self.assertEqual(
@@ -208,6 +221,8 @@ class UnassignedAccommodationRequestListViewTestCase(TestSessionTokenMixin, Test
         )
 
     def test_sort_by_postcode_ascending(self):
+        self.client.force_login(get_admin_user())
+
         titles = self.get_displayed_titles("?sort=postcode")
 
         self.assertEqual(
@@ -224,6 +239,8 @@ class UnassignedAccommodationRequestListViewTestCase(TestSessionTokenMixin, Test
         )
 
     def test_sort_by_postcode_descending(self):
+        self.client.force_login(get_admin_user())
+
         titles = self.get_displayed_titles("?sort=-postcode")
 
         self.assertEqual(
@@ -239,14 +256,39 @@ class UnassignedAccommodationRequestListViewTestCase(TestSessionTokenMixin, Test
             ],
         )
 
-    def test_local_authority_users_cannot_access_the_page(self):
+    def test_admin_users_can_access(self):
+        self.client.force_login(get_admin_user())
+
+        self.assertEqual(self.get_page().status_code, 200)
+
+    def test_mhclg_users_can_access(self):
+        self.client.force_login(get_mhclg_user())
+
+        self.assertEqual(self.get_page().status_code, 200)
+
+    def test_service_support_users_can_access(self):
+        self.client.force_login(get_service_support_user())
+
+        self.assertEqual(self.get_page().status_code, 200)
+
+    def test_la_users_cannot_access(self):
         self.client.force_login(get_la_user())
 
-        response = self.get_page()
+        self.assertEqual(self.get_page().status_code, 404)
 
-        self.assertEqual(response.status_code, 404)
+    def test_da_users_cannot_access(self):
+        self.client.force_login(get_da_user())
+
+        self.assertEqual(self.get_page().status_code, 404)
+
+    def test_ukvi_users_cannot_access(self):
+        self.client.force_login(get_ukvi_user())
+
+        self.assertEqual(self.get_page().status_code, 404)
 
     def test_first_row_shows_name_address_postcode_and_hide_link(self):
+        self.client.force_login(get_admin_user())
+
         first_row = str(self.get_table_rows()[0])
 
         self.assertIn("Test One", first_row)
@@ -255,6 +297,8 @@ class UnassignedAccommodationRequestListViewTestCase(TestSessionTokenMixin, Test
         self.assertIn("Hide", first_row)
 
     def test_table_has_expected_column_headings(self):
+        self.client.force_login(get_admin_user())
+
         headings = str(self.get_table().find("thead"))
 
         self.assertIn("Name", headings)
@@ -264,6 +308,8 @@ class UnassignedAccommodationRequestListViewTestCase(TestSessionTokenMixin, Test
         self.assertNotIn("Reassignment", headings)
 
     def test_a_record_with_two_accommodations_lists_both_one_per_line(self):
+        self.client.force_login(get_admin_user())
+
         first = MvAccommodationFactory(
             full_address="Zebra house A",
             postcode=MvUkPostcodeFactory(
@@ -289,6 +335,8 @@ class UnassignedAccommodationRequestListViewTestCase(TestSessionTokenMixin, Test
         self.assertEqual(len(postcode_cell.find_all("br")), 1)
 
     def test_filter_has_search_and_show_hidden_records_checkbox(self):
+        self.client.force_login(get_admin_user())
+
         response = self.get_page()
 
         self.assertContains(response, "Search the data in the table")
