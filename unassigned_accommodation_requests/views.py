@@ -13,7 +13,7 @@ from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.html import format_html
-from django.views.generic import View
+from django.views import View
 from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.detail import SingleObjectMixin
 from django.utils.safestring import mark_safe
@@ -35,8 +35,8 @@ from formtools.wizard.views import NamedUrlSessionWizardView
 
 from ontology.models import (
     HiddenUnassignedAccommodationRequest,
-    MvAccommodationRequest, MvVolunteer,
-    ReassignmentRequest,
+    MvAccommodation,
+    MvAccommodationRequest,
 )
 from webapp.constants import ACCOMMODATION_REQUEST_SEARCH_FIELDS
 from webapp.mixins import (
@@ -98,7 +98,6 @@ class UnassignedAccommodationRequestsTable(tables.Table):
             ),
             value,
         )
-
 
     def render_hide(self, record: MvAccommodationRequest):
         return format_html(
@@ -226,6 +225,47 @@ class UnassignedAccommodationRequestsListView(
                 "primary_accommodation_id",
             )
         )
+
+
+class HideUnassignedAccommodationRequestView(
+    PermissionsMixin, SingleObjectMixin, TemplateResponseMixin, View
+):
+    group_type = [
+        GroupType.DEV,
+        GroupType.MHCLG,
+        GroupType.SERVICE_SUPPORT,
+    ]
+    model = MvAccommodationRequest
+    template_name = "unassigned_accommodation_requests/hide_confirm_page.html"
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.object = None
+
+    def get_success_url(self):
+        return reverse(
+            "unassigned-accommodation-requests:unassigned-accommodation-requests"
+        )
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return self.render_to_response(
+            {"object": self.object, "cancel_url": self.get_success_url()}
+        )
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        try:
+            with transaction.atomic():
+                HiddenUnassignedAccommodationRequest.objects.create(
+                    accommodation_request=self.object,
+                    hidden_by=request.user,
+                )
+        except (IntegrityError, DatabaseError):
+            messages.error(request, "The record has not been hidden.")
+        else:
+            messages.success(request, "The accommodation request has been hidden.")
+        return redirect(self.get_success_url())
 
 
 class AssignLocalAuthorityFormSteps(StrEnum):
