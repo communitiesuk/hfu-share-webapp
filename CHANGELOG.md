@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.5.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.4.0...2.5.0) (2026-07-24)
+
+
+### Features
+
+* add new table to store hidden unassigned ARs (HFURB-3937) ([#43](https://github.com/communitiesuk/hfu-share-webapp/issues/43)) ([3234e09](https://github.com/communitiesuk/hfu-share-webapp/commit/3234e09456f04394ef67731a358a9312ca152037))
+
+
+### Bug Fixes
+
+* HFURB-2926 create a helper for shared render_postcode function ([#40](https://github.com/communitiesuk/hfu-share-webapp/issues/40)) ([9107bc0](https://github.com/communitiesuk/hfu-share-webapp/commit/9107bc068157f0bb5b02067d3db9009383620b53))
+
 ## [2.4.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.3.0...2.4.0) (2026-07-23)
 
 
