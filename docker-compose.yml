@@ -16,7 +16,7 @@ services:
       - "AWS_SECRET_ACCESS_KEY=test"
       - "AWS_ENDPOINT_URL=http://localstack:4566/"
   database:
-    image: postgres:16.11
+    image: postgres:16.11@sha256:468e1f126ca5af849799cda06ac9b03d8090aae9fa5163408b3e8da44fad0702
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     environment:
@@ -24,7 +24,7 @@ services:
     ports:
       - 5432:5432
   localstack:
-    image: localstack/localstack
+    image: localstack/localstack:2026.07.0@sha256:2a81e5da4c32bb53e8d86e92050a12937f9be1915c5a4afad0931f75c112fc7e
     ports:
       - "127.0.0.1:4566:4566"            # LocalStack Gateway
       - "127.0.0.1:4510-4559:4510-4559"  # external services port range
