@@ -10,6 +10,9 @@ from .CommentAttachmentMetadata import CommentAttachmentMetadata
 from .DevCheckV2 import DevCheckV2
 from .EoiHost import EoiHost
 from .ExportToolObject import ExportToolObject
+from .HiddenUnassignedAccommodationRequest import (
+    HiddenUnassignedAccommodationRequest,
+)
 from .MvAccommodation import MvAccommodation
 from .MvAccommodationRequest import MvAccommodationRequest
 from .MvGroup import MvGroup
