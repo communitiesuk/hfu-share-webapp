@@ -23,7 +23,7 @@ class HideUnassignedAccommodationRequestTests(TestSessionTokenMixin, TestCase):
     def setUp(self):
         super().setUp()
         self.ar = AccReqFactory(
-            title="Gordon Brown and 1 other to 10 Downing Street",
+            title="John Brown and 1 other to 10 Gordon Street",
             ltla_name=None,
             utla_name=None,
         )
@@ -62,10 +62,10 @@ class HideUnassignedAccommodationRequestTests(TestSessionTokenMixin, TestCase):
         )
 
         self.assertRedirects(response, reverse(LIST_URL_NAME))
-        hidden = HiddenUnassignedAccommodationRequest.objects.get(
+        hidden_ar = HiddenUnassignedAccommodationRequest.objects.get(
             accommodation_request=self.ar
         )
-        self.assertEqual(hidden.hidden_by, user)
+        self.assertEqual(hidden_ar.hidden_by, user)
         self.assertContains(response, "The accommodation request has been hidden.")
         self.assertContains(response, "Success")
 
