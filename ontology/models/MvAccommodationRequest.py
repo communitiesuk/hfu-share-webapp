@@ -11,6 +11,7 @@ from django.db import models
 from django.db.models import CharField, OuterRef, Q, QuerySet
 from django.db.models.expressions import Func
 from django.utils import timezone
+from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 from accounts.models import GroupInfo, User
@@ -824,7 +825,7 @@ class MvAccommodationRequest(models.Model):
         )
 
     def get_accommodation_ids(self) -> list[str]:
-        accommodations_ids = self.accommodation_id or []
+        accommodations_ids = list(self.accommodation_id or [])
 
         if self.bridging_accommodation_id:
             accommodations_ids.append(self.bridging_accommodation_id)
@@ -844,6 +845,10 @@ class MvAccommodationRequest(models.Model):
         accommodations_ids = self.get_accommodation_ids()
 
         return MvAccommodation.objects.filter(id__in=accommodations_ids)
+
+    @cached_property
+    def accommodations(self) -> list[MvAccommodation]:
+        return list(self.get_accommodations().select_related("postcode").order_by("id"))
 
     def get_accommodations_restrict_for_user(self, user: User) -> Q(MvAccommodation):
         accommodations_ids = self.get_accommodation_ids()
