@@ -36,6 +36,7 @@ from ontology.models import (
     MvInteraction,
     MvInteractionAttachmentMetadata,
     MvPerson,
+    MvUkPostcode,
     MvVolunteer,
 )
 from webapp.constants import AUDIT_EVENT_TYPE_ACTION
@@ -970,3 +971,12 @@ class IsDuplicateMixin:
                 break
 
         return ctx
+
+
+class TableRendererMixin:
+    def render_postcode(self, value: MvUkPostcode):
+        if value.postcode_formatted:
+            return value.postcode_formatted
+        if value.postcode:
+            return value.postcode
+        return ""

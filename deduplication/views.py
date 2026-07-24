@@ -68,7 +68,7 @@ from webapp.constants import (
     GUEST_SEARCH_FIELDS,
     visa_status_list,
 )
-from webapp.mixins import FilterPanelMixin, PermissionsMixin
+from webapp.mixins import FilterPanelMixin, PermissionsMixin, TableRendererMixin
 from webapp.search import perform_search
 from webapp.utils import (
     CustomDateColumn,
@@ -800,7 +800,7 @@ class ManualAccommodationDeduplicationFilter(FilterSet, FilterPanelMixin):
         ]
 
 
-class ManualAccommodationDeduplicationTable(dj_tables.Table):
+class ManualAccommodationDeduplicationTable(dj_tables.Table, TableRendererMixin):
     context: dict[str, Any]
     request: HttpRequest
 
@@ -816,13 +816,6 @@ class ManualAccommodationDeduplicationTable(dj_tables.Table):
             reverse("accommodations:detail-overview", args=[record.id]),
             value,
         )
-
-    def render_postcode(self, value: MvUkPostcode):
-        if value.postcode_formatted:
-            return value.postcode_formatted
-        if value.postcode:
-            return value.postcode
-        return ""
 
     def render_select(self, value):
         hidden_accommodation_inputs = mark_safe(
@@ -1121,7 +1114,7 @@ class SelectAndReviewRecordsGuestViewSelectionStepView(
 
 
 # Accommodations
-class ManualViewSelectedAccommodationsTable(dj_tables.Table):
+class ManualViewSelectedAccommodationsTable(dj_tables.Table, TableRendererMixin):
     context: dict[str, Any]
     request: HttpRequest
 
@@ -1144,13 +1137,6 @@ class ManualViewSelectedAccommodationsTable(dj_tables.Table):
             reverse("accommodations:detail-overview", args=[record.id]),
             value,
         )
-
-    def render_postcode(self, value: MvUkPostcode):
-        if value.postcode_formatted:
-            return value.postcode_formatted
-        if value.postcode:
-            return value.postcode
-        return ""
 
     def render_remove(self, value):
         return format_html(
@@ -1364,7 +1350,7 @@ class SelectAndReviewRecordsGuestReviewSelectionStepView(
 
 
 # Accommodations
-class ManualReviewSelectedAccommodationsTable(dj_tables.Table):
+class ManualReviewSelectedAccommodationsTable(dj_tables.Table, TableRendererMixin):
     context: dict[str, Any]
     request: HttpRequest
 
@@ -1372,13 +1358,6 @@ class ManualReviewSelectedAccommodationsTable(dj_tables.Table):
     postcode = Column(verbose_name="Postcode", orderable=False)
     ltla_name = Column(verbose_name="Lower tier LA", orderable=False)
     utla_name = Column(verbose_name="Upper tier LA", orderable=False)
-
-    def render_postcode(self, value: MvUkPostcode):
-        if value.postcode_formatted:
-            return value.postcode_formatted
-        if value.postcode:
-            return value.postcode
-        return ""
 
     class Meta:
         model = MvAccommodation
@@ -1647,7 +1626,7 @@ class SelectAndReviewRecordsGuestSelectCorrectDetailsStepView(
 
 
 # Accommodations
-class ManualSelectCorrectDetailsAccommodationTable(dj_tables.Table):
+class ManualSelectCorrectDetailsAccommodationTable(dj_tables.Table, TableRendererMixin):
     context: dict[str, Any]
     request: HttpRequest
 
@@ -1655,13 +1634,6 @@ class ManualSelectCorrectDetailsAccommodationTable(dj_tables.Table):
     postcode = Column(verbose_name="Postcode", orderable=False)
     ltla_name = Column(verbose_name="Lower tier LA", orderable=False)
     utla_name = Column(verbose_name="Upper tier LA", orderable=False)
-
-    def render_postcode(self, value: MvUkPostcode):
-        if value.postcode_formatted:
-            return value.postcode_formatted
-        if value.postcode:
-            return value.postcode
-        return ""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -2076,7 +2048,7 @@ class UndoDeduplicationGuestRecordsRecordsRestoredStepView(
 
 
 # Accommodations
-class ManualViewDeduplicatedAccommodationTable(dj_tables.Table):
+class ManualViewDeduplicatedAccommodationTable(dj_tables.Table, TableRendererMixin):
     context: dict[str, Any]
     request: HttpRequest
 
@@ -2093,13 +2065,6 @@ class ManualViewDeduplicatedAccommodationTable(dj_tables.Table):
             url=reverse("accommodations:detail-overview", args=[record.id]),
             value=value,
         )
-
-    def render_postcode(self, value: MvUkPostcode):
-        if value.postcode_formatted:
-            return value.postcode_formatted
-        if value.postcode:
-            return value.postcode
-        return ""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

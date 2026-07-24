@@ -40,6 +40,7 @@ from webapp.mixins import (
     IsDuplicateMixin,
     PermissionsMixin,
     PIISafeRecordNameMixin,
+    TableRendererMixin,
 )
 from webapp.search import perform_search
 from webapp.utils import LazyChoiceFilter
@@ -53,7 +54,7 @@ from webapp.views import (
 from webapp.widgets import SearchableSelect
 
 
-class AccommodationTable(tables.Table):
+class AccommodationTable(tables.Table, TableRendererMixin):
     full_address = Column(verbose_name="Address")
     postcode = Column(verbose_name="Postcode")
     ltla_name = Column(verbose_name="Lower tier LA")
@@ -69,13 +70,6 @@ class AccommodationTable(tables.Table):
             value=value,
             dup_text=dup_text,
         )
-
-    def render_postcode(self, value: MvUkPostcode):
-        if value.postcode_formatted:
-            return value.postcode_formatted
-        if value.postcode:
-            return value.postcode
-        return ""
 
     class Meta:
         model = MvAccommodation
