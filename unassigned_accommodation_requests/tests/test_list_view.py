@@ -1,9 +1,9 @@
 from datetime import datetime, timezone
 
 from bs4 import BeautifulSoup
+from django.test import TestCase
 from django.urls import reverse
 
-from accommodation_requests.tests.base import AccommodationRequestsBaseTestCase
 from accounts.tests.base import TestSessionTokenMixin
 from ontology.models import ReassignmentRequest
 from ontology.tests.factories import (
@@ -12,16 +12,23 @@ from ontology.tests.factories import (
     ReassignmentRequestFactory,
 )
 from ontology.tests.factories import MvAccommodationRequestFactory as AccReqFactory
-from user_management.tests.base import get_admin_user, get_la_user
+from user_management.tests.base import (
+    get_admin_user,
+    get_da_user,
+    get_la_user,
+    get_mhclg_user,
+    get_service_support_user,
+    get_ukvi_user,
+)
 
 
-class UnassignedAccommodationRequestListViewTestCase(
-    TestSessionTokenMixin, AccommodationRequestsBaseTestCase
-):
+class UnassignedAccommodationRequestListViewTestCase(TestSessionTokenMixin, TestCase):
     def setUp(self):
         super().setUp()
 
-        self.postcode_one = MvUkPostcodeFactory(postcode="AA1 1AA")
+        self.postcode_one = MvUkPostcodeFactory(
+            postcode="AA11AA", postcode_formatted="AA1 1AA"
+        )
         self.accom_one = MvAccommodationFactory(
             full_address="Number 1 road", postcode=self.postcode_one
         )
@@ -52,7 +59,9 @@ class UnassignedAccommodationRequestListViewTestCase(
             created_at=datetime(2026, 2, 1, tzinfo=timezone.utc),
         )
 
-        self.postcode_four = MvUkPostcodeFactory(postcode="DD4 4DD")
+        self.postcode_four = MvUkPostcodeFactory(
+            postcode="DD44DD", postcode_formatted="DD4 4DD"
+        )
         self.accom_four = MvAccommodationFactory(
             full_address="Number 4 road", postcode=self.postcode_four
         )
@@ -65,7 +74,9 @@ class UnassignedAccommodationRequestListViewTestCase(
             destination_ltla_name="some ltla",
         )
 
-        self.postcode_five = MvUkPostcodeFactory(postcode="EE5 5EE")
+        self.postcode_five = MvUkPostcodeFactory(
+            postcode="EE55EE", postcode_formatted="EE5 5EE"
+        )
         self.accom_five = MvAccommodationFactory(
             full_address="Number 5 road", postcode=self.postcode_five
         )
@@ -80,7 +91,9 @@ class UnassignedAccommodationRequestListViewTestCase(
             destination_ltla_name="some ltla",
         )
 
-        self.postcode_six = MvUkPostcodeFactory(postcode="FF6 6FF")
+        self.postcode_six = MvUkPostcodeFactory(
+            postcode="FF66FF", postcode_formatted="FF6 6FF"
+        )
         self.accom_six = MvAccommodationFactory(
             full_address="Number 6 road", postcode=self.postcode_six
         )
@@ -95,7 +108,9 @@ class UnassignedAccommodationRequestListViewTestCase(
             destination_ltla_name="some ltla",
         )
 
-        self.postcode_seven = MvUkPostcodeFactory(postcode="GG7 7GG")
+        self.postcode_seven = MvUkPostcodeFactory(
+            postcode="GG77GG", postcode_formatted="GG7 7GG"
+        )
         self.accom_seven = MvAccommodationFactory(
             full_address="Number 7 road", postcode=self.postcode_seven
         )
@@ -127,61 +142,204 @@ class UnassignedAccommodationRequestListViewTestCase(
             title="Test Eight",
         )
 
-    def test_ar_ordering(self):
-        user = get_admin_user()
-        self.client.force_login(user)
-
-        response = self.client.get(
-            reverse(
-                "unassigned-accommodation-requests:unassigned-accommodation-requests",
-            )
+    def get_page(self, query_string=""):
+        url = reverse(
+            "unassigned-accommodation-requests:unassigned-accommodation-requests"
         )
+        return self.client.get(url + query_string)
 
-        html = response.content.decode("utf-8")
+    def get_displayed_titles(self, query_string=""):
+        """Record titles in the order the table displays them."""
+        response = self.get_page(query_string)
+        return [record.title for record in response.context["table"].data]
+
+    def get_table(self, query_string=""):
+        html = self.get_page(query_string).content.decode("utf-8")
         soup = BeautifulSoup(html, "html.parser")
+        return soup.find("table", class_="govuk-table")
 
-        table = soup.find("table", class_="govuk-table")
-        tbody = table.find("tbody")
-        rows = tbody.find_all("tr")
+    def get_table_rows(self, query_string=""):
+        return self.get_table(query_string).find("tbody").find_all("tr")
 
-        self.assertTrue(self.ar_six.title in str(rows[0]))
-        self.assertTrue(self.ar_five.title in str(rows[1]))
-        self.assertTrue(self.ar_four.title in str(rows[2]))
-        self.assertTrue(self.ar_three.title in str(rows[3]))
-        self.assertTrue(self.ar_seven.title in str(rows[4]))
-        self.assertTrue(self.ar_one.title in str(rows[5]))
-        self.assertTrue(self.ar_two.title not in str(tbody))
+    def test_default_order_is_newest_application_date_first(self):
+        self.client.force_login(get_admin_user())
 
-    def test_no_access_to_la(self):
-        user = get_la_user()
-        self.client.force_login(user)
+        titles = self.get_displayed_titles()
 
-        response = self.client.get(
-            reverse(
-                "unassigned-accommodation-requests:unassigned-accommodation-requests",
-            )
-        )
-        self.assertEqual(response.status_code, 404)
-
-    def test_list_view_table_displays_data(self):
-        user = get_admin_user()
-        self.client.force_login(user)
-
-        response = self.client.get(
-            reverse(
-                "unassigned-accommodation-requests:unassigned-accommodation-requests",
-            )
+        self.assertEqual(
+            titles,
+            [
+                "Test One",
+                "Test Three",
+                "Test six",
+                "Test five",
+                "Test seven",
+                "Test Eight",
+                "Test Four",
+            ],
         )
 
-        html = response.content.decode("utf-8")
-        soup = BeautifulSoup(html, "html.parser")
+    def test_records_assigned_to_a_local_authority_are_not_listed(self):
+        self.client.force_login(get_admin_user())
 
-        table = soup.find("table", class_="govuk-table")
-        tbody = table.find("tbody")
-        rows = tbody.find_all("tr")
+        self.assertNotIn("Test Two", self.get_displayed_titles())
 
-        self.assertTrue(self.ar_six.title in str(rows[0]))
-        self.assertTrue(self.postcode_six.postcode in str(rows[0]))
-        self.assertTrue(self.accom_six.full_address in str(rows[0]))
-        self.assertTrue(self.rr_six.destination_ltla_name in str(rows[0]))
-        self.assertTrue("Rejected" in str(rows[0]))
+    def test_sort_by_address_ascending(self):
+        self.client.force_login(get_admin_user())
+
+        titles = self.get_displayed_titles("?sort=address")
+
+        self.assertEqual(
+            titles,
+            [
+                "Test One",
+                "Test Three",
+                "Test Four",
+                "Test five",
+                "Test six",
+                "Test seven",
+                "Test Eight",
+            ],
+        )
+
+    def test_sort_by_address_descending(self):
+        self.client.force_login(get_admin_user())
+
+        titles = self.get_displayed_titles("?sort=-address")
+
+        self.assertEqual(
+            titles,
+            [
+                "Test Eight",
+                "Test seven",
+                "Test six",
+                "Test five",
+                "Test Four",
+                "Test Three",
+                "Test One",
+            ],
+        )
+
+    def test_sort_by_postcode_ascending(self):
+        self.client.force_login(get_admin_user())
+
+        titles = self.get_displayed_titles("?sort=postcode")
+
+        self.assertEqual(
+            titles,
+            [
+                "Test One",
+                "Test Four",
+                "Test five",
+                "Test six",
+                "Test seven",
+                "Test Eight",
+                "Test Three",
+            ],
+        )
+
+    def test_sort_by_postcode_descending(self):
+        self.client.force_login(get_admin_user())
+
+        titles = self.get_displayed_titles("?sort=-postcode")
+
+        self.assertEqual(
+            titles,
+            [
+                "Test Three",
+                "Test Eight",
+                "Test seven",
+                "Test six",
+                "Test five",
+                "Test Four",
+                "Test One",
+            ],
+        )
+
+    def test_admin_users_can_access(self):
+        self.client.force_login(get_admin_user())
+
+        self.assertEqual(self.get_page().status_code, 200)
+
+    def test_mhclg_users_can_access(self):
+        self.client.force_login(get_mhclg_user())
+
+        self.assertEqual(self.get_page().status_code, 200)
+
+    def test_service_support_users_can_access(self):
+        self.client.force_login(get_service_support_user())
+
+        self.assertEqual(self.get_page().status_code, 200)
+
+    def test_la_users_cannot_access(self):
+        self.client.force_login(get_la_user())
+
+        self.assertEqual(self.get_page().status_code, 404)
+
+    def test_da_users_cannot_access(self):
+        self.client.force_login(get_da_user())
+
+        self.assertEqual(self.get_page().status_code, 404)
+
+    def test_ukvi_users_cannot_access(self):
+        self.client.force_login(get_ukvi_user())
+
+        self.assertEqual(self.get_page().status_code, 404)
+
+    def test_first_row_shows_name_address_postcode_and_hide_link(self):
+        self.client.force_login(get_admin_user())
+
+        first_row = str(self.get_table_rows()[0])
+
+        self.assertIn("Test One", first_row)
+        self.assertIn("Number 1 road", first_row)
+        self.assertIn("AA1 1AA", first_row)
+        self.assertIn("Hide", first_row)
+
+    def test_table_has_expected_column_headings(self):
+        self.client.force_login(get_admin_user())
+
+        headings = str(self.get_table().find("thead"))
+
+        self.assertIn("Name", headings)
+        self.assertIn("Date of application", headings)
+        self.assertIn("Address", headings)
+        self.assertIn("Postcode", headings)
+        self.assertNotIn("Reassignment", headings)
+
+    def test_a_record_with_two_accommodations_lists_both_one_per_line(self):
+        self.client.force_login(get_admin_user())
+
+        first = MvAccommodationFactory(
+            full_address="Zebra house A",
+            postcode=MvUkPostcodeFactory(
+                postcode="ZZ88ZZ", postcode_formatted="ZZ8 8ZZ"
+            ),
+        )
+        second = MvAccommodationFactory(
+            full_address="Zebra house B",
+            postcode=MvUkPostcodeFactory(
+                postcode="ZZ99ZZ", postcode_formatted="ZZ9 9ZZ"
+            ),
+        )
+        AccReqFactory(title="Test Multi", accommodation_id=[first.id, second.id])
+
+        row = next(r for r in self.get_table_rows() if "Test Multi" in str(r))
+        cells = row.find_all("td")
+        address_cell = next(cell for cell in cells if "Zebra house A" in str(cell))
+        postcode_cell = next(cell for cell in cells if "ZZ8 8ZZ" in str(cell))
+
+        self.assertIn("Zebra house B", str(address_cell))
+        self.assertEqual(len(address_cell.find_all("br")), 1)
+        self.assertIn("ZZ9 9ZZ", str(postcode_cell))
+        self.assertEqual(len(postcode_cell.find_all("br")), 1)
+
+    def test_filter_has_search_and_show_hidden_records_checkbox(self):
+        self.client.force_login(get_admin_user())
+
+        response = self.get_page()
+
+        self.assertContains(response, "Search the data in the table")
+        self.assertContains(response, "Hidden records")
+        self.assertContains(response, "Show hidden records")
+        self.assertNotContains(response, "Reassignment Status")
