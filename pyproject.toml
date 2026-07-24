@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "hfu-case-management-webapp"
-version = "2.4.0"
+version = "2.5.0"
 description = "Homes for Ukraine case management webapp"
 authors = ["Homes for Ukraine <homesforukraine@communities.gov.uk>"]
 readme = "README.md"
