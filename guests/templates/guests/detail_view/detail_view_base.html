@@ -11,9 +11,9 @@
     {% url 'guests:detail-linked-records' object.id as linked_records_url %}
     {% url 'guests:detail-properties' object.id as properties_url %}
     {% url 'guests:detail-history' object.id as history_url %}
+    {% include "webapp/components/notification_banner/notification_banner_from_messages.html" %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-one-half">
-            {% include "webapp/components/notification_banner/notification_banner.html" %}
             {% include "webapp/components/heading/heading.html" with caption="Guest record for" page_heading=object.get_full_name tag=is_duplicate|yesno:"Duplicate," %}
         </div>
     </div>

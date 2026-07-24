@@ -1,0 +1,11 @@
+{% if messages %}
+    {% for message in messages %}
+        {% with level=message.level %}
+            {% if "html_safe" in message.tags %}
+                {% include "webapp/components/notification_banner/notification_banner.html" with html=message %}
+            {% else %}
+                {% include "webapp/components/notification_banner/notification_banner.html" with text=message %}
+            {% endif %}
+        {% endwith %}
+    {% endfor %}
+{% endif %}

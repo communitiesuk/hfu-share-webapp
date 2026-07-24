@@ -8,25 +8,9 @@
     <li class="govuk-breadcrumbs__list-item">Undo deduplication</li>
 {% endblock breadcrumb_content %}
 {% block form %}
+    {% include "webapp/components/notification_banner/notification_banner_from_messages.html" %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-one-half">
-            <div class="govuk-notification-banner govuk-notification-banner--success"
-                 role="alert"
-                 aria-labelledby="govuk-notification-banner-title"
-                 data-module="govuk-notification-banner">
-                <div class="govuk-notification-banner__header">
-                    <h2 class="govuk-notification-banner__title"
-                        id="govuk-notification-banner-title">Success</h2>
-                </div>
-                <div class="govuk-notification-banner__content">
-                    <h3 class="govuk-notification-banner__heading max-width-none">
-                        You have restored {{ deduplicated_record_data|length }} {{ type }} records.
-                    </h3>
-                    <p class="govuk-body max-width-none">
-                        {{ deduplicated_records_names_list_formatted }} have been restored and the principal record {{ principal_record_name }} was deleted.
-                    </p>
-                </div>
-            </div>
             {% include "webapp/components/heading/heading.html" with page_heading="Deduplicated records restored" %}
         </div>
     </div>

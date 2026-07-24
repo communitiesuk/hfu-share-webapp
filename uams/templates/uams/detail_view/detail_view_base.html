@@ -10,9 +10,9 @@
     {% url 'uams:detail-properties' object.pk as properties_url %}
     {% url 'uams:detail-linked-records' object.pk as linked_records_url %}
     {% url 'uams:detail-files' object.pk as files_url %}
+    {% include "webapp/components/notification_banner/notification_banner_from_messages.html" %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-one-half">
-            {% include "webapp/components/notification_banner/notification_banner.html" %}
             {% include "webapp/components/heading/heading.html" with caption="Application to sponsor a child record for" page_heading=object.given_name|add:" "|add:object.family_name %}
         </div>
     </div>

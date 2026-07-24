@@ -11,11 +11,15 @@
     <li class="govuk-breadcrumbs__list-item">Close VIR</li>
 {% endblock breadcrumb_content %}
 {% block content %}
-    {% include "webapp/components/notification_banner/notification_banner.html" %}
-    {% error_summary form %}
-    {% include "webapp/components/heading/heading.html" with page_heading="Close VIR" %}
-    <form method="post">
-        {% csrf_token %}
-        {% crispy form %}
-    </form>
+    {% include "webapp/components/notification_banner/notification_banner_from_messages.html" %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% error_summary form %}
+            {% include "webapp/components/heading/heading.html" with page_heading="Close VIR" %}
+            <form method="post">
+                {% csrf_token %}
+                {% crispy form %}
+            </form>
+        </div>
+    </div>
 {% endblock content %}

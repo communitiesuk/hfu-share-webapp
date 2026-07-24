@@ -1,23 +1,11 @@
 {% extends "user_management/access_request_form/access_request_form_base.html" %}
 {% block form-content %}
-    {% include "webapp/components/heading/heading.html" with page_heading="Request access to data" %}
+    {% if has_access %}
+        {% include "webapp/components/notification_banner/notification_banner.html" with heading="You already have access to Homes for Ukraine data" body="You do not need to request access again unless you need access to data for other areas." %}
+    {% endif %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            {% if has_access %}
-                <div class="govuk-notification-banner"
-                     role="region"
-                     aria-labelledby="govuk-notification-banner-title"
-                     data-module="govuk-notification-banner">
-                    <div class="govuk-notification-banner__header">
-                        <h2 class="govuk-notification-banner__title"
-                            id="govuk-notification-banner-title">Important</h2>
-                    </div>
-                    <div class="govuk-notification-banner__content">
-                        <p class="govuk-notification-banner__heading">You already have access to Homes for Ukraine data</p>
-                        <p class="govuk-body">You do not need to request access again unless you need access to data for other areas.</p>
-                    </div>
-                </div>
-            {% endif %}
+            {% include "webapp/components/heading/heading.html" with page_heading="Request access to data" %}
             <div class="govuk-!-margin-bottom-6">
                 <p class="govuk-body govuk-!-font-size-24">
                     You will not have access to any data until your request is approved by MHCLG.
