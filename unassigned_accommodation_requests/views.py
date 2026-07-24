@@ -4,12 +4,18 @@ from enum import StrEnum
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import Field, Fieldset, Layout
 from crispy_forms_gds.layout.constants import Size
+from django.contrib import messages
+from django.db import DatabaseError, IntegrityError, transaction
 from django.db.models import Exists, F, OuterRef, Q, Subquery
+from django.shortcuts import redirect
 from django.forms import CheckboxInput
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.html import format_html
+from django.views.generic import View
+from django.views.generic.base import TemplateResponseMixin
+from django.views.generic.detail import SingleObjectMixin
 from django.utils.safestring import mark_safe
 from django.views.generic.detail import SingleObjectMixin
 from django_filters import (
@@ -27,7 +33,11 @@ from django_tables2 import (
 )
 from formtools.wizard.views import NamedUrlSessionWizardView
 
-from ontology.models import MvAccommodation, MvAccommodationRequest, MvVolunteer
+from ontology.models import (
+    HiddenUnassignedAccommodationRequest,
+    MvAccommodationRequest, MvVolunteer,
+    ReassignmentRequest,
+)
 from webapp.constants import ACCOMMODATION_REQUEST_SEARCH_FIELDS
 from webapp.mixins import (
     FilterPanelMixin,
@@ -63,8 +73,8 @@ class UnassignedAccommodationRequestsTable(tables.Table):
         order_by=("postcode_sort_value", "title"),
     )
     hide = Column(
-        verbose_name=mark_safe('<span class="govuk-visually-hidden">Actions</span>'),
-        empty_values=(),
+        verbose_name="",
+        accessor="id",
         orderable=False,
     )
 
@@ -89,12 +99,15 @@ class UnassignedAccommodationRequestsTable(tables.Table):
             value,
         )
 
-    def render_hide(self, record):
-        label = "Unhide" if is_hidden(record) else "Hide"
-        # No href until hiding is implemented, so the link cannot be actioned
+
+    def render_hide(self, record: MvAccommodationRequest):
         return format_html(
-            '<a class="govuk-body-s govuk-link" aria-disabled="true">{}</a>',
-            label,
+            '<a class="govuk-body-s govuk-link govuk-link--no-visited-state" '
+            'href="{}">Hide</a>',
+            reverse(
+                "unassigned-accommodation-requests:hide",
+                args=[record.id],
+            ),
         )
 
     class Meta:
@@ -196,6 +209,7 @@ class UnassignedAccommodationRequestsListView(
                 & (Q(utla_name__len=0) | Q(utla_name__isnull=True))
             )
             .exclude(Exists(super_sponsors))
+            .exclude(hidden_unassigned_record__isnull=False)
             .annotate(
                 address_sort_value=Subquery(accommodations.values("full_address")[:1]),
                 postcode_sort_value=Subquery(

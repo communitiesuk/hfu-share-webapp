@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block breadcrumb_content %}
+    <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link"
+           href="{% url 'unassigned-accommodation-requests:unassigned-accommodation-requests' %}">Manage unassigned accommodation requests</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">Hide record</li>
+{% endblock breadcrumb_content %}
+{% block content %}
+    {% include "webapp/components/heading/heading.html" with caption="Hide the accommodation request record for" page_heading=object.title %}
+    <h2 class="govuk-heading-m">Hide this record?</h2>
+    <p class="govuk-body">
+        This record will be hidden from the unassigned accommodation records list.
+        <br>
+        You can view it using the 'Show hidden records' filter.
+    </p>
+    <form method="post">
+        {% csrf_token %}
+        <div class="govuk-button-group">
+            <button type="submit" class="govuk-button" data-module="govuk-button">Yes, hide</button>
+            <a href="{{ cancel_url }}"
+               class="govuk-link govuk-link--no-visited-state govuk-body">Cancel</a>
+        </div>
+    </form>
+{% endblock content %}
