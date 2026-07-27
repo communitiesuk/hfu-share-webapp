@@ -105,9 +105,7 @@ th.orderable.govuk-table__header:last-child {
   border-top-color: var(--app-brand-colour);
 }
 
-/* App-wide overrides of the GOV.UK layout classes: a wider page and the
-   spacing-scale-9 vertical rhythm (40px/60px) the pages used before
-   adopting govuk-main-wrapper */
+/* App-wide overrides of the GOV.UK layout classes */
 .govuk-width-container {
   max-width: 95%;
 }
@@ -122,6 +120,10 @@ th.orderable.govuk-table__header:last-child {
     padding-top: 60px;
     padding-bottom: 60px;
   }
+}
+
+.govuk-breadcrumbs {
+  margin-bottom: 0;
 }
 
 .max-width-none {
