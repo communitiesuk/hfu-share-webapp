@@ -3,7 +3,7 @@ import os
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import Field, Fieldset, Layout
 from crispy_forms_gds.layout.constants import Size
-from django.db.models import F, OuterRef, Q, Subquery
+from django.db.models import Exists, F, OuterRef, Q, Subquery
 from django.forms import CheckboxInput
 from django.urls import reverse
 from django.utils.html import format_html
@@ -23,7 +23,7 @@ from django_tables2 import (
 )
 
 from accounts.enums import GroupType
-from ontology.models import MvAccommodation, MvAccommodationRequest
+from ontology.models import MvAccommodation, MvAccommodationRequest, MvVolunteer
 from webapp.constants import ACCOMMODATION_REQUEST_SEARCH_FIELDS
 from webapp.mixins import (
     FilterPanelMixin,
@@ -154,6 +154,12 @@ class UnassignedAccommodationRequestsListView(
     table_pagination = {"per_page": os.environ.get("PAGINATION_PAGE_SIZE")}
     paginator_class = LazyPaginator
     template_name = "unassigned_accommodation_requests/unassigned_accommodation_requests_list_page.html"  # noqa: E501
+    super_sponsors_to_filter = [
+        "Scottish Government",
+        "Scotland Government",
+        "Welsh Government",
+        "Wales Government",
+    ]
 
     def get_queryset(self):
         accommodations = MvAccommodation.objects.filter(
@@ -167,11 +173,22 @@ class UnassignedAccommodationRequestsListView(
             )
         ).order_by("id")
 
+        sponsors = MvVolunteer.objects.filter(
+            Q(id__any=OuterRef("sponsor_id")) | Q(id=OuterRef("primary_sponsor_id"))
+        )
+
+        name_filter = Q()
+        for name in self.super_sponsors_to_filter:
+            name_filter |= Q(full_name__icontains=name)
+
+        super_sponsors = sponsors.filter(name_filter)
+
         return (
             MvAccommodationRequest.objects.filter(
                 (Q(ltla_name__len=0) | Q(ltla_name__isnull=True))
                 & (Q(utla_name__len=0) | Q(utla_name__isnull=True))
             )
+            .exclude(Exists(super_sponsors))
             .annotate(
                 address_sort_value=Subquery(accommodations.values("full_address")[:1]),
                 postcode_sort_value=Subquery(
