@@ -1,5 +1,26 @@
 # Changelog
 
+## [2.5.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.4.0...2.5.0) (2026-07-28)
+
+
+### Features
+
+* add new table to store hidden unassigned ARs (HFURB-3937) ([#43](https://github.com/communitiesuk/hfu-share-webapp/issues/43)) ([3234e09](https://github.com/communitiesuk/hfu-share-webapp/commit/3234e09456f04394ef67731a358a9312ca152037))
+* enable hiding of unassigned ars (HFURB-3938) ([#49](https://github.com/communitiesuk/hfu-share-webapp/issues/49)) ([cbc330a](https://github.com/communitiesuk/hfu-share-webapp/commit/cbc330ac70a4c2307788b054831471f39939f0e8))
+* filter out scottish/welsh gov super sponsors from unassigned ARs ([#52](https://github.com/communitiesuk/hfu-share-webapp/issues/52)) ([ae5b909](https://github.com/communitiesuk/hfu-share-webapp/commit/ae5b9097efa3c88065662f98aa76ead0914b1f78))
+* HFURB-3387 changes to unmatched ARs list view to reflect new approach ([#42](https://github.com/communitiesuk/hfu-share-webapp/issues/42)) ([4ed051b](https://github.com/communitiesuk/hfu-share-webapp/commit/4ed051b7e34a51464fb6310542571bebadbf1b73))
+* HFURB-3389 invalid postcode form ([#51](https://github.com/communitiesuk/hfu-share-webapp/issues/51)) ([6d59acb](https://github.com/communitiesuk/hfu-share-webapp/commit/6d59acb6a24c86fa10d0f613c347c4f5dfb32f6b))
+
+
+### Bug Fixes
+
+* HFURB-2799 wrap VIR date checker in from group to maintain gap between filters ([#53](https://github.com/communitiesuk/hfu-share-webapp/issues/53)) ([6445d57](https://github.com/communitiesuk/hfu-share-webapp/commit/6445d5781c07b9095c9d7faf7e87b41812c7b658))
+* HFURB-2926 create a helper for shared render_postcode function ([#40](https://github.com/communitiesuk/hfu-share-webapp/issues/40)) ([9107bc0](https://github.com/communitiesuk/hfu-share-webapp/commit/9107bc068157f0bb5b02067d3db9009383620b53))
+* HFURB-3305 - pin docker images to a SHA to verify the version installed ([#47](https://github.com/communitiesuk/hfu-share-webapp/issues/47)) ([966660e](https://github.com/communitiesuk/hfu-share-webapp/commit/966660e9ee79260d77a16fa4e4c22580ecd08668))
+* page titles need setting on few apps ([#56](https://github.com/communitiesuk/hfu-share-webapp/issues/56)) ([91c2aa5](https://github.com/communitiesuk/hfu-share-webapp/commit/91c2aa5f884ffe97d2a35662f5b4bc7a2eace278))
+* spacing around the header ([#50](https://github.com/communitiesuk/hfu-share-webapp/issues/50)) ([bbd07fa](https://github.com/communitiesuk/hfu-share-webapp/commit/bbd07faf32255a9636cb7087a69b8b478a63e6b1))
+* update breadcrumb text unassigned accommodation requests pages ([#55](https://github.com/communitiesuk/hfu-share-webapp/issues/55)) ([7bc1a3a](https://github.com/communitiesuk/hfu-share-webapp/commit/7bc1a3a7ac0412ce1c37aef12f418d9bcb7dce39))
+
 ## [2.4.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.3.0...2.4.0) (2026-07-23)
 
 
