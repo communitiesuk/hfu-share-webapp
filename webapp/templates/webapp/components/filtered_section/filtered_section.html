@@ -5,6 +5,8 @@
         <div style="display: flex; align-items: center;">
             <a id="show-filter-link"
                class="govuk-button govuk-button--secondary"
+               role="button"
+               aria-controls="filter-container"
                href="{% if filter.show_filters_panel %}{% url_remove request.get_full_path 'show_filters_panel' %} {% else %} {% url_replace request.get_full_path 'show_filters_panel' True %} {% endif %}">
                 {{ filter.show_filters_panel|yesno:"Hide,Show" }} filters
             </a>
@@ -73,44 +75,81 @@
     </div>
 </div>
 <script nonce="{{ request.csp_nonce }}">
-  document.addEventListener('DOMContentLoaded', function() {
-    const filterContainer = document.getElementById('filter-container');
-    const showFilterLink = document.getElementById('show-filter-link');
-    const input = document.getElementById('show_filters_panel');
-    const viewKey = 'filtersPanelOpen_' + window.location.pathname;
-    const isOpen = localStorage.getItem(viewKey);
+    class Filter {
+        optionSets = {
+            open: {
+                filterContainerStyle: "block",
+                showFilterLinkText: "Hide filters",
+                showFilterAriaExpandedStatus: true,
+                inputValue: "True",
+                localStorageValue: "true",
+            },
+            hidden: {
+                filterContainerStyle: "none",
+                showFilterLinkText: "Show filters",
+                showFilterAriaExpandedStatus: false,
+                inputValue: "False",
+                localStorageValue: "false",
+            },
+        };
+        showFiltersPanelParam = "show_filters_panel";
 
-    if (isOpen === 'true') {
-      filterContainer.style.display = 'block';
-      showFilterLink.textContent = 'Hide filters';
-      if (input) input.value = 'True';
-      updateUrlParam(true);
-    } else {
-      filterContainer.style.display = 'none';
-      showFilterLink.textContent = 'Show filters';
-      if (input) input.value = 'False';
-      updateUrlParam(false);
+        constructor() {
+            this.filterContainer = document.getElementById("filter-container");
+            this.showFilterLink = document.getElementById("show-filter-link");
+            this.input = document.getElementById("show_filters_panel");
+            this.viewKey = `filtersPanelOpen_${window.location.pathname}`;
+        }
+
+        init() {
+            if (!this.filterContainer || !this.showFilterLink) return;
+
+            this.showHideFilter(this.getStateFromUrl() ?? this.getStateFromStorage());
+
+            this.removeFilterFromUrl();
+
+            this.showFilterLink.addEventListener("click", (e) => this.handleClickEvent(e));
+        }
+
+        handleClickEvent(e) {
+            e.preventDefault();
+            this.showHideFilter(!this.getStateFromStorage());
+        }
+
+        getStateFromStorage() {
+            return localStorage.getItem(this.viewKey) === "true";
+        }
+
+        getStateFromUrl() {
+            const url = new URL(window.location.href);
+
+            const currentValue = url.searchParams.get(this.showFiltersPanelParam);
+
+            if (!currentValue) return null;
+
+            return currentValue === "True";
+        }
+
+        showHideFilter(open) {
+            const optionSet = open ? this.optionSets.open : this.optionSets.hidden;
+
+            this.filterContainer.style.display = optionSet.filterContainerStyle;
+            this.showFilterLink.textContent = optionSet.showFilterLinkText;
+            this.showFilterLink.setAttribute("aria-expanded", optionSet.showFilterAriaExpandedStatus);
+            if (this.input) this.input.value = optionSet.inputValue;
+
+            localStorage.setItem(this.viewKey, optionSet.localStorageValue);
+        }
+
+        removeFilterFromUrl() {
+            const url = new URL(window.location.href);
+
+            if (url.searchParams.has(this.showFiltersPanelParam)) {
+                url.searchParams.delete(this.showFiltersPanelParam);
+                window.history.replaceState({}, "", url);
+            }
+        }
     }
 
-    showFilterLink.addEventListener('click', function(e) {
-      e.preventDefault();
-      const currentlyOpen = filterContainer.style.display === 'block';
-      const newState = !currentlyOpen;
-      filterContainer.style.display = newState ? 'block' : 'none';
-      showFilterLink.textContent = newState ? 'Hide filters' : 'Show filters';
-      localStorage.setItem(viewKey, newState ? 'true' : 'false');
-      if (input) input.value = newState ? 'True' : 'False';
-      updateUrlParam(newState);
-    });
-
-    function updateUrlParam(open) {
-      const url = new URL(window.location.href);
-      if (open) {
-        url.searchParams.set('show_filters_panel', 'True');
-      } else {
-        url.searchParams.delete('show_filters_panel');
-      }
-      window.history.replaceState({}, '', url);
-    }
-  });
+    document.addEventListener("DOMContentLoaded", () => new Filter().init());
 </script>
