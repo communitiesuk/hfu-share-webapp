@@ -12,6 +12,7 @@ from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django.views import View
 from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.detail import SingleObjectMixin
@@ -71,7 +72,7 @@ class UnassignedAccommodationRequestsTable(tables.Table):
         order_by=("postcode_sort_value", "title"),
     )
     hide = Column(
-        verbose_name="",
+        verbose_name=mark_safe('<span class="govuk-visually-hidden">Actions</span>'),
         accessor="id",
         orderable=False,
     )
@@ -98,13 +99,15 @@ class UnassignedAccommodationRequestsTable(tables.Table):
         )
 
     def render_hide(self, record: MvAccommodationRequest):
+        label = "Unhide" if is_hidden(record) else "Hide"
         return format_html(
             '<a class="govuk-body-s govuk-link govuk-link--no-visited-state" '
-            'href="{}">Hide</a>',
+            'href="{}">{}</a>',
             reverse(
                 "unassigned-accommodation-requests:hide",
                 args=[record.id],
             ),
+            label,
         )
 
     class Meta:
