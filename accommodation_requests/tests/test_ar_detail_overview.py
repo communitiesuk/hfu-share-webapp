@@ -217,6 +217,7 @@ class AccommodationRequestDetailOverviewTestCase(
         ar = AccReqFactory(
             title="Test Access Request",
             checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
+            ltla_name=None,
         )
 
         self.client.force_login(get_mhclg_user())
@@ -250,6 +251,7 @@ class AccommodationRequestDetailOverviewTestCase(
         ar = AccReqFactory(
             title="Test Access Request",
             checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
+            ltla_name=None,
         )
 
         self.client.force_login(get_service_support_user())
