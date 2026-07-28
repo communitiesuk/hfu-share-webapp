@@ -17,11 +17,14 @@ class MultiLABannerMixinTests(TestSessionTokenMixin, AccommodationRequestsBaseTe
         )
         self.pk = self.multi_la_request.pk
 
-    def assert_multi_la_banner(self, url_name):
-        url = reverse(f"accommodation-requests:{url_name}", args=[self.pk])
+    def get_banner_messages(self, url_name, pk):
+        url = reverse(f"accommodation-requests:{url_name}", args=[pk])
         response = self.client.get(url)
         messages = list(get_messages(response.wsgi_request))
-        assert any("linked to multiple local authorities" in str(m) for m in messages)
+        return [m for m in messages if "linked to multiple local authorities" in str(m)]
+
+    def assert_multi_la_banner(self, url_name):
+        assert self.get_banner_messages(url_name, self.pk)
 
     def test_detail_overview_banner(self):
         self.assert_multi_la_banner("detail-overview")
@@ -43,3 +46,15 @@ class MultiLABannerMixinTests(TestSessionTokenMixin, AccommodationRequestsBaseTe
 
     def test_detail_comments_banner(self):
         self.assert_multi_la_banner("detail-comments")
+
+    def test_no_banner_when_ltla_name_empty(self):
+        empty_ltla_request = MvAccommodationRequestFactory(
+            ltla_name=[], checks_status="Checks Required"
+        )
+        assert not self.get_banner_messages("detail-overview", empty_ltla_request.pk)
+
+    def test_no_banner_for_single_ltla(self):
+        single_ltla_request = MvAccommodationRequestFactory(
+            ltla_name=["LA One"], checks_status="Checks Required"
+        )
+        assert not self.get_banner_messages("detail-overview", single_ltla_request.pk)

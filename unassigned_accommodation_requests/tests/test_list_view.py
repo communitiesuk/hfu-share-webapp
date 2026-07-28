@@ -254,10 +254,10 @@ class UnassignedAccommodationRequestListViewTestCase(TestSessionTokenMixin, Test
 
         self.assertEqual(self.get_page().status_code, 200)
 
-    def test_service_support_users_can_access(self):
+    def test_service_support_users_cannot_access(self):
         self.client.force_login(get_service_support_user())
 
-        self.assertEqual(self.get_page().status_code, 200)
+        self.assertEqual(self.get_page().status_code, 404)
 
     def test_la_users_cannot_access(self):
         self.client.force_login(get_la_user())

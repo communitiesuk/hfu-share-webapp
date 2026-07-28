@@ -1,13 +1,17 @@
 import os
+from enum import StrEnum
 
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import Field, Fieldset, Layout
 from crispy_forms_gds.layout.constants import Size
 from django.db.models import Exists, F, OuterRef, Q, Subquery
 from django.forms import CheckboxInput
+from django.http import HttpResponse
+from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+from django.views.generic.detail import SingleObjectMixin
 from django_filters import (
     BooleanFilter,
     CharFilter,
@@ -21,16 +25,23 @@ from django_tables2 import (
     SingleTableMixin,
     tables,
 )
+from formtools.wizard.views import NamedUrlSessionWizardView
 
-from accounts.enums import GroupType
 from ontology.models import MvAccommodation, MvAccommodationRequest, MvVolunteer
 from webapp.constants import ACCOMMODATION_REQUEST_SEARCH_FIELDS
 from webapp.mixins import (
     FilterPanelMixin,
     PermissionsMixin,
+    PIISafeRecordNameMixin,
 )
 from webapp.search import perform_search
 from webapp.utils import CustomDateColumn
+
+from .constants import UNASSIGNED_ACCOMMODATION_REQUESTS_GROUP_TYPES
+from .forms import (
+    AssignLocalAuthorityFormSelectLocalAuthorityStep,
+    AssignLocalAuthorityFormSelectRegionStep,
+)
 
 
 def is_hidden(record: MvAccommodationRequest) -> bool:
@@ -143,11 +154,7 @@ class UnassignedAccommodationRequestsFilter(FilterSet, FilterPanelMixin):
 class UnassignedAccommodationRequestsListView(
     PermissionsMixin, SingleTableMixin, FilterView
 ):
-    group_type = [
-        GroupType.DEV,
-        GroupType.MHCLG,
-        GroupType.SERVICE_SUPPORT,
-    ]
+    group_type = UNASSIGNED_ACCOMMODATION_REQUESTS_GROUP_TYPES
     model = MvAccommodationRequest
     table_class = UnassignedAccommodationRequestsTable
     filterset_class = UnassignedAccommodationRequestsFilter
@@ -205,3 +212,89 @@ class UnassignedAccommodationRequestsListView(
                 "primary_accommodation_id",
             )
         )
+
+
+class AssignLocalAuthorityFormSteps(StrEnum):
+    REGION = "region"
+    LOCAL_AUTHORITY = "local-authority"
+
+
+ASSIGN_LOCAL_AUTHORITY_FORMS = [
+    (
+        AssignLocalAuthorityFormSteps.REGION,
+        AssignLocalAuthorityFormSelectRegionStep,
+    ),
+    (
+        AssignLocalAuthorityFormSteps.LOCAL_AUTHORITY,
+        AssignLocalAuthorityFormSelectLocalAuthorityStep,
+    ),
+]
+
+
+class AssignLocalAuthorityFormWizard(
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    SingleObjectMixin,
+    NamedUrlSessionWizardView,
+):
+    model = MvAccommodationRequest
+    group_type = UNASSIGNED_ACCOMMODATION_REQUESTS_GROUP_TYPES
+    template_name = (
+        "unassigned_accommodation_requests/"
+        "assign_local_authority/"
+        "assign_local_authority_page.html"
+    )
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.object = None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, *args, **kwargs):
+        if self.object.ltla_name:
+            return HttpResponse(status=409)
+
+        if "reset" in self.request.GET:
+            self.storage.reset()
+
+        return super().get(*args, **kwargs)
+
+    def post(self, *args, **kwargs):
+        if self.object.ltla_name:
+            return HttpResponse(status=409)
+
+        return super().post(*args, **kwargs)
+
+    def get_form_kwargs(self, step=None):
+        kwargs = super().get_form_kwargs(step)
+
+        if step == AssignLocalAuthorityFormSteps.LOCAL_AUTHORITY:
+            region_data = (
+                self.get_cleaned_data_for_step(AssignLocalAuthorityFormSteps.REGION)
+                or {}
+            )
+            kwargs["region"] = region_data.get("region")
+
+        return kwargs
+
+    def get_step_url(self, step):
+        return reverse(self.url_name, kwargs={"step": step, "pk": self.object.pk})
+
+    def get_prefix(self, request, *args, **kwargs):
+        return f"assign_local_authority_form_wizard_{self.object.pk}"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["cancel_url"] = self.get_cancel_url()
+        return context
+
+    def get_cancel_url(self):
+        return reverse(
+            "accommodation-requests:detail-overview", kwargs={"pk": self.object.pk}
+        )
+
+    def done(self, form_list, **kwargs):
+        return redirect(self.get_cancel_url())
