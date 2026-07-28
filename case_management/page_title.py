@@ -78,6 +78,9 @@ def get_section_title(resolver_match: ResolverMatch) -> str:
         "safeguarding": "Escalated checks",
         "uams": "UAMs",
         "user-management": "Request access",
+        "unassigned-accommodation-requests": (
+            "Manage unassigned accommodation requests"
+        ),
     }
 
     app_name = resolver_match.app_name
