@@ -467,7 +467,7 @@ class AccommodationRequestDetailOverviewView(
 
         return format_html(
             '<a class="govuk-link govuk-link--no-visited-state" href="{}">'
-            "Assign to local authority"
+            "Assign local authority"
             "</a>",
             reverse(
                 "unassigned-accommodation-requests:assign-to-local-authority",
