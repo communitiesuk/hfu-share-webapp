@@ -74,7 +74,7 @@ def apply_service_name(title: str, service_name: str) -> str:
 def get_section_title(resolver_match: ResolverMatch) -> str:
     TITLE_MAP = {
         "sponsors": "Sponsors and hosts",
-        "download": "Download data",
+        "downloads": "Download data",
         "safeguarding": "Escalated checks",
         "uams": "UAMs",
         "user-management": "Request access",
