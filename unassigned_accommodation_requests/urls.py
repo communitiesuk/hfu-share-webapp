@@ -3,6 +3,7 @@ from django.urls import path
 from .views import (
     ASSIGN_LOCAL_AUTHORITY_FORMS,
     AssignLocalAuthorityFormWizard,
+    HideUnassignedAccommodationRequestView,
     UnassignedAccommodationRequestsListView,
 )
 
@@ -27,5 +28,10 @@ urlpatterns = [
         "<str:pk>/assign-local-authority",
         assign_local_authority_wizard,
         name="assign-local-authority",
+    ),
+    path(
+        "<str:pk>/hide/",
+        HideUnassignedAccommodationRequestView.as_view(),
+        name="hide",
     ),
 ]
