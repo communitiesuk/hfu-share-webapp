@@ -470,7 +470,7 @@ class AccommodationRequestDetailOverviewView(
             "Assign local authority"
             "</a>",
             reverse(
-                "unassigned-accommodation-requests:assign-to-local-authority",
+                "unassigned-accommodation-requests:assign-local-authority",
                 kwargs={"pk": self.object.id},
             ),
         )

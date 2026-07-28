@@ -39,8 +39,8 @@ from webapp.utils import CustomDateColumn
 
 from .constants import UNASSIGNED_ACCOMMODATION_REQUESTS_GROUP_TYPES
 from .forms import (
-    AssignToLocalAuthorityFormSelectLocalAuthorityStep,
-    AssignToLocalAuthorityFormSelectRegionStep,
+    AssignLocalAuthorityFormSelectLocalAuthorityStep,
+    AssignLocalAuthorityFormSelectRegionStep,
 )
 
 
@@ -214,24 +214,24 @@ class UnassignedAccommodationRequestsListView(
         )
 
 
-class AssignToLocalAuthorityFormSteps(StrEnum):
+class AssignLocalAuthorityFormSteps(StrEnum):
     REGION = "region"
     LOCAL_AUTHORITY = "local_authority"
 
 
-ASSIGN_TO_LOCAL_AUTHORITY_FORMS = [
+ASSIGN_LOCAL_AUTHORITY_FORMS = [
     (
-        AssignToLocalAuthorityFormSteps.REGION,
-        AssignToLocalAuthorityFormSelectRegionStep,
+        AssignLocalAuthorityFormSteps.REGION,
+        AssignLocalAuthorityFormSelectRegionStep,
     ),
     (
-        AssignToLocalAuthorityFormSteps.LOCAL_AUTHORITY,
-        AssignToLocalAuthorityFormSelectLocalAuthorityStep,
+        AssignLocalAuthorityFormSteps.LOCAL_AUTHORITY,
+        AssignLocalAuthorityFormSelectLocalAuthorityStep,
     ),
 ]
 
 
-class AssignToLocalAuthorityFormWizard(
+class AssignLocalAuthorityFormWizard(
     PIISafeRecordNameMixin,
     PermissionsMixin,
     SingleObjectMixin,
@@ -241,8 +241,8 @@ class AssignToLocalAuthorityFormWizard(
     group_type = UNASSIGNED_ACCOMMODATION_REQUESTS_GROUP_TYPES
     template_name = (
         "unassigned_accommodation_requests/"
-        "assign_to_local_authority/"
-        "assign_to_local_authority_page.html"
+        "assign_local_authority/"
+        "assign_local_authority_page.html"
     )
 
     def __init__(self, **kwargs):
@@ -268,9 +268,9 @@ class AssignToLocalAuthorityFormWizard(
     def get_form_kwargs(self, step=None):
         kwargs = super().get_form_kwargs(step)
 
-        if step == AssignToLocalAuthorityFormSteps.LOCAL_AUTHORITY:
+        if step == AssignLocalAuthorityFormSteps.LOCAL_AUTHORITY:
             region_data = (
-                self.get_cleaned_data_for_step(AssignToLocalAuthorityFormSteps.REGION)
+                self.get_cleaned_data_for_step(AssignLocalAuthorityFormSteps.REGION)
                 or {}
             )
             kwargs["region"] = region_data.get("region")
@@ -281,7 +281,7 @@ class AssignToLocalAuthorityFormWizard(
         return reverse(self.url_name, kwargs={"step": step, "pk": self.object.pk})
 
     def get_prefix(self, request, *args, **kwargs):
-        return f"assign_to_local_authority_form_wizard_{self.object.pk}"
+        return f"assign_local_authority_form_wizard_{self.object.pk}"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

@@ -225,7 +225,7 @@ class AccommodationRequestDetailOverviewTestCase(
             '<a class="govuk-link govuk-link--no-visited-state" href="{}">'
             "Assign local authority</a>".format(
                 reverse(
-                    "unassigned-accommodation-requests:assign-to-local-authority",
+                    "unassigned-accommodation-requests:assign-local-authority",
                     args=[ar.id],
                 )
             ),

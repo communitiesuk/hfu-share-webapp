@@ -6,7 +6,7 @@ from accounts.tests.base import TestSessionTokenMixin
 from accounts.tests.factories import GroupInfoFactory
 from ontology.models import MvAccommodationRequest
 from ontology.tests.factories import MvAccommodationRequestFactory as AccReqFactory
-from unassigned_accommodation_requests.views import AssignToLocalAuthorityFormSteps
+from unassigned_accommodation_requests.views import AssignLocalAuthorityFormSteps
 from user_management.tests.base import (
     get_admin_user,
     get_da_user,
@@ -17,7 +17,7 @@ from user_management.tests.base import (
 )
 
 
-class AssignToLocalAuthorityFormTestCase(TestSessionTokenMixin, TestCase):
+class AssignLocalAuthorityFormTestCase(TestSessionTokenMixin, TestCase):
     def setUp(self):
         super().setUp()
 
@@ -52,7 +52,7 @@ class AssignToLocalAuthorityFormTestCase(TestSessionTokenMixin, TestCase):
 
     def get_form(self, accommodation_request=None):
         url = reverse(
-            "unassigned-accommodation-requests:assign-to-local-authority",
+            "unassigned-accommodation-requests:assign-local-authority",
             args=[(accommodation_request or self.unassigned_ar).id],
         )
         return self.client.get(url, follow=True)
@@ -60,10 +60,10 @@ class AssignToLocalAuthorityFormTestCase(TestSessionTokenMixin, TestCase):
     def post_step(self, step, data, accommodation_request=None):
         ar = accommodation_request or self.unassigned_ar
         url = reverse(
-            "unassigned-accommodation-requests:assign-to-local-authority-step",
+            "unassigned-accommodation-requests:assign-local-authority-step",
             kwargs={"pk": ar.id, "step": step},
         )
-        prefix = f"assign_to_local_authority_form_wizard_{ar.pk}"
+        prefix = f"assign_local_authority_form_wizard_{ar.pk}"
         return self.client.post(
             url,
             {**data, f"{prefix}-current_step": step},
@@ -72,14 +72,14 @@ class AssignToLocalAuthorityFormTestCase(TestSessionTokenMixin, TestCase):
 
     def post_region(self, region, accommodation_request=None):
         return self.post_step(
-            AssignToLocalAuthorityFormSteps.REGION,
+            AssignLocalAuthorityFormSteps.REGION,
             {"region-region": region},
             accommodation_request,
         )
 
     def post_local_authority(self, local_authority, accommodation_request=None):
         return self.post_step(
-            AssignToLocalAuthorityFormSteps.LOCAL_AUTHORITY,
+            AssignLocalAuthorityFormSteps.LOCAL_AUTHORITY,
             {"local_authority-local_authority": local_authority},
             accommodation_request,
         )
@@ -167,10 +167,10 @@ class AssignToLocalAuthorityFormTestCase(TestSessionTokenMixin, TestCase):
         self.assertRedirects(
             response,
             reverse(
-                "unassigned-accommodation-requests:assign-to-local-authority-step",
+                "unassigned-accommodation-requests:assign-local-authority-step",
                 kwargs={
                     "pk": self.unassigned_ar.id,
-                    "step": AssignToLocalAuthorityFormSteps.LOCAL_AUTHORITY,
+                    "step": AssignLocalAuthorityFormSteps.LOCAL_AUTHORITY,
                 },
             ),
         )

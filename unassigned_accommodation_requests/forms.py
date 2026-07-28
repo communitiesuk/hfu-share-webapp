@@ -10,7 +10,7 @@ from user_management.templatetags.access_request_extras import (
 from webapp.widgets import SearchableSelect
 
 
-class AssignToLocalAuthorityFormSelectRegionStep(forms.Form):
+class AssignLocalAuthorityFormSelectRegionStep(forms.Form):
     region = forms.ChoiceField(
         choices=[
             ("England", "England"),
@@ -47,7 +47,7 @@ class AssignToLocalAuthorityFormSelectRegionStep(forms.Form):
         )
 
 
-class AssignToLocalAuthorityFormSelectLocalAuthorityStep(forms.Form):
+class AssignLocalAuthorityFormSelectLocalAuthorityStep(forms.Form):
     local_authority = forms.ModelChoiceField(
         queryset=GroupInfo.objects.none(),
         to_field_name="ltla_name",
