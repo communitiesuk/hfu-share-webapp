@@ -1,9 +1,11 @@
 import logging
+from http import HTTPStatus
 
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_not_required
 from django.http import HttpRequest, HttpResponseForbidden, HttpResponseRedirect
+from django.shortcuts import render
 from django.utils.http import url_has_allowed_host_and_scheme
 
 from .authentication import Authentication
@@ -57,4 +59,4 @@ def entra_callback(request: HttpRequest):
 
         return HttpResponseRedirect(next_url)
 
-    return HttpResponseForbidden("You are not allowed to access this application.")
+    return render(request, "403.html", status=HTTPStatus.FORBIDDEN)
