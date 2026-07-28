@@ -306,6 +306,14 @@ class LandingPageTests(TestSessionTokenMixin, TestCase):
                 "accommodation, guest or sponsor and host.",
             )
         )
+        self.assertTrue(
+            selectable_card_exists(
+                "Manage unassigned accommodation requests",
+                html,
+                "View and manage records that are not assigned to a lower tier "
+                "local authority.",
+            )
+        )
 
         self.assertContains(response, "Request access to data")
 
@@ -328,6 +336,9 @@ class LandingPageCardVisibilityTests(TestSessionTokenMixin, TestCase):
         self.assertContains(response, "Request access to data")
 
         # LA users should not see these cards
+        self.assertFalse(
+            selectable_card_exists("Manage unassigned accommodation requests", html)
+        )
         self.assertFalse(selectable_card_exists("Escalated checks", html))
         self.assertFalse(
             selectable_card_exists("Manage people, access and permissions", html)
@@ -359,6 +370,9 @@ class LandingPageCardVisibilityTests(TestSessionTokenMixin, TestCase):
         self.assertTrue(selectable_card_exists("Download data", html))
         self.assertTrue(selectable_card_exists("Applications to sponsor a child", html))
         self.assertTrue(selectable_card_exists("Visa Information Requests", html))
+        self.assertTrue(
+            selectable_card_exists("Manage unassigned accommodation requests", html)
+        )
         self.assertContains(response, "Request access to data")
         self.assertTrue(
             selectable_card_exists(
@@ -393,6 +407,9 @@ class LandingPageCardVisibilityTests(TestSessionTokenMixin, TestCase):
         )
 
         # EA users should not see these cards
+        self.assertFalse(
+            selectable_card_exists("Manage unassigned accommodation requests", html)
+        )
         self.assertFalse(selectable_card_exists("Escalated checks", html))
         self.assertFalse(
             selectable_card_exists("Manage people, access and permissions", html)
@@ -417,6 +434,9 @@ class LandingPageCardVisibilityTests(TestSessionTokenMixin, TestCase):
         self.assertTrue(selectable_card_exists("Download data", html))
 
         # Should not see these cards
+        self.assertFalse(
+            selectable_card_exists("Manage unassigned accommodation requests", html)
+        )
         self.assertFalse(
             selectable_card_exists("Manage people, access and permissions", html)
         )
@@ -450,6 +470,9 @@ class LandingPageCardVisibilityTests(TestSessionTokenMixin, TestCase):
         )
         self.assertFalse(selectable_card_exists("Escalated checks", html))
         self.assertFalse(
+            selectable_card_exists("Manage unassigned accommodation requests", html)
+        )
+        self.assertFalse(
             selectable_card_exists("Manage people, access and permissions", html)
         )
         self.assertFalse(
@@ -475,6 +498,9 @@ class LandingPageCardVisibilityTests(TestSessionTokenMixin, TestCase):
         self.assertTrue(selectable_card_exists("Escalated checks", html))
         self.assertTrue(selectable_card_exists("Applications to sponsor a child", html))
         self.assertTrue(selectable_card_exists("Visa Information Requests", html))
+        self.assertTrue(
+            selectable_card_exists("Manage unassigned accommodation requests", html)
+        )
         self.assertContains(response, "Request access to data")
         self.assertTrue(selectable_card_exists("Download data", html))
 
@@ -512,6 +538,9 @@ class LandingPageCardVisibilityTests(TestSessionTokenMixin, TestCase):
         )
         self.assertFalse(selectable_card_exists("Escalated checks", html))
         self.assertFalse(
+            selectable_card_exists("Manage unassigned accommodation requests", html)
+        )
+        self.assertFalse(
             selectable_card_exists("Manage people, access and permissions", html)
         )
         self.assertFalse(
@@ -543,6 +572,9 @@ class LandingPageCardVisibilityTests(TestSessionTokenMixin, TestCase):
         self.assertTrue(selectable_card_exists("Download data", html))
         self.assertTrue(selectable_card_exists("Applications to sponsor a child", html))
         self.assertTrue(selectable_card_exists("Visa Information Requests", html))
+        self.assertTrue(
+            selectable_card_exists("Manage unassigned accommodation requests", html)
+        )
         self.assertContains(response, "Request access to data")
 
         # Should not see these cards

@@ -28,7 +28,10 @@ from django_tables2 import (
 from formtools.wizard.views import NamedUrlSessionWizardView
 
 from ontology.models import MvAccommodation, MvAccommodationRequest, MvVolunteer
-from webapp.constants import ACCOMMODATION_REQUEST_SEARCH_FIELDS
+from webapp.constants import (
+    ACCOMMODATION_REQUEST_SEARCH_FIELDS,
+    UNASSIGNED_ACCOMMODATION_REQUESTS_ALLOWED_GROUP_TYPES,
+)
 from webapp.mixins import (
     FilterPanelMixin,
     PermissionsMixin,
@@ -37,7 +40,6 @@ from webapp.mixins import (
 from webapp.search import perform_search
 from webapp.utils import CustomDateColumn
 
-from .constants import UNASSIGNED_ACCOMMODATION_REQUESTS_GROUP_TYPES
 from .forms import (
     AssignLocalAuthorityFormSelectLocalAuthorityStep,
     AssignLocalAuthorityFormSelectRegionStep,
@@ -154,7 +156,7 @@ class UnassignedAccommodationRequestsFilter(FilterSet, FilterPanelMixin):
 class UnassignedAccommodationRequestsListView(
     PermissionsMixin, SingleTableMixin, FilterView
 ):
-    group_type = UNASSIGNED_ACCOMMODATION_REQUESTS_GROUP_TYPES
+    group_type = UNASSIGNED_ACCOMMODATION_REQUESTS_ALLOWED_GROUP_TYPES
     model = MvAccommodationRequest
     table_class = UnassignedAccommodationRequestsTable
     filterset_class = UnassignedAccommodationRequestsFilter
@@ -238,7 +240,7 @@ class AssignLocalAuthorityFormWizard(
     NamedUrlSessionWizardView,
 ):
     model = MvAccommodationRequest
-    group_type = UNASSIGNED_ACCOMMODATION_REQUESTS_GROUP_TYPES
+    group_type = UNASSIGNED_ACCOMMODATION_REQUESTS_ALLOWED_GROUP_TYPES
     template_name = (
         "unassigned_accommodation_requests/"
         "assign_local_authority/"

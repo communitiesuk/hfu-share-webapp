@@ -65,7 +65,7 @@ class GroupRequiredMixin(UserPassesTestMixin):
     ALLOW = "allow"
     DENY = "deny"
 
-    group_type: str | GroupType | list[GroupType] | None = None
+    group_type: str | GroupType | list[GroupType] | set[GroupType] | None = None
     group_name: str | list[str] | None = None
     group_access_mode: str = ALLOW  # can be 'ALLOW' or 'DENY'
     all_groups_required: bool = False
