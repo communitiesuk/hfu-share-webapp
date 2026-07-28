@@ -5,11 +5,10 @@ from django.test import TestCase
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
-from ontology.models import ReassignmentRequest
 from ontology.tests.factories import (
     MvAccommodationFactory,
     MvUkPostcodeFactory,
-    ReassignmentRequestFactory,
+    MvVolunteerFactory,
 )
 from ontology.tests.factories import MvAccommodationRequestFactory as AccReqFactory
 from user_management.tests.base import (
@@ -52,13 +51,6 @@ class UnassignedAccommodationRequestListViewTestCase(TestSessionTokenMixin, Test
             latest_application_date=datetime(2026, 2, 1, tzinfo=timezone.utc),
         )
 
-        self.rr_three = ReassignmentRequestFactory(
-            accommodation_request=self.ar_three,
-            outcome=ReassignmentRequest.Outcome.ACCEPTED,
-            destination_ltla_name="some ltla",
-            created_at=datetime(2026, 2, 1, tzinfo=timezone.utc),
-        )
-
         self.postcode_four = MvUkPostcodeFactory(
             postcode="DD44DD", postcode_formatted="DD4 4DD"
         )
@@ -67,11 +59,6 @@ class UnassignedAccommodationRequestListViewTestCase(TestSessionTokenMixin, Test
         )
         self.ar_four = AccReqFactory(
             title="Test Four", accommodation_id=[self.accom_four.id]
-        )
-        self.rr_four = ReassignmentRequestFactory(
-            accommodation_request=self.ar_four,
-            outcome=ReassignmentRequest.Outcome.PENDING,
-            destination_ltla_name="some ltla",
         )
 
         self.postcode_five = MvUkPostcodeFactory(
@@ -85,11 +72,6 @@ class UnassignedAccommodationRequestListViewTestCase(TestSessionTokenMixin, Test
             accommodation_id=[self.accom_five.id],
             latest_application_date=datetime(2025, 1, 1, tzinfo=timezone.utc),
         )
-        self.rr_five = ReassignmentRequestFactory(
-            accommodation_request=self.ar_five,
-            outcome=ReassignmentRequest.Outcome.REJECTED,
-            destination_ltla_name="some ltla",
-        )
 
         self.postcode_six = MvUkPostcodeFactory(
             postcode="FF66FF", postcode_formatted="FF6 6FF"
@@ -102,11 +84,6 @@ class UnassignedAccommodationRequestListViewTestCase(TestSessionTokenMixin, Test
             accommodation_id=[self.accom_six.id],
             latest_application_date=datetime(2026, 1, 1, tzinfo=timezone.utc),
         )
-        self.rr_six = ReassignmentRequestFactory(
-            accommodation_request=self.ar_six,
-            outcome=ReassignmentRequest.Outcome.REJECTED,
-            destination_ltla_name="some ltla",
-        )
 
         self.postcode_seven = MvUkPostcodeFactory(
             postcode="GG77GG", postcode_formatted="GG7 7GG"
@@ -118,24 +95,6 @@ class UnassignedAccommodationRequestListViewTestCase(TestSessionTokenMixin, Test
             title="Test seven",
             accommodation_id=[self.accom_seven.id],
             latest_application_date=datetime(2025, 1, 1, tzinfo=timezone.utc),
-        )
-        self.rr_seven_1 = ReassignmentRequestFactory(
-            accommodation_request=self.ar_seven,
-            outcome=ReassignmentRequest.Outcome.REJECTED,
-            destination_ltla_name="some ltla",
-            created_at=datetime(2025, 1, 1, tzinfo=timezone.utc),
-        )
-        self.rr_seven_2 = ReassignmentRequestFactory(
-            accommodation_request=self.ar_seven,
-            outcome=ReassignmentRequest.Outcome.REJECTED,
-            destination_ltla_name="some ltla",
-            created_at=datetime(2026, 2, 1, tzinfo=timezone.utc),
-        )
-        self.rr_seven_3 = ReassignmentRequestFactory(
-            accommodation_request=self.ar_seven,
-            outcome=ReassignmentRequest.Outcome.ACCEPTED,
-            destination_ltla_name="some ltla",
-            created_at=datetime(2025, 2, 1, tzinfo=timezone.utc),
         )
 
         self.ar_eight = AccReqFactory(
@@ -255,6 +214,35 @@ class UnassignedAccommodationRequestListViewTestCase(TestSessionTokenMixin, Test
                 "Test One",
             ],
         )
+
+    def test_super_sponsor_ars_not_included(self):
+        self.ar_three_sponsor = MvVolunteerFactory(first_name="Scottish Government")
+        self.ar_three.sponsor_id = [self.ar_three_sponsor.id]
+        self.ar_three_sponsor.save()
+        self.ar_three_sponsor.refresh_from_db()
+        self.ar_three.save()
+        self.ar_three.refresh_from_db()
+
+        # Check partial match + case insensitivity and primary sponsor id
+        self.ar_one_sponsor = MvVolunteerFactory(first_name="the WALES Government")
+        self.ar_one.primary_sponsor_id = self.ar_one_sponsor.id
+        self.ar_one_sponsor.save()
+        self.ar_one_sponsor.refresh_from_db()
+        self.ar_one.save()
+        self.ar_one.refresh_from_db()
+
+        # This should not match due to shortened "gov"
+        self.ar_four_sponsor = MvVolunteerFactory(first_name="scottish gov")
+        self.ar_four.sponsor_id = [self.ar_four_sponsor.id]
+        self.ar_four_sponsor.save()
+        self.ar_four_sponsor.refresh_from_db()
+        self.ar_four.save()
+        self.ar_four.refresh_from_db()
+
+        self.client.force_login(get_admin_user())
+        self.assertNotIn("Test One", self.get_displayed_titles())
+        self.assertNotIn("Test Three", self.get_displayed_titles())
+        self.assertIn("Test Four", self.get_displayed_titles())
 
     def test_admin_users_can_access(self):
         self.client.force_login(get_admin_user())
