@@ -279,6 +279,8 @@ CONTENT_SECURITY_POLICY_REPORT_ONLY = {
             "'sha256-YMwcMhkQEhelu2MNRsvB812jMqT/aeLHlLUJ29T7cIw='",
             # searchable_select
             "'sha256-IL1hz2/N+U3AfZl4hpFU67bVZRJMRelB0bv2EuHWiXQ='",
+            # searchable_select
+            "'sha256-uom/SHkGTVCPyfBOrsyJTOYvycWFrn8ZebdS4FFbRK0='",
             # multi_value_text_input
             "'sha256-KJRquMJXXF1tDkb5gTZTpZ0Jr5mHLi3mXTTu3UBQzo8='",
             # dynamic-dropdown-search
@@ -331,6 +333,8 @@ CONTENT_SECURITY_POLICY = {
             "'sha256-YMwcMhkQEhelu2MNRsvB812jMqT/aeLHlLUJ29T7cIw='",
             # searchable_select
             "'sha256-IL1hz2/N+U3AfZl4hpFU67bVZRJMRelB0bv2EuHWiXQ='",
+            # searchable_select
+            "'sha256-uom/SHkGTVCPyfBOrsyJTOYvycWFrn8ZebdS4FFbRK0='",
             # multi_value_text_input
             "'sha256-KJRquMJXXF1tDkb5gTZTpZ0Jr5mHLi3mXTTu3UBQzo8='",
             # dynamic-dropdown-search

@@ -228,6 +228,7 @@ class AccommodationRequestDetailOverviewTestCase(
                     "unassigned-accommodation-requests:assign-local-authority",
                     args=[ar.id],
                 )
+                + "?reset=true"
             ),
             self.get_lower_tier_local_authority_value(ar),
         )

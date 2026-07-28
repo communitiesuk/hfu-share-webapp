@@ -216,7 +216,7 @@ class UnassignedAccommodationRequestsListView(
 
 class AssignLocalAuthorityFormSteps(StrEnum):
     REGION = "region"
-    LOCAL_AUTHORITY = "local_authority"
+    LOCAL_AUTHORITY = "local-authority"
 
 
 ASSIGN_LOCAL_AUTHORITY_FORMS = [
@@ -256,6 +256,9 @@ class AssignLocalAuthorityFormWizard(
     def get(self, *args, **kwargs):
         if self.object.ltla_name:
             return HttpResponse(status=409)
+
+        if "reset" in self.request.GET:
+            self.storage.reset()
 
         return super().get(*args, **kwargs)
 

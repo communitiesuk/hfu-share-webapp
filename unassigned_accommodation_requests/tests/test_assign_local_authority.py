@@ -1,9 +1,14 @@
+import base64
+import hashlib
+import re
+
 from django.test import TestCase
 from django.urls import reverse
 
 from accounts.enums import GroupType
 from accounts.tests.base import TestSessionTokenMixin
 from accounts.tests.factories import GroupInfoFactory
+from case_management.settings import CONTENT_SECURITY_POLICY
 from ontology.models import MvAccommodationRequest
 from ontology.tests.factories import MvAccommodationRequestFactory as AccReqFactory
 from unassigned_accommodation_requests.views import AssignLocalAuthorityFormSteps
@@ -50,12 +55,12 @@ class AssignLocalAuthorityFormTestCase(TestSessionTokenMixin, TestCase):
             ltla_name="Welsh LTLA",
         )
 
-    def get_form(self, accommodation_request=None):
+    def get_form(self, accommodation_request=None, query_string=""):
         url = reverse(
             "unassigned-accommodation-requests:assign-local-authority",
             args=[(accommodation_request or self.unassigned_ar).id],
         )
-        return self.client.get(url, follow=True)
+        return self.client.get(url + query_string, follow=True)
 
     def post_step(self, step, data, accommodation_request=None):
         ar = accommodation_request or self.unassigned_ar
@@ -80,7 +85,7 @@ class AssignLocalAuthorityFormTestCase(TestSessionTokenMixin, TestCase):
     def post_local_authority(self, local_authority, accommodation_request=None):
         return self.post_step(
             AssignLocalAuthorityFormSteps.LOCAL_AUTHORITY,
-            {"local_authority-local_authority": local_authority},
+            {"local-authority-local_authority": local_authority},
             accommodation_request,
         )
 
@@ -186,6 +191,25 @@ class AssignLocalAuthorityFormTestCase(TestSessionTokenMixin, TestCase):
         self.assertNotIn(self.welsh_la, local_authorities)
         self.assertNotIn(self.english_utla, local_authorities)
 
+    def test_local_authority_search_script_is_allowed_by_the_content_security_policy(
+        self,
+    ):
+        self.client.force_login(get_mhclg_user())
+
+        html = self.post_region("England").content.decode()
+        scripts = [
+            script
+            for script in re.findall(r"<script[^>]*>(.*?)</script>", html, re.DOTALL)
+            if "accessibleAutocomplete" in script
+        ]
+
+        self.assertEqual(len(scripts), 1)
+        digest = base64.b64encode(hashlib.sha256(scripts[0].encode()).digest()).decode()
+        self.assertIn(
+            f"'sha256-{digest}'",
+            CONTENT_SECURITY_POLICY["DIRECTIVES"]["script-src"],
+        )
+
     def test_local_authority_step_labels_las_as_in_the_reassignment_flow(self):
         self.client.force_login(get_mhclg_user())
 
@@ -218,5 +242,41 @@ class AssignLocalAuthorityFormTestCase(TestSessionTokenMixin, TestCase):
             reverse(
                 "accommodation-requests:detail-overview",
                 args=[self.unassigned_ar.id],
+            ),
+        )
+
+    def test_re_entering_the_form_with_reset_starts_from_the_region_step(self):
+        self.client.force_login(get_mhclg_user())
+        self.post_region("England")
+
+        response = self.get_form(query_string="?reset=true")
+
+        self.assertRedirects(
+            response,
+            reverse(
+                "unassigned-accommodation-requests:assign-local-authority-step",
+                kwargs={
+                    "pk": self.unassigned_ar.id,
+                    "step": AssignLocalAuthorityFormSteps.REGION,
+                },
+            )
+            + "?reset=true",
+        )
+        self.assertIsNone(response.context["form"].initial.get("region"))
+
+    def test_re_entering_the_form_without_reset_keeps_the_answers(self):
+        self.client.force_login(get_mhclg_user())
+        self.post_region("England")
+
+        response = self.get_form()
+
+        self.assertRedirects(
+            response,
+            reverse(
+                "unassigned-accommodation-requests:assign-local-authority-step",
+                kwargs={
+                    "pk": self.unassigned_ar.id,
+                    "step": AssignLocalAuthorityFormSteps.LOCAL_AUTHORITY,
+                },
             ),
         )
