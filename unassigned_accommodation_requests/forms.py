@@ -18,7 +18,7 @@ class AssignLocalAuthorityFormSelectRegionStep(forms.Form):
             ("Northern Ireland", "Northern Ireland"),
             ("Wales", "Wales"),
         ],
-        label="Region",
+        label="Select region",
         help_text="You will select a local authority at the next step.",
         widget=forms.RadioSelect(),
         error_messages={

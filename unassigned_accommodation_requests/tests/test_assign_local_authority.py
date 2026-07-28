@@ -124,7 +124,7 @@ class AssignLocalAuthorityFormTestCase(TestSessionTokenMixin, TestCase):
 
         response = self.get_form()
 
-        self.assertContains(response, "Region")
+        self.assertContains(response, "Select region")
         self.assertContains(
             response, "You will select a local authority at the next step."
         )
