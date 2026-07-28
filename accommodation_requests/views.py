@@ -64,6 +64,9 @@ from ontology.models import (
     SafeguardingNotification,
 )
 from safeguarding.views import get_safeguarding_checks_summary_list_items
+from unassigned_accommodation_requests.constants import (
+    UNASSIGNED_ACCOMMODATION_REQUESTS_GROUP_TYPES,
+)
 from webapp.constants import (
     ACCOMMODATION_REQUEST_SEARCH_FIELDS,
     ACCOMMODATION_SEARCH_FIELDS,
@@ -433,7 +436,7 @@ class AccommodationRequestDetailOverviewView(
             ),
             (
                 "Lower tier Local Authority",
-                ar.get_all_ltla_names(),
+                ar.get_all_ltla_names() or self.get_assign_to_la_link(),
             ),
             (
                 "Upper tier Local Authority",
@@ -455,6 +458,22 @@ class AccommodationRequestDetailOverviewView(
             ),
         ]
         return context
+
+    def get_assign_to_la_link(self):
+        if not self.user_can_edit(
+            group_types=UNASSIGNED_ACCOMMODATION_REQUESTS_GROUP_TYPES
+        ):
+            return None
+
+        return format_html(
+            '<a class="govuk-link govuk-link--no-visited-state" href="{}">'
+            "Assign to LA"
+            "</a>",
+            reverse(
+                "unassigned-accommodation-requests:assign-to-local-authority",
+                kwargs={"pk": self.object.id},
+            ),
+        )
 
 
 class AccommodationRequestDetailActionsView(

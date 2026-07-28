@@ -6,7 +6,12 @@ from accommodation_requests.tests.base import AccommodationRequestsBaseTestCase
 from accounts.tests.base import TestSessionTokenMixin
 from ontology.models import MvAccommodationRequest
 from ontology.tests.factories import MvAccommodationRequestFactory as AccReqFactory
-from user_management.tests.base import get_admin_user, get_la_user
+from user_management.tests.base import (
+    get_admin_user,
+    get_la_user,
+    get_mhclg_user,
+    get_service_support_user,
+)
 
 
 class AccommodationRequestDetailOverviewTestCase(
@@ -198,3 +203,54 @@ class AccommodationRequestDetailOverviewTestCase(
 
         self.assertIn("Host", fields)
         self.assertIn(self.sponsor_2.get_full_name(), fields["Host"])
+
+    def get_lower_tier_local_authority_value(self, ar):
+        response = self.client.get(
+            reverse(
+                "accommodation-requests:detail-overview",
+                args=[ar.id],
+            )
+        )
+        return dict(response.context["fields"])["Lower tier Local Authority"]
+
+    def test_overview_links_to_the_assign_to_la_form_when_there_is_no_ltla(self):
+        ar = AccReqFactory(
+            title="Test Access Request",
+            checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
+        )
+
+        self.client.force_login(get_mhclg_user())
+
+        self.assertInHTML(
+            '<a class="govuk-link govuk-link--no-visited-state" href="{}">'
+            "Assign to LA</a>".format(
+                reverse(
+                    "unassigned-accommodation-requests:assign-to-local-authority",
+                    args=[ar.id],
+                )
+            ),
+            self.get_lower_tier_local_authority_value(ar),
+        )
+
+    def test_overview_has_no_assign_to_la_link_when_the_ltla_is_set(self):
+        ar = AccReqFactory(
+            title="Test Access Request",
+            checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
+            ltla_name=["ltla_somerset"],
+        )
+
+        self.client.force_login(get_mhclg_user())
+
+        self.assertEqual(
+            ["ltla_somerset"], self.get_lower_tier_local_authority_value(ar)
+        )
+
+    def test_overview_has_no_assign_to_la_link_for_users_who_cannot_assign(self):
+        ar = AccReqFactory(
+            title="Test Access Request",
+            checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
+        )
+
+        self.client.force_login(get_service_support_user())
+
+        self.assertIsNone(self.get_lower_tier_local_authority_value(ar))
