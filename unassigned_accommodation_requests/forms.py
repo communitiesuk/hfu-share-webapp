@@ -52,7 +52,7 @@ class AssignLocalAuthorityFormSelectLocalAuthorityStep(forms.Form):
         queryset=GroupInfo.objects.none(),
         to_field_name="ltla_name",
         empty_label="",
-        label="Local authority",
+        label="Select local authority",
         widget=SearchableSelect(),
         error_messages={
             "required": "You must select a local authority.",

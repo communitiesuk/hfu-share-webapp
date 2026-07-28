@@ -179,7 +179,7 @@ class AssignLocalAuthorityFormTestCase(TestSessionTokenMixin, TestCase):
                 },
             ),
         )
-        self.assertContains(response, "Local authority")
+        self.assertContains(response, "Select local authority")
 
     def test_local_authority_step_only_offers_las_in_the_selected_region(self):
         self.client.force_login(get_mhclg_user())
