@@ -38,7 +38,10 @@ from webapp.search import perform_search
 from webapp.utils import CustomDateColumn
 
 from .constants import UNASSIGNED_ACCOMMODATION_REQUESTS_GROUP_TYPES
-from .forms import AssignToLocalAuthorityFormSelectRegionStep
+from .forms import (
+    AssignToLocalAuthorityFormSelectLocalAuthorityStep,
+    AssignToLocalAuthorityFormSelectRegionStep,
+)
 
 
 def is_hidden(record: MvAccommodationRequest) -> bool:
@@ -213,12 +216,17 @@ class UnassignedAccommodationRequestsListView(
 
 class AssignToLocalAuthorityFormSteps(StrEnum):
     REGION = "region"
+    LOCAL_AUTHORITY = "local_authority"
 
 
 ASSIGN_TO_LOCAL_AUTHORITY_FORMS = [
     (
         AssignToLocalAuthorityFormSteps.REGION,
         AssignToLocalAuthorityFormSelectRegionStep,
+    ),
+    (
+        AssignToLocalAuthorityFormSteps.LOCAL_AUTHORITY,
+        AssignToLocalAuthorityFormSelectLocalAuthorityStep,
     ),
 ]
 
@@ -256,6 +264,18 @@ class AssignToLocalAuthorityFormWizard(
             return HttpResponse(status=409)
 
         return super().post(*args, **kwargs)
+
+    def get_form_kwargs(self, step=None):
+        kwargs = super().get_form_kwargs(step)
+
+        if step == AssignToLocalAuthorityFormSteps.LOCAL_AUTHORITY:
+            region_data = (
+                self.get_cleaned_data_for_step(AssignToLocalAuthorityFormSteps.REGION)
+                or {}
+            )
+            kwargs["region"] = region_data.get("region")
+
+        return kwargs
 
     def get_step_url(self, step):
         return reverse(self.url_name, kwargs={"step": step, "pk": self.object.pk})
