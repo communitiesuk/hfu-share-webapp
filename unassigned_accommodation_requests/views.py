@@ -4,6 +4,8 @@ from enum import StrEnum
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import Field, Fieldset, Layout
 from crispy_forms_gds.layout.constants import Size
+from django.contrib import messages
+from django.db import DatabaseError, IntegrityError, transaction
 from django.db.models import Exists, F, OuterRef, Q, Subquery
 from django.forms import CheckboxInput
 from django.http import HttpResponse
@@ -11,6 +13,8 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+from django.views import View
+from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.detail import SingleObjectMixin
 from django_filters import (
     BooleanFilter,
@@ -27,7 +31,12 @@ from django_tables2 import (
 )
 from formtools.wizard.views import NamedUrlSessionWizardView
 
-from ontology.models import MvAccommodation, MvAccommodationRequest, MvVolunteer
+from ontology.models import (
+    HiddenUnassignedAccommodationRequest,
+    MvAccommodation,
+    MvAccommodationRequest,
+    MvVolunteer,
+)
 from webapp.constants import ACCOMMODATION_REQUEST_SEARCH_FIELDS
 from webapp.mixins import (
     FilterPanelMixin,
@@ -64,7 +73,7 @@ class UnassignedAccommodationRequestsTable(tables.Table):
     )
     hide = Column(
         verbose_name=mark_safe('<span class="govuk-visually-hidden">Actions</span>'),
-        empty_values=(),
+        accessor="id",
         orderable=False,
     )
 
@@ -89,11 +98,15 @@ class UnassignedAccommodationRequestsTable(tables.Table):
             value,
         )
 
-    def render_hide(self, record):
+    def render_hide(self, record: MvAccommodationRequest):
         label = "Unhide" if is_hidden(record) else "Hide"
-        # No href until hiding is implemented, so the link cannot be actioned
         return format_html(
-            '<a class="govuk-body-s govuk-link" aria-disabled="true">{}</a>',
+            '<a class="govuk-body-s govuk-link govuk-link--no-visited-state" '
+            'href="{}">{}</a>',
+            reverse(
+                "unassigned-accommodation-requests:hide",
+                args=[record.id],
+            ),
             label,
         )
 
@@ -196,6 +209,7 @@ class UnassignedAccommodationRequestsListView(
                 & (Q(utla_name__len=0) | Q(utla_name__isnull=True))
             )
             .exclude(Exists(super_sponsors))
+            .exclude(hidden_unassigned_record__isnull=False)
             .annotate(
                 address_sort_value=Subquery(accommodations.values("full_address")[:1]),
                 postcode_sort_value=Subquery(
@@ -212,6 +226,43 @@ class UnassignedAccommodationRequestsListView(
                 "primary_accommodation_id",
             )
         )
+
+
+class HideUnassignedAccommodationRequestView(
+    PermissionsMixin, SingleObjectMixin, TemplateResponseMixin, View
+):
+    group_type = UNASSIGNED_ACCOMMODATION_REQUESTS_GROUP_TYPES
+    model = MvAccommodationRequest
+    template_name = "unassigned_accommodation_requests/hide_confirm_page.html"
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.object = None
+
+    def get_success_url(self):
+        return reverse(
+            "unassigned-accommodation-requests:unassigned-accommodation-requests"
+        )
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return self.render_to_response(
+            {"object": self.object, "cancel_url": self.get_success_url()}
+        )
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        try:
+            with transaction.atomic():
+                HiddenUnassignedAccommodationRequest.objects.create(
+                    accommodation_request=self.object,
+                    hidden_by=request.user,
+                )
+        except (IntegrityError, DatabaseError):
+            messages.error(request, "The record has not been hidden.")
+        else:
+            messages.success(request, "The accommodation request has been hidden.")
+        return redirect(self.get_success_url())
 
 
 class AssignLocalAuthorityFormSteps(StrEnum):

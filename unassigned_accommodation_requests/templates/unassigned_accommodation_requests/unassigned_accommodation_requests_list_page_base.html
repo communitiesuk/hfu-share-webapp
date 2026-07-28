@@ -3,6 +3,34 @@
     <li class="govuk-breadcrumbs__list-item">Manage unassigned accommodation requests</li>
 {% endblock breadcrumb_content %}
 {% block content %}
+    {% for message in messages %}
+        {% if 'error' in message.tags %}
+            <div class="govuk-error-summary"
+                 data-module="govuk-error-summary"
+                 role="alert"
+                 tabindex="-1">
+                <h2 class="govuk-error-summary__title">There is a problem</h2>
+                <div class="govuk-error-summary__body">
+                    <ul class="govuk-list govuk-error-summary__list">
+                        <li>{{ message }}</li>
+                    </ul>
+                </div>
+            </div>
+        {% else %}
+            <div class="govuk-notification-banner govuk-notification-banner--success"
+                 role="region"
+                 aria-labelledby="govuk-notification-banner-title"
+                 data-module="govuk-notification-banner">
+                <div class="govuk-notification-banner__header">
+                    <h2 class="govuk-notification-banner__title"
+                        id="govuk-notification-banner-title">Success</h2>
+                </div>
+                <div class="govuk-notification-banner__content">
+                    <p class="govuk-notification-banner__heading">{{ message }}</p>
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}
     {% include "webapp/components/heading/heading.html" with page_heading="Manage unassigned accommodation requests" %}
     <p class="govuk-body">
         Move guests to the correct local authority from the 'actions' tab of the accommodation request (AR).
