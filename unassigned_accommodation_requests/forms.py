@@ -26,8 +26,7 @@ class AssignToLocalAuthorityFormSelectRegionStep(forms.Form):
         self.helper.form_tag = False
         self.helper.disable_csrf = True
         self.helper.layout = Layout(
-            HTML.h2("Assign to local authority"),
-            Field.radios("region", legend_size=Size.MEDIUM),
+            Field.radios("region", legend_size=Size.LARGE),
             Div(
                 Button.primary("button", "Continue"),
                 HTML(

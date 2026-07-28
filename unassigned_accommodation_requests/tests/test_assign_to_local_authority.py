@@ -90,7 +90,6 @@ class AssignToLocalAuthorityFormTestCase(TestSessionTokenMixin, TestCase):
 
         response = self.get_form()
 
-        self.assertContains(response, "Assign to local authority")
         self.assertContains(response, "Region")
         self.assertContains(
             response, "You will select a local authority at the next step."
@@ -111,7 +110,7 @@ class AssignToLocalAuthorityFormTestCase(TestSessionTokenMixin, TestCase):
 
         response = self.get_form()
 
-        self.assertContains(response, "Assign guests to LA")
+        self.assertContains(response, "Assign to local authority for")
         self.assertContains(response, "Unassigned record")
 
     def test_records_already_assigned_to_a_local_authority_cannot_be_assigned(self):
