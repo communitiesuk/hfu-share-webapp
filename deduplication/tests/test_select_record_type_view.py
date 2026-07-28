@@ -15,6 +15,40 @@ from user_management.tests.base import (
 
 
 class DeduplicationSponsorSelectedViewTests(TestSessionTokenMixin, TestCase):
+    def test_page_title(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("deduplication:select-record-type"))
+        self.assertEqual(
+            response.context["TITLE"],
+            "Fix duplicate records - Share Homes for Ukraine data",
+        )
+
+    def test_page_title_per_record_type(self):
+        record_types_and_titles = [
+            ("accommodations", "Fix duplicate accommodation records"),
+            ("guests", "Fix duplicate guest records"),
+            ("sponsors", "Fix duplicate sponsor records"),
+        ]
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        for record_type, expected_title in record_types_and_titles:
+            with self.subTest(record_type=record_type):
+                response = self.client.get(
+                    reverse(
+                        f"deduplication:{record_type}:"
+                        "select-and-review-records-manual-step",
+                        kwargs={"step": "select-record"},
+                    ),
+                    follow=True,
+                )
+                self.assertEqual(
+                    response.context["TITLE"],
+                    f"{expected_title} - Share Homes for Ukraine data",
+                )
+
     def test_dev_user_can_access_view(self):
         user = get_admin_user()
         self.client.force_login(user)

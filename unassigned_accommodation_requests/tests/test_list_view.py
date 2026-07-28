@@ -244,6 +244,15 @@ class UnassignedAccommodationRequestListViewTestCase(TestSessionTokenMixin, Test
         self.assertNotIn("Test Three", self.get_displayed_titles())
         self.assertIn("Test Four", self.get_displayed_titles())
 
+    def test_page_title(self):
+        self.client.force_login(get_admin_user())
+
+        self.assertEqual(
+            self.get_page().context["TITLE"],
+            "Manage unassigned accommodation requests: List view "
+            "- Share Homes for Ukraine data",
+        )
+
     def test_admin_users_can_access(self):
         self.client.force_login(get_admin_user())
 

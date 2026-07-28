@@ -74,10 +74,17 @@ def apply_service_name(title: str, service_name: str) -> str:
 def get_section_title(resolver_match: ResolverMatch) -> str:
     TITLE_MAP = {
         "sponsors": "Sponsors and hosts",
-        "download": "Download data",
+        "downloads": "Download data",
         "safeguarding": "Escalated checks",
         "uams": "UAMs",
         "user-management": "Request access",
+        "unassigned-accommodation-requests": (
+            "Manage unassigned accommodation requests"
+        ),
+        "deduplication": "Fix duplicate records",
+        "deduplication:accommodations": "Fix duplicate accommodation records",
+        "deduplication:guests": "Fix duplicate guest records",
+        "deduplication:sponsors": "Fix duplicate sponsor records",
     }
 
     app_name = resolver_match.app_name
@@ -93,6 +100,11 @@ def get_section_title(resolver_match: ResolverMatch) -> str:
 
     if app_name in TITLE_MAP:
         return TITLE_MAP[app_name]
+
+    # nested namespaces without their own entry take the root app title
+    root_app_name = app_name.split(":")[0]
+    if root_app_name in TITLE_MAP:
+        return TITLE_MAP[root_app_name]
 
     # webapp.routes will act as section titles
     if app_name == "webapp":

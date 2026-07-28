@@ -8,6 +8,17 @@ from user_management.tests.base import get_admin_user, get_da_user, get_la_user
 
 
 class DownloadsViewGeneralTestCase(TestSessionTokenMixin, TestCase):
+    def test_page_title(self):
+        user = get_la_user()
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("downloads:download-page"))
+
+        self.assertEqual(
+            response.context["TITLE"],
+            "Download data - Share Homes for Ukraine data",
+        )
+
     def test_download_view_loads_correctly_for_la_user(self):
         user = get_la_user()
         self.client.force_login(user)
