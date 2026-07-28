@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from typing import Any
 
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import Field, Fieldset, Layout
+from crispy_forms_gds.layout import Field, Layout
 from crispy_forms_gds.layout.constants import Size
 from django.contrib import messages
 from django.db.models import QuerySet
@@ -820,7 +820,7 @@ class VIRFilter(FilterSet, FilterPanelMixin):
     )
 
     requested_at = CustomDateFromToRangeFilter(
-        label="",
+        label="VIR start date",
         field_name="requested_at",
         widget=StackedRangeInput(
             sub_widget=DatePicker,
@@ -888,10 +888,11 @@ class VIRFilter(FilterSet, FilterPanelMixin):
                 "visa_application__visa_status",
                 context={"label_size": "govuk-fieldset__legend--m"},
             ),
-            Fieldset(
+            Field(
                 "requested_at",
-                legend="VIR start date",
-                legend_size="m",
+                context={
+                    "legend_size": "govuk-fieldset__legend--m",
+                },
             ),
             Field(
                 "ltla_name",
