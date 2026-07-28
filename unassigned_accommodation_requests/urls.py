@@ -33,5 +33,5 @@ urlpatterns = [
         "<str:pk>/hide/",
         HideUnassignedAccommodationRequestView.as_view(),
         name="hide",
-    )
+    ),
 ]

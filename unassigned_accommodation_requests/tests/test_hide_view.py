@@ -118,12 +118,12 @@ class HideUnassignedAccommodationRequestTests(TestSessionTokenMixin, TestCase):
 
         self.assertEqual(response.status_code, http.client.OK)
 
-    def test_service_support_user_can_access(self):
+    def test_service_support_user_cannot_access(self):
         self.client.force_login(get_service_support_user())
 
         response = self.client.get(reverse(HIDE_URL_NAME, args=[self.ar.id]))
 
-        self.assertEqual(response.status_code, http.client.OK)
+        self.assertEqual(response.status_code, http.client.NOT_FOUND)
 
     def test_la_user_cannot_access(self):
         self.client.force_login(get_la_user())

@@ -7,7 +7,6 @@ from crispy_forms_gds.layout.constants import Size
 from django.contrib import messages
 from django.db import DatabaseError, IntegrityError, transaction
 from django.db.models import Exists, F, OuterRef, Q, Subquery
-from django.shortcuts import redirect
 from django.forms import CheckboxInput
 from django.http import HttpResponse
 from django.shortcuts import redirect
@@ -15,8 +14,6 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.views import View
 from django.views.generic.base import TemplateResponseMixin
-from django.views.generic.detail import SingleObjectMixin
-from django.utils.safestring import mark_safe
 from django.views.generic.detail import SingleObjectMixin
 from django_filters import (
     BooleanFilter,
@@ -37,6 +34,7 @@ from ontology.models import (
     HiddenUnassignedAccommodationRequest,
     MvAccommodation,
     MvAccommodationRequest,
+    MvVolunteer,
 )
 from webapp.constants import ACCOMMODATION_REQUEST_SEARCH_FIELDS
 from webapp.mixins import (
@@ -230,11 +228,7 @@ class UnassignedAccommodationRequestsListView(
 class HideUnassignedAccommodationRequestView(
     PermissionsMixin, SingleObjectMixin, TemplateResponseMixin, View
 ):
-    group_type = [
-        GroupType.DEV,
-        GroupType.MHCLG,
-        GroupType.SERVICE_SUPPORT,
-    ]
+    group_type = UNASSIGNED_ACCOMMODATION_REQUESTS_GROUP_TYPES
     model = MvAccommodationRequest
     template_name = "unassigned_accommodation_requests/hide_confirm_page.html"
 
