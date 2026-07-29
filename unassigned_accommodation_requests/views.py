@@ -134,12 +134,22 @@ class UnassignedAccommodationRequestsFilter(FilterSet, FilterPanelMixin):
     hidden_records = BooleanFilter(
         label="Hidden records",
         widget=CheckboxInput(attrs={"value": "Show hidden records"}),
-        method="include_hidden_filter",
+        method=lambda qs, name, value: qs,
     )
 
-    def include_hidden_filter(self, queryset, _, value):
-        """Stub until the hidden records table exists."""
-        return queryset
+    @property
+    def qs(self):
+        qs = super().qs
+
+        if self.form.is_valid():
+            show_hidden = self.form.cleaned_data.get("hidden_records")
+        else:
+            show_hidden = False
+
+        if not show_hidden:
+            qs = qs.filter(hidden_unassigned_record__isnull=True)
+
+        return qs
 
     def search_filter(self, queryset, _, value):
         return perform_search(value, queryset, ACCOMMODATION_REQUEST_SEARCH_FIELDS)
@@ -211,7 +221,6 @@ class UnassignedAccommodationRequestsListView(
                 & (Q(utla_name__len=0) | Q(utla_name__isnull=True))
             )
             .exclude(Exists(super_sponsors))
-            .exclude(hidden_unassigned_record__isnull=False)
             .annotate(
                 address_sort_value=Subquery(accommodations.values("full_address")[:1]),
                 postcode_sort_value=Subquery(
