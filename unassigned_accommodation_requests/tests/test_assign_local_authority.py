@@ -6,10 +6,12 @@ from django.test import TestCase
 from django.urls import reverse
 
 from accounts.enums import GroupType
+from accounts.models import GroupInfo
 from accounts.tests.base import TestSessionTokenMixin
 from accounts.tests.factories import GroupInfoFactory
 from case_management.settings import CONTENT_SECURITY_POLICY
-from ontology.models import MvAccommodationRequest
+from ontology.models import MvAccommodation, MvAccommodationRequest
+from ontology.tests.factories import MvAccommodationFactory, VisaApplicationFactory
 from ontology.tests.factories import MvAccommodationRequestFactory as AccReqFactory
 from unassigned_accommodation_requests.views import AssignLocalAuthorityFormSteps
 from user_management.tests.base import (
@@ -36,24 +38,11 @@ class AssignLocalAuthorityFormTestCase(TestSessionTokenMixin, TestCase):
             ltla_name=["some_ltla"],
         )
 
-        self.english_la = GroupInfoFactory(
-            group_type=GroupType.LOCAL_AUTHORITY,
-            da_name="England",
-            is_utla=False,
-            ltla_name="English LTLA",
+        self.english_la = GroupInfo.objects.get(ltla_name="Boston", is_utla=False)
+        self.english_utla = GroupInfo.objects.get(
+            utla_name="Lincolnshire", is_utla=True
         )
-        self.english_utla = GroupInfoFactory(
-            group_type=GroupType.LOCAL_AUTHORITY,
-            da_name="England",
-            is_utla=True,
-            utla_name="English UTLA",
-        )
-        self.welsh_la = GroupInfoFactory(
-            group_type=GroupType.LOCAL_AUTHORITY,
-            da_name="Wales",
-            is_utla=False,
-            ltla_name="Welsh LTLA",
-        )
+        self.welsh_la = GroupInfo.objects.get(ltla_name="Cardiff", is_utla=False)
 
     def get_form(self, accommodation_request, query_string=""):
         url = reverse(
@@ -86,6 +75,35 @@ class AssignLocalAuthorityFormTestCase(TestSessionTokenMixin, TestCase):
             accommodation_request,
             AssignLocalAuthorityFormSteps.LOCAL_AUTHORITY,
             {"local-authority-local_authority": local_authority},
+        )
+
+    def link_records_to(
+        self,
+        accommodation_request,
+        application_numbers=("1313-0000-0133-4633", "1313-8241-0067-9315"),
+        accommodation_count=2,
+    ):
+        accommodations = [MvAccommodationFactory() for _ in range(accommodation_count)]
+
+        *listed_accommodations, primary_accommodation = accommodations
+        accommodation_request.accommodation_id = [
+            accommodation.id for accommodation in listed_accommodations
+        ]
+        accommodation_request.primary_accommodation = primary_accommodation
+        accommodation_request.unique_application_number = list(application_numbers)
+        accommodation_request.save()
+
+        visa_applications = [
+            VisaApplicationFactory(application_unique_application_number=number)
+            for number in application_numbers
+        ]
+
+        return accommodations, visa_applications
+
+    def complete_form(self, accommodation_request, local_authority):
+        self.post_region(accommodation_request, local_authority.da_name)
+        return self.post_local_authority(
+            accommodation_request, local_authority.ltla_name
         )
 
     def test_admin_users_can_access(self):
@@ -217,7 +235,7 @@ class AssignLocalAuthorityFormTestCase(TestSessionTokenMixin, TestCase):
 
         response = self.post_region(self.unassigned_ar, "England")
 
-        self.assertContains(response, "English LTLA (LTLA)")
+        self.assertContains(response, "Boston (LTLA)")
 
     def test_a_local_authority_must_be_selected(self):
         self.client.force_login(get_mhclg_user())
@@ -252,6 +270,131 @@ class AssignLocalAuthorityFormTestCase(TestSessionTokenMixin, TestCase):
                 args=[self.unassigned_ar.id],
             ),
         )
+
+    def test_completing_the_form_assigns_the_local_authority_to_the_record(self):
+        self.client.force_login(get_mhclg_user())
+
+        self.complete_form(self.unassigned_ar, self.english_la)
+
+        self.unassigned_ar.refresh_from_db()
+        self.assertEqual(self.unassigned_ar.ltla_name, ["Boston"])
+        self.assertEqual(self.unassigned_ar.utla_name, ["Lincolnshire"])
+
+    def test_completing_the_form_assigns_the_local_authority_to_the_accommodations(
+        self,
+    ):
+        self.client.force_login(get_mhclg_user())
+        accommodations, _visa_applications = self.link_records_to(self.unassigned_ar)
+
+        self.complete_form(self.unassigned_ar, self.english_la)
+
+        for accommodation in accommodations:
+            accommodation.refresh_from_db()
+            self.assertEqual(accommodation.ltla_name, "Boston")
+            self.assertEqual(accommodation.utla_name, "Lincolnshire")
+
+    def test_completing_the_form_assigns_the_local_authority_to_the_visa_applications(
+        self,
+    ):
+        self.client.force_login(get_mhclg_user())
+        _accommodations, visa_applications = self.link_records_to(self.unassigned_ar)
+
+        self.complete_form(self.unassigned_ar, self.english_la)
+
+        for visa_application in visa_applications:
+            visa_application.refresh_from_db()
+            self.assertEqual(visa_application.ltla_name, "Boston")
+            self.assertEqual(visa_application.utla_name, "Lincolnshire")
+            self.assertEqual(visa_application.country, "England")
+
+    def test_completing_the_form_assigns_every_unassigned_related_record(self):
+        self.client.force_login(get_mhclg_user())
+        accommodations, visa_applications = self.link_records_to(
+            self.unassigned_ar,
+            application_numbers=(
+                "1313-0000-0133-4633",
+                "1313-8241-0067-9315",
+                "1313-2947-1105-7360",
+            ),
+            accommodation_count=3,
+        )
+        for record in accommodations + visa_applications:
+            self.assertIsNone(record.ltla_name)
+            self.assertIsNone(record.utla_name)
+
+        self.complete_form(self.unassigned_ar, self.english_la)
+
+        for record in accommodations + visa_applications:
+            record.refresh_from_db()
+            self.assertEqual(record.ltla_name, "Boston")
+            self.assertEqual(record.utla_name, "Lincolnshire")
+
+    def test_completing_the_form_makes_locked_accommodations_editable_and_assigns_them(
+        self,
+    ):
+        self.client.force_login(get_mhclg_user())
+        accommodations, _visa_applications = self.link_records_to(self.unassigned_ar)
+        MvAccommodation.objects.filter(
+            id__in=[accommodation.id for accommodation in accommodations]
+        ).update(is_editable=False)
+
+        self.complete_form(self.unassigned_ar, self.english_la)
+
+        for accommodation in accommodations:
+            accommodation.refresh_from_db()
+            self.assertTrue(accommodation.is_editable)
+            self.assertEqual(accommodation.ltla_name, "Boston")
+            self.assertEqual(accommodation.utla_name, "Lincolnshire")
+
+    def test_completing_the_form_leaves_the_utla_empty_when_the_la_has_no_parent_utla(
+        self,
+    ):
+        self.client.force_login(get_mhclg_user())
+        la_without_utla = GroupInfoFactory(
+            group_type=GroupType.LOCAL_AUTHORITY,
+            da_name="England",
+            is_utla=False,
+            ltla_name="Orphan LTLA",
+        )
+        _accommodations, visa_applications = self.link_records_to(self.unassigned_ar)
+
+        self.complete_form(self.unassigned_ar, la_without_utla)
+
+        self.unassigned_ar.refresh_from_db()
+        self.assertEqual(self.unassigned_ar.ltla_name, ["Orphan LTLA"])
+        self.assertEqual(self.unassigned_ar.utla_name, [])
+        for visa_application in visa_applications:
+            visa_application.refresh_from_db()
+            self.assertIsNone(visa_application.utla_name)
+
+    def test_completing_the_form_leaves_records_of_other_requests_alone(self):
+        self.client.force_login(get_mhclg_user())
+        other_accommodations, other_visa_applications = self.link_records_to(
+            AccReqFactory(title="Another record"),
+            application_numbers=("1313-5079-3312-6408", "1313-6634-8850-1729"),
+        )
+        self.link_records_to(self.unassigned_ar)
+
+        self.complete_form(self.unassigned_ar, self.english_la)
+
+        for record in other_accommodations + other_visa_applications:
+            record.refresh_from_db()
+            self.assertIsNone(record.ltla_name)
+            self.assertIsNone(record.utla_name)
+
+    def test_users_without_access_cannot_submit_the_form(self):
+        self.client.force_login(get_la_user())
+        accommodations, visa_applications = self.link_records_to(self.unassigned_ar)
+
+        response = self.complete_form(self.unassigned_ar, self.english_la)
+
+        self.assertEqual(response.status_code, 404)
+        self.unassigned_ar.refresh_from_db()
+        self.assertIsNone(self.unassigned_ar.ltla_name)
+        for record in accommodations + visa_applications:
+            record.refresh_from_db()
+            self.assertIsNone(record.ltla_name)
+            self.assertIsNone(record.utla_name)
 
     def test_re_entering_the_form_with_reset_starts_from_the_region_step(self):
         self.client.force_login(get_mhclg_user())

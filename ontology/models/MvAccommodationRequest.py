@@ -7,7 +7,7 @@ from dateutil.tz import tzutc
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.contrib.postgres.expressions import ArraySubquery
 from django.contrib.postgres.fields import ArrayField
-from django.db import models
+from django.db import models, transaction
 from django.db.models import CharField, OuterRef, Q, QuerySet
 from django.db.models.expressions import Func
 from django.utils import timezone
@@ -849,6 +849,31 @@ class MvAccommodationRequest(models.Model):
     @cached_property
     def accommodations(self) -> list[MvAccommodation]:
         return list(self.get_accommodations().select_related("postcode").order_by("id"))
+
+    @transaction.atomic
+    def assign_local_authority(self, local_authority: GroupInfo) -> None:
+        ltla_name = local_authority.ltla_name
+        utla_name = local_authority.utla_name
+
+        self.ltla_name = [ltla_name]
+        self.utla_name = [utla_name] if utla_name else []
+        self.save()
+
+        VisaApplication.objects.filter(
+            application_unique_application_number__in=(
+                self.unique_application_number or []
+            )
+        ).update(
+            ltla_name=ltla_name,
+            utla_name=utla_name,
+            country=local_authority.da_name,
+        )
+
+        for accommodation in self.get_accommodations():
+            accommodation.ltla_name = ltla_name
+            accommodation.utla_name = utla_name
+            accommodation.is_editable = True
+            accommodation.save()
 
     def get_accommodations_restrict_for_user(self, user: User) -> Q(MvAccommodation):
         accommodations_ids = self.get_accommodation_ids()
