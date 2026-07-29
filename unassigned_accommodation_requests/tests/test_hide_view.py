@@ -6,6 +6,9 @@ from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
 from ontology.models import HiddenUnassignedAccommodationRequest
+from ontology.tests.factories import (
+    HiddenUnassignedAccommodationRequestFactory as HiddenUnassignedAccReqFactory,
+)
 from ontology.tests.factories import MvAccommodationRequestFactory as AccReqFactory
 from user_management.tests.base import (
     get_admin_user,
@@ -73,9 +76,7 @@ class HideUnassignedAccommodationRequestTests(TestSessionTokenMixin, TestCase):
         user = get_admin_user()
         self.client.force_login(user)
 
-        HiddenUnassignedAccommodationRequest.objects.create(
-            accommodation_request=self.ar, hidden_by=user
-        )
+        HiddenUnassignedAccReqFactory(accommodation_request=self.ar, hidden_by=user)
 
         response = self.client.get(reverse(LIST_URL_NAME))
 
@@ -85,9 +86,7 @@ class HideUnassignedAccommodationRequestTests(TestSessionTokenMixin, TestCase):
         user = get_admin_user()
         self.client.force_login(user)
 
-        HiddenUnassignedAccommodationRequest.objects.create(
-            accommodation_request=self.ar, hidden_by=user
-        )
+        HiddenUnassignedAccReqFactory(accommodation_request=self.ar, hidden_by=user)
 
         response = self.client.post(
             reverse(HIDE_URL_NAME, args=[self.ar.id]),
