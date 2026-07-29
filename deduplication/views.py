@@ -96,6 +96,36 @@ def non_principal_records_error_message(record_names: List[str]) -> str:
     )
 
 
+def deduplicate_record_success_message(
+    record_type: str, url: str, link_text: str
+) -> str:
+    return str(
+        render_to_string(
+            "deduplicate_record_success_message.html",
+            {"record_type": record_type, "url": url, "link_text": link_text},
+        )
+    )
+
+
+def undo_deduplicate_record_success_message(
+    record_type: str,
+    number_of_records: int,
+    record_list: str,
+    principal_record_name: str,
+) -> str:
+    return str(
+        render_to_string(
+            "undo_deduplicate_record_success_message.html",
+            {
+                "record_type": record_type,
+                "number_of_records": number_of_records,
+                "record_list": record_list,
+                "principal_record_name": principal_record_name,
+            },
+        )
+    )
+
+
 class SelectAndReviewRecordsStep(StrEnum):
     SELECT_RECORD = "select-record"
     VIEW_SELECTED_RECORDS = "view-selected-records"
@@ -2313,6 +2343,7 @@ class UndoDeduplicationRecordsFormWizard(
 # Sponsors
 class SelectAndReviewSponsorRecordsFormWizard(SelectAndViewRecordsFormWizard):
     model = MvVolunteer
+    record_type = "sponsor and host"
 
     def get_group_type(self):
         if settings.FIX_DUPLICATE_RECORDS_ENABLED:
@@ -2375,7 +2406,7 @@ class SelectAndReviewSponsorRecordsFormWizard(SelectAndViewRecordsFormWizard):
         context["cancel_url"] = self.get_cancel_url()
         context["table_template_url"] = "sponsors/sponsors_list.html"
 
-        context["type"] = "sponsor and host"
+        context["type"] = self.record_type
 
         if data := self.get_cleaned_data_for_step(
             SelectAndReviewRecordsStep.SELECT_RECORD
@@ -2499,16 +2530,15 @@ class SelectAndReviewSponsorRecordsFormWizard(SelectAndViewRecordsFormWizard):
 
             messages.success(
                 self.request,
-                f"{
-                    format_html(
-                        '<a class="govuk-body govuk-link" href="{url}">{value}</a>',
-                        url=reverse(
-                            'sponsors:detail-overview',
-                            args=[dedup_sponsor_group.principal_record.id],
-                        ),
-                        value=dedup_sponsor_group.principal_record.full_name,
-                    )
-                }",
+                deduplicate_record_success_message(
+                    record_type=self.record_type,
+                    url=reverse(
+                        "sponsors:detail-overview",
+                        args=[dedup_sponsor_group.principal_record.id],
+                    ),
+                    link_text=dedup_sponsor_group.principal_record.full_name,
+                ),
+                extra_tags="html_safe",
             )
         except Exception as e:
             logger.exception("Sponsor Deduplication Error: %s", e)
@@ -2667,13 +2697,19 @@ class UndoDeduplicationSponsorRecordsFormWizard(UndoDeduplicationRecordsFormWiza
             self.get_undo_deduplicate_records_step_view().request = self.request
             context |= self.get_undo_deduplicate_records_step_view().get_context_data()
 
-            context["principal_record_name"] = deduplication_data["principal_name"]
             context["deduplicated_record_data"] = deduplication_data[
                 "deduplicated_sponsor_data"
             ]
-            context["deduplicated_records_names_list_formatted"] = deduplication_data[
-                "formatted_deduplicated_sponsors"
-            ]
+            messages.success(
+                self.request,
+                undo_deduplicate_record_success_message(
+                    record_type=context["type"],
+                    number_of_records=len(context["deduplicated_record_data"]),
+                    record_list=deduplication_data["formatted_deduplicated_sponsors"],
+                    principal_record_name=deduplication_data["principal_name"],
+                ),
+                extra_tags="html_safe",
+            )
 
         return context
 
@@ -2708,6 +2744,7 @@ class UndoDeduplicationSponsorRecordsFormWizard(UndoDeduplicationRecordsFormWiza
 class SelectAndReviewGuestRecordsFormWizard(SelectAndViewRecordsFormWizard):
     model = MvPerson
     group_type = [GroupType.DEV]
+    record_type = "guest"
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -2785,7 +2822,7 @@ class SelectAndReviewGuestRecordsFormWizard(SelectAndViewRecordsFormWizard):
         context["cancel_url"] = self.get_cancel_url()
         context["table_template_url"] = "guests/guests_list.html"
 
-        context["type"] = "guest"
+        context["type"] = self.record_type
 
         if data := self.get_cleaned_data_for_step(
             SelectAndReviewRecordsStep.SELECT_RECORD
@@ -2946,16 +2983,15 @@ class SelectAndReviewGuestRecordsFormWizard(SelectAndViewRecordsFormWizard):
 
             messages.success(
                 self.request,
-                f"{
-                    format_html(
-                        '<a class="govuk-body govuk-link" href="{url}">{value}</a>',
-                        url=reverse(
-                            'guests:detail-overview',
-                            args=[dedup_guest_group.principal_record.id],
-                        ),
-                        value=dedup_guest_group.principal_record.get_full_name(),
-                    )
-                }",
+                deduplicate_record_success_message(
+                    record_type=self.record_type,
+                    url=reverse(
+                        "guests:detail-overview",
+                        args=[dedup_guest_group.principal_record.id],
+                    ),
+                    link_text=dedup_guest_group.principal_record.get_full_name(),
+                ),
+                extra_tags="html_safe",
             )
         except Exception as e:
             logger.exception("Guest Deduplication Error: %s", e)
@@ -3113,13 +3149,19 @@ class UndoDeduplicationGuestRecordsFormWizard(UndoDeduplicationRecordsFormWizard
             self.get_undo_deduplicate_records_step_view().request = self.request
             context |= self.get_undo_deduplicate_records_step_view().get_context_data()
 
-            context["principal_record_name"] = deduplication_data["principal_name"]
             context["deduplicated_record_data"] = deduplication_data[
                 "deduplicated_guest_data"
             ]
-            context["deduplicated_records_names_list_formatted"] = deduplication_data[
-                "formatted_deduplicated_guests"
-            ]
+            messages.success(
+                self.request,
+                undo_deduplicate_record_success_message(
+                    record_type=context["type"],
+                    number_of_records=len(context["deduplicated_record_data"]),
+                    record_list=deduplication_data["formatted_deduplicated_guests"],
+                    principal_record_name=deduplication_data["principal_name"],
+                ),
+                extra_tags="html_safe",
+            )
 
         return context
 
@@ -3155,6 +3197,7 @@ class UndoDeduplicationGuestRecordsFormWizard(UndoDeduplicationRecordsFormWizard
 # Accommodations
 class SelectAndReviewAccommodationRecordsFormWizard(SelectAndViewRecordsFormWizard):
     model = MvAccommodation
+    record_type = "accommodation"
 
     def get_group_type(self):
         if settings.FIX_DUPLICATE_RECORDS_ENABLED:
@@ -3217,7 +3260,7 @@ class SelectAndReviewAccommodationRecordsFormWizard(SelectAndViewRecordsFormWiza
         context["cancel_url"] = self.get_cancel_url()
         context["table_template_url"] = "accommodations/accommodations_list.html"
 
-        context["type"] = "accommodation"
+        context["type"] = self.record_type
 
         if data := self.get_cleaned_data_for_step(
             SelectAndReviewRecordsStep.SELECT_RECORD
@@ -3334,16 +3377,15 @@ class SelectAndReviewAccommodationRecordsFormWizard(SelectAndViewRecordsFormWiza
 
             messages.success(
                 self.request,
-                f"{
-                    format_html(
-                        '<a class="govuk-body govuk-link" href="{url}">{value}</a>',
-                        url=reverse(
-                            'accommodations:detail-overview',
-                            args=[dedup_accommodation_group.principal_record.id],
-                        ),
-                        value=dedup_accommodation_group.principal_record.full_address,
-                    )
-                }",
+                deduplicate_record_success_message(
+                    record_type=self.record_type,
+                    url=reverse(
+                        "accommodations:detail-overview",
+                        args=[dedup_accommodation_group.principal_record.id],
+                    ),
+                    link_text=dedup_accommodation_group.principal_record.full_address,
+                ),
+                extra_tags="html_safe",
             )
         except Exception as e:
             logger.exception("Accommodation Deduplication Error: %s", e)
@@ -3510,13 +3552,21 @@ class UndoDeduplicationAccommodationRecordsFormWizard(
             self.get_undo_deduplicate_records_step_view().request = self.request
             context |= self.get_undo_deduplicate_records_step_view().get_context_data()
 
-            context["principal_record_name"] = deduplication_data["principal_name"]
             context["deduplicated_record_data"] = deduplication_data[
                 "deduplicated_accommodation_data"
             ]
-            context["deduplicated_records_names_list_formatted"] = deduplication_data[
-                "formatted_deduplicated_accommodations"
-            ]
+            messages.success(
+                self.request,
+                undo_deduplicate_record_success_message(
+                    record_type=context["type"],
+                    number_of_records=len(context["deduplicated_record_data"]),
+                    record_list=deduplication_data[
+                        "formatted_deduplicated_accommodations"
+                    ],
+                    principal_record_name=deduplication_data["principal_name"],
+                ),
+                extra_tags="html_safe",
+            )
 
         return context
 

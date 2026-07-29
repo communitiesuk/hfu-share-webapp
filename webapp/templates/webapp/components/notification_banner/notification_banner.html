@@ -1,27 +1,39 @@
 {% load notification_banner_extras %}
-{% if messages %}
-    {% for message in messages %}
-        <div class="govuk-notification-banner {% if message.level|message_level_to_notification_banner_variant %}govuk-notification-banner--{{ message.level|message_level_to_notification_banner_variant }}{% endif %}"
-             role="region"
-             aria-labelledby="govuk-notification-banner-title"
-             data-module="govuk-notification-banner">
-            <div class="govuk-notification-banner__header">
-                <h2 class="govuk-notification-banner__title"
-                    id="govuk-notification-banner-title">
-                    {{ message.level|message_level_to_notification_banner_title }}
-                </h2>
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-half">
+        {% if level|message_level_to_notification_banner_variant == 'error' %}
+            <div class="govuk-error-summary" data-module="govuk-error-summary">
+                <div role="alert">
+                    <h2 class="govuk-error-summary__title">There is a problem</h2>
+                    <div class="govuk-error-summary__body">
+                        <ul class="govuk-list govuk-error-summary__list">
+                            <p class="govuk-notification-banner__heading govuk-notification-banner__heading-error">{{ text }}</p>
+                        </ul>
+                    </div>
+                </div>
             </div>
-            <div class="govuk-notification-banner__content">
-                {% if "html_safe" in message.tags %}
-                    <p class="govuk-notification-banner__heading{% if 'content_full_width' in message.tags %} max-width-none{% endif %}">
-                        {{ message|safe }}
-                    </p>
-                {% else %}
-                    <p class="govuk-notification-banner__heading{% if 'content_full_width' in message.tags %} max-width-none{% endif %}">
-                        {{ message }}
-                    </p>
-                {% endif %}
+        {% else %}
+            <div class="govuk-notification-banner {% if level|message_level_to_notification_banner_variant %}govuk-notification-banner--{{ level|message_level_to_notification_banner_variant }}{% endif %}"
+                 role="region"
+                 aria-labelledby="govuk-notification-banner-title"
+                 data-module="govuk-notification-banner">
+                <div class="govuk-notification-banner__header">
+                    <h2 class="govuk-notification-banner__title"
+                        id="govuk-notification-banner-title">
+                        {{ level|message_level_to_notification_banner_title }}
+                    </h2>
+                </div>
+                <div class="govuk-notification-banner__content">
+                    {% if html %}
+                        {{ html|safe }}
+                    {% elif text %}
+                        <p class="govuk-notification-banner__heading">{{ text }}</p>
+                    {% else %}
+                        {% if heading %}<h3 class="govuk-notification-banner__heading">{{ heading }}</h3>{% endif %}
+                        {% if body %}<p class="govuk-body">{{ body }}</p>{% endif %}
+                    {% endif %}
+                </div>
             </div>
-        </div>
-    {% endfor %}
-{% endif %}
+        {% endif %}
+    </div>
+</div>

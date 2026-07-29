@@ -641,9 +641,11 @@ class AccommodationRequestDetailActionsView(
                 "pending request to move guests",
             )
             reassignment_message = format_html(
+                '<p class="govuk-notification-banner__heading max-width-none">'
                 "You sent a request to move {} to {}.<br><br>"
                 "You cannot take any actions on this accommodation request "
-                "while there is a {}.",
+                "while there is a {}."
+                "</p>",
                 guest_names,
                 destination,
                 reassignments_link,
@@ -651,7 +653,7 @@ class AccommodationRequestDetailActionsView(
             messages.info(
                 self.request,
                 reassignment_message,
-                extra_tags="html_safe content_full_width",
+                extra_tags="html_safe",
             )
         ctx["show_actions_tab"] = self.user_can_edit(group_types=self.group_type)
         ctx["show_history_tab"] = self.user_action_allowed(

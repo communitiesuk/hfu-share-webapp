@@ -12,9 +12,9 @@
     {% url 'visa_applications:detail-overview' object.visa_application_id as overview_url %}
     {% url 'visa_applications:detail-linked-records' object.visa_application_id as linked_records_url %}
     {% url 'visa_applications:detail-vir' object.visa_application_id as vir_url %}
+    {% include "webapp/components/notification_banner/notification_banner_from_messages.html" %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            {% include "webapp/components/notification_banner/notification_banner.html" %}
             {% error_summary form %}
             {% include "webapp/components/heading/heading.html" with caption="Visa application record for" page_heading=object.title %}
         </div>

@@ -7,8 +7,12 @@
     <li class="govuk-breadcrumbs__list-item">Requests to move guests to different local authorities</li>
 {% endblock breadcrumb_content %}
 {% block content %}
-    {% include "webapp/components/notification_banner/notification_banner.html" %}
-    {% include "webapp/components/heading/heading.html" with page_heading="Requests to move guests to different local authorities" %}
+    {% include "webapp/components/notification_banner/notification_banner_from_messages.html" %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% include "webapp/components/heading/heading.html" with page_heading="Requests to move guests to different local authorities" %}
+        </div>
+    </div>
     <div class="govuk-grid-row">
         <div id="reassignment-requests-tabs-content"
              class="govuk-grid-column-three-quarters">
