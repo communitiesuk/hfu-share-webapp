@@ -3,6 +3,7 @@ from copy import deepcopy
 from datetime import datetime
 from uuid import uuid4
 
+import sentry_sdk
 from dateutil.tz import tzutc
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.contrib.postgres.expressions import ArraySubquery
@@ -874,6 +875,23 @@ class MvAccommodationRequest(models.Model):
             accommodation.utla_name = utla_name
             accommodation.is_editable = True
             accommodation.save()
+
+        logger.info(
+            "METRIC: Unassigned accommodation request %s assigned "
+            "to Local Authority %s by MHCLG Ops",
+            self.pk,
+            ltla_name,
+            extra={
+                "ar_id": self.pk,
+                "ltla_name": ltla_name,
+            },
+        )
+
+        sentry_sdk.metrics.count(
+            "accommodation_request.assigned_local_authority",
+            1,
+            attributes={"ltla_name": ltla_name},
+        )
 
     def get_accommodations_restrict_for_user(self, user: User) -> Q(MvAccommodation):
         accommodations_ids = self.get_accommodation_ids()
