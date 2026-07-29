@@ -6,7 +6,7 @@ from crispy_forms_gds.layout import Field, Fieldset, Layout
 from crispy_forms_gds.layout.constants import Size
 from django.contrib import messages
 from django.db import DatabaseError, IntegrityError, transaction
-from django.db.models import Exists, F, OuterRef, Q, Subquery
+from django.db.models import F, OuterRef, Q, Subquery
 from django.forms import CheckboxInput
 from django.http import HttpResponse
 from django.shortcuts import redirect
@@ -35,7 +35,6 @@ from ontology.models import (
     HiddenUnassignedAccommodationRequest,
     MvAccommodation,
     MvAccommodationRequest,
-    MvVolunteer,
 )
 from webapp.constants import (
     ACCOMMODATION_REQUEST_SEARCH_FIELDS,
@@ -147,7 +146,7 @@ class UnassignedAccommodationRequestsFilter(FilterSet, FilterPanelMixin):
             show_hidden = False
 
         if not show_hidden:
-            qs = qs.filter(hidden_unassigned_record__isnull=True)
+            qs = qs.not_hidden()
 
         return qs
 
@@ -186,12 +185,6 @@ class UnassignedAccommodationRequestsListView(
     table_pagination = {"per_page": os.environ.get("PAGINATION_PAGE_SIZE")}
     paginator_class = LazyPaginator
     template_name = "unassigned_accommodation_requests/unassigned_accommodation_requests_list_page.html"  # noqa: E501
-    super_sponsors_to_filter = [
-        "Scottish Government",
-        "Scotland Government",
-        "Welsh Government",
-        "Wales Government",
-    ]
 
     def get_queryset(self):
         accommodations = MvAccommodation.objects.filter(
@@ -205,22 +198,8 @@ class UnassignedAccommodationRequestsListView(
             )
         ).order_by("id")
 
-        sponsors = MvVolunteer.objects.filter(
-            Q(id__any=OuterRef("sponsor_id")) | Q(id=OuterRef("primary_sponsor_id"))
-        )
-
-        name_filter = Q()
-        for name in self.super_sponsors_to_filter:
-            name_filter |= Q(full_name__icontains=name)
-
-        super_sponsors = sponsors.filter(name_filter)
-
         return (
-            MvAccommodationRequest.objects.filter(
-                (Q(ltla_name__len=0) | Q(ltla_name__isnull=True))
-                & (Q(utla_name__len=0) | Q(utla_name__isnull=True))
-            )
-            .exclude(Exists(super_sponsors))
+            MvAccommodationRequest.objects.unassigned()
             .annotate(
                 address_sort_value=Subquery(accommodations.values("full_address")[:1]),
                 postcode_sort_value=Subquery(
