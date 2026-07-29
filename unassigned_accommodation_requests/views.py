@@ -1,5 +1,6 @@
 import os
 from enum import StrEnum
+from typing import Literal
 
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import Field, Fieldset, Layout
@@ -8,7 +9,7 @@ from django.contrib import messages
 from django.db import DatabaseError, IntegrityError, transaction
 from django.db.models import Exists, F, OuterRef, Q, Subquery
 from django.forms import CheckboxInput
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse
 from django.middleware.csrf import get_token
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -255,17 +256,45 @@ class UnassignedAccommodationRequestsListView(
         )
 
 
-class HideUnassignedAccommodationRequestView(
-    PermissionsMixin, SingleObjectMixin, TemplateResponseMixin, View
+class HideUnhideUnassignedAccommodationRequestViewBase(
+    PermissionsMixin, SingleObjectMixin, View
 ):
     group_type = UNASSIGNED_ACCOMMODATION_REQUESTS_GROUP_TYPES
     model = MvAccommodationRequest
-    template_name = "unassigned_accommodation_requests/hide_confirm_page.html"
+    success_state: Literal["hidden", "unhidden"]
 
     def get_success_url(self):
         return reverse(
             "unassigned-accommodation-requests:unassigned-accommodation-requests"
         )
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        try:
+            with transaction.atomic():
+                self.db_action(request)
+        except HiddenUnassignedAccommodationRequest.DoesNotExist:
+            messages.error(request, "The record is already visible.")
+        except DatabaseError:
+            messages.error(request, f"The record has not been {self.success_state}.")
+        else:
+            messages.success(
+                request,
+                f"The accommodation request has been {self.success_state}.",
+            )
+
+        return redirect(self.get_success_url())
+
+    def db_action(self, request: HttpRequest) -> None:
+        raise NotImplementedError("Subclasses must implement db_action")
+
+
+class HideUnassignedAccommodationRequestView(
+    HideUnhideUnassignedAccommodationRequestViewBase, TemplateResponseMixin
+):
+    template_name = "unassigned_accommodation_requests/hide_confirm_page.html"
+    success_state = "hidden"
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -273,47 +302,22 @@ class HideUnassignedAccommodationRequestView(
             {"object": self.object, "cancel_url": self.get_success_url()}
         )
 
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        try:
-            with transaction.atomic():
-                HiddenUnassignedAccommodationRequest.objects.create(
-                    accommodation_request=self.object,
-                    hidden_by=request.user,
-                )
-        except (IntegrityError, DatabaseError):
-            messages.error(request, "The record has not been hidden.")
-        else:
-            messages.success(request, "The accommodation request has been hidden.")
-        return redirect(self.get_success_url())
+    def db_action(self, request):
+        HiddenUnassignedAccommodationRequest.objects.create(
+            accommodation_request=self.object,
+            hidden_by=request.user,
+        )
 
 
 class UnhideUnassignedAccommodationRequestView(
-    PermissionsMixin, SingleObjectMixin, View
+    HideUnhideUnassignedAccommodationRequestViewBase
 ):
-    group_type = UNASSIGNED_ACCOMMODATION_REQUESTS_GROUP_TYPES
-    model = MvAccommodationRequest
+    success_state = "unhidden"
 
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-
-        try:
-            with transaction.atomic():
-                HiddenUnassignedAccommodationRequest.objects.get(
-                    accommodation_request=self.object,
-                ).delete()
-        except HiddenUnassignedAccommodationRequest.DoesNotExist:
-            messages.error(request, "The record is already visible.")
-        except DatabaseError:
-            messages.error(request, "The record has not been unhidden.")
-        else:
-            messages.success(request, "The accommodation request has been unhidden.")
-
-        return redirect(
-            reverse(
-                "unassigned-accommodation-requests:unassigned-accommodation-requests"
-            )
-        )
+    def db_action(self, _request):
+        HiddenUnassignedAccommodationRequest.objects.get(
+            accommodation_request=self.object,
+        ).delete()
 
 
 class AssignLocalAuthorityFormSteps(StrEnum):
