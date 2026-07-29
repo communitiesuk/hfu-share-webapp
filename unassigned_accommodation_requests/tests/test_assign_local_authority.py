@@ -1,7 +1,9 @@
 import base64
 import hashlib
 import re
+from unittest.mock import patch
 
+from django.db import DatabaseError
 from django.test import TestCase
 from django.urls import reverse
 
@@ -11,7 +13,11 @@ from accounts.tests.base import TestSessionTokenMixin
 from accounts.tests.factories import GroupInfoFactory
 from case_management.settings import CONTENT_SECURITY_POLICY
 from ontology.models import MvAccommodation, MvAccommodationRequest
-from ontology.tests.factories import MvAccommodationFactory, VisaApplicationFactory
+from ontology.tests.factories import (
+    MvAccommodationFactory,
+    MvPersonFactory,
+    VisaApplicationFactory,
+)
 from ontology.tests.factories import MvAccommodationRequestFactory as AccReqFactory
 from unassigned_accommodation_requests.views import AssignLocalAuthorityFormSteps
 from user_management.tests.base import (
@@ -105,6 +111,10 @@ class AssignLocalAuthorityFormTestCase(TestSessionTokenMixin, TestCase):
         return self.post_local_authority(
             accommodation_request, local_authority.ltla_name
         )
+
+    def link_guests_to(self, accommodation_request, guests):
+        accommodation_request.person_id = [guest.id for guest in guests]
+        accommodation_request.save()
 
     def test_admin_users_can_access(self):
         self.client.force_login(get_admin_user())
@@ -268,7 +278,8 @@ class AssignLocalAuthorityFormTestCase(TestSessionTokenMixin, TestCase):
             reverse(
                 "accommodation-requests:detail-overview",
                 args=[self.unassigned_ar.id],
-            ),
+            )
+            + "?from=unassigned-accommodation-requests",
         )
 
     def test_completing_the_form_assigns_the_local_authority_to_the_record(self):
@@ -431,3 +442,73 @@ class AssignLocalAuthorityFormTestCase(TestSessionTokenMixin, TestCase):
                 },
             ),
         )
+
+    def test_completing_the_form_with_a_single_guest_names_them_in_the_banner(self):
+        self.client.force_login(get_mhclg_user())
+        guest = MvPersonFactory(first_name="Gordon", last_name="Brown")
+        self.link_guests_to(self.unassigned_ar, [guest])
+
+        response = self.complete_form(self.unassigned_ar, self.english_la)
+
+        self.assertRedirects(
+            response,
+            reverse(
+                "accommodation-requests:detail-overview",
+                args=[self.unassigned_ar.id],
+            )
+            + "?from=unassigned-accommodation-requests",
+        )
+        self.assertContains(response, "Success")
+        self.assertContains(response, "You have assigned Gordon Brown to Boston.")
+        self.assertContains(response, "Back to unassigned accommodation requests")
+
+    def test_completing_the_form_with_multiple_guests_names_them_all_in_the_banner(
+        self,
+    ):
+        self.client.force_login(get_mhclg_user())
+        guest_1 = MvPersonFactory(first_name="Gordon", last_name="Brown")
+        guest_2 = MvPersonFactory(first_name="Sarah", last_name="Brown")
+        self.link_guests_to(self.unassigned_ar, [guest_1, guest_2])
+
+        response = self.complete_form(self.unassigned_ar, self.english_la)
+
+        self.assertContains(
+            response,
+            "You have assigned Gordon Brown and Sarah Brown to Boston.",
+        )
+
+    def test_completing_the_form_with_no_guests_omits_the_names_in_the_banner(self):
+        self.client.force_login(get_mhclg_user())
+
+        response = self.complete_form(self.unassigned_ar, self.english_la)
+
+        self.assertContains(response, "You have assigned to Boston.")
+
+    def test_db_error_on_assign_shows_error_banner(self):
+        self.client.force_login(get_mhclg_user())
+
+        with patch(
+            "ontology.models.MvAccommodationRequest.MvAccommodationRequest.save",
+            side_effect=DatabaseError,
+        ):
+            response = self.complete_form(self.unassigned_ar, self.english_la)
+
+        self.assertRedirects(
+            response,
+            reverse(
+                "accommodation-requests:detail-overview",
+                args=[self.unassigned_ar.id],
+            )
+            + "?from=unassigned-accommodation-requests",
+        )
+        self.assertContains(response, "There is a problem")
+        self.assertContains(
+            response,
+            "The record has not been assigned. We do not know why this "
+            "happened. You can try again now or later.",
+        )
+        self.assertContains(response, "Back to unassigned accommodation requests")
+
+        self.unassigned_ar.refresh_from_db()
+        self.assertIsNone(self.unassigned_ar.ltla_name)
+        self.assertIsNone(self.unassigned_ar.utla_name)
