@@ -382,6 +382,20 @@ class AssignLocalAuthorityFormTestCase(TestSessionTokenMixin, TestCase):
             self.assertIsNone(record.ltla_name)
             self.assertIsNone(record.utla_name)
 
+    def test_users_without_access_cannot_submit_the_form(self):
+        self.client.force_login(get_la_user())
+        accommodations, visa_applications = self.link_records_to(self.unassigned_ar)
+
+        response = self.complete_form(self.unassigned_ar, self.english_la)
+
+        self.assertEqual(response.status_code, 404)
+        self.unassigned_ar.refresh_from_db()
+        self.assertIsNone(self.unassigned_ar.ltla_name)
+        for record in accommodations + visa_applications:
+            record.refresh_from_db()
+            self.assertIsNone(record.ltla_name)
+            self.assertIsNone(record.utla_name)
+
     def test_re_entering_the_form_with_reset_starts_from_the_region_step(self):
         self.client.force_login(get_mhclg_user())
         self.post_region(self.unassigned_ar, "England")
