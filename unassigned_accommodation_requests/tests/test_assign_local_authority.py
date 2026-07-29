@@ -1,7 +1,9 @@
 import base64
 import hashlib
 import re
+from unittest.mock import patch
 
+from django.db import DatabaseError
 from django.test import TestCase
 from django.urls import reverse
 
@@ -478,3 +480,30 @@ class AssignLocalAuthorityFormTestCase(TestSessionTokenMixin, TestCase):
         response = self.complete_form(self.unassigned_ar, self.english_la)
 
         self.assertContains(response, "You have assigned to Boston.")
+
+    def test_db_error_on_assign_shows_error_banner(self):
+        self.client.force_login(get_mhclg_user())
+
+        with patch(
+            "ontology.models.MvAccommodationRequest.MvAccommodationRequest.save",
+            side_effect=DatabaseError,
+        ):
+            response = self.complete_form(self.unassigned_ar, self.english_la)
+
+        self.assertRedirects(
+            response,
+            reverse(
+                "accommodation-requests:detail-overview",
+                args=[self.unassigned_ar.id],
+            ),
+        )
+        self.assertContains(response, "There is a problem")
+        self.assertContains(
+            response,
+            "The record has not been assigned. We do not know why this "
+            "happened. You can try again now or later.",
+        )
+
+        self.unassigned_ar.refresh_from_db()
+        self.assertIsNone(self.unassigned_ar.ltla_name)
+        self.assertIsNone(self.unassigned_ar.utla_name)
