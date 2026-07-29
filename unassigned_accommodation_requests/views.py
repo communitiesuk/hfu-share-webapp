@@ -367,9 +367,10 @@ class AssignLocalAuthorityFormWizard(
             return redirect(self.get_cancel_url())
 
         guest_names = self.get_guest_names()
+        guest_names_prefix = f"{guest_names} " if guest_names else ""
         messages.success(
             self.request,
-            f"You have assigned {guest_names} to {local_authority.ltla_name}.",
+            f"You have assigned {guest_names_prefix}to {local_authority.ltla_name}.",
         )
 
         return redirect(self.get_cancel_url())
