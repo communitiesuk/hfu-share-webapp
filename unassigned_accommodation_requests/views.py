@@ -94,7 +94,8 @@ class UnassignedAccommodationRequestsTable(tables.Table):
             reverse(
                 "accommodation-requests:detail-overview",
                 args=[record.id],
-            ),
+            )
+            + "?from=unassigned-accommodation-requests",
             value,
         )
 
