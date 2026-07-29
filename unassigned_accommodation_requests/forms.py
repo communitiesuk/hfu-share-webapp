@@ -80,7 +80,7 @@ class AssignLocalAuthorityFormSelectLocalAuthorityStep(forms.Form):
         self.helper.layout = Layout(
             Field.text("local_authority", label_size=Size.LARGE),
             Div(
-                Button.primary("button", "Continue"),
+                Button.primary("button", "Assign"),
                 HTML(
                     '<a href="{{ cancel_url }}"'
                     'class="govuk-link govuk-link--no-visited-state govuk-body">'
