@@ -190,10 +190,12 @@ def status_to_tag_colour(status_type: str, value: str) -> str | None:
 
 
 message_level_to_notification_banner_variant_override = {
-    messages.SUCCESS: "success"
+    messages.SUCCESS: "success",
+    messages.ERROR: "error",
 }  # Regular variant by default
 message_level_to_notification_banner_title_override = {
-    messages.SUCCESS: "Success"
+    messages.SUCCESS: "Success",
+    messages.ERROR: "Error",
 }  # "Important" by default
 
 # Search

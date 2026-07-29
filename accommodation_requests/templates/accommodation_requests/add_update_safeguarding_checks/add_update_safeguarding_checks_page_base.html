@@ -18,9 +18,9 @@
     </li>
 {% endblock breadcrumb_content %}
 {% block content %}
+    {% include "webapp/components/notification_banner/notification_banner_from_messages.html" %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-one-half">
-            {% include "webapp/components/notification_banner/notification_banner.html" %}
             {% include "webapp/components/heading/heading.html" with caption="Accommodation request record for" page_heading=object.title %}
         </div>
     </div>

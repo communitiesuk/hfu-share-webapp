@@ -12,9 +12,9 @@
     {% url 'safeguarding:detail-safeguarding-checks' object.id referral_id as safeguarding_checks_url %}
     {% url 'safeguarding:detail-linked-records' object.id referral_id as linked_records_url %}
     {% url 'safeguarding:detail-properties' object.id referral_id as properties_url %}
+    {% include "webapp/components/notification_banner/notification_banner_from_messages.html" %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-one-half">
-            {% include "webapp/components/notification_banner/notification_banner.html" %}
             {% include "webapp/components/heading/heading.html" with caption="Escalated checks" page_heading=object.get_page_title %}
         </div>
     </div>

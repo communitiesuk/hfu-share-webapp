@@ -87,7 +87,9 @@
                     </div>
                 {% endif %}
             </div>
-            {% if analytics_enabled %}
+        </div>
+        {% if analytics_enabled %}
+            <div class="govuk-grid-row">
                 <div class="govuk-grid-column-two-thirds cookie-settings__form-wrapper">
                     <form data-module="cookie-settings-form"
                           class="cookie-settings-form"
@@ -118,26 +120,17 @@
                         <button class="govuk-button" type="submit">Save cookie settings</button>
                     </form>
                 </div>
-                <div class="govuk-grid-column-two-thirds cookie-settings__confirmation"
-                     tabindex="-1"
-                     role="alert"
-                     hidden>
-                    <div class="govuk-notification-banner govuk-notification-banner--success"
-                         role="alert"
-                         aria-labelledby="govuk-notification-banner-title"
-                         data-module="govuk-notification-banner">
-                        <div class="govuk-notification-banner__header">
-                            <h2 class="govuk-notification-banner__title"
-                                id="govuk-notification-banner-title">Success</h2>
-                        </div>
-                        <div class="govuk-notification-banner__content">
-                            <h3 class="govuk-notification-banner__heading">Your preferences have been saved</h3>
-                            <p class="govuk-body">You can change your cookie settings at any time by returning to this page.</p>
-                        </div>
-                    </div>
-                </div>
-            {% endif %}
-        </div>
+            </div>
+            <div class="cookie-settings__confirmation"
+                 tabindex="-1"
+                 role="alert"
+                 hidden>
+                {% load notification_banner_extras %}
+                {% with "success"|notification_banner_variant_to_message_level as level %}
+                    {% include "webapp/components/notification_banner/notification_banner.html" with heading="Your preferences have been saved" body="You can change your cookie settings at any time by returning to this page." %}
+                {% endwith %}
+            </div>
+        {% endif %}
     </div>
     {% if analytics_enabled %}
         <script src="{% static 'js/cookie-settings.js' %}"></script>
