@@ -278,7 +278,8 @@ class AssignLocalAuthorityFormTestCase(TestSessionTokenMixin, TestCase):
             reverse(
                 "accommodation-requests:detail-overview",
                 args=[self.unassigned_ar.id],
-            ),
+            )
+            + "?from=unassigned-accommodation-requests",
         )
 
     def test_completing_the_form_assigns_the_local_authority_to_the_record(self):
@@ -454,10 +455,12 @@ class AssignLocalAuthorityFormTestCase(TestSessionTokenMixin, TestCase):
             reverse(
                 "accommodation-requests:detail-overview",
                 args=[self.unassigned_ar.id],
-            ),
+            )
+            + "?from=unassigned-accommodation-requests",
         )
         self.assertContains(response, "Success")
         self.assertContains(response, "You have assigned Gordon Brown to Boston.")
+        self.assertContains(response, "Back to unassigned accommodation requests")
 
     def test_completing_the_form_with_multiple_guests_names_them_all_in_the_banner(
         self,
@@ -495,7 +498,8 @@ class AssignLocalAuthorityFormTestCase(TestSessionTokenMixin, TestCase):
             reverse(
                 "accommodation-requests:detail-overview",
                 args=[self.unassigned_ar.id],
-            ),
+            )
+            + "?from=unassigned-accommodation-requests",
         )
         self.assertContains(response, "There is a problem")
         self.assertContains(
@@ -503,6 +507,7 @@ class AssignLocalAuthorityFormTestCase(TestSessionTokenMixin, TestCase):
             "The record has not been assigned. We do not know why this "
             "happened. You can try again now or later.",
         )
+        self.assertContains(response, "Back to unassigned accommodation requests")
 
         self.unassigned_ar.refresh_from_db()
         self.assertIsNone(self.unassigned_ar.ltla_name)

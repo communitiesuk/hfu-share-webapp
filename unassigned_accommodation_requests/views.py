@@ -356,6 +356,7 @@ class AssignLocalAuthorityFormWizard(
 
     def done(self, form_list, **kwargs):
         local_authority = self.get_all_cleaned_data()["local_authority"]
+        redirect_url = f"{self.get_cancel_url()}?from=unassigned-accommodation-requests"
 
         try:
             self.object.assign_local_authority(local_authority)
@@ -365,7 +366,7 @@ class AssignLocalAuthorityFormWizard(
                 "The record has not been assigned. We do not know why this "
                 "happened. You can try again now or later.",
             )
-            return redirect(self.get_cancel_url())
+            return redirect(redirect_url)
 
         guest_names = self.get_guest_names()
         guest_names_prefix = f"{guest_names} " if guest_names else ""
@@ -374,4 +375,4 @@ class AssignLocalAuthorityFormWizard(
             f"You have assigned {guest_names_prefix}to {local_authority.ltla_name}.",
         )
 
-        return redirect(self.get_cancel_url())
+        return redirect(redirect_url)
