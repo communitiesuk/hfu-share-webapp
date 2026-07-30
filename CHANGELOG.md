@@ -1,5 +1,26 @@
 # Changelog
 
+## [2.6.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.5.0...2.6.0) (2026-07-30)
+
+
+### Features
+
+* HFURB-3939 add the ability to unhide unassigned ARs that are hidden ([#66](https://github.com/communitiesuk/hfu-share-webapp/issues/66)) ([db9ccda](https://github.com/communitiesuk/hfu-share-webapp/commit/db9ccda1182e70eba43fa0e849b0e735e98c0a14))
+* HFURB-3940 enable the hidden AR filter for the unassigned accommodation requests ([#64](https://github.com/communitiesuk/hfu-share-webapp/issues/64)) ([e49f9f0](https://github.com/communitiesuk/hfu-share-webapp/commit/e49f9f07463c2489fb96e0d0c7c1abb4f0a6425d))
+* implement assign_local_authority method and integrate with form ([#62](https://github.com/communitiesuk/hfu-share-webapp/issues/62)) ([c90afcd](https://github.com/communitiesuk/hfu-share-webapp/commit/c90afcdada87f90484dc4c096993a49195162792))
+* register deduplication models with auditlog ([#60](https://github.com/communitiesuk/hfu-share-webapp/issues/60)) ([2320e12](https://github.com/communitiesuk/hfu-share-webapp/commit/2320e1217693063d8eef9c8606dd07bc4dc77213))
+* success/error banner on assignment flow (HFURB-3392) ([#65](https://github.com/communitiesuk/hfu-share-webapp/issues/65)) ([ee603ff](https://github.com/communitiesuk/hfu-share-webapp/commit/ee603ff05ef4f08710583d56c2a8bb5b9bce2a44))
+* used shared model for shared logic ([#67](https://github.com/communitiesuk/hfu-share-webapp/issues/67)) ([a2ecd2d](https://github.com/communitiesuk/hfu-share-webapp/commit/a2ecd2d41b75cb40bb389d24ab98fab868620bee))
+
+
+### Bug Fixes
+
+* HFURB-2801 store filter panel state in localStorage and remove params from URL ([#57](https://github.com/communitiesuk/hfu-share-webapp/issues/57)) ([a77c58e](https://github.com/communitiesuk/hfu-share-webapp/commit/a77c58e3916b6bbae7f95b3dc0cc047bea2d3971))
+* HFURB-3323 make all for the notification banners have the same length ([#48](https://github.com/communitiesuk/hfu-share-webapp/issues/48)) ([7835930](https://github.com/communitiesuk/hfu-share-webapp/commit/7835930a19ff0802e20c7752840bdef098ecd21e))
+* hide assign to la flow for now ([#68](https://github.com/communitiesuk/hfu-share-webapp/issues/68)) ([318f1f9](https://github.com/communitiesuk/hfu-share-webapp/commit/318f1f9871231857f20b51ede9293336887970c9))
+* remove empty models.py file ([#61](https://github.com/communitiesuk/hfu-share-webapp/issues/61)) ([3bf66a1](https://github.com/communitiesuk/hfu-share-webapp/commit/3bf66a1afe88b184a02ca5ac8dc5e374c329be31))
+* update button label from "Continue" to "Assign" ([#63](https://github.com/communitiesuk/hfu-share-webapp/issues/63)) ([6a340e2](https://github.com/communitiesuk/hfu-share-webapp/commit/6a340e2b0571a32956100d4fce7f21524e79e871))
+
 ## [2.5.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.4.0...2.5.0) (2026-07-28)
 
 
