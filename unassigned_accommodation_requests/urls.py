@@ -5,6 +5,7 @@ from .views import (
     AssignLocalAuthorityFormWizard,
     HideUnassignedAccommodationRequestView,
     UnassignedAccommodationRequestsListView,
+    UnhideUnassignedAccommodationRequestView,
 )
 
 assign_local_authority_wizard = AssignLocalAuthorityFormWizard.as_view(
@@ -33,5 +34,10 @@ urlpatterns = [
         "<str:pk>/hide/",
         HideUnassignedAccommodationRequestView.as_view(),
         name="hide",
+    ),
+    path(
+        "<str:pk>/unhide/",
+        UnhideUnassignedAccommodationRequestView.as_view(),
+        name="unhide",
     ),
 ]

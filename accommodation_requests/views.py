@@ -388,6 +388,7 @@ class AccommodationRequestDetailOverviewView(
         context["show_history_tab"] = self.user_action_allowed(
             group_types=AccommodationRequestDetailHistoryView.group_type
         )
+        context["back_button"] = self.get_back_button()
 
         if (
             not ar.get_sponsors_restrict_for_user(user).exists()
@@ -459,7 +460,22 @@ class AccommodationRequestDetailOverviewView(
         ]
         return context
 
+    def get_back_button(self):
+        if self.request.GET.get("from") != "unassigned-accommodation-requests":
+            return None
+
+        return {
+            "url": reverse(
+                "unassigned-accommodation-requests:unassigned-accommodation-requests"
+            ),
+            "text": "Back to unassigned accommodation requests",
+        }
+
     def get_assign_to_la_link(self):
+        # TODO: the assign to local authority flow is hidden for now
+        # Remove this line to turn it back on.
+        return None
+
         if not self.user_can_edit(
             group_types=UNASSIGNED_ACCOMMODATION_REQUESTS_GROUP_TYPES
         ):

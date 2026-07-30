@@ -213,26 +213,28 @@ class AccommodationRequestDetailOverviewTestCase(
         )
         return dict(response.context["fields"])["Lower tier Local Authority"]
 
-    def test_overview_links_to_the_assign_to_la_form_when_there_is_no_ltla(self):
-        ar = AccReqFactory(
-            title="Test Access Request",
-            checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
-            ltla_name=None,
-        )
-
-        self.client.force_login(get_mhclg_user())
-
-        self.assertInHTML(
-            '<a class="govuk-link govuk-link--no-visited-state" href="{}">'
-            "Assign local authority</a>".format(
-                reverse(
-                    "unassigned-accommodation-requests:assign-local-authority",
-                    args=[ar.id],
-                )
-                + "?reset=true"
-            ),
-            self.get_lower_tier_local_authority_value(ar),
-        )
+    # TODO: re-enable when the assign to local authority flow is turned back on
+    # in AccommodationRequestDetailOverviewView.get_assign_to_la_link.
+    # def test_overview_links_to_the_assign_to_la_form_when_there_is_no_ltla(self):
+    #     ar = AccReqFactory(
+    #         title="Test Access Request",
+    #         checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
+    #         ltla_name=None,
+    #     )
+    #
+    #     self.client.force_login(get_mhclg_user())
+    #
+    #     self.assertInHTML(
+    #         '<a class="govuk-link govuk-link--no-visited-state" href="{}">'
+    #         "Assign local authority</a>".format(
+    #             reverse(
+    #                 "unassigned-accommodation-requests:assign-local-authority",
+    #                 args=[ar.id],
+    #             )
+    #             + "?reset=true"
+    #         ),
+    #         self.get_lower_tier_local_authority_value(ar),
+    #     )
 
     def test_overview_has_no_assign_to_la_link_when_the_ltla_is_set(self):
         ar = AccReqFactory(
@@ -257,3 +259,43 @@ class AccommodationRequestDetailOverviewTestCase(
         self.client.force_login(get_service_support_user())
 
         self.assertIsNone(self.get_lower_tier_local_authority_value(ar))
+
+    def test_overview_shows_the_default_back_button_by_default(self):
+        ar = AccReqFactory(
+            title="Test Access Request",
+            checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
+        )
+
+        self.client.force_login(get_mhclg_user())
+
+        response = self.client.get(
+            reverse("accommodation-requests:detail-overview", args=[ar.id])
+        )
+
+        self.assertContains(response, "Back to list of accommodation requests")
+        self.assertNotContains(response, "Back to unassigned accommodation requests")
+
+    def test_overview_shows_the_back_to_unassigned_list_button_when_requested(self):
+        ar = AccReqFactory(
+            title="Test Access Request",
+            checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
+        )
+
+        self.client.force_login(get_mhclg_user())
+
+        response = self.client.get(
+            reverse("accommodation-requests:detail-overview", args=[ar.id])
+            + "?from=unassigned-accommodation-requests"
+        )
+
+        self.assertNotContains(response, "Back to list of accommodation requests")
+        self.assertInHTML(
+            '<a href="{}" class="govuk-button govuk-button--secondary">'
+            "Back to unassigned accommodation requests</a>".format(
+                reverse(
+                    "unassigned-accommodation-requests:"
+                    "unassigned-accommodation-requests"
+                )
+            ),
+            response.content.decode(),
+        )
