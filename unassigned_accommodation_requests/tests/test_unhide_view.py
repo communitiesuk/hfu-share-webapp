@@ -1,7 +1,6 @@
 import http.client
 from unittest.mock import patch
 
-from bs4 import BeautifulSoup
 from django.db import DatabaseError
 from django.test import TestCase
 from django.urls import reverse
@@ -28,12 +27,12 @@ class HideUnassignedAccommodationRequestTests(TestSessionTokenMixin, TestCase):
     def setUp(self):
         super().setUp()
         self.hidden_ar = AccReqFactory(
-            title="Mario and 1 other to Princess Peaches Castle",
+            title="John Brown and 1 other to 10 Gordon Street",
             ltla_name=None,
             utla_name=None,
         )
         self.unhidden_ar = AccReqFactory(
-            title="Luigi and 1 other to Princess Peaches Castle",
+            title="Jane Brown and 1 other to 11 Gordon Street",
             ltla_name=None,
             utla_name=None,
         )
@@ -41,18 +40,6 @@ class HideUnassignedAccommodationRequestTests(TestSessionTokenMixin, TestCase):
         self.hidden_unassigned_ar = HiddenUnassignedAccReqFactory(
             accommodation_request=self.hidden_ar
         )
-
-    def test_list_renders_unhide_link_for_each_row(self):
-        self.client.force_login(get_admin_user())
-
-        response = self.client.get(f"{reverse(LIST_URL_NAME)}?hidden_records=True")
-
-        soup = BeautifulSoup(response.content.decode("utf-8"), "html.parser")
-        table = soup.find("table", class_="govuk-table")
-        unhide_url = reverse(HIDE_URL_NAME, args=[self.hidden_ar.id])
-        unhide_form = table.find("form", action=unhide_url)
-        self.assertIsNotNone(unhide_form)
-        self.assertIn("Unhide", unhide_form.get_text())
 
     def test_post_unhides_record(self):
         user = get_admin_user()

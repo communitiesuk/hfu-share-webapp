@@ -262,10 +262,6 @@ class HideUnassignedAccommodationRequestView(
     model = MvAccommodationRequest
     template_name = "unassigned_accommodation_requests/hide_confirm_page.html"
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.object = None
-
     def get_success_url(self):
         return reverse(
             "unassigned-accommodation-requests:unassigned-accommodation-requests"
@@ -297,10 +293,6 @@ class UnhideUnassignedAccommodationRequestView(
 ):
     group_type = UNASSIGNED_ACCOMMODATION_REQUESTS_GROUP_TYPES
     model = MvAccommodationRequest
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.object = None
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
