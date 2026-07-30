@@ -470,6 +470,10 @@ class AccommodationRequestDetailOverviewView(
         }
 
     def get_assign_to_la_link(self):
+        # TODO: the assign to local authority flow is hidden for now
+        # Remove this line to turn it back on.
+        return None
+
         if not self.user_can_edit(
             group_types=UNASSIGNED_ACCOMMODATION_REQUESTS_ALLOWED_GROUP_TYPES
         ):
