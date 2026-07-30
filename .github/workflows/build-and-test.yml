@@ -138,10 +138,23 @@ jobs:
           poetry run python manage.py migrate
 
   test-parallel:
-    name: Tests
+    name: Tests (${{ matrix.group }})
     needs: poetry-cache-setup
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment || 'aws-dev' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Groups are balanced by test file count (~78 files each) so shards
+          # finish in roughly the same time. Rebalance here if one shard
+          # consistently runs longer than the others.
+          - group: 1
+            apps: deduplication accommodations reassignment_requests downloads accounts
+          - group: 2
+            apps: ontology guests uams user_management hfurb_scripts unassigned_accommodation_requests
+          - group: 3
+            apps: webapp accommodation_requests sponsors safeguarding visa_applications case_management
     env:
       DB_HOST: 'localhost'
       DB_USERNAME: 'postgres'
@@ -174,7 +187,7 @@ jobs:
 
       - name: Test
         run: |
-          poetry run test-parallel
+          poetry run test-parallel ${{ matrix.apps }}
         env:
           SECRET_KEY: 'a_very_long_and_random_string_for_tests'
           ENTRA_AUTHORITY: 'https://login.microsoftonline.com/organizations'

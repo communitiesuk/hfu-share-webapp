@@ -67,40 +67,13 @@ jobs:
         with:
           ref: ${{ inputs.refToDeploy || 'main' }}
 
-      - name: Set up Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+      - name: Setup Python and Poetry + Restore Poetry cache
+        uses: ./.github/actions/setup-python-poetry
         with:
-          python-version: '3.13'
-
-      - name: Install Poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
-        with:
+          role-session-name: Deploy-${{ github.run_id }}
           aws-region: ${{ vars.AWS_REGION }}
-          role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
-          role-session-name: BuildAndTest-${{ github.run_id }}
-
-      - name: Get CodeArtifact Token
-        id: codeartifact_token
-        run: |
-          echo "token=$(aws codeartifact get-authorization-token \
-            --domain mhclg-prod-domain \
-            --domain-owner ${{ secrets.AWS_CODEARTIFACT_ACCOUNT_ID }} \
-            --query authorizationToken \
-            --output text)" >> $GITHUB_OUTPUT
-
-      - name: Install Dependencies from Codeartifact
-        env:
-          CODEARTIFACT_URL: https://mhclg-prod-domain-${{ secrets.AWS_CODEARTIFACT_ACCOUNT_ID }}.d.codeartifact.eu-west-2.amazonaws.com/pypi/mhclg-prod-pypi/simple/
-          TOKEN: ${{ steps.codeartifact_token.outputs.token }}
-        run: |
-          poetry source add --priority=primary codeartifact "$CODEARTIFACT_URL"
-          poetry config http-basic.codeartifact aws "$TOKEN"
-          poetry lock
-          poetry install
+          aws-role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          aws-codeartifact-account-id: ${{ secrets.AWS_CODEARTIFACT_ACCOUNT_ID }}
 
       - name: Collect static files
         run: |
@@ -115,6 +88,15 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@183a1442edf41672e66566b7fc560e297a290896  # v2.1.1
 
+      - name: Get CodeArtifact Token
+        id: codeartifact_token
+        run: |
+          echo "token=$(aws codeartifact get-authorization-token \
+            --domain mhclg-prod-domain \
+            --domain-owner ${{ secrets.AWS_CODEARTIFACT_ACCOUNT_ID }} \
+            --query authorizationToken \
+            --output text)" >> $GITHUB_OUTPUT
+
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
         env:
@@ -125,24 +107,17 @@ jobs:
           CODEARTIFACT_URL: https://mhclg-prod-domain-${{ secrets.AWS_CODEARTIFACT_ACCOUNT_ID }}.d.codeartifact.eu-west-2.amazonaws.com/pypi/mhclg-prod-pypi/simple/
           DOCKER_BULDKIT: "1"
         run: |
-          # Build a docker container and
-          # push it to ECR so that it can
+          # Build a docker container once, tagged for both the timestamped
+          # release tag and 'latest', then push both tags to ECR so it can
           # be deployed to ECS.
           docker build \
           --load \
           --secret id=codeartifact_token,env=CODEARTIFACT_TOKEN \
           --secret id=codeartifact_url,env=CODEARTIFACT_URL \
           -t $ECR_REGISTRY/${{ vars.ECR_REPOSITORY }}:$TIMESTAMP_IMAGE_TAG \
-          -f Dockerfile .
-          docker push $ECR_REGISTRY/${{ vars.ECR_REPOSITORY }}:$TIMESTAMP_IMAGE_TAG
-          echo "image=$ECR_REGISTRY/${{ vars.ECR_REPOSITORY }}:$TIMESTAMP_IMAGE_TAG" >> $GITHUB_OUTPUT
-          # # Re-build and push to ECR with the 'latest' tag
-          docker build \
-          --load \
-          --secret id=codeartifact_token,env=CODEARTIFACT_TOKEN \
-          --secret id=codeartifact_url,env=CODEARTIFACT_URL \
           -t $ECR_REGISTRY/${{ vars.ECR_REPOSITORY }}:$LATEST_IMAGE_TAG \
           -f Dockerfile .
+          docker push $ECR_REGISTRY/${{ vars.ECR_REPOSITORY }}:$TIMESTAMP_IMAGE_TAG
           docker push $ECR_REGISTRY/${{ vars.ECR_REPOSITORY }}:$LATEST_IMAGE_TAG
           echo "image=$ECR_REGISTRY/${{ vars.ECR_REPOSITORY }}:$LATEST_IMAGE_TAG" >> $GITHUB_OUTPUT
 
