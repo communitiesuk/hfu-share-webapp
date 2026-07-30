@@ -338,15 +338,33 @@ class UnassignedAccommodationRequestListViewTestCase(TestSessionTokenMixin, Test
         self.assertIn("Test One", first_row)
         self.assertIn("Number 1 road", first_row)
         self.assertIn("AA1 1AA", first_row)
+        self.assertIn(
+            f'href="{
+                reverse(
+                    "unassigned-accommodation-requests:hide",
+                    args=[self.ar_one.id],
+                )
+            }"',
+            first_row,
+        )
         self.assertIn("Hide", first_row)
 
-    def test_hidden_row_shows_name_and_hide_link(self):
+    def test_hidden_row_shows_name_and_unhide_link(self):
         self.client.force_login(get_admin_user())
 
         sixth_row = str(self.get_table_rows("?hidden_records=True")[5])
 
         self.assertIn("Test Hidden", sixth_row)
-        self.assertIn("Hide", sixth_row)
+        self.assertIn(
+            f'action="{
+                reverse(
+                    "unassigned-accommodation-requests:unhide",
+                    args=[self.ar_hidden.id],
+                )
+            }"',
+            sixth_row,
+        )
+        self.assertIn("Unhide", sixth_row)
 
     def test_table_has_expected_column_headings(self):
         self.client.force_login(get_admin_user())

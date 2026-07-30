@@ -9,6 +9,7 @@ from django.db import DatabaseError, IntegrityError, transaction
 from django.db.models import Exists, F, OuterRef, Q, Subquery
 from django.forms import CheckboxInput
 from django.http import HttpResponse
+from django.middleware.csrf import get_token
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.html import format_html
@@ -54,8 +55,7 @@ from .forms import (
 
 
 def is_hidden(record: MvAccommodationRequest) -> bool:
-    """Stub until the hidden records table exists."""
-    return False
+    return hasattr(record, "hidden_unassigned_record")
 
 
 class UnassignedAccommodationRequestsTable(tables.Table):
@@ -99,8 +99,7 @@ class UnassignedAccommodationRequestsTable(tables.Table):
             value,
         )
 
-    def render_hide(self, record: MvAccommodationRequest):
-        label = "Unhide" if is_hidden(record) else "Hide"
+    def hide_link(self, record):
         return format_html(
             '<a class="govuk-body-s govuk-link govuk-link--no-visited-state" '
             'href="{}">{}</a>',
@@ -108,8 +107,26 @@ class UnassignedAccommodationRequestsTable(tables.Table):
                 "unassigned-accommodation-requests:hide",
                 args=[record.id],
             ),
-            label,
+            "Hide",
         )
+
+    def unhide_form(self, record):
+        return format_html(
+            '<form method="post" action={action_url} style="display: inline;">'
+            '<input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}">'
+            '<button type="submit" class="govuk-link govuk-link--no-visited-state">'
+            "Unhide"
+            "</button>"
+            "</form>",
+            action_url=reverse(
+                "unassigned-accommodation-requests:unhide",
+                args=[record.id],
+            ),
+            csrf_token=get_token(self.request),
+        )
+
+    def render_hide(self, record: MvAccommodationRequest):
+        return self.unhide_form(record) if is_hidden(record) else self.hide_link(record)
 
     class Meta:
         model = MvAccommodationRequest
@@ -245,10 +262,6 @@ class HideUnassignedAccommodationRequestView(
     model = MvAccommodationRequest
     template_name = "unassigned_accommodation_requests/hide_confirm_page.html"
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.object = None
-
     def get_success_url(self):
         return reverse(
             "unassigned-accommodation-requests:unassigned-accommodation-requests"
@@ -273,6 +286,34 @@ class HideUnassignedAccommodationRequestView(
         else:
             messages.success(request, "The accommodation request has been hidden.")
         return redirect(self.get_success_url())
+
+
+class UnhideUnassignedAccommodationRequestView(
+    PermissionsMixin, SingleObjectMixin, View
+):
+    group_type = UNASSIGNED_ACCOMMODATION_REQUESTS_GROUP_TYPES
+    model = MvAccommodationRequest
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        try:
+            with transaction.atomic():
+                HiddenUnassignedAccommodationRequest.objects.get(
+                    accommodation_request=self.object,
+                ).delete()
+        except HiddenUnassignedAccommodationRequest.DoesNotExist:
+            messages.error(request, "The record is already visible.")
+        except DatabaseError:
+            messages.error(request, "The record has not been unhidden.")
+        else:
+            messages.success(request, "The accommodation request has been unhidden.")
+
+        return redirect(
+            reverse(
+                "unassigned-accommodation-requests:unassigned-accommodation-requests"
+            )
+        )
 
 
 class AssignLocalAuthorityFormSteps(StrEnum):
