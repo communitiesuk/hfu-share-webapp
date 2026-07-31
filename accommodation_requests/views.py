@@ -1499,8 +1499,7 @@ class RematchGuestsFormWizard(
         if len(guests_to_move) == 1:
             success_message = f"{guests_to_move[0].get_full_name()} has been moved."
         else:
-            names_list = [guests.get_full_name() for guests in guests_to_move]
-            names = ", ".join(names_list[:-1]) + f" and {names_list[-1]}"
+            names = MvAccommodationRequest.format_guest_names(guests_to_move)
             success_message = f"{names} have been moved."
 
         messages.success(self.request, success_message)
@@ -1644,10 +1643,7 @@ class ReassignGuestsFormWizard(
             return redirect(self.get_cancel_url())
 
         # Set names based on the number of guests moved
-        names = guests_to_move[0].get_full_name()
-        if len(guests_to_move) > 1:
-            names_list = [guests.get_full_name() for guests in guests_to_move]
-            names = ", ".join(names_list[:-1]) + f" and {names_list[-1]}"
+        names = MvAccommodationRequest.format_guest_names(guests_to_move)
 
         messages.success(
             self.request,

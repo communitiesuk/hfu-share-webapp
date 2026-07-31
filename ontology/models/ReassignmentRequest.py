@@ -246,11 +246,7 @@ class ReassignmentRequest(models.Model):
         if not moving_guests:
             return None
 
-        names = moving_guests[0].get_full_name()
-        if len(moving_guests) > 1:
-            names_list = [guests.get_full_name() for guests in moving_guests]
-            names = ", ".join(names_list[:-1]) + f" and {names_list[-1]}"
-        return names
+        return MvAccommodationRequest.format_guest_names(list(moving_guests))
 
     @classmethod
     def create_reassignment_request(
