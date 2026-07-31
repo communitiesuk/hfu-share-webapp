@@ -6,6 +6,9 @@ from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
 from ontology.tests.factories import (
+    HiddenUnassignedAccommodationRequestFactory as HiddenUnassignedAccReqFactory,
+)
+from ontology.tests.factories import (
     MvAccommodationFactory,
     MvUkPostcodeFactory,
     MvVolunteerFactory,
@@ -100,6 +103,13 @@ class UnassignedAccommodationRequestListViewTestCase(TestSessionTokenMixin, Test
         self.ar_eight = AccReqFactory(
             title="Test Eight",
         )
+
+        self.ar_hidden = AccReqFactory(
+            title="Test Hidden",
+            latest_application_date=datetime(2020, 1, 1, tzinfo=timezone.utc),
+        )
+
+        HiddenUnassignedAccReqFactory(accommodation_request=self.ar_hidden)
 
     def get_page(self, query_string=""):
         url = reverse(
@@ -215,6 +225,43 @@ class UnassignedAccommodationRequestListViewTestCase(TestSessionTokenMixin, Test
             ],
         )
 
+    def test_filter_show_hidden_records_true_shows_hidden_records(self):
+        self.client.force_login(get_admin_user())
+
+        titles = self.get_displayed_titles("?hidden_records=True")
+
+        self.assertEqual(
+            titles,
+            [
+                "Test One",
+                "Test Three",
+                "Test six",
+                "Test five",
+                "Test seven",
+                "Test Hidden",
+                "Test Eight",
+                "Test Four",
+            ],
+        )
+
+    def test_filter_show_hidden_records_false_hides_hidden_records(self):
+        self.client.force_login(get_admin_user())
+
+        titles = self.get_displayed_titles("?hidden_records=False")
+
+        self.assertEqual(
+            titles,
+            [
+                "Test One",
+                "Test Three",
+                "Test six",
+                "Test five",
+                "Test seven",
+                "Test Eight",
+                "Test Four",
+            ],
+        )
+
     def test_super_sponsor_ars_not_included(self):
         self.ar_three_sponsor = MvVolunteerFactory(first_name="Scottish Government")
         self.ar_three.sponsor_id = [self.ar_three_sponsor.id]
@@ -291,7 +338,33 @@ class UnassignedAccommodationRequestListViewTestCase(TestSessionTokenMixin, Test
         self.assertIn("Test One", first_row)
         self.assertIn("Number 1 road", first_row)
         self.assertIn("AA1 1AA", first_row)
+        self.assertIn(
+            f'href="{
+                reverse(
+                    "unassigned-accommodation-requests:hide",
+                    args=[self.ar_one.id],
+                )
+            }"',
+            first_row,
+        )
         self.assertIn("Hide", first_row)
+
+    def test_hidden_row_shows_name_and_unhide_link(self):
+        self.client.force_login(get_admin_user())
+
+        sixth_row = str(self.get_table_rows("?hidden_records=True")[5])
+
+        self.assertIn("Test Hidden", sixth_row)
+        self.assertIn(
+            f'action="{
+                reverse(
+                    "unassigned-accommodation-requests:unhide",
+                    args=[self.ar_hidden.id],
+                )
+            }"',
+            sixth_row,
+        )
+        self.assertIn("Unhide", sixth_row)
 
     def test_table_has_expected_column_headings(self):
         self.client.force_login(get_admin_user())

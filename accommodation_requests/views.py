@@ -388,6 +388,7 @@ class AccommodationRequestDetailOverviewView(
         context["show_history_tab"] = self.user_action_allowed(
             group_types=AccommodationRequestDetailHistoryView.group_type
         )
+        context["back_button"] = self.get_back_button()
 
         if (
             not ar.get_sponsors_restrict_for_user(user).exists()
@@ -459,7 +460,22 @@ class AccommodationRequestDetailOverviewView(
         ]
         return context
 
+    def get_back_button(self):
+        if self.request.GET.get("from") != "unassigned-accommodation-requests":
+            return None
+
+        return {
+            "url": reverse(
+                "unassigned-accommodation-requests:unassigned-accommodation-requests"
+            ),
+            "text": "Back to unassigned accommodation requests",
+        }
+
     def get_assign_to_la_link(self):
+        # TODO: the assign to local authority flow is hidden for now
+        # Remove this line to turn it back on.
+        return None
+
         if not self.user_can_edit(
             group_types=UNASSIGNED_ACCOMMODATION_REQUESTS_GROUP_TYPES
         ):
@@ -1483,8 +1499,7 @@ class RematchGuestsFormWizard(
         if len(guests_to_move) == 1:
             success_message = f"{guests_to_move[0].get_full_name()} has been moved."
         else:
-            names_list = [guests.get_full_name() for guests in guests_to_move]
-            names = ", ".join(names_list[:-1]) + f" and {names_list[-1]}"
+            names = MvAccommodationRequest.format_guest_names(guests_to_move)
             success_message = f"{names} have been moved."
 
         messages.success(self.request, success_message)
@@ -1628,10 +1643,7 @@ class ReassignGuestsFormWizard(
             return redirect(self.get_cancel_url())
 
         # Set names based on the number of guests moved
-        names = guests_to_move[0].get_full_name()
-        if len(guests_to_move) > 1:
-            names_list = [guests.get_full_name() for guests in guests_to_move]
-            names = ", ".join(names_list[:-1]) + f" and {names_list[-1]}"
+        names = MvAccommodationRequest.format_guest_names(guests_to_move)
 
         messages.success(
             self.request,
