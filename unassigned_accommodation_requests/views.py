@@ -349,7 +349,7 @@ class AssignLocalAuthorityFormWizard(
 
     def done(self, form_list, **kwargs):
         self.object.assign_local_authority(
-            self.get_all_cleaned_data()["local_authority"]
+            self.get_all_cleaned_data()["local_authority"], self.request.user
         )
 
         return redirect(self.get_cancel_url())

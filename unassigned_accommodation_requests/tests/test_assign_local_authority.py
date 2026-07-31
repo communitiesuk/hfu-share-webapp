@@ -1,6 +1,7 @@
 import base64
 import hashlib
 import re
+from unittest import mock
 
 from django.test import TestCase
 from django.urls import reverse
@@ -414,6 +415,33 @@ class AssignLocalAuthorityFormTestCase(TestSessionTokenMixin, TestCase):
             + "?reset=true",
         )
         self.assertIsNone(response.context["form"].initial.get("region"))
+
+    @mock.patch("ontology.models.MvAccommodationRequest.sentry_sdk.metrics.count")
+    def test_completing_the_form_sends_a_sentry_metric(self, sentry_metrics):
+        user = get_mhclg_user()
+        self.client.force_login(user)
+
+        self.complete_form(self.unassigned_ar, self.english_la)
+
+        sentry_metrics.assert_called_once_with(
+            "accommodation_request.assigned_local_authority",
+            1,
+            attributes={"ltla_name": "Boston", "user_id": user.id},
+        )
+
+    @mock.patch("ontology.models.MvAccommodationRequest.log_event")
+    def test_completing_the_form_logs_the_assignment_event(self, mock_log_event):
+        user = get_mhclg_user()
+        self.client.force_login(user)
+
+        self.complete_form(self.unassigned_ar, self.english_la)
+
+        mock_log_event.assert_called_once_with(
+            "assign_local_authority: unassigned accommodation request assigned",
+            ar_pk=self.unassigned_ar.pk,
+            ltla_name="Boston",
+            user_pk=user.pk,
+        )
 
     def test_re_entering_the_form_without_reset_keeps_the_answers(self):
         self.client.force_login(get_mhclg_user())
