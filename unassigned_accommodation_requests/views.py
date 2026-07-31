@@ -406,7 +406,7 @@ class AssignLocalAuthorityFormWizard(
         local_authority = self.get_all_cleaned_data()["local_authority"]
 
         try:
-            self.object.assign_local_authority(local_authority)
+            self.object.assign_local_authority(local_authority, self.request.user)
 
             guest_names = self.object.get_guest_names()
             guest_names_prefix = f"{guest_names} " if guest_names else ""

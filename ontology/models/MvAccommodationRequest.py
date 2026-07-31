@@ -15,6 +15,7 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 from accounts.models import GroupInfo, User
+from case_management.settings import sentry_sdk
 from ontology.mixins import LocalAuthorityPermissionsManagerMixin
 from ontology.models import CheckType, DevCheckV2
 from ontology.models.DevCheckV2 import validate_sponsor_dbs_passed_subtype
@@ -26,6 +27,7 @@ from ontology.models.MvVolunteer import MvVolunteer
 from ontology.models.SponsorshipCertificationForm import SponsorshipCertificationForm
 from ontology.models.VisaApplication import VisaApplication
 from ontology.utils import LinkedRecordData
+from webapp.enhanced_sentry_logging import log_event
 
 logger = logging.getLogger(__name__)
 
@@ -863,7 +865,7 @@ class MvAccommodationRequest(models.Model):
         return list(self.get_accommodations().select_related("postcode").order_by("id"))
 
     @transaction.atomic
-    def assign_local_authority(self, local_authority: GroupInfo) -> None:
+    def assign_local_authority(self, local_authority: GroupInfo, user: User) -> None:
         ltla_name = local_authority.ltla_name
         utla_name = local_authority.utla_name
 
@@ -886,6 +888,19 @@ class MvAccommodationRequest(models.Model):
             accommodation.utla_name = utla_name
             accommodation.is_editable = True
             accommodation.save()
+
+        log_event(
+            "assign_local_authority: unassigned accommodation request assigned",
+            ar_pk=self.pk,
+            ltla_name=ltla_name,
+            user_pk=user.pk,
+        )
+
+        sentry_sdk.metrics.count(
+            "accommodation_request.assigned_local_authority",
+            1,
+            attributes={"ltla_name": ltla_name, "user_id": user.id},
+        )
 
     def get_accommodations_restrict_for_user(self, user: User) -> Q(MvAccommodation):
         accommodations_ids = self.get_accommodation_ids()
