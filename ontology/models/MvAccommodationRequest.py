@@ -672,6 +672,18 @@ class MvAccommodationRequest(models.Model):
     def get_people_restrict_for_user(self, user: User):
         return MvPerson.objects.get_for_user(user).filter(id__in=self.person_id or [])
 
+    @staticmethod
+    def format_guest_names(guests: list[MvPerson]) -> str:
+        if not guests:
+            return ""
+        names = [guest.get_full_name() for guest in guests]
+        if len(names) == 1:
+            return names[0]
+        return ", ".join(names[:-1]) + f" and {names[-1]}"
+
+    def get_guest_names(self) -> str:
+        return self.format_guest_names(self.get_people())
+
     def get_group(self) -> MvGroup | None:
         if self.group_id:
             return MvGroup.objects.filter(id=self.group_id).first()
