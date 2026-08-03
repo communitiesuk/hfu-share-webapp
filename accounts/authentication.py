@@ -7,7 +7,10 @@ import msal
 import requests
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, AnonymousUser
+from django.db import IntegrityError, transaction
 from django.http import HttpRequest
+
+from case_management.settings import sentry_sdk
 
 from .exceptions import EntraAuthException, FlowError, TokenError
 from .models import User
@@ -86,16 +89,16 @@ class Authentication:
             return AnonymousUser()
 
         try:
-            user = User.objects.get(
-                entra_tid=attributes["tid"], entra_oid=attributes["oid"]
+            return self._get_or_create_user(**attributes)
+        except IntegrityError:
+            sentry_sdk.capture_message(
+                "Could not attach Entra identity to an account",
+                level="warning",
+                contexts={
+                    "entra": {"oid": attributes["oid"], "tid": attributes["tid"]}
+                },
             )
-            self._update_user(user, **attributes)
-        except User.DoesNotExist:
-            # Password is set to a weird value here
-            user = User.objects.create_user(**self._user_mapping(**attributes))
-            user.save()
-
-        return user
+            return AnonymousUser()
 
     def get_logout_uri(self) -> str:
         authority = settings.ENTRA_AUTH["AUTHORITY"]
@@ -161,6 +164,36 @@ class Authentication:
         for field, value in self._user_mapping(**fields).items():
             setattr(user, field, value)
         user.save()
+
+    def _get_or_create_user(self, **attributes) -> AbstractBaseUser:
+        user = self._find_user(**attributes)
+        if user:
+            self._update_user(user, **attributes)
+            return user
+
+        # No password: Entra users authenticate against Microsoft
+        with transaction.atomic():
+            return User.objects.create_user(**self._user_mapping(**attributes))
+
+    def _find_user(self, **attributes) -> Optional[AbstractBaseUser]:
+        mapping = self._user_mapping(**attributes)
+        return self._find_user_by_entra_identity(mapping) or self._find_unlinked_user(
+            mapping
+        )
+
+    def _find_user_by_entra_identity(self, mapping) -> Optional[AbstractBaseUser]:
+        return User.objects.filter(
+            entra_oid=mapping["entra_oid"], entra_tid=mapping["entra_tid"]
+        ).first()
+
+    def _find_unlinked_user(self, mapping) -> Optional[AbstractBaseUser]:
+        unlinked_users = User.objects.filter(
+            entra_oid__isnull=True, entra_tid__isnull=True
+        )
+        return (
+            unlinked_users.filter(email__iexact=mapping["email"]).first()
+            or unlinked_users.filter(username__iexact=mapping["username"]).first()
+        )
 
     def _user_mapping(self, **attributes):
         return {

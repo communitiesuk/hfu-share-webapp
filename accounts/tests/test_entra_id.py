@@ -42,7 +42,9 @@ class EntraIdMissingSessionTokenTestCase(TestCase):
                 assert context.msg == "You are not allowed to access this application."
 
     @patch("accounts.views.Authentication.get_token_from_flow")
-    def test_entra_callback_returns_403_if_flow_missing(self, mock_get_token_from_flow):
+    def test_entra_callback_renders_access_denied_page_if_flow_missing(
+        self, mock_get_token_from_flow
+    ):
         mock_get_token_from_flow.side_effect = FlowError(
             "Flow cannot be extracted from session"
         )
@@ -50,11 +52,24 @@ class EntraIdMissingSessionTokenTestCase(TestCase):
         with self.settings(ENTRA_ID_ENABLED=True):
             response = self.client.get(reverse("accounts:callback"))
 
-        self.assertContains(
-            response,
-            "Unable to complete authentication process. Please try to login again.",
-            status_code=403,
-        )
+        self.assertEqual(response.status_code, 403)
+        self.assertTemplateUsed(response, "403.html")
+        self.assertContains(response, "Access Denied", status_code=403)
+
+    @patch("accounts.views.Authentication.get_token_from_flow")
+    @patch("accounts.views.authenticate")
+    def test_entra_callback_renders_access_denied_page_if_not_authenticated(
+        self, mock_authenticate, mock_get_token_from_flow
+    ):
+        mock_get_token_from_flow.return_value = "token"
+        mock_authenticate.return_value = None
+
+        with self.settings(ENTRA_ID_ENABLED=True):
+            response = self.client.get(reverse("accounts:callback"))
+
+        self.assertEqual(response.status_code, 403)
+        self.assertTemplateUsed(response, "403.html")
+        self.assertContains(response, "Access Denied", status_code=403)
 
 
 class EntraIdRedirectsUserToPageTheyWantedToVisitTestCase(TestCase):
