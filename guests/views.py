@@ -466,7 +466,7 @@ class GuestDetailActionsView(
     ActionsListView,
 ):
     group_type = list(FIX_GUEST_DUPLICATE_RECORDS_ALLOWED_GROUP_TYPES)
-    template_name = "guests/detail_view/detail_view_actions.html"
+    view_name = "actions"
     model = MvPerson
 
     def __init__(self, **kwargs):

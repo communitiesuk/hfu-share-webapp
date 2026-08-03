@@ -677,6 +677,7 @@ class LandingPageFixDuplicateAccommodationTileTests(TestSessionTokenMixin, TestC
             )
         )
 
+
 class UnassignedAccommodationRequestsBadgeTests(TestSessionTokenMixin, TestCase):
     def get_badge_value(self, user, heading):
         self.client.force_login(user)
