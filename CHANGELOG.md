@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.7.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.6.0...2.7.0) (2026-08-03)
+
+
+### Features
+
+* adds clear entra identity admin action (HFURB-3980) ([#76](https://github.com/communitiesuk/hfu-share-webapp/issues/76)) ([269148d](https://github.com/communitiesuk/hfu-share-webapp/commit/269148dbd16d4ff5fc7f6a97a23d2b0b756b6f64))
+
+
+### Bug Fixes
+
+* add logging and a metric to the assign local authority flow ([#69](https://github.com/communitiesuk/hfu-share-webapp/issues/69)) ([4f75a21](https://github.com/communitiesuk/hfu-share-webapp/commit/4f75a211139c986eac31781e2753f9d98b4a4a9a))
+* enhance Entra identity linking and error handling in authentication ([#58](https://github.com/communitiesuk/hfu-share-webapp/issues/58)) ([8075ab9](https://github.com/communitiesuk/hfu-share-webapp/commit/8075ab9a668e92213361fe819c07d9e359bae6de))
+
 ## [2.6.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.5.0...2.6.0) (2026-07-30)
 
 
