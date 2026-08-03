@@ -7,6 +7,18 @@ from accounts.models import AccessRequest, GroupInfo, User
 
 class CustomUserAdmin(UserAdmin):
     list_display = ["username", "email", "is_active", "is_staff", "last_login"]
+    actions = ["clear_entra_identity"]
+
+    @admin.action(
+        description="Clear Entra ID (entra_oid/entra_tid) so the user can sign in again"
+    )
+    def clear_entra_identity(self, request, queryset):
+        updated = queryset.update(entra_oid=None, entra_tid=None)
+        self.message_user(
+            request,
+            f"Cleared Entra ID for {updated} user(s). They can now sign in again "
+            "to re-link their account.",
+        )
 
 
 admin.site.register(User, CustomUserAdmin)
