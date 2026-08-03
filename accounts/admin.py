@@ -9,7 +9,7 @@ class CustomUserAdmin(UserAdmin):
     list_display = ["username", "email", "is_active", "is_staff", "last_login"]
     actions = ["clear_entra_identity"]
 
-    @admin.action(description="⚠️ Clear Entra ID - last resort only!")
+    @admin.action(description="⚠️ Clear Entra ID")
     def clear_entra_identity(self, request, queryset):
         updated = queryset.update(entra_oid=None, entra_tid=None)
         self.message_user(
