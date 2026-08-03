@@ -1,6 +1,3 @@
-from django.conf import settings
-
-from accounts.enums import GroupType
 from webapp.constants import (
     ACCOMMODATION_ALLOWED_GROUP_TYPES,
     ACCOMMODATION_REQUEST_ALLOWED_GROUP_TYPES,
@@ -65,10 +62,8 @@ def _compute_available_links(user) -> dict:
         "unassigned_accommodation_requests": bool(
             user_group_types & UNASSIGNED_ACCOMMODATION_REQUESTS_ALLOWED_GROUP_TYPES
         ),
-        "fix_duplicate_records": bool(user_group_types & {GroupType.DEV})
-        or (
-            settings.FIX_DUPLICATE_RECORDS_ENABLED
-            and bool(user_group_types & FIX_DUPLICATE_RECORDS_ALLOWED_GROUP_TYPES)
+        "fix_duplicate_records": bool(
+            user_group_types & FIX_DUPLICATE_RECORDS_ALLOWED_GROUP_TYPES
         ),
     }
 

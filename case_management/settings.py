@@ -64,11 +64,6 @@ ENHANCED_DEDUPLICATION_LOGGING = (
     os.environ.get("ENHANCED_DEDUPLICATION_LOGGING", "False") == "True"
 )
 
-# Feature flag to control visibility of fix duplicate records feature to non-admin users
-FIX_DUPLICATE_RECORDS_ENABLED = (
-    os.environ.get("FIX_DUPLICATE_RECORDS_ENABLED", "True") == "True"
-)
-
 # Application definition
 
 INSTALLED_APPS = [
