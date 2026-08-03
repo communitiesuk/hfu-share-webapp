@@ -163,7 +163,7 @@ class GuestsActionsTestCase(TestSessionTokenMixin, SummaryListTestCaseMixin, Tes
         )
         self.assertEqual(response.status_code, http.client.NOT_FOUND)
 
-    def test_la_eq_user_is_allowed_access(self):
+    def test_la_ea_user_is_allowed_access(self):
         user = get_la_early_adopter_user()
         self.client.force_login(user)
 
