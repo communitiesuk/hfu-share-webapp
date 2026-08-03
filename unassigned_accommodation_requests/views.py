@@ -383,19 +383,13 @@ class AssignLocalAuthorityFormWizard(
             "accommodation-requests:detail-overview", kwargs={"pk": self.object.pk}
         )
 
-    def get_guest_names(self) -> str:
-        names = [guest.get_full_name() for guest in self.object.get_people()]
-        if len(names) < 2:
-            return names[0] if names else ""
-        return ", ".join(names[:-1]) + f" and {names[-1]}"
-
     def done(self, form_list, **kwargs):
         local_authority = self.get_all_cleaned_data()["local_authority"]
 
         try:
-            self.object.assign_local_authority(local_authority)
+            self.object.assign_local_authority(local_authority, self.request.user)
 
-            guest_names = self.get_guest_names()
+            guest_names = self.object.get_guest_names()
             guest_names_prefix = f"{guest_names} " if guest_names else ""
             messages.success(
                 self.request,
