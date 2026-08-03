@@ -1,30 +1,76 @@
 version: 2
+
 updates:
-- package-ecosystem: pip
-  directory: "/"
-  schedule:
-    interval: daily
-    time: "03:00"
-  open-pull-requests-limit: 0
-  labels:
-  - dependencies
-- package-ecosystem: docker
-  directory: "/"
-  schedule:
-    interval: daily
-    time: "03:00"
-  ignore:
-  - dependency-name: "python"
-    versions:
-    - ">= 3.14"
-  open-pull-requests-limit: 5
-  labels:
-  - dependencies
-- package-ecosystem: github-actions
-  directory: "/"
-  schedule:
-    interval: daily
-    time: "03:00"
-  open-pull-requests-limit: 0
-  labels:
-  - dependencies
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "03:00"
+      timezone: "Europe/London"
+
+    open-pull-requests-limit: 5
+
+    labels:
+      - "dependencies"
+
+    ignore:
+      - dependency-name: "Django"
+        versions:
+          - ">=6.0"
+
+    groups:
+      django:
+        patterns:
+          - "Django"
+          - "asgiref"
+          - "django-*"
+          - "crispy-forms-gds"
+          - "rules"
+
+      aws:
+        patterns:
+          - "boto3"
+          - "boto3-stubs"
+          - "moto"
+
+      typing-and-linting:
+        patterns:
+          - "mypy"
+          - "django-stubs"
+          - "types-*"
+          - "ruff"
+          - "pylint"
+          - "djlint"
+
+      testing:
+        patterns:
+          - "pytest"
+          - "pytest-*"
+          - "coverage"
+          - "factory-boy"
+          - "freezegun"
+          - "tblib"
+
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "03:05"
+      timezone: "Europe/London"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+    ignore:
+      - dependency-name: "python"
+        versions:
+          - ">=3.14"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "03:10"
+      timezone: "Europe/London"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
