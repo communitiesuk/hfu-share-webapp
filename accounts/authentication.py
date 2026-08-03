@@ -7,7 +7,7 @@ import msal
 import requests
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, AnonymousUser
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from django.http import HttpRequest
 
 from case_management.settings import sentry_sdk
@@ -172,16 +172,27 @@ class Authentication:
             return user
 
         # No password: Entra users authenticate against Microsoft
-        return User.objects.create_user(**self._user_mapping(**attributes))
+        with transaction.atomic():
+            return User.objects.create_user(**self._user_mapping(**attributes))
 
     def _find_user(self, **attributes) -> Optional[AbstractBaseUser]:
         mapping = self._user_mapping(**attributes)
+        return self._find_user_by_entra_identity(mapping) or self._find_unlinked_user(
+            mapping
+        )
+
+    def _find_user_by_entra_identity(self, mapping) -> Optional[AbstractBaseUser]:
+        return User.objects.filter(
+            entra_oid=mapping["entra_oid"], entra_tid=mapping["entra_tid"]
+        ).first()
+
+    def _find_unlinked_user(self, mapping) -> Optional[AbstractBaseUser]:
+        unlinked_users = User.objects.filter(
+            entra_oid__isnull=True, entra_tid__isnull=True
+        )
         return (
-            User.objects.filter(
-                entra_oid=mapping["entra_oid"], entra_tid=mapping["entra_tid"]
-            ).first()
-            or User.objects.filter(email__iexact=mapping["email"]).first()
-            or User.objects.filter(username__iexact=mapping["username"]).first()
+            unlinked_users.filter(email__iexact=mapping["email"]).first()
+            or unlinked_users.filter(username__iexact=mapping["username"]).first()
         )
 
     def _user_mapping(self, **attributes):

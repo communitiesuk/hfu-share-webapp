@@ -1,11 +1,10 @@
 import logging
-from http import HTTPStatus
 
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_not_required
-from django.http import HttpRequest, HttpResponseForbidden, HttpResponseRedirect
-from django.shortcuts import render
+from django.core.exceptions import PermissionDenied
+from django.http import HttpRequest, HttpResponseRedirect
 from django.utils.http import url_has_allowed_host_and_scheme
 
 from .authentication import Authentication
@@ -39,9 +38,9 @@ def entra_callback(request: HttpRequest):
     except FlowError as error:
         logger.error(error)
         request.session.flush()
-        return HttpResponseForbidden(
-            "Unable to complete authentication process. Please try to login again."
-        )
+        raise PermissionDenied(
+            "Unable to complete the authentication process."
+        ) from error
 
     user = authenticate(request, token=token)
     if user:
@@ -59,4 +58,4 @@ def entra_callback(request: HttpRequest):
 
         return HttpResponseRedirect(next_url)
 
-    return render(request, "403.html", status=HTTPStatus.FORBIDDEN)
+    raise PermissionDenied("You are not allowed to access this application.")
