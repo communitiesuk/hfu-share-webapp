@@ -73,6 +73,29 @@ class LinkEntraIdentityTestCase(TestCase):
         self.assertEqual(str(existing_user.entra_oid), OTHER_OBJECT_ID)
         self.assertEqual(User.objects.count(), 1)
 
+    def test_recovers_the_account_after_its_entra_identity_is_cleared(self):
+        existing_user = UserFactory(
+            email=EMAIL,
+            username="legacy-username",
+            entra_oid=OTHER_OBJECT_ID,
+            entra_tid=TENANT_ID,
+            is_dev=True,
+        )
+
+        self.assertIsInstance(self.authenticate(), AnonymousUser)
+
+        existing_user.entra_oid = None
+        existing_user.entra_tid = None
+        existing_user.save(update_fields=["entra_oid", "entra_tid"])
+
+        user = self.authenticate()
+
+        self.assertEqual(user.pk, existing_user.pk)
+        self.assertEqual(str(user.entra_oid), OBJECT_ID)
+        self.assertEqual(str(user.entra_tid), TENANT_ID)
+        self.assertTrue(user.is_dev())
+        self.assertEqual(User.objects.count(), 1)
+
     def test_matches_on_the_email_regardless_of_case(self):
         legacy_user = UserFactory(
             email=EMAIL.upper(), username=EMAIL.upper(), entra_oid=None, entra_tid=None
