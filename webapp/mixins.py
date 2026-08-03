@@ -451,19 +451,21 @@ class MultiLABannerMixin:
                 kwargs={"pk": self.object.id},
             )
             multi_la_message = format_html(
+                '<p class="govuk-notification-banner__heading max-width-none">'
                 "This accommodation request is linked to multiple local "
                 "authorities (LAs). One or more of the guests on this"
                 " accommodation request have visa applications in more than one LA."
                 "<br><br>Some actions may be unavailable.<br><br>"
                 "You can find guests who are linked to multiple local authorities in"
                 " the <a class='govuk-link "
-                "govuk-link--no-visited-state' href='{}'>linked records tab</a>.",
+                "govuk-link--no-visited-state' href='{}'>linked records tab</a>."
+                "</p>",
                 linked_records_url,
             )
             messages.info(
                 self.request,
                 multi_la_message,
-                extra_tags="html_safe content_full_width",
+                extra_tags="html_safe",
             )
 
 

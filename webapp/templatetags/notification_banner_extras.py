@@ -20,3 +20,15 @@ def message_level_to_notification_banner_title(value: int | None) -> str:
     if value in message_level_to_notification_banner_title_override:
         return message_level_to_notification_banner_title_override[value]
     return "Important"
+
+
+@register.filter
+def notification_banner_variant_to_message_level(value: str | None) -> int | None:
+    for (
+        message_level,
+        notification_banner_variant,
+    ) in message_level_to_notification_banner_variant_override.items():
+        if notification_banner_variant == value:
+            return message_level
+
+    return None

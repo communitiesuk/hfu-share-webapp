@@ -14,9 +14,9 @@
     {% url 'accommodation-requests:detail-properties' object.id as properties_url %}
     {% url 'accommodation-requests:detail-comments' object.id as comments_url %}
     {% url 'accommodation-requests:detail-history' object.id as history_url %}
+    {% include "webapp/components/notification_banner/notification_banner_from_messages.html" %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-one-half">
-            {% include "webapp/components/notification_banner/notification_banner.html" %}
             {% include "webapp/components/heading/heading.html" with caption="Accommodation request record for" page_heading=object.title %}
         </div>
     </div>
@@ -56,8 +56,13 @@
                     {% endblock selected_tab %}
                 </div>
             </div>
-            <a href="{% url 'accommodation-requests:accommodation-requests' %}"
-               class="govuk-button govuk-button--secondary">Back to list of accommodation requests</a>
+            {% if back_button %}
+                <a href="{{ back_button.url }}"
+                   class="govuk-button govuk-button--secondary">{{ back_button.text }}</a>
+            {% else %}
+                <a href="{% url 'accommodation-requests:accommodation-requests' %}"
+                   class="govuk-button govuk-button--secondary">Back to list of accommodation requests</a>
+            {% endif %}
         </div>
     </div>
 {% endblock content %}

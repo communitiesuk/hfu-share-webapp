@@ -1,16 +1,22 @@
 import os
 from enum import StrEnum
+from typing import Literal
 
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import Field, Fieldset, Layout
 from crispy_forms_gds.layout.constants import Size
+from django.contrib import messages
+from django.db import DatabaseError, IntegrityError, transaction
 from django.db.models import Exists, F, OuterRef, Q, Subquery
 from django.forms import CheckboxInput
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse
+from django.middleware.csrf import get_token
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+from django.views import View
+from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.detail import SingleObjectMixin
 from django_filters import (
     BooleanFilter,
@@ -27,7 +33,12 @@ from django_tables2 import (
 )
 from formtools.wizard.views import NamedUrlSessionWizardView
 
-from ontology.models import MvAccommodation, MvAccommodationRequest, MvVolunteer
+from ontology.models import (
+    HiddenUnassignedAccommodationRequest,
+    MvAccommodation,
+    MvAccommodationRequest,
+    MvVolunteer,
+)
 from webapp.constants import ACCOMMODATION_REQUEST_SEARCH_FIELDS
 from webapp.mixins import (
     FilterPanelMixin,
@@ -45,8 +56,7 @@ from .forms import (
 
 
 def is_hidden(record: MvAccommodationRequest) -> bool:
-    """Stub until the hidden records table exists."""
-    return False
+    return hasattr(record, "hidden_unassigned_record")
 
 
 class UnassignedAccommodationRequestsTable(tables.Table):
@@ -64,7 +74,7 @@ class UnassignedAccommodationRequestsTable(tables.Table):
     )
     hide = Column(
         verbose_name=mark_safe('<span class="govuk-visually-hidden">Actions</span>'),
-        empty_values=(),
+        accessor="id",
         orderable=False,
     )
 
@@ -85,17 +95,39 @@ class UnassignedAccommodationRequestsTable(tables.Table):
             reverse(
                 "accommodation-requests:detail-overview",
                 args=[record.id],
-            ),
+            )
+            + "?from=unassigned-accommodation-requests",
             value,
         )
 
-    def render_hide(self, record):
-        label = "Unhide" if is_hidden(record) else "Hide"
-        # No href until hiding is implemented, so the link cannot be actioned
+    def hide_link(self, record):
         return format_html(
-            '<a class="govuk-body-s govuk-link" aria-disabled="true">{}</a>',
-            label,
+            '<a class="govuk-body-s govuk-link govuk-link--no-visited-state" '
+            'href="{}">{}</a>',
+            reverse(
+                "unassigned-accommodation-requests:hide",
+                args=[record.id],
+            ),
+            "Hide",
         )
+
+    def unhide_form(self, record):
+        return format_html(
+            '<form method="post" action={action_url} style="display: inline;">'
+            '<input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}">'
+            '<button type="submit" class="govuk-link govuk-link--no-visited-state">'
+            "Unhide"
+            "</button>"
+            "</form>",
+            action_url=reverse(
+                "unassigned-accommodation-requests:unhide",
+                args=[record.id],
+            ),
+            csrf_token=get_token(self.request),
+        )
+
+    def render_hide(self, record: MvAccommodationRequest):
+        return self.unhide_form(record) if is_hidden(record) else self.hide_link(record)
 
     class Meta:
         model = MvAccommodationRequest
@@ -119,12 +151,22 @@ class UnassignedAccommodationRequestsFilter(FilterSet, FilterPanelMixin):
     hidden_records = BooleanFilter(
         label="Hidden records",
         widget=CheckboxInput(attrs={"value": "Show hidden records"}),
-        method="include_hidden_filter",
+        method=lambda qs, name, value: qs,
     )
 
-    def include_hidden_filter(self, queryset, _, value):
-        """Stub until the hidden records table exists."""
-        return queryset
+    @property
+    def qs(self):
+        qs = super().qs
+
+        if self.form.is_valid():
+            show_hidden = self.form.cleaned_data.get("hidden_records")
+        else:
+            show_hidden = False
+
+        if not show_hidden:
+            qs = qs.filter(hidden_unassigned_record__isnull=True)
+
+        return qs
 
     def search_filter(self, queryset, _, value):
         return perform_search(value, queryset, ACCOMMODATION_REQUEST_SEARCH_FIELDS)
@@ -214,6 +256,70 @@ class UnassignedAccommodationRequestsListView(
         )
 
 
+class HideUnhideUnassignedAccommodationRequestViewBase(
+    PermissionsMixin, SingleObjectMixin, View
+):
+    group_type = UNASSIGNED_ACCOMMODATION_REQUESTS_GROUP_TYPES
+    model = MvAccommodationRequest
+    success_state: Literal["hidden", "unhidden"]
+
+    def get_success_url(self):
+        return reverse(
+            "unassigned-accommodation-requests:unassigned-accommodation-requests"
+        )
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        try:
+            with transaction.atomic():
+                self.db_action(request)
+        except HiddenUnassignedAccommodationRequest.DoesNotExist:
+            messages.error(request, "The record is already visible.")
+        except DatabaseError:
+            messages.error(request, f"The record has not been {self.success_state}.")
+        else:
+            messages.success(
+                request,
+                f"The accommodation request has been {self.success_state}.",
+            )
+
+        return redirect(self.get_success_url())
+
+    def db_action(self, request: HttpRequest) -> None:
+        raise NotImplementedError("Subclasses must implement db_action")
+
+
+class HideUnassignedAccommodationRequestView(
+    HideUnhideUnassignedAccommodationRequestViewBase, TemplateResponseMixin
+):
+    template_name = "unassigned_accommodation_requests/hide_confirm_page.html"
+    success_state = "hidden"
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return self.render_to_response(
+            {"object": self.object, "cancel_url": self.get_success_url()}
+        )
+
+    def db_action(self, request):
+        HiddenUnassignedAccommodationRequest.objects.create(
+            accommodation_request=self.object,
+            hidden_by=request.user,
+        )
+
+
+class UnhideUnassignedAccommodationRequestView(
+    HideUnhideUnassignedAccommodationRequestViewBase
+):
+    success_state = "unhidden"
+
+    def db_action(self, _request):
+        HiddenUnassignedAccommodationRequest.objects.get(
+            accommodation_request=self.object,
+        ).delete()
+
+
 class AssignLocalAuthorityFormSteps(StrEnum):
     REGION = "region"
     LOCAL_AUTHORITY = "local-authority"
@@ -297,4 +403,25 @@ class AssignLocalAuthorityFormWizard(
         )
 
     def done(self, form_list, **kwargs):
-        return redirect(self.get_cancel_url())
+        local_authority = self.get_all_cleaned_data()["local_authority"]
+
+        try:
+            self.object.assign_local_authority(local_authority, self.request.user)
+
+            guest_names = self.object.get_guest_names()
+            guest_names_prefix = f"{guest_names} " if guest_names else ""
+            messages.success(
+                self.request,
+                f"You have assigned {guest_names_prefix}to "
+                f"{local_authority.ltla_name}.",
+            )
+        except (IntegrityError, DatabaseError):
+            messages.error(
+                self.request,
+                "The record has not been assigned. We do not know why this "
+                "happened. You can try again now or later.",
+            )
+
+        return redirect(
+            f"{self.get_cancel_url()}?from=unassigned-accommodation-requests"
+        )

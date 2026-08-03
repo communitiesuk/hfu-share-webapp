@@ -14,6 +14,7 @@ from ontology.models import (
     DevCheckV2,
     EoiHost,
     ExportToolObject,
+    HiddenUnassignedAccommodationRequest,
     MvAccommodation,
     MvAccommodationRequest,
     MvGroup,
@@ -90,6 +91,17 @@ class MvAccommodationRequestFactory(DjangoModelFactory):
 
     class Meta:
         model = MvAccommodationRequest
+
+
+class HiddenUnassignedAccommodationRequestFactory(DjangoModelFactory):
+    id = Sequence(str)
+    accommodation_request = SubFactory(
+        "ontology.tests.factories.MvAccommodationRequestFactory"
+    )
+    hidden_by = SubFactory("accounts.tests.factories.UserFactory")
+
+    class Meta:
+        model = HiddenUnassignedAccommodationRequest
 
 
 class PersonMasterRecordFactory(DjangoModelFactory):

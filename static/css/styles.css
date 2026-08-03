@@ -130,6 +130,10 @@ th.orderable.govuk-table__header:last-child {
     max-width: none;
 }
 
+.govuk-notification-banner__heading-error {
+  color: #d4351c;
+}
+
 /* HERO BANNER */
 
 .mhclg-crest {
