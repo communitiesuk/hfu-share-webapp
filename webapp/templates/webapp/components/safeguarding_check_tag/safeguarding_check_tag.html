@@ -1,4 +1,4 @@
-{% load safeguarding_checks_extras %}
+{% load filters safeguarding_checks_extras %}
 <div class="govuk-body-m govuk-!-margin-top-1 govuk-!-margin-bottom-2"
      style="display: flex;
             justify-content: space-between;
@@ -34,7 +34,7 @@
 {% if last_updated_by %}
     <div>
         <p class="govuk-body govuk-!-margin-0">
-            {{ last_updated_by.email|default:"Created in previous system" }} on {{ last_updated_at|date:"j F Y \\a\\t g:ia"|cut:"." |default:"Unknown time" }}
+            {{ last_updated_by.email|default:"Created in previous system" }} on {{ last_updated_at|format_date|default:"Unknown time" }}
         </p>
     </div>
 {% endif %}

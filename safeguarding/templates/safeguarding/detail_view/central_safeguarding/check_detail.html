@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load filters %}
 {% block breadcrumb_content %}
     <li class="govuk-breadcrumbs__list-item">
         <a class="govuk-breadcrumbs__link"
@@ -17,7 +18,7 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-one-half">
             <h2 class="govuk-heading-m">{{ notification.name }}</h2>
-            <p class="govuk-body">{{ notification.created_at|date:"j F Y \\a\\t g:ia"|cut:"." }}</p>
+            <p class="govuk-body">{{ notification.created_at|format_date }}</p>
             {% if check_fields %}
                 {% include "webapp/components/safeguarding_check_tag/safeguarding_check_tag.html" with safeguarding_check_status=check.check_status %}
                 <div class="govuk-grid-row govuk-!-margin-top-3">
