@@ -4,6 +4,7 @@ from django.db.models import Q
 
 from ontology.models import CheckType
 from ontology.models.MvInteraction import MvInteraction
+from webapp.formatting import format_date_value
 
 
 class DevCheckV2(models.Model):
@@ -302,7 +303,7 @@ class DevCheckV2(models.Model):
         self, interaction_type: MvInteraction.InteractionContact, updated_at
     ) -> str:
         status = self.get_check_status_display().lower()
-        date = updated_at.strftime("%-d %B %Y")
+        date = format_date_value(updated_at.date())
 
         if (
             interaction_type
