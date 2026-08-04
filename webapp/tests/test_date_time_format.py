@@ -22,6 +22,23 @@ class CustomDateColumnTests(TestCase):
 
         self.assertEqual(not_rendered, "—")
 
+    def test_table_date_column_converts_aware_datetime_to_local_time(self):
+        value = datetime(2026, 9, 1, 23, 22, tzinfo=timezone.utc)
+
+        rendered = self.column.render(value=value)
+
+        self.assertEqual(rendered, "2 Sep 2026")
+
+    def test_table_date_column_reformats_date_strings(self):
+        rendered = self.column.render(value="01 Sep 2026")
+
+        self.assertEqual(rendered, "1 Sep 2026")
+
+    def test_table_date_column_leaves_unparseable_strings_unchanged(self):
+        rendered = self.column.render(value="Unknown")
+
+        self.assertEqual(rendered, "Unknown")
+
 
 class CustomDateTimeColumnTests(TestCase):
     def setUp(self):

@@ -2,12 +2,16 @@ from datetime import datetime
 from typing import Callable
 
 import django_tables2 as tables
-from django.utils import timezone
-from django.utils.formats import date_format
 from django_filters import ChoiceFilter, MultipleChoiceFilter, RangeFilter
 from django_filters.conf import settings
 
 from webapp.fields import CustomDateRangeField, CustomRangeField
+from webapp.formatting import (
+    DATE_LIST_FORMAT,
+    DATETIME_LIST_FORMAT,
+    format_date_value,
+    to_local_date,
+)
 
 
 class LazyMultipleChoiceFilter(MultipleChoiceFilter):
@@ -60,7 +64,7 @@ class CustomRangeFilter(RangeFilter):
 
 
 class CustomDateColumn(tables.Column):
-    format = "j M Y"
+    format = DATE_LIST_FORMAT
 
     def __init__(self, *args, **kwargs):
         kwargs.setdefault("default", "—")
@@ -70,14 +74,16 @@ class CustomDateColumn(tables.Column):
         if value is None:
             return self.default
         if isinstance(value, str):
-            value_str = value.strip()
-            value = datetime.strptime(value_str, "%d %b %Y")
+            try:
+                value = datetime.strptime(value.strip(), "%d %b %Y")
+            except ValueError:
+                return value
 
-        return date_format(value, format=self.format)
+        return format_date_value(to_local_date(value), list_view=True)
 
 
 class CustomDateTimeColumn(tables.Column):
-    format = "j M Y, g:ia"
+    format = DATETIME_LIST_FORMAT
 
     def __init__(self, *args, **kwargs):
         kwargs.setdefault("default", "—")
@@ -87,11 +93,7 @@ class CustomDateTimeColumn(tables.Column):
         if value is None:
             return self.default
 
-        if timezone.is_aware(value):
-            value = timezone.localtime(value)
-
-        formatted = date_format(value, format=self.format)
-        return formatted.replace("a.m.", "am").replace("p.m.", "pm")
+        return format_date_value(value, list_view=True)
 
 
 def normalize_empty_to_none(value):

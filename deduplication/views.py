@@ -2454,9 +2454,7 @@ class SelectAndReviewSponsorRecordsFormWizard(SelectAndViewRecordsFormWizard):
             )
             if ps["date_of_birth"]:
                 date_of_birth_str = ps["date_of_birth"].split(" (")[0]
-                date_of_birth = datetime.strptime(
-                    date_of_birth_str, "%d %B %Y"
-                ).strftime("%-d %b %Y")
+                date_of_birth = datetime.strptime(date_of_birth_str, "%d %B %Y").date()
             else:
                 date_of_birth = ps["date_of_birth"]
             self.get_check_and_complete_step_view().principal_sponsor = {
@@ -2881,9 +2879,7 @@ class SelectAndReviewGuestRecordsFormWizard(SelectAndViewRecordsFormWizard):
             )
             if ps["date_of_birth"]:
                 date_of_birth_str = ps["date_of_birth"].split(" (")[0]
-                date_of_birth = datetime.strptime(
-                    date_of_birth_str, "%d %B %Y"
-                ).strftime("%-d %b %Y")
+                date_of_birth = datetime.strptime(date_of_birth_str, "%d %B %Y").date()
             else:
                 date_of_birth = ps["date_of_birth"]
             self.get_check_and_complete_step_view().principal_guest = {
