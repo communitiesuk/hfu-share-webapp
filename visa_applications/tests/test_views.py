@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 from django.db.models import QuerySet
 from django.http import Http404
+from django.template.loader import render_to_string
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from freezegun import freeze_time
@@ -261,10 +262,12 @@ class VisaApplicationOverviewViewTest(TestCase):
         self.assertIn(visa_application.visa_status, fields["Visa status"])
 
         self.assertIn("Application date", fields)
-        self.assertIn("24 Mar 2025 at 2:30pm", fields["Application date"])
+        self.assertEqual(
+            visa_application.application_event_datetime, fields["Application date"]
+        )
 
         self.assertIn("Decision date", fields)
-        self.assertIn("25 Mar 2025 at 9:15am", fields["Decision date"])
+        self.assertEqual(visa_application.visa_decision_date, fields["Decision date"])
 
         self.assertIn("Sponsor name", fields)
         self.assertIn(linked_sponsor.get_full_name(), fields["Sponsor name"])
@@ -320,10 +323,12 @@ class VisaApplicationOverviewViewTest(TestCase):
         self.assertIn(visa_application.visa_status, fields["Visa status"])
 
         self.assertIn("Application date", fields)
-        self.assertIn("24 Mar 2025 at 2:30pm", fields["Application date"])
+        self.assertEqual(
+            visa_application.application_event_datetime, fields["Application date"]
+        )
 
         self.assertIn("Decision date", fields)
-        self.assertIn("25 Mar 2025 at 9:15am", fields["Decision date"])
+        self.assertEqual(visa_application.visa_decision_date, fields["Decision date"])
 
         self.assertIn("Sponsor name", fields)
         self.assertEqual([], fields["Sponsor name"])
@@ -350,13 +355,21 @@ class VisaApplicationOverviewViewTest(TestCase):
 
         context = view.get_context_data()
         fields = dict(context["fields"])
-        app_date = fields["Application date"]
-        decision_date = fields["Decision date"]
 
-        self.assertIn("Mar 2025 at", app_date)
-        self.assertIn("Mar 2025 at", decision_date)
-        self.assertTrue(app_date.endswith("am") or app_date.endswith("pm"))
-        self.assertTrue(decision_date.endswith("am") or decision_date.endswith("pm"))
+        self.assertEqual(
+            "24 March 2025 at 2:30pm",
+            render_to_string(
+                "webapp/components/record_tabs/record_value.html",
+                {"value": fields["Application date"]},
+            ).strip(),
+        )
+        self.assertEqual(
+            "25 March 2025 at 9:15am",
+            render_to_string(
+                "webapp/components/record_tabs/record_value.html",
+                {"value": fields["Decision date"]},
+            ).strip(),
+        )
 
     def test_overview_view_handles_null_dates(self):
         visa_application = VisaApplicationFactory(
@@ -828,3 +841,18 @@ class VisaApplicationVIRViewReopenTests(TestCase):
         view.get_object = lambda: view.object
         context = view.get_context_data()
         self.assertFalse(context["user_can_reopen_vir"])
+
+
+class VIRRequestDetailsTableTest(TestCase):
+    def render_closed_date(self, closed_at):
+        return render_to_string(
+            "visa_applications/detail_view/vir/vir_request_details_table.html",
+            {"latest_vir": {"closed_at": closed_at}},
+        )
+
+    def test_closed_date_uses_detail_view_datetime_format(self):
+        rendered = self.render_closed_date(
+            datetime(2025, 9, 1, 10, 22, tzinfo=timezone.utc)
+        )
+
+        self.assertIn("1 September 2025 at 11:22am", rendered)

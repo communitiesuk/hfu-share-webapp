@@ -1,5 +1,4 @@
 from django import template
-from django.utils.timezone import localtime
 
 from ontology.models.VisaInformationRequest import VisaInformationRequest
 from webapp.constants import (
@@ -41,15 +40,3 @@ def get_requesttype_label(value):
         return VisaInformationRequest.RequestType(value).label
     except (ValueError, AttributeError):
         return value
-
-
-@register.filter
-def format_vir_datetime(value):
-    if value:
-        value = localtime(value)
-        return (
-            value.strftime("%d %b %Y at %-I:%M%p")
-            .replace("AM", "am")
-            .replace("PM", "pm")
-        )
-    return ""

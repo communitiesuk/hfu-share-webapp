@@ -1,4 +1,4 @@
-{% load visa_application_extras %}
+{% load filters visa_application_extras %}
 <table class="govuk-!-margin-bottom-7">
     <tbody>
         <tr>
@@ -23,7 +23,7 @@
         {% if latest_vir.closed_at %}
             <tr>
                 <td class="govuk-!-font-weight-bold govuk-!-padding-right-8 govuk-!-padding-top-1">Closed date</td>
-                <td class="govuk-!-padding-top-1">{{ latest_vir.closed_at|format_vir_datetime }}</td>
+                <td class="govuk-!-padding-top-1">{{ latest_vir.closed_at|format_date }}</td>
             </tr>
         {% endif %}
     </tbody>
