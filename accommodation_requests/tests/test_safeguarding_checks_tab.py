@@ -50,7 +50,7 @@ class TestAccommodationRequestsSafeguardChecksTab(
             )
         )
 
-        self.assertContains(response, "View and update safeguarding checks")
+        self.assertContains(response, "Add safeguarding check")
 
     def test_does_not_show_accomm_suitable_check_not_directly_related_to_ar(self):
         accommodation = MvAccommodationFactory(
