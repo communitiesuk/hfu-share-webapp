@@ -10,6 +10,7 @@ from django.utils.html import format_html
 from accounts.models import AccessRequest
 from ontology.utils import LinkedRecordData
 from webapp.constants import status_to_tag_colour
+from webapp.formatting import format_date_value
 
 register = template.Library()
 
@@ -32,6 +33,11 @@ def is_datetime(value):
 @register.filter
 def is_bool(value):
     return isinstance(value, bool)
+
+
+@register.filter
+def format_date(value, style="detail"):
+    return format_date_value(value, list_view=style == "list")
 
 
 @register.filter
