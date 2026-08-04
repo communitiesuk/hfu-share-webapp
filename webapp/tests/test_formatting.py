@@ -1,9 +1,12 @@
 from datetime import date, datetime, timezone
 
 from django.template import Context, Template
+from django.template.loader import render_to_string
 from django.test import TestCase
+from django.utils.safestring import mark_safe
 
 from webapp.formatting import format_date_value
+from webapp.templatetags.filters import is_date_or_datetime
 
 
 class FormatDateValueTests(TestCase):
@@ -78,3 +81,46 @@ class FormatDateFilterTests(TestCase):
         rendered = self.render("{{ value|format_date }}", "Not a date")
 
         self.assertEqual(rendered, "Not a date")
+
+
+class AccessRequestSummaryListTests(TestCase):
+    def render_answer(self, answer):
+        return render_to_string(
+            "webapp/components/access_request/access_request_summary_list.html",
+            {
+                "access_request_summary": {
+                    "request_date": {"question": "Request date", "answer": answer}
+                }.items()
+            },
+        )
+
+    def test_date_answer_uses_detail_format(self):
+        rendered = self.render_answer(date(2026, 9, 1))
+
+        self.assertIn("1 September 2026", rendered)
+
+    def test_datetime_answer_uses_detail_datetime_format(self):
+        rendered = self.render_answer(
+            datetime(2026, 12, 4, 10, 22, tzinfo=timezone.utc)
+        )
+
+        self.assertIn("4 December 2026 at 10:22am", rendered)
+
+    def test_safe_html_answer_is_not_escaped(self):
+        rendered = self.render_answer(mark_safe("<strong>Approved</strong>"))
+
+        self.assertIn("<strong>Approved</strong>", rendered)
+
+
+class IsDateOrDatetimeFilterTests(TestCase):
+    def test_date_is_recognised(self):
+        self.assertTrue(is_date_or_datetime(date(2026, 9, 1)))
+
+    def test_datetime_is_recognised(self):
+        self.assertTrue(is_date_or_datetime(datetime(2026, 9, 1, 10, 22)))
+
+    def test_string_is_not_recognised(self):
+        self.assertFalse(is_date_or_datetime("1 September 2026"))
+
+    def test_none_is_not_recognised(self):
+        self.assertFalse(is_date_or_datetime(None))

@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date
 from urllib import parse
 
 from django import template
@@ -21,13 +21,8 @@ def is_list(value):
 
 
 @register.filter
-def is_date(value):
-    return isinstance(value, date) and not isinstance(value, datetime)
-
-
-@register.filter
-def is_datetime(value):
-    return isinstance(value, datetime)
+def is_date_or_datetime(value):
+    return isinstance(value, date)
 
 
 @register.filter

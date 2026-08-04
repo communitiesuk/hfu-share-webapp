@@ -6,8 +6,8 @@
                 <div class="govuk-summary-list__row {% if not question_data.editable %}govuk-summary-list__row--no-actions{% endif %}">
                     <dt class="govuk-summary-list__key">{{ question_data.question }}</dt>
                     <dd class="govuk-summary-list__value">
-                        {% if question_data.answer|is_date %}
-                            {{ question_data.answer|date:"j F Y" }}
+                        {% if question_data.answer|is_date_or_datetime %}
+                            {{ question_data.answer|format_date }}
                         {% else %}
                             {{ question_data.answer }}
                         {% endif %}
@@ -33,8 +33,8 @@
                     <div class="govuk-summary-list__row {% if not question_data.editable %}govuk-summary-list__row--no-actions{% endif %}">
                         <dt class="govuk-summary-list__key">{{ question_data.question }}</dt>
                         <dd class="govuk-summary-list__value">
-                            {% if question_data.answer|is_date %}
-                                {{ question_data.answer|date:"j F Y" }}
+                            {% if question_data.answer|is_date_or_datetime %}
+                                {{ question_data.answer|format_date }}
                             {% else %}
                                 {{ question_data.answer }}
                             {% endif %}
