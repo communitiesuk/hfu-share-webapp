@@ -4,6 +4,6 @@
     {% include "webapp/components/record_tabs/record_summary_list.html" with fields=fields %}
     {% if user_can_add_update %}
         <a href="{% url 'accommodation-requests:update-safeguarding-checks' object.id %}"
-           class="govuk-button govuk-button--primary">View and update safeguarding checks</a>
+           class="govuk-button govuk-button--primary">Add safeguarding check</a>
     {% endif %}
 {% endblock selected_tab %}
