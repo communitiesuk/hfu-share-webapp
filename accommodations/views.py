@@ -35,12 +35,14 @@ from webapp.constants import (
 )
 from webapp.mixins import (
     AuditLogTimelineEventsMixin,
+    DetailViewMixin,
     FilterPanelMixin,
     InteractionTimelineEventsMixin,
     IsDuplicateMixin,
     PermissionsMixin,
     PIISafeRecordNameMixin,
     TableRendererMixin,
+    UserActionsMixinProtocol,
 )
 from webapp.search import perform_search
 from webapp.utils import LazyChoiceFilter
@@ -182,8 +184,40 @@ class AccommodationsListView(PermissionsMixin, SingleTableMixin, FilterView):
         return qs.only(*fields_needed).order_by("full_address")
 
 
+class AccommodationDetailViewMixin(UserActionsMixinProtocol, DetailViewMixin):
+    url_namespace = "accommodations"
+    singular_name = "Accommodation"
+    plural_name = "Accommodation"
+    additional_tabs = {"actions", "history"}
+
+    def should_show_tab_for_user(self, view_name: str) -> bool:
+        match view_name:
+            case "actions":
+                return self.user_action_allowed(
+                    group_types=AccommodationDetailActionsView.group_type
+                )
+            case "history":
+                return self.user_action_allowed(
+                    group_types=AccommodationDetailHistoryView.group_type
+                )
+            case _:
+                return False
+
+    @property
+    def page_heading(self):
+        return self.object.full_address
+
+    @property
+    def page_heading_tag(self):
+        return "Duplicate" if not self.object.is_principal else ""
+
+
 class AccommodationDetailOverviewView(
-    PIISafeRecordNameMixin, PermissionsMixin, IsDuplicateMixin, SummaryListView
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    IsDuplicateMixin,
+    AccommodationDetailViewMixin,
+    SummaryListView,
 ):
     group_type = [
         GroupType.DEV,
@@ -225,18 +259,15 @@ class AccommodationDetailOverviewView(
             ("Upper tier LA", self.object.utla_name),
         ]
 
-        ctx["show_actions_tab"] = self.user_action_allowed(
-            group_types=AccommodationDetailActionsView.group_type
-        )
-        ctx["show_history_tab"] = self.user_action_allowed(
-            group_types=AccommodationDetailHistoryView.group_type
-        )
-
         return ctx
 
 
 class AccommodationDetailLinkedRecordsView(
-    PIISafeRecordNameMixin, PermissionsMixin, IsDuplicateMixin, DetailView
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    IsDuplicateMixin,
+    AccommodationDetailViewMixin,
+    DetailView,
 ):
     group_type = [
         GroupType.DEV,
@@ -279,17 +310,15 @@ class AccommodationDetailLinkedRecordsView(
 
         ctx["fields"] = linked_records
 
-        ctx["show_actions_tab"] = self.user_action_allowed(
-            group_types=AccommodationDetailActionsView.group_type
-        )
-        ctx["show_history_tab"] = self.user_action_allowed(
-            group_types=AccommodationDetailHistoryView.group_type
-        )
         return ctx
 
 
 class AccommodationDetailPropertiesView(
-    PIISafeRecordNameMixin, PermissionsMixin, IsDuplicateMixin, TwoColumnSummaryListView
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    IsDuplicateMixin,
+    AccommodationDetailViewMixin,
+    TwoColumnSummaryListView,
 ):
     group_type = [
         GroupType.DEV,
@@ -301,17 +330,7 @@ class AccommodationDetailPropertiesView(
     ]
     template_name = "accommodations/detail_view/detail_view_properties.html"
     model = MvAccommodation
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-
-        ctx["show_actions_tab"] = self.user_action_allowed(
-            group_types=AccommodationDetailActionsView.group_type
-        )
-        ctx["show_history_tab"] = self.user_action_allowed(
-            group_types=AccommodationDetailHistoryView.group_type
-        )
-        return ctx
+    use_full_width = True
 
     class Meta:
         exclude_fields = [
@@ -321,7 +340,11 @@ class AccommodationDetailPropertiesView(
 
 
 class AccommodationDetailActionsView(
-    PIISafeRecordNameMixin, PermissionsMixin, IsDuplicateMixin, ActionsListView
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    IsDuplicateMixin,
+    AccommodationDetailViewMixin,
+    ActionsListView,
 ):
     group_type = list(FIX_DUPLICATE_RECORDS_ALLOWED_GROUP_TYPES)
     template_name = "accommodations/detail_view/detail_view_actions.html"
@@ -410,17 +433,6 @@ class AccommodationDetailActionsView(
                 )
         return actions
 
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-
-        ctx["show_actions_tab"] = self.user_action_allowed(
-            group_types=AccommodationDetailActionsView.group_type
-        )
-        ctx["show_history_tab"] = self.user_action_allowed(
-            group_types=AccommodationDetailHistoryView.group_type
-        )
-        return ctx
-
 
 class AccommodationDetailHistoryView(
     PIISafeRecordNameMixin,
@@ -428,6 +440,7 @@ class AccommodationDetailHistoryView(
     IsDuplicateMixin,
     InteractionTimelineEventsMixin,
     AuditLogTimelineEventsMixin,
+    AccommodationDetailViewMixin,
     DetailView,
 ):
     group_type = [
@@ -461,12 +474,6 @@ class AccommodationDetailHistoryView(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["show_history_tab"] = self.user_action_allowed(
-            group_types=self.group_type
-        )
-        context["show_actions_tab"] = self.user_action_allowed(
-            group_types=AccommodationDetailActionsView.group_type
-        )
         context["history_description"] = (
             "This history shows the dates a change was made to the accommodation "
             "record on the system."

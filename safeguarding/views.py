@@ -59,6 +59,7 @@ from webapp.constants import (
     visa_status_list_ordered,
 )
 from webapp.mixins import (
+    DetailViewMixin,
     FilterPanelMixin,
     GroupRequiredMixin,
     PermissionsMixin,
@@ -635,8 +636,45 @@ class EscalatedChecksView(
         return ctx
 
 
+class SafeguardingDetailViewMixin(DetailViewMixin):
+    url_namespace = "safeguarding"
+    additional_tabs = {"central-safeguarding", "safeguarding-checks"}
+
+    def add_breadcrumbs(self, context) -> None:
+        context["breadcrumbs"] = [
+            {
+                "text": "Escalated checks",
+                "url": reverse("safeguarding:escalated_checks"),
+            },
+            {"text": self.object.get_full_name},
+        ]
+
+    def add_back_button(self, context) -> None:
+        context["back_button"] = {
+            "url": reverse("safeguarding:escalated_checks"),
+            "text": "Back to list of escalated checks",
+        }
+
+    def get_url_args(self):
+        return (
+            self.object.id,
+            self.kwargs.get("referral_id"),
+        )
+
+    @property
+    def page_caption(self):
+        return "Escalated checks"
+
+    @property
+    def page_heading(self):
+        return self.object.get_page_title
+
+
 class SafeguardingDetailOverviewView(
-    PIISafeRecordNameMixin, PermissionsMixin, SummaryListView
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    SafeguardingDetailViewMixin,
+    SummaryListView,
 ):
     group_type = [
         GroupType.HOME_OFFICE,
@@ -808,7 +846,10 @@ def render_safeguarding_check_status(
 
 
 class SafeguardingDetailSafeguardingChecksView(
-    PIISafeRecordNameMixin, PermissionsMixin, DetailView
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    SafeguardingDetailViewMixin,
+    DetailView,
 ):
     group_type = [
         GroupType.HOME_OFFICE,
@@ -837,7 +878,10 @@ class SafeguardingDetailSafeguardingChecksView(
 
 
 class SafeguardingDetailLinkedRecordsView(
-    PIISafeRecordNameMixin, PermissionsMixin, SummaryListView
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    SafeguardingDetailViewMixin,
+    SummaryListView,
 ):
     group_type = [
         GroupType.HOME_OFFICE,
@@ -857,42 +901,42 @@ class SafeguardingDetailLinkedRecordsView(
         linked_records = []
         user = self.request.user
 
-        if not accommodation_request:
-            ctx["fields"] = linked_records
-            return ctx
+        if accommodation_request:
+            primary_accommodation = (
+                accommodation_request.get_primary_accommodation_restrict_for_user(user)
+            )
+            if primary_accommodation:
+                linked_records.append(("Accommodation", primary_accommodation))
 
-        primary_accommodation = (
-            accommodation_request.get_primary_accommodation_restrict_for_user(user)
-        )
-        if primary_accommodation:
-            linked_records.append(("Accommodation", primary_accommodation))
+            guests = accommodation_request.get_people_restrict_for_user(user)
+            if guests.exists():
+                linked_records.append(("Guests", guests))
 
-        guests = accommodation_request.get_people_restrict_for_user(user)
-        if guests.exists():
-            linked_records.append(("Guests", guests))
+            primary_sponsor = (
+                accommodation_request.get_primary_sponsor_restrict_for_user(user)
+            )
+            if primary_sponsor:
+                linked_records.append(("Sponsor", primary_sponsor))
 
-        primary_sponsor = accommodation_request.get_primary_sponsor_restrict_for_user(
-            user
-        )
-        if primary_sponsor:
-            linked_records.append(("Sponsor", primary_sponsor))
+            active_host = accommodation_request.get_host_restrict_for_user(user)
+            if active_host:
+                linked_records.append(("Host", active_host))
 
-        active_host = accommodation_request.get_host_restrict_for_user(user)
-        if active_host:
-            linked_records.append(("Host", active_host))
-
-        visa_applications = (
-            accommodation_request.get_visa_applications_restrict_for_user(user)
-        )
-        if visa_applications.exists():
-            linked_records.append(("Visa applications", visa_applications))
+            visa_applications = (
+                accommodation_request.get_visa_applications_restrict_for_user(user)
+            )
+            if visa_applications.exists():
+                linked_records.append(("Visa applications", visa_applications))
 
         ctx["fields"] = linked_records
         return ctx
 
 
 class SafeguardingDetailPropertiesView(
-    PIISafeRecordNameMixin, PermissionsMixin, TwoColumnSummaryListView
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    SafeguardingDetailViewMixin,
+    TwoColumnSummaryListView,
 ):
     group_type = [
         GroupType.HOME_OFFICE,
@@ -902,6 +946,7 @@ class SafeguardingDetailPropertiesView(
     ]
     template_name = "safeguarding/detail_view/detail_view_properties.html"
     model = MvPerson
+    use_full_width = True
 
     accommodation_request__accommodation_details_confirmed = SummaryListRow(
         verbose_name="Accommodation details confirmed"
@@ -1280,6 +1325,7 @@ class SafeguardingDetailCentralSafeguardingView(
     PIISafeRecordNameMixin,
     UserActionsMixin,
     GroupRequiredMixin,
+    SafeguardingDetailViewMixin,
     DetailView,
     SingleTableMixin,
     FormView,

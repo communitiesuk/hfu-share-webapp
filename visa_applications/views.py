@@ -54,6 +54,7 @@ from webapp.constants import (
     visa_status_list,
 )
 from webapp.mixins import (
+    DetailViewMixin,
     FilterPanelMixin,
     PermissionsMixin,
     PIISafeRecordNameMixin,
@@ -272,8 +273,34 @@ class VisaApplicationListView(PermissionsMixin, SingleTableMixin, FilterView):
         )
 
 
+class VisaApplicationDetailViewMixin(DetailViewMixin):
+    url_namespace = "visa-applications"
+    singular_name = "Visa application"
+    plural_name = "Visa applications"
+    additional_tabs = {
+        "vir",
+    }
+
+    def should_show_tab_for_user(self, view_name: str) -> bool:
+        match view_name:
+            case "vir":
+                return can_user_see_vir_tab(self.request.user, self.object)
+            case _:
+                return False
+
+    def get_url_args(self):
+        return (self.object.visa_application_id,)
+
+    @property
+    def page_heading(self):
+        return self.object.title
+
+
 class VisaApplicationPropertiesView(
-    PIISafeRecordNameMixin, PermissionsMixin, SummaryListViewBase
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    VisaApplicationDetailViewMixin,
+    SummaryListViewBase,
 ):
     group_type = [
         GroupType.DEV,
@@ -285,6 +312,7 @@ class VisaApplicationPropertiesView(
     ]
     template_name = "visa_applications/detail_view/detail_view_properties.html"
     model = VisaApplication
+    use_full_width = True
 
     def _split_columns(self, fields: list[str], split_at_field: str | None = None):
         if split_at_field and split_at_field in fields:
@@ -315,7 +343,6 @@ class VisaApplicationPropertiesView(
                 "questions_right": self.build_name_value_pairs(question_right),
             }
         )
-        context["show_vir_tab"] = can_user_see_vir_tab(self.request.user, self.object)
 
         return context
 
@@ -328,7 +355,10 @@ class VisaApplicationPropertiesView(
 
 
 class VisaApplicationOverviewView(
-    PIISafeRecordNameMixin, PermissionsMixin, SummaryListView
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    VisaApplicationDetailViewMixin,
+    SummaryListView,
 ):
     group_type = [
         GroupType.DEV,
@@ -346,7 +376,6 @@ class VisaApplicationOverviewView(
         user = self.request.user
         visa_application = self.object
 
-        context["show_vir_tab"] = can_user_see_vir_tab(self.request.user, self.object)
         context["fields"] = [
             (
                 "Guest name",
@@ -405,7 +434,7 @@ class VisaApplicationOverviewView(
 
 
 class VisaApplicationLinkedRecordsView(
-    PIISafeRecordNameMixin, PermissionsMixin, DetailView
+    PIISafeRecordNameMixin, PermissionsMixin, VisaApplicationDetailViewMixin, DetailView
 ):
     group_type = [
         GroupType.DEV,
@@ -452,12 +481,15 @@ class VisaApplicationLinkedRecordsView(
             linked_records.append(("Accommodation", accommodations))
 
         ctx["fields"] = linked_records
-        ctx["show_vir_tab"] = can_user_see_vir_tab(self.request.user, self.object)
         return ctx
 
 
 class VisaApplicationVIRView(
-    PIISafeRecordNameMixin, PermissionsMixin, SingleObjectMixin, FormView
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    SingleObjectMixin,
+    VisaApplicationDetailViewMixin,
+    FormView,
 ):
     template_name = "visa_applications/detail_view/detail_view_vir.html"
     model = VisaApplication
@@ -673,9 +705,6 @@ class VisaApplicationVIRView(
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         visa_application = self.object
-        context["show_vir_tab"] = can_user_see_vir_tab(
-            self.request.user, visa_application
-        )
 
         virs = VisaInformationRequest.objects.filter(visa_application=visa_application)
         comments = VisaInformationRequestComments.objects.filter(

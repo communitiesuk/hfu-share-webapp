@@ -151,7 +151,7 @@ class VisaApplicationDetailsTwoColumnViewTest(
         Test that fields are split and sorted correctly.
         """
         view = TestVisaApplicationDetailView()
-        view.object = VisaApplication()
+        view.object = VisaApplication(visa_application_id="123456")
         factory = RequestFactory()
         request = factory.get("/")
         request.user = get_admin_user()

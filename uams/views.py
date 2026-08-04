@@ -28,7 +28,12 @@ from ontology.models import (
     SponsorshipCertificationForm,
 )
 from webapp.constants import UAMS_SEARCH_FIELDS
-from webapp.mixins import FilterPanelMixin, PermissionsMixin, PIISafeRecordNameMixin
+from webapp.mixins import (
+    DetailViewMixin,
+    FilterPanelMixin,
+    PermissionsMixin,
+    PIISafeRecordNameMixin,
+)
 from webapp.s3 import (
     get_govuk_forms_attachment_filepath,
     get_presigned_download_url,
@@ -183,7 +188,28 @@ class UamsListView(PermissionsMixin, SingleTableMixin, FilterView):
         return super().get_queryset().only(*fields_needed)
 
 
-class UamsDetailOverviewView(PIISafeRecordNameMixin, PermissionsMixin, SummaryListView):
+class UamsDetailViewMixin(DetailViewMixin):
+    url_namespace = "uams"
+    singular_name = "Application to sponsor a child"
+    plural_name = "Applications to sponsor a child"
+    additional_tabs = {
+        "files",
+    }
+
+    def get_url_args(self):
+        return (self.object.pk,)
+
+    @property
+    def page_heading(self):
+        return f"{self.object.given_name} {self.object.family_name}"
+
+
+class UamsDetailOverviewView(
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    UamsDetailViewMixin,
+    SummaryListView,
+):
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
@@ -194,6 +220,10 @@ class UamsDetailOverviewView(PIISafeRecordNameMixin, PermissionsMixin, SummaryLi
     ]
     model = SponsorshipCertificationForm
     template_name = "uams/detail_view/detail_view_overview.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        return ctx
 
     class Meta:
         fields = [
@@ -213,7 +243,12 @@ class UamsDetailOverviewView(PIISafeRecordNameMixin, PermissionsMixin, SummaryLi
         ]
 
 
-class UamsDetailPropertiesView(PIISafeRecordNameMixin, PermissionsMixin, DetailView):
+class UamsDetailPropertiesView(
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    UamsDetailViewMixin,
+    DetailView,
+):
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
@@ -224,6 +259,7 @@ class UamsDetailPropertiesView(PIISafeRecordNameMixin, PermissionsMixin, DetailV
     ]
     template_name = "uams/detail_view/detail_view_properties.html"
     model = SponsorshipCertificationForm
+    use_full_width = True
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -350,7 +386,9 @@ class UamsDetailPropertiesView(PIISafeRecordNameMixin, PermissionsMixin, DetailV
         return context
 
 
-class UamsDetailLinkedRecordsView(PIISafeRecordNameMixin, PermissionsMixin, DetailView):
+class UamsDetailLinkedRecordsView(
+    PIISafeRecordNameMixin, PermissionsMixin, UamsDetailViewMixin, DetailView
+):
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
@@ -378,7 +416,9 @@ class UamsDetailLinkedRecordsView(PIISafeRecordNameMixin, PermissionsMixin, Deta
         return context
 
 
-class UamsFilesView(PIISafeRecordNameMixin, PermissionsMixin, DetailView):
+class UamsFilesView(
+    PIISafeRecordNameMixin, PermissionsMixin, UamsDetailViewMixin, DetailView
+):
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,

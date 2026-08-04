@@ -35,12 +35,14 @@ from webapp.constants import (
 )
 from webapp.mixins import (
     AuditLogTimelineEventsMixin,
+    DetailViewMixin,
     FilterPanelMixin,
     InteractionTimelineEventsMixin,
     IsDuplicateMixin,
     MultiLABannerMixin,
     PermissionsMixin,
     PIISafeRecordNameMixin,
+    UserActionsMixinProtocol,
 )
 from webapp.search import perform_search
 from webapp.utils import (
@@ -261,8 +263,40 @@ class SponsorsListView(PermissionsMixin, SingleTableMixin, FilterView):
         return qs.only(*fields_needed).order_by("full_name")
 
 
+class SponsorDetailViewMixin(UserActionsMixinProtocol, DetailViewMixin):
+    url_namespace = "sponsors"
+    singular_name = "Sponsor and host"
+    plural_name = "Sponsors and hosts"
+    additional_tabs = {"actions", "history"}
+
+    def should_show_tab_for_user(self, view_name: str) -> bool:
+        match view_name:
+            case "actions":
+                return self.user_action_allowed(
+                    group_types=SponsorDetailActionsView.group_type
+                )
+            case "history":
+                return self.user_action_allowed(
+                    group_types=SponsorDetailHistoryView.group_type
+                )
+            case _:
+                return False
+
+    @property
+    def page_heading(self):
+        return self.object.get_full_name
+
+    @property
+    def page_heading_tag(self):
+        return "Duplicate" if not self.object.is_principal else ""
+
+
 class SponsorDetailOverviewView(
-    PIISafeRecordNameMixin, PermissionsMixin, IsDuplicateMixin, SummaryListView
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    IsDuplicateMixin,
+    SponsorDetailViewMixin,
+    SummaryListView,
 ):
     group_type = [
         GroupType.DEV,
@@ -288,14 +322,6 @@ class SponsorDetailOverviewView(
                 "sponsors:detail-edit", kwargs={"pk": self.object.pk}
             )
 
-        ctx["show_history_tab"] = self.user_action_allowed(
-            group_types=SponsorDetailHistoryView.group_type
-        )
-
-        ctx["show_actions_tab"] = self.user_action_allowed(
-            group_types=SponsorDetailActionsView.group_type
-        )
-
         ctx["fields"] = [
             ("First name", self.object.first_name),
             ("Last name", self.object.last_name),
@@ -317,6 +343,7 @@ class SponsorDetailActionsView(
     MultiLABannerMixin,
     PermissionsMixin,
     IsDuplicateMixin,
+    SponsorDetailViewMixin,
     ActionsListView,
 ):
     group_type = list(FIX_DUPLICATE_RECORDS_ALLOWED_GROUP_TYPES)
@@ -410,22 +437,13 @@ class SponsorDetailActionsView(
                 )
         return actions
 
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-
-        ctx["show_history_tab"] = self.user_action_allowed(
-            group_types=SponsorDetailHistoryView.group_type
-        )
-
-        ctx["show_actions_tab"] = self.user_action_allowed(
-            group_types=SponsorDetailActionsView.group_type
-        )
-
-        return ctx
-
 
 class SponsorDetailLinkedRecordsView(
-    PIISafeRecordNameMixin, PermissionsMixin, IsDuplicateMixin, DetailView
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    IsDuplicateMixin,
+    SponsorDetailViewMixin,
+    DetailView,
 ):
     group_type = [
         GroupType.DEV,
@@ -477,18 +495,16 @@ class SponsorDetailLinkedRecordsView(
                 linked_records.append(("Guests", guests))
 
         ctx["fields"] = linked_records
-        ctx["show_history_tab"] = self.user_action_allowed(
-            group_types=SponsorDetailHistoryView.group_type
-        )
-        ctx["show_actions_tab"] = self.user_action_allowed(
-            group_types=SponsorDetailActionsView.group_type
-        )
 
         return ctx
 
 
 class SponsorDetailPropertiesView(
-    PIISafeRecordNameMixin, PermissionsMixin, IsDuplicateMixin, TwoColumnSummaryListView
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    IsDuplicateMixin,
+    SponsorDetailViewMixin,
+    TwoColumnSummaryListView,
 ):
     group_type = [
         GroupType.DEV,
@@ -500,20 +516,10 @@ class SponsorDetailPropertiesView(
     ]
     template_name = "sponsors/detail_view/detail_view_properties.html"
     model = MvVolunteer
+    use_full_width = True
 
     email = Column(verbose_name="Email address")
     passport_details = Column(verbose_name="Passport number")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["show_history_tab"] = self.user_action_allowed(
-            group_types=SponsorDetailHistoryView.group_type
-        )
-        context["show_actions_tab"] = self.user_action_allowed(
-            group_types=SponsorDetailActionsView.group_type
-        )
-
-        return context
 
     class Meta:
         exclude_fields = [
@@ -529,6 +535,7 @@ class SponsorDetailHistoryView(
     IsDuplicateMixin,
     InteractionTimelineEventsMixin,
     AuditLogTimelineEventsMixin,
+    SponsorDetailViewMixin,
     DetailView,
 ):
     group_type = [
@@ -562,12 +569,6 @@ class SponsorDetailHistoryView(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["show_history_tab"] = self.user_action_allowed(
-            group_types=self.group_type
-        )
-        context["show_actions_tab"] = self.user_action_allowed(
-            group_types=SponsorDetailActionsView.group_type
-        )
         context["history_description"] = (
             "This history shows the dates a change was made to the sponsor and host "
             "record on the system."
