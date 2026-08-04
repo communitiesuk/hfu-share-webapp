@@ -46,12 +46,14 @@ from webapp.constants import (
 )
 from webapp.mixins import (
     AuditLogTimelineEventsMixin,
+    DetailViewMixin,
     FilterPanelMixin,
     InteractionTimelineEventsMixin,
     IsDuplicateMixin,
     MultiLABannerMixin,
     PermissionsMixin,
     PIISafeRecordNameMixin,
+    UserActionsMixinProtocol,
 )
 from webapp.search import perform_search
 from webapp.utils import (
@@ -348,8 +350,49 @@ class GuestsListView(PermissionsMixin, SingleTableMixin, FilterView):
         return qs.only(*fields_needed).order_by("full_name")
 
 
+class GuestDetailViewMixin(UserActionsMixinProtocol, DetailViewMixin):
+    namespace = "guests"
+    singular_name = "Guest"
+    plural_name = "Guests"
+
+    @property
+    def views_for_record(self):
+        return (
+            GuestDetailOverviewView,
+            GuestDetailActionsView,
+            GuestDetailLinkedRecordsView,
+            GuestDetailPropertiesView,
+            GuestDetailHistoryView,
+        )
+
+    def should_show_tab_for_user(self, view_name: str) -> bool:
+        match view_name:
+            case "actions":
+                return self.user_action_allowed(
+                    group_types=GuestDetailActionsView.group_type
+                )
+            case "history":
+                return self.user_action_allowed(
+                    group_types=GuestDetailHistoryView.group_type
+                )
+            case _:
+                return True
+
+    @property
+    def page_heading(self):
+        return self.object.get_full_name
+
+    @property
+    def page_heading_tag(self):
+        return "Duplicate" if not self.object.is_principal else None
+
+
 class GuestDetailOverviewView(
-    PIISafeRecordNameMixin, PermissionsMixin, IsDuplicateMixin, SummaryListView
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    IsDuplicateMixin,
+    GuestDetailViewMixin,
+    SummaryListView,
 ):
     group_type = [
         GroupType.DEV,
@@ -359,7 +402,7 @@ class GuestDetailOverviewView(
         GroupType.MHCLG,
         GroupType.SERVICE_SUPPORT,
     ]
-    template_name = "guests/detail_view/detail_view_overview.html"
+    view_name = "overview"
     model = MvPerson
 
     email = Column(verbose_name="Email address")
@@ -410,14 +453,6 @@ class GuestDetailOverviewView(
                 "guests:detail-edit", kwargs={"pk": self.object.pk}
             )
 
-        ctx["show_history_tab"] = self.user_action_allowed(
-            group_types=GuestDetailHistoryView.group_type
-        )
-
-        ctx["show_actions_tab"] = self.user_action_allowed(
-            group_types=GuestDetailActionsView.group_type
-        )
-
         return ctx
 
 
@@ -426,15 +461,16 @@ class GuestDetailActionsView(
     MultiLABannerMixin,
     PermissionsMixin,
     IsDuplicateMixin,
+    GuestDetailViewMixin,
     ActionsListView,
 ):
     group_type = [GroupType.DEV]
-    template_name = "guests/detail_view/detail_view_actions.html"
+    view_name = "actions"
     model = MvPerson
 
     def __init__(self, **kwargs):
         self.deduplicated_guests_names = ""
-        super().__init__(*kwargs)
+        super().__init__(**kwargs)
 
     def get_actions(self) -> list[Action]:
         pending_reassignment = (
@@ -550,22 +586,13 @@ class GuestDetailActionsView(
                 )
         return actions
 
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-
-        ctx["show_history_tab"] = self.user_action_allowed(
-            group_types=GuestDetailHistoryView.group_type
-        )
-
-        ctx["show_actions_tab"] = self.user_action_allowed(
-            group_types=GuestDetailActionsView.group_type
-        )
-
-        return ctx
-
 
 class GuestDetailLinkedRecordsView(
-    PIISafeRecordNameMixin, PermissionsMixin, IsDuplicateMixin, DetailView
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    IsDuplicateMixin,
+    GuestDetailViewMixin,
+    DetailView,
 ):
     group_type = [
         GroupType.DEV,
@@ -575,7 +602,7 @@ class GuestDetailLinkedRecordsView(
         GroupType.HOME_OFFICE,
         GroupType.SERVICE_SUPPORT,
     ]
-    template_name = "guests/detail_view/detail_view_linked_records.html"
+    view_name = "linked-records"
     model = MvPerson
 
     def get_context_data(self, **kwargs):
@@ -621,12 +648,6 @@ class GuestDetailLinkedRecordsView(
                 linked_records.append(("Accommodation", accommodations))
 
         ctx["fields"] = linked_records
-        ctx["show_history_tab"] = self.user_action_allowed(
-            group_types=GuestDetailHistoryView.group_type
-        )
-        ctx["show_actions_tab"] = self.user_action_allowed(
-            group_types=GuestDetailActionsView.group_type
-        )
         return ctx
 
 
@@ -634,6 +655,7 @@ class GuestDetailPropertiesView(
     PIISafeRecordNameMixin,
     PermissionsMixin,
     IsDuplicateMixin,
+    GuestDetailViewMixin,
     TwoColumnSummaryListView,
 ):
     group_type = [
@@ -644,7 +666,7 @@ class GuestDetailPropertiesView(
         GroupType.HOME_OFFICE,
         GroupType.SERVICE_SUPPORT,
     ]
-    template_name = "guests/detail_view/detail_view_properties.html"
+    view_name = "properties"
     model = MvPerson
 
     email = Column(verbose_name="Email address")
@@ -655,16 +677,6 @@ class GuestDetailPropertiesView(
             label = getattr(record.UPEVisaStatus(value), "label", None)
             return label if label else value
         return None
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["show_history_tab"] = self.user_action_allowed(
-            group_types=GuestDetailHistoryView.group_type
-        )
-        context["show_actions_tab"] = self.user_action_allowed(
-            group_types=GuestDetailActionsView.group_type
-        )
-        return context
 
     class Meta:
         exclude_fields = [
@@ -680,6 +692,7 @@ class GuestDetailHistoryView(
     IsDuplicateMixin,
     InteractionTimelineEventsMixin,
     AuditLogTimelineEventsMixin,
+    GuestDetailViewMixin,
     DetailView,
 ):
     group_type = [
@@ -691,7 +704,7 @@ class GuestDetailHistoryView(
         # GroupType.LOCAL_AUTHORITY,
         # GroupType.DEVOLVED_ADMINISTRATION,
     ]
-    template_name = "guests/detail_view/detail_view_history.html"
+    view_name = "history"
     model = MvPerson
     interaction_restrictions = {
         GroupType.LOCAL_AUTHORITY_EARLY_ADOPTERS: {
@@ -724,12 +737,6 @@ class GuestDetailHistoryView(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["show_history_tab"] = self.user_action_allowed(
-            group_types=self.group_type,
-        )
-        context["show_actions_tab"] = self.user_action_allowed(
-            group_types=GuestDetailActionsView.group_type
-        )
         context["history_description"] = (
             "This history shows the dates a change was made to the guest record "
             "on the system."
