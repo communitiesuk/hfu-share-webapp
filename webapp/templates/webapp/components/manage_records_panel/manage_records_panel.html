@@ -39,4 +39,7 @@
     {% if available_links.visa_information_requests %}
         {% include "webapp/components/selectable_card/selectable_card.html" with heading="Visa Information Requests" target="visa_applications:visa-information-requests" body="Check for current Visa Information Requests that you need to respond to." badge_value=pending_virs %}
     {% endif %}
+    {% if available_links.unassigned_accommodation_requests %}
+        {% include "webapp/components/selectable_card/selectable_card.html" with heading="Manage unassigned accommodation requests" target="unassigned-accommodation-requests:unassigned-accommodation-requests" body="View and manage records that are not assigned to a lower tier local authority." badge_value=unassigned_accommodation_requests_count %}
+    {% endif %}
 </div>

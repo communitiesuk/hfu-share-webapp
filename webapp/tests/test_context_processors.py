@@ -35,6 +35,7 @@ class AvailableLinksContextProcessorTests(TestCase):
         self.assertTrue(links["visa_applications"])
         self.assertFalse(links["manage_permissions"])
         self.assertFalse(links["escalated_checks"])
+        self.assertFalse(links["unassigned_accommodation_requests"])
 
     def test_links_are_computed_once_per_request(self):
         request = self.build_request(get_la_user())

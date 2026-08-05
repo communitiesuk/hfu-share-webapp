@@ -36,6 +36,7 @@ from accounts.enums import GroupType
 from accounts.models import AccessRequest
 from case_management.settings import STATIC_URL
 from ontology.models import (
+    MvAccommodationRequest,
     MvPerson,
     PersonMasterRecord,
     ReassignmentRequest,
@@ -49,6 +50,7 @@ from user_management.templatetags.access_request_extras import (
 from webapp.columns import GovUkCheckboxColumn
 from webapp.constants import (
     ACCESS_REQUEST_TABLE_COLUMN_ATTRS,
+    UNASSIGNED_ACCOMMODATION_REQUESTS_ALLOWED_GROUP_TYPES,
     VisaStatus,
     no_visa_status,
     visa_status_by_name,
@@ -290,6 +292,12 @@ class LandingPageView(UserActionsMixin, MultiTableMixin, TemplateView):
             )
             .count()
             if GroupType.LOCAL_AUTHORITY in user_groups
+            else None
+        )
+
+        context["unassigned_accommodation_requests_count"] = (
+            MvAccommodationRequest.objects.unassigned().not_hidden().count()
+            if set(user_groups) & UNASSIGNED_ACCOMMODATION_REQUESTS_ALLOWED_GROUP_TYPES
             else None
         )
 

@@ -64,13 +64,11 @@ from ontology.models import (
     SafeguardingNotification,
 )
 from safeguarding.views import get_safeguarding_checks_summary_list_items
-from unassigned_accommodation_requests.constants import (
-    UNASSIGNED_ACCOMMODATION_REQUESTS_GROUP_TYPES,
-)
 from webapp.constants import (
     ACCOMMODATION_REQUEST_SEARCH_FIELDS,
     ACCOMMODATION_SEARCH_FIELDS,
     SELECT_ACCOMMODATION_TABLE_COLUMN_ATTRS,
+    UNASSIGNED_ACCOMMODATION_REQUESTS_ALLOWED_GROUP_TYPES,
 )
 from webapp.enhanced_sentry_logging import db_values, log_event, log_persistence_check
 from webapp.mixins import (
@@ -477,7 +475,7 @@ class AccommodationRequestDetailOverviewView(
         return None
 
         if not self.user_can_edit(
-            group_types=UNASSIGNED_ACCOMMODATION_REQUESTS_GROUP_TYPES
+            group_types=UNASSIGNED_ACCOMMODATION_REQUESTS_ALLOWED_GROUP_TYPES
         ):
             return None
 

@@ -1,5 +1,6 @@
 import re
 
+from bs4 import BeautifulSoup
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
@@ -8,6 +9,10 @@ from accounts.models import AccessRequest
 from accounts.tests.base import TestSessionTokenMixin
 from accounts.tests.factories import AccessRequestFactory
 from ontology.tests.factories import AnnouncementFactory
+from ontology.tests.factories import (
+    HiddenUnassignedAccommodationRequestFactory as HiddenUnassignedAccReqFactory,
+)
+from ontology.tests.factories import MvAccommodationRequestFactory as AccReqFactory
 from user_management.templatetags.access_request_extras import (
     render_name_label_from_group_info,
 )
@@ -306,6 +311,14 @@ class LandingPageTests(TestSessionTokenMixin, TestCase):
                 "accommodation, guest or sponsor and host.",
             )
         )
+        self.assertTrue(
+            selectable_card_exists(
+                "Manage unassigned accommodation requests",
+                html,
+                "View and manage records that are not assigned to a lower tier "
+                "local authority.",
+            )
+        )
 
         self.assertContains(response, "Request access to data")
 
@@ -328,6 +341,9 @@ class LandingPageCardVisibilityTests(TestSessionTokenMixin, TestCase):
         self.assertContains(response, "Request access to data")
 
         # LA users should not see these cards
+        self.assertFalse(
+            selectable_card_exists("Manage unassigned accommodation requests", html)
+        )
         self.assertFalse(selectable_card_exists("Escalated checks", html))
         self.assertFalse(
             selectable_card_exists("Manage people, access and permissions", html)
@@ -359,6 +375,9 @@ class LandingPageCardVisibilityTests(TestSessionTokenMixin, TestCase):
         self.assertTrue(selectable_card_exists("Download data", html))
         self.assertTrue(selectable_card_exists("Applications to sponsor a child", html))
         self.assertTrue(selectable_card_exists("Visa Information Requests", html))
+        self.assertTrue(
+            selectable_card_exists("Manage unassigned accommodation requests", html)
+        )
         self.assertContains(response, "Request access to data")
         self.assertTrue(
             selectable_card_exists(
@@ -393,6 +412,9 @@ class LandingPageCardVisibilityTests(TestSessionTokenMixin, TestCase):
         )
 
         # EA users should not see these cards
+        self.assertFalse(
+            selectable_card_exists("Manage unassigned accommodation requests", html)
+        )
         self.assertFalse(selectable_card_exists("Escalated checks", html))
         self.assertFalse(
             selectable_card_exists("Manage people, access and permissions", html)
@@ -417,6 +439,9 @@ class LandingPageCardVisibilityTests(TestSessionTokenMixin, TestCase):
         self.assertTrue(selectable_card_exists("Download data", html))
 
         # Should not see these cards
+        self.assertFalse(
+            selectable_card_exists("Manage unassigned accommodation requests", html)
+        )
         self.assertFalse(
             selectable_card_exists("Manage people, access and permissions", html)
         )
@@ -450,6 +475,9 @@ class LandingPageCardVisibilityTests(TestSessionTokenMixin, TestCase):
         )
         self.assertFalse(selectable_card_exists("Escalated checks", html))
         self.assertFalse(
+            selectable_card_exists("Manage unassigned accommodation requests", html)
+        )
+        self.assertFalse(
             selectable_card_exists("Manage people, access and permissions", html)
         )
         self.assertFalse(
@@ -475,6 +503,9 @@ class LandingPageCardVisibilityTests(TestSessionTokenMixin, TestCase):
         self.assertTrue(selectable_card_exists("Escalated checks", html))
         self.assertTrue(selectable_card_exists("Applications to sponsor a child", html))
         self.assertTrue(selectable_card_exists("Visa Information Requests", html))
+        self.assertTrue(
+            selectable_card_exists("Manage unassigned accommodation requests", html)
+        )
         self.assertContains(response, "Request access to data")
         self.assertTrue(selectable_card_exists("Download data", html))
 
@@ -512,6 +543,9 @@ class LandingPageCardVisibilityTests(TestSessionTokenMixin, TestCase):
         )
         self.assertFalse(selectable_card_exists("Escalated checks", html))
         self.assertFalse(
+            selectable_card_exists("Manage unassigned accommodation requests", html)
+        )
+        self.assertFalse(
             selectable_card_exists("Manage people, access and permissions", html)
         )
         self.assertFalse(
@@ -543,6 +577,9 @@ class LandingPageCardVisibilityTests(TestSessionTokenMixin, TestCase):
         self.assertTrue(selectable_card_exists("Download data", html))
         self.assertTrue(selectable_card_exists("Applications to sponsor a child", html))
         self.assertTrue(selectable_card_exists("Visa Information Requests", html))
+        self.assertTrue(
+            selectable_card_exists("Manage unassigned accommodation requests", html)
+        )
         self.assertContains(response, "Request access to data")
 
         # Should not see these cards
@@ -695,6 +732,55 @@ class FixDuplicateRecordsFeatureDisabledTests(TestSessionTokenMixin, TestCase):
         self.assertContains(
             self.get_landing_page_response(get_admin_user()), "Fix duplicate records"
         )
+
+
+class UnassignedAccommodationRequestsBadgeTests(TestSessionTokenMixin, TestCase):
+    def get_badge_value(self, user, heading):
+        self.client.force_login(user)
+        response = self.client.get(reverse("webapp:landing-page"))
+        soup = BeautifulSoup(response.content.decode(), "html.parser")
+
+        for card in soup.find_all("div", class_="govuk-card--selectable"):
+            if card.find("h3").get_text(strip=True) == heading:
+                badge = card.find("span", class_="badge-value")
+                return badge.get_text(strip=True) if badge else None
+
+        return None
+
+    def get_unassigned_badge_value(self, user):
+        return self.get_badge_value(user, "Manage unassigned accommodation requests")
+
+    def test_badge_counts_visible_unassigned_requests(self):
+        AccReqFactory(title="Unassigned one")
+        AccReqFactory(title="Unassigned two")
+
+        self.assertEqual(self.get_unassigned_badge_value(get_mhclg_user()), "2")
+
+    def test_badge_excludes_hidden_requests(self):
+        AccReqFactory(title="Unassigned")
+        hidden = AccReqFactory(title="Hidden")
+        HiddenUnassignedAccReqFactory(accommodation_request=hidden)
+
+        self.assertEqual(self.get_unassigned_badge_value(get_mhclg_user()), "1")
+
+    def test_badge_excludes_assigned_requests(self):
+        AccReqFactory(title="Unassigned")
+        AccReqFactory(title="Assigned", ltla_name=["some_ltla"])
+
+        self.assertEqual(self.get_unassigned_badge_value(get_mhclg_user()), "1")
+
+    def test_badge_shows_zero_when_there_is_nothing_to_assign(self):
+        self.assertEqual(self.get_unassigned_badge_value(get_mhclg_user()), "0")
+
+    def test_dev_user_sees_the_badge(self):
+        AccReqFactory(title="Unassigned")
+
+        self.assertEqual(self.get_unassigned_badge_value(get_admin_user()), "1")
+
+    def test_user_without_access_does_not_see_the_tile(self):
+        AccReqFactory(title="Unassigned")
+
+        self.assertIsNone(self.get_unassigned_badge_value(get_la_user()))
 
 
 class TestFaviconRedirect(TestSessionTokenMixin, TestCase):
