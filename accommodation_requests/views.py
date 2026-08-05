@@ -49,7 +49,6 @@ from accommodation_requests.forms import (
 from accommodation_requests.safeguarding_utils import NotificationData, loop_and_raise
 from accounts.enums import GroupType
 from accounts.mixins import user_has_group_with_type
-from case_management import settings
 from case_management.settings import FILE_DOWNLOAD_S3_BUCKET_NAME
 from ontology.models import (
     Comment,
@@ -839,9 +838,6 @@ class AccommodationRequestDetailHistoryView(
         if user_has_group_with_type(
             user, GroupType.LOCAL_AUTHORITY
         ) or user_has_group_with_type(user, GroupType.DEVOLVED_ADMINISTRATION):
-            if not settings.LA_HISTORY_TAB_ENABLED:
-                return False
-
             ltlas = self.object.get_all_ltla_names()
             if ltlas and len(ltlas) > 1:
                 return False

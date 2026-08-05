@@ -1,7 +1,6 @@
 import http.client
 from datetime import datetime, timedelta
 from datetime import timezone as dt_timezone
-from unittest.mock import patch
 
 from auditlog.models import LogEntry
 from django.contrib.contenttypes.models import ContentType
@@ -386,7 +385,6 @@ class AccommodationRequestHistoryTestCase(
         self.assertContains(response, interaction_metadata.filename)
         self.assertContains(response, "Download file", count=1)
 
-    @patch("case_management.settings.LA_HISTORY_TAB_ENABLED", True)
     def test_la_user_can_only_see_events_post_most_recent_reassignment(self):
         original_la_user = get_la_user()
         intermediary_la_user = get_user_with_groups(
@@ -449,7 +447,6 @@ class AccommodationRequestHistoryTestCase(
         self.assertContains(response, "GHI Title")
         self.assertContains(response, "JKL Title")
 
-    @patch("case_management.settings.LA_HISTORY_TAB_ENABLED", True)
     def test_da_user_can_only_see_events_post_most_recent_reassignment(self):
         original_la_user = get_la_user()
         intermediary_la_user = get_user_with_groups(
@@ -752,7 +749,6 @@ class AccommodationRequestHistoryTestCase(
         self.assertContains(response, "GHI Title")
         self.assertContains(response, "JKL Title")
 
-    @patch("case_management.settings.LA_HISTORY_TAB_ENABLED", True)
     def test_la_user_can_see_events_while_reassignment_pending(self):
         original_la_user = get_la_user()
         current_la_user = get_user_with_groups(
@@ -806,7 +802,6 @@ class AccommodationRequestHistoryTestCase(
         self.assertContains(response, "DEF Title")
         self.assertContains(response, "GHI Title")
 
-    @patch("case_management.settings.LA_HISTORY_TAB_ENABLED", True)
     def test_da_user_can_see_events_while_reassignment_pending(self):
         original_da_user = get_da_user()
         current_da_user = get_user_with_groups(
@@ -860,7 +855,6 @@ class AccommodationRequestHistoryTestCase(
         self.assertContains(response, "DEF Title")
         self.assertContains(response, "GHI Title")
 
-    @patch("case_management.settings.LA_HISTORY_TAB_ENABLED", True)
     def test_la_user_cannot_see_events_post_reassignment(self):
         original_la_user = get_la_user()
         current_la_user = get_user_with_groups(
@@ -908,7 +902,6 @@ class AccommodationRequestHistoryTestCase(
 
         self.assertEqual(response.status_code, 404)
 
-    @patch("case_management.settings.LA_HISTORY_TAB_ENABLED", True)
     def test_da_user_cannot_see_events_post_reassignment(self):
         original_da_user = get_da_user()
         current_da_user = get_user_with_groups(
@@ -1038,34 +1031,3 @@ class AccommodationRequestHistoryTestCase(
         by_system_count = response.content.decode().count("By System")
         # Count remains unchanged at 2
         self.assertEqual(by_system_count, 2)
-
-    @patch("case_management.settings.LA_HISTORY_TAB_ENABLED", False)
-    def test_la_user_sees_no_events_when_la_history_disabled(self):
-        user = get_la_user()
-        self.client.force_login(user)
-        response = self.client.get(
-            reverse(
-                "accommodation-requests:detail-history",
-                args=[self.ar.pk],
-            )
-        )
-        self.assertEqual(response.status_code, http.client.OK)
-        self.assertContains(response, "No events")
-
-    @patch("case_management.settings.LA_HISTORY_TAB_ENABLED", False)
-    def test_da_user_sees_no_events_when_la_history_disabled(self):
-        self.ar.ltla_name = ["Ealing"]
-        self.ar.utla_name = ["Ealing"]
-        self.ar.save()
-        user = get_user_with_groups(
-            [UserGroup(name="da_england", type=GroupType.DEVOLVED_ADMINISTRATION)]
-        )
-        self.client.force_login(user)
-        response = self.client.get(
-            reverse(
-                "accommodation-requests:detail-history",
-                args=[self.ar.pk],
-            )
-        )
-        self.assertEqual(response.status_code, http.client.OK)
-        self.assertContains(response, "No events")
