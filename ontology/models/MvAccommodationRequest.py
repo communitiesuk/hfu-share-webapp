@@ -34,23 +34,23 @@ logger = logging.getLogger(__name__)
 
 class MvAccommodationRequestQueryset(models.QuerySet):
     def unassigned(self):
-        name_filter = Q()
+        is_super_sponsor_name = Q()
         for name in (
             "Scottish Government",
             "Scotland Government",
             "Welsh Government",
             "Wales Government",
         ):
-            name_filter |= Q(full_name__icontains=name)
+            is_super_sponsor_name |= Q(full_name__icontains=name)
 
-        super_sponsors = MvVolunteer.objects.filter(
+        sponsored_by_a_super_sponsor = MvVolunteer.objects.filter(
             Q(id__any=OuterRef("sponsor_id")) | Q(id=OuterRef("primary_sponsor_id"))
-        ).filter(name_filter)
+        ).filter(is_super_sponsor_name)
 
         return self.filter(
             (Q(ltla_name__len=0) | Q(ltla_name__isnull=True))
             & (Q(utla_name__len=0) | Q(utla_name__isnull=True))
-        ).exclude(Exists(super_sponsors))
+        ).exclude(Exists(sponsored_by_a_super_sponsor))
 
     def not_hidden(self):
         return self.filter(hidden_unassigned_record__isnull=True)
