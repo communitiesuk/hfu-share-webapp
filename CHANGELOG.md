@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.8.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.7.0...2.8.0) (2026-08-05)
+
+
+### Features
+
+* HFURB-3168 implement unassigned accommodation requests tile ([#54](https://github.com/communitiesuk/hfu-share-webapp/issues/54)) ([37192ea](https://github.com/communitiesuk/hfu-share-webapp/commit/37192eaae696a86e2e44023ffb2aa79a1a3a9c6a))
+* HFURB-3986 unhide assign to la flow ([#82](https://github.com/communitiesuk/hfu-share-webapp/issues/82)) ([3a15154](https://github.com/communitiesuk/hfu-share-webapp/commit/3a15154b9bf4485cda7be13100c4950075500541))
+* remove the LA_HISTORY_TAB_ENABLED variable and its associations in the code ([#81](https://github.com/communitiesuk/hfu-share-webapp/issues/81)) ([8df611f](https://github.com/communitiesuk/hfu-share-webapp/commit/8df611fbc9f015ca9d3b503422330aa640bd22b2))
+
+
+### Bug Fixes
+
+* update cryptography to address vulnrability ([#80](https://github.com/communitiesuk/hfu-share-webapp/issues/80)) ([19a64c2](https://github.com/communitiesuk/hfu-share-webapp/commit/19a64c2cc7e5fa16b1a66a5a9e4f58fd9802c39d))
+
 ## [2.7.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.6.0...2.7.0) (2026-08-03)
 
 
