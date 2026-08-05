@@ -64,9 +64,6 @@ ENHANCED_DEDUPLICATION_LOGGING = (
     os.environ.get("ENHANCED_DEDUPLICATION_LOGGING", "False") == "True"
 )
 
-# Feature flag to control whether viewing history events is enabled for LA/DA users
-LA_HISTORY_TAB_ENABLED = os.environ.get("LA_HISTORY_TAB_ENABLED", "True") == "True"
-
 # Feature flag to control visibility of fix duplicate records feature to non-admin users
 FIX_DUPLICATE_RECORDS_ENABLED = (
     os.environ.get("FIX_DUPLICATE_RECORDS_ENABLED", "True") == "True"
