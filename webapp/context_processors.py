@@ -13,6 +13,7 @@ from webapp.constants import (
     REASSIGNMENT_REQUEST_ALLOWED_GROUP_TYPES,
     SPONSORS_HOSTS_ALLOWED_GROUP_TYPES,
     UAM_ALLOWED_GROUP_TYPES,
+    UNASSIGNED_ACCOMMODATION_REQUESTS_ALLOWED_GROUP_TYPES,
     VISA_APPLICATIONS_ALLOWED_GROUP_TYPES,
     VISA_INFORMATION_REQUESTS_ALLOWED_GROUP_TYPES,
 )
@@ -61,6 +62,9 @@ def _compute_available_links(user) -> dict:
             user_group_types & VISA_INFORMATION_REQUESTS_ALLOWED_GROUP_TYPES
         ),
         "uam": bool(user_group_types & UAM_ALLOWED_GROUP_TYPES),
+        "unassigned_accommodation_requests": bool(
+            user_group_types & UNASSIGNED_ACCOMMODATION_REQUESTS_ALLOWED_GROUP_TYPES
+        ),
         "fix_duplicate_records": bool(user_group_types & {GroupType.DEV})
         or (
             settings.FIX_DUPLICATE_RECORDS_ENABLED

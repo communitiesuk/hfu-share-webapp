@@ -8,7 +8,7 @@ from django.contrib.postgres.aggregates import ArrayAgg
 from django.contrib.postgres.expressions import ArraySubquery
 from django.contrib.postgres.fields import ArrayField
 from django.db import models, transaction
-from django.db.models import CharField, OuterRef, Q, QuerySet
+from django.db.models import CharField, Exists, OuterRef, Q, QuerySet
 from django.db.models.expressions import Func
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -33,6 +33,28 @@ logger = logging.getLogger(__name__)
 
 
 class MvAccommodationRequestQueryset(models.QuerySet):
+    def unassigned(self):
+        is_super_sponsor_name = Q()
+        for name in (
+            "Scottish Government",
+            "Scotland Government",
+            "Welsh Government",
+            "Wales Government",
+        ):
+            is_super_sponsor_name |= Q(full_name__icontains=name)
+
+        sponsored_by_a_super_sponsor = MvVolunteer.objects.filter(
+            Q(id__any=OuterRef("sponsor_id")) | Q(id=OuterRef("primary_sponsor_id"))
+        ).filter(is_super_sponsor_name)
+
+        return self.filter(
+            (Q(ltla_name__len=0) | Q(ltla_name__isnull=True))
+            & (Q(utla_name__len=0) | Q(utla_name__isnull=True))
+        ).exclude(Exists(sponsored_by_a_super_sponsor))
+
+    def not_hidden(self):
+        return self.filter(hidden_unassigned_record__isnull=True)
+
     def _la_names(self, la_field_name: str) -> QuerySet[str]:
         flatted_column_name = f"{la_field_name}_flat"
         return (
@@ -142,6 +164,12 @@ class MvAccommodationRequestManager(
 
     def with_checks(self):
         return self.get_queryset().with_checks()
+
+    def unassigned(self):
+        return self.get_queryset().unassigned()
+
+    def not_hidden(self):
+        return self.get_queryset().not_hidden()
 
     def _filter_by_ltla_name(self, ltla_names: list[str]) -> Q:
         return Q(ltla_name__overlap=ltla_names) & ~Q(ltla_name__contained_by=[])

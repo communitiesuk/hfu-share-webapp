@@ -49,7 +49,6 @@ from accommodation_requests.forms import (
 from accommodation_requests.safeguarding_utils import NotificationData, loop_and_raise
 from accounts.enums import GroupType
 from accounts.mixins import user_has_group_with_type
-from case_management import settings
 from case_management.settings import FILE_DOWNLOAD_S3_BUCKET_NAME
 from ontology.models import (
     Comment,
@@ -64,13 +63,11 @@ from ontology.models import (
     SafeguardingNotification,
 )
 from safeguarding.views import get_safeguarding_checks_summary_list_items
-from unassigned_accommodation_requests.constants import (
-    UNASSIGNED_ACCOMMODATION_REQUESTS_GROUP_TYPES,
-)
 from webapp.constants import (
     ACCOMMODATION_REQUEST_SEARCH_FIELDS,
     ACCOMMODATION_SEARCH_FIELDS,
     SELECT_ACCOMMODATION_TABLE_COLUMN_ATTRS,
+    UNASSIGNED_ACCOMMODATION_REQUESTS_ALLOWED_GROUP_TYPES,
 )
 from webapp.enhanced_sentry_logging import db_values, log_event, log_persistence_check
 from webapp.mixins import (
@@ -472,12 +469,8 @@ class AccommodationRequestDetailOverviewView(
         }
 
     def get_assign_to_la_link(self):
-        # TODO: the assign to local authority flow is hidden for now
-        # Remove this line to turn it back on.
-        return None
-
         if not self.user_can_edit(
-            group_types=UNASSIGNED_ACCOMMODATION_REQUESTS_GROUP_TYPES
+            group_types=UNASSIGNED_ACCOMMODATION_REQUESTS_ALLOWED_GROUP_TYPES
         ):
             return None
 
@@ -839,9 +832,6 @@ class AccommodationRequestDetailHistoryView(
         if user_has_group_with_type(
             user, GroupType.LOCAL_AUTHORITY
         ) or user_has_group_with_type(user, GroupType.DEVOLVED_ADMINISTRATION):
-            if not settings.LA_HISTORY_TAB_ENABLED:
-                return False
-
             ltlas = self.object.get_all_ltla_names()
             if ltlas and len(ltlas) > 1:
                 return False
