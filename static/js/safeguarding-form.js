@@ -12,9 +12,11 @@ class GovUKFormGroup {
         if (show) {
             this.$formGroup.removeClass("govuk-visually-hidden");
             this.$inputElement.removeAttr("tabIndex");
+            this.$inputElement.removeAttr('disabled')
         } else {
             this.$formGroup.addClass("govuk-visually-hidden");
             this.$inputElement.attr("tabIndex", -1);
+            this.$inputElement.attr('disabled', 'disabled')
         }
     }
 }
