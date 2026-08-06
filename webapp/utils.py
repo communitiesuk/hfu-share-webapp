@@ -1,13 +1,11 @@
-from datetime import datetime
 from typing import Callable
 
 import django_tables2 as tables
-from django.utils import timezone
-from django.utils.formats import date_format
 from django_filters import ChoiceFilter, MultipleChoiceFilter, RangeFilter
 from django_filters.conf import settings
 
 from webapp.fields import CustomDateRangeField, CustomRangeField
+from webapp.formatting import format_date_value, to_local_date
 
 
 class LazyMultipleChoiceFilter(MultipleChoiceFilter):
@@ -60,8 +58,6 @@ class CustomRangeFilter(RangeFilter):
 
 
 class CustomDateColumn(tables.Column):
-    format = "j M Y"
-
     def __init__(self, *args, **kwargs):
         kwargs.setdefault("default", "—")
         super().__init__(*args, **kwargs)
@@ -69,16 +65,11 @@ class CustomDateColumn(tables.Column):
     def render(self, value):
         if value is None:
             return self.default
-        if isinstance(value, str):
-            value_str = value.strip()
-            value = datetime.strptime(value_str, "%d %b %Y")
 
-        return date_format(value, format=self.format)
+        return format_date_value(to_local_date(value), list_view=True)
 
 
 class CustomDateTimeColumn(tables.Column):
-    format = "j M Y, g:ia"
-
     def __init__(self, *args, **kwargs):
         kwargs.setdefault("default", "—")
         super().__init__(*args, **kwargs)
@@ -87,11 +78,7 @@ class CustomDateTimeColumn(tables.Column):
         if value is None:
             return self.default
 
-        if timezone.is_aware(value):
-            value = timezone.localtime(value)
-
-        formatted = date_format(value, format=self.format)
-        return formatted.replace("a.m.", "am").replace("p.m.", "pm")
+        return format_date_value(value, list_view=True)
 
 
 def normalize_empty_to_none(value):
