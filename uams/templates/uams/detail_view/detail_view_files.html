@@ -1,12 +1,14 @@
 {% extends "webapp/components/record_tabs/record_overview_base.html" %}
 {% block selected_tab %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            <h1 class="govuk-heading-l">Files</h1>
+    <div class="govuk-summary-card">
+        <div class="govuk-summary-card__title-wrapper">
+            <h2 class="govuk-summary-card__title">Files</h2>
+        </div>
+        <div class="govuk-summary-card__content">
             <p class="govuk-body">
                 Each application to sponsor a child includes a 'Ukraine certified consent form' and a 'UK sponsorship arrangement consent form'.
             </p>
-            <h2 class="govuk-heading-m">Existing files</h2>
+            <h3 class="govuk-heading-m">Existing files</h3>
             {% if attachments and attachments|length > 0 %}
                 <table class="govuk-table">
                     <tbody class="govuk-table__body" style="border-top: 1px solid #b1b4b6">
