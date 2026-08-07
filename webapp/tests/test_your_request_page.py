@@ -48,10 +48,10 @@ class YourRequestPageTests(TestSessionTokenMixin, TestCase):
 
         self.assertContains(response, "Request date")
         self.assertContains(response, "Name")
-        self.assertContains(response, "Local Authority")
+        self.assertContains(response, "Local authority")
         self.assertNotContains(response, "User group")
         self.assertNotContains(response, "Choose level of permissions")
-        self.assertNotContains(response, "Country group")
+        self.assertNotContains(response, "Devolved administration")
         self.assertContains(response, "Tell us why access is needed")
         self.assertNotContains(response, "Reason for rejections")
 
@@ -80,7 +80,7 @@ class YourRequestPageTests(TestSessionTokenMixin, TestCase):
         self.assertNotContains(response, "Local Authority")
         self.assertContains(response, "User group")
         self.assertNotContains(response, "Choose level of permissions")
-        self.assertContains(response, "Country group")
+        self.assertContains(response, "Devolved administration")
         self.assertContains(response, "Tell us why access is needed")
         self.assertNotContains(response, "Reason for rejections")
 
@@ -106,10 +106,10 @@ class YourRequestPageTests(TestSessionTokenMixin, TestCase):
 
         self.assertContains(response, "Request date")
         self.assertContains(response, "Name")
-        self.assertContains(response, "Local Authority")
+        self.assertContains(response, "Local authority")
         self.assertContains(response, "User group")
         self.assertNotContains(response, "Choose level of permissions")
-        self.assertNotContains(response, "Country group")
+        self.assertContains(response, "Devolved administration")
         self.assertContains(response, "Tell us why access is needed")
         self.assertNotContains(response, "Reason for rejections")
 
@@ -138,7 +138,7 @@ class YourRequestPageTests(TestSessionTokenMixin, TestCase):
         self.assertNotContains(response, "Local Authority")
         self.assertContains(response, "User group")
         self.assertNotContains(response, "Choose level of permissions")
-        self.assertNotContains(response, "Country group")
+        self.assertNotContains(response, "Devolved administration")
         self.assertContains(response, "Tell us why access is needed")
         self.assertNotContains(response, "Reason for rejections")
 
@@ -167,7 +167,7 @@ class YourRequestPageTests(TestSessionTokenMixin, TestCase):
         self.assertNotContains(response, "Local Authority")
         self.assertNotContains(response, "User group")
         self.assertContains(response, "Choose level of permissions")
-        self.assertNotContains(response, "Country group")
+        self.assertNotContains(response, "Devolved administration")
         self.assertContains(response, "Tell us why access is needed")
         self.assertNotContains(response, "Reason for rejections")
 
@@ -196,7 +196,7 @@ class YourRequestPageTests(TestSessionTokenMixin, TestCase):
         self.assertNotContains(response, "Local Authority")
         self.assertNotContains(response, "User group")
         self.assertContains(response, "Choose level of permissions")
-        self.assertNotContains(response, "Country group")
+        self.assertNotContains(response, "Devolved administration")
         self.assertContains(response, "Tell us why access is needed")
         self.assertNotContains(response, "Reason for rejections")
 
@@ -222,10 +222,10 @@ class YourRequestPageTests(TestSessionTokenMixin, TestCase):
 
         self.assertContains(response, "Request date")
         self.assertContains(response, "Name")
-        self.assertContains(response, "Local Authority")
+        self.assertContains(response, "Local authority")
         self.assertNotContains(response, "User group")
         self.assertNotContains(response, "Choose level of permissions")
-        self.assertNotContains(response, "Country group")
+        self.assertNotContains(response, "Devolved administration")
         self.assertContains(response, "Tell us why access is needed")
         self.assertContains(response, "Reason for rejections")
 
@@ -254,7 +254,7 @@ class YourRequestPageTests(TestSessionTokenMixin, TestCase):
         self.assertNotContains(response, "Local Authority")
         self.assertContains(response, "User group")
         self.assertNotContains(response, "Choose level of permissions")
-        self.assertContains(response, "Country group")
+        self.assertContains(response, "Devolved administration")
         self.assertContains(response, "Tell us why access is needed")
         self.assertContains(response, "Reason for rejections")
 
@@ -280,10 +280,10 @@ class YourRequestPageTests(TestSessionTokenMixin, TestCase):
 
         self.assertContains(response, "Request date")
         self.assertContains(response, "Name")
-        self.assertContains(response, "Local Authority")
+        self.assertContains(response, "Local authority")
         self.assertContains(response, "User group")
         self.assertNotContains(response, "Choose level of permissions")
-        self.assertNotContains(response, "Country group")
+        self.assertContains(response, "Devolved administration")
         self.assertContains(response, "Tell us why access is needed")
         self.assertContains(response, "Reason for rejections")
 
@@ -312,7 +312,7 @@ class YourRequestPageTests(TestSessionTokenMixin, TestCase):
         self.assertNotContains(response, "Local Authority")
         self.assertContains(response, "User group")
         self.assertNotContains(response, "Choose level of permissions")
-        self.assertNotContains(response, "Country group")
+        self.assertNotContains(response, "Devolved administration")
         self.assertContains(response, "Tell us why access is needed")
         self.assertContains(response, "Reason for rejections")
 
@@ -341,7 +341,7 @@ class YourRequestPageTests(TestSessionTokenMixin, TestCase):
         self.assertNotContains(response, "Local Authority")
         self.assertNotContains(response, "User group")
         self.assertContains(response, "Choose level of permissions")
-        self.assertNotContains(response, "Country group")
+        self.assertNotContains(response, "Devolved administration")
         self.assertContains(response, "Tell us why access is needed")
         self.assertContains(response, "Reason for rejections")
 
@@ -370,7 +370,7 @@ class YourRequestPageTests(TestSessionTokenMixin, TestCase):
         self.assertNotContains(response, "Local Authority")
         self.assertNotContains(response, "User group")
         self.assertContains(response, "Choose level of permissions")
-        self.assertNotContains(response, "Country group")
+        self.assertNotContains(response, "Devolved administration")
         self.assertContains(response, "Tell us why access is needed")
         self.assertContains(response, "Reason for rejections")
 
@@ -396,10 +396,10 @@ class YourRequestPageTests(TestSessionTokenMixin, TestCase):
 
         self.assertContains(response, "Request date")
         self.assertContains(response, "Name")
-        self.assertContains(response, "Local Authority")
+        self.assertContains(response, "Local authority")
         self.assertNotContains(response, "User group")
         self.assertNotContains(response, "Choose level of permissions")
-        self.assertNotContains(response, "Country group")
+        self.assertNotContains(response, "Devolved administration")
         self.assertContains(response, "Tell us why access is needed")
         self.assertNotContains(response, "Reason for rejections")
 
@@ -428,7 +428,7 @@ class YourRequestPageTests(TestSessionTokenMixin, TestCase):
         self.assertNotContains(response, "Local Authority")
         self.assertContains(response, "User group")
         self.assertNotContains(response, "Choose level of permissions")
-        self.assertContains(response, "Country group")
+        self.assertContains(response, "Devolved administration")
         self.assertContains(response, "Tell us why access is needed")
         self.assertNotContains(response, "Reason for rejections")
 
@@ -454,10 +454,10 @@ class YourRequestPageTests(TestSessionTokenMixin, TestCase):
 
         self.assertContains(response, "Request date")
         self.assertContains(response, "Name")
-        self.assertContains(response, "Local Authority")
+        self.assertContains(response, "Local authority")
         self.assertContains(response, "User group")
         self.assertNotContains(response, "Choose level of permissions")
-        self.assertNotContains(response, "Country group")
+        self.assertContains(response, "Devolved administration")
         self.assertContains(response, "Tell us why access is needed")
         self.assertNotContains(response, "Reason for rejections")
 
@@ -486,7 +486,7 @@ class YourRequestPageTests(TestSessionTokenMixin, TestCase):
         self.assertNotContains(response, "Local Authority")
         self.assertContains(response, "User group")
         self.assertNotContains(response, "Choose level of permissions")
-        self.assertNotContains(response, "Country group")
+        self.assertNotContains(response, "Devolved administration")
         self.assertContains(response, "Tell us why access is needed")
         self.assertNotContains(response, "Reason for rejections")
 
@@ -515,7 +515,7 @@ class YourRequestPageTests(TestSessionTokenMixin, TestCase):
         self.assertNotContains(response, "Local Authority")
         self.assertNotContains(response, "User group")
         self.assertContains(response, "Choose level of permissions")
-        self.assertNotContains(response, "Country group")
+        self.assertNotContains(response, "Devolved administration")
         self.assertContains(response, "Tell us why access is needed")
         self.assertNotContains(response, "Reason for rejections")
 
@@ -544,6 +544,6 @@ class YourRequestPageTests(TestSessionTokenMixin, TestCase):
         self.assertNotContains(response, "Local Authority")
         self.assertNotContains(response, "User group")
         self.assertContains(response, "Choose level of permissions")
-        self.assertNotContains(response, "Country group")
+        self.assertNotContains(response, "Devolved administration")
         self.assertContains(response, "Tell us why access is needed")
         self.assertNotContains(response, "Reason for rejections")
