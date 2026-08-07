@@ -6,7 +6,6 @@ from typing import Any, List
 
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import Field, Fieldset, Layout, Size
-from django.conf import settings
 from django.contrib import messages
 from django.db.models import Count, Q
 from django.forms import CheckboxInput, CheckboxSelectMultiple
@@ -32,7 +31,6 @@ from django_tables2 import (
 )
 from formtools.wizard.views import NamedUrlSessionWizardView
 
-from accounts.enums import GroupType
 from case_management.settings import sentry_sdk
 from deduplication.constants import DEDUP_SPONSORS_SEARCH_FIELDS
 from deduplication.forms import (
@@ -65,6 +63,7 @@ from visa_applications.templatetags.visa_application_extras import (
 from webapp.constants import (
     ACCOMMODATION_SEARCH_FIELDS,
     FIX_DUPLICATE_RECORDS_ALLOWED_GROUP_TYPES,
+    FIX_GUEST_DUPLICATE_RECORDS_ALLOWED_GROUP_TYPES,
     GUEST_SEARCH_FIELDS,
     visa_status_list,
 )
@@ -190,17 +189,16 @@ UNDO_DEDUPLICATION_FORM_TEMPLATES = {
 class SelectRecordTypeView(PermissionsMixin, FormView):
     template_name = "select_duplicate_record_type.html"
     form_class = SelectRecordTypeForm
-
-    def get_group_type(self):
-        if settings.FIX_DUPLICATE_RECORDS_ENABLED:
-            return list(FIX_DUPLICATE_RECORDS_ALLOWED_GROUP_TYPES)
-        return [GroupType.DEV]
+    group_type = list(FIX_DUPLICATE_RECORDS_ALLOWED_GROUP_TYPES)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        # TEMP: Only show the 'Guests' option to users in the DEV group
+        # TEMP: Only show the 'Guests' option to users in the DEV or
+        # LOCAL_AUTHORITY_EARLY_ADOPTERS group
         show_guests_option = False
-        if self.request.user.groups.filter(name="dev").exists():
+        if self.request.user.groups.filter(
+            Q(name="dev") | Q(name="local_authority_early_adopters")
+        ).exists():
             show_guests_option = True
         kwargs["show_guests_option"] = show_guests_option
         return kwargs
@@ -2344,11 +2342,7 @@ class UndoDeduplicationRecordsFormWizard(
 class SelectAndReviewSponsorRecordsFormWizard(SelectAndViewRecordsFormWizard):
     model = MvVolunteer
     record_type = "sponsor and host"
-
-    def get_group_type(self):
-        if settings.FIX_DUPLICATE_RECORDS_ENABLED:
-            return list(FIX_DUPLICATE_RECORDS_ALLOWED_GROUP_TYPES)
-        return [GroupType.DEV]
+    group_type = list(FIX_DUPLICATE_RECORDS_ALLOWED_GROUP_TYPES)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -2743,7 +2737,7 @@ class UndoDeduplicationSponsorRecordsFormWizard(UndoDeduplicationRecordsFormWiza
 # Guests
 class SelectAndReviewGuestRecordsFormWizard(SelectAndViewRecordsFormWizard):
     model = MvPerson
-    group_type = [GroupType.DEV]
+    group_type = list(FIX_GUEST_DUPLICATE_RECORDS_ALLOWED_GROUP_TYPES)
     record_type = "guest"
 
     def __init__(self, **kwargs):
@@ -3010,7 +3004,7 @@ class SelectAndReviewGuestRecordsFormWizard(SelectAndViewRecordsFormWizard):
 
 class UndoDeduplicationGuestRecordsFormWizard(UndoDeduplicationRecordsFormWizard):
     model = MvPerson
-    group_type = [GroupType.DEV]
+    group_type = list(FIX_GUEST_DUPLICATE_RECORDS_ALLOWED_GROUP_TYPES)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -3198,11 +3192,7 @@ class UndoDeduplicationGuestRecordsFormWizard(UndoDeduplicationRecordsFormWizard
 class SelectAndReviewAccommodationRecordsFormWizard(SelectAndViewRecordsFormWizard):
     model = MvAccommodation
     record_type = "accommodation"
-
-    def get_group_type(self):
-        if settings.FIX_DUPLICATE_RECORDS_ENABLED:
-            return list(FIX_DUPLICATE_RECORDS_ALLOWED_GROUP_TYPES)
-        return [GroupType.DEV]
+    group_type = list(FIX_DUPLICATE_RECORDS_ALLOWED_GROUP_TYPES)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

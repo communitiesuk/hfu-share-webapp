@@ -17,6 +17,7 @@ from ontology.tests.factories import (
 from user_management.tests.base import (
     get_admin_user,
     get_da_user,
+    get_la_early_adopter_user,
     get_la_user,
     get_mhclg_user,
     get_service_support_user,
@@ -128,7 +129,22 @@ class UndoDeduplicationGuestViewDeduplicatedRecordsViewTestCase(
                 },
             )
         )
-        self.assertEqual(response.status_code, http.client.FORBIDDEN)
+        self.assertEqual(response.status_code, http.client.NOT_FOUND)
+
+    def test_la_ea_user_is_allowed_access(self):
+        user = get_la_early_adopter_user()
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse(
+                "deduplication:guests:undo-deduplication-records-manual-step",
+                kwargs={
+                    "step": UndoDeduplicationRecordsStep.VIEW_DUPLICATE_RECORDS,
+                    "id": self.new_principal_ltla_guest.pk,
+                },
+            )
+        )
+        self.assertEqual(response.status_code, http.client.OK)
 
     def test_da_user_is_not_allowed_access(self):
         user = get_da_user()
@@ -143,7 +159,7 @@ class UndoDeduplicationGuestViewDeduplicatedRecordsViewTestCase(
                 },
             )
         )
-        self.assertEqual(response.status_code, http.client.FORBIDDEN)
+        self.assertEqual(response.status_code, http.client.NOT_FOUND)
 
     def test_ukvi_user_is_not_allowed_access(self):
         user = get_ukvi_user()
@@ -158,7 +174,7 @@ class UndoDeduplicationGuestViewDeduplicatedRecordsViewTestCase(
                 },
             )
         )
-        self.assertEqual(response.status_code, http.client.FORBIDDEN)
+        self.assertEqual(response.status_code, http.client.NOT_FOUND)
 
     def test_ops_user_is_not_allowed_access(self):
         user = get_mhclg_user()
@@ -173,7 +189,7 @@ class UndoDeduplicationGuestViewDeduplicatedRecordsViewTestCase(
                 },
             )
         )
-        self.assertEqual(response.status_code, http.client.FORBIDDEN)
+        self.assertEqual(response.status_code, http.client.NOT_FOUND)
 
     def test_service_support_user_is_not_allowed_access(self):
         user = get_service_support_user()
@@ -188,7 +204,7 @@ class UndoDeduplicationGuestViewDeduplicatedRecordsViewTestCase(
                 },
             )
         )
-        self.assertEqual(response.status_code, http.client.FORBIDDEN)
+        self.assertEqual(response.status_code, http.client.NOT_FOUND)
 
     def test_view_duplicate_guest_and_host_records_displays_correct_content(self):
         user = get_admin_user()
