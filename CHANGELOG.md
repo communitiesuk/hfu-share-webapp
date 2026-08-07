@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.9.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.8.0...2.9.0) (2026-08-07)
+
+
+### Features
+
+* request access flow content updates (HFURB-1624) ([#84](https://github.com/communitiesuk/hfu-share-webapp/issues/84)) ([c2f7233](https://github.com/communitiesuk/hfu-share-webapp/commit/c2f7233f618c226cca85c1486f4a806564b549c0))
+
+
+### Bug Fixes
+
+* update the safeguarding from JS so that is easier to understand ([#73](https://github.com/communitiesuk/hfu-share-webapp/issues/73)) ([0919a33](https://github.com/communitiesuk/hfu-share-webapp/commit/0919a33f3db89af2f35dd9228d986a9d929b8b0f))
+
 ## [2.8.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.7.0...2.8.0) (2026-08-05)
 
 
