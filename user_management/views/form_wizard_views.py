@@ -44,25 +44,22 @@ ACCESS_REQUEST_TEMPLATES = {
 
 ACCESS_REQUEST_FORM_TITLES = {
     "group_type": "Select user group",
-    "da_group_type": "Devolved administrator user group",
+    "da_group_type": "Select user group",
     "local_authority": "Local authority",
-    "devolved_administration": "Devolved Administrator - Central user",
-    "justification": "Justification",
+    "devolved_administration": "Devolved administration: central user",
+    "justification": "Tell us why you need access",
     "review": "Check your answers",
 }
 
 ACCESS_REQUEST_FORM_BREADCRUMBS = {
-    "group_type": [{"name": "User group"}],
-    "da_group_type": [
-        {"name": "User group", "url": "user-management:access-request-form"},
-        {"name": "Devolved administration"},
-    ],
+    "group_type": [{"name": "Select user group"}],
+    "da_group_type": [{"name": "Select user group"}],
     "local_authority": [
-        {"name": "User group", "url": "user-management:access-request-form"},
+        {"name": "Select user group", "url": "user-management:access-request-form"},
         {"name": "Local authority"},
     ],
     "devolved_administration": [
-        {"name": "User group", "url": "user-management:access-request-form"},
+        {"name": "Select user group", "url": "user-management:access-request-form"},
         {"name": "Devolved administration: central user"},
     ],
     "justification": [{"name": "Tell us why you need access"}],
@@ -118,8 +115,25 @@ class AccessRequestFormWizard(UserActionsMixin, SessionWizardView):  # pylint: d
     def get_context_data(self, form, **kwargs):
         context = super().get_context_data(form=form, **kwargs)
 
-        context["breadcrumbs"] = ACCESS_REQUEST_FORM_BREADCRUMBS.get(self.steps.current)
-        context["title"] = ACCESS_REQUEST_FORM_TITLES.get(self.steps.current)
+        group_type_data = self.get_cleaned_data_for_step("group_type") or {}
+        is_devolved_administration = (
+            group_type_data.get("group_type") == GroupType.DEVOLVED_ADMINISTRATION
+        )
+
+        if self.steps.current == "local_authority" and is_devolved_administration:
+            context["title"] = "Devolved administration: local authority"
+            context["breadcrumbs"] = [
+                {
+                    "name": "Select user group",
+                    "url": "user-management:access-request-form",
+                },
+                {"name": "Devolved administration: local authority"},
+            ]
+        else:
+            context["breadcrumbs"] = ACCESS_REQUEST_FORM_BREADCRUMBS.get(
+                self.steps.current
+            )
+            context["title"] = ACCESS_REQUEST_FORM_TITLES.get(self.steps.current)
 
         def get_cleaned_value(step, field):
             data = self.get_cleaned_data_for_step(step) or {}
@@ -156,8 +170,8 @@ class AccessRequestFormWizard(UserActionsMixin, SessionWizardView):  # pylint: d
                         else "User group"
                     ),
                     "answer": (
-                        f"Devolved Administration - "
-                        f"{AccessRequest.DaGroupType(da_group_type).label}"
+                        f"{GroupType.DEVOLVED_ADMINISTRATION.label} - "
+                        f"{AccessRequest.DaGroupType(da_group_type).label.lower()}"
                         if da_group_type
                         else GroupType(group_type).label
                     ),
@@ -167,14 +181,18 @@ class AccessRequestFormWizard(UserActionsMixin, SessionWizardView):  # pylint: d
 
             if local_authority:
                 form_data["local_authority"] = {
-                    "question": "Local authority",
+                    "question": (
+                        "Devolved administration"
+                        if group_type == GroupType.DEVOLVED_ADMINISTRATION
+                        else "Local authority"
+                    ),
                     "answer": render_name_label_from_group_info(local_authority),
                     "editable": True,
                 }
 
             if devolved_administration:
                 form_data["devolved_administration"] = {
-                    "question": "Country group",
+                    "question": "Devolved administration",
                     "answer": render_name_label_from_group_info(
                         devolved_administration
                     ),
@@ -182,7 +200,7 @@ class AccessRequestFormWizard(UserActionsMixin, SessionWizardView):  # pylint: d
                 }
 
             form_data["justification"] = {
-                "question": "Tell us why access is needed",
+                "question": "Tell us why you need access",
                 "answer": get_cleaned_value("justification", "justification"),
                 "editable": True,
             }
@@ -195,7 +213,7 @@ class AccessRequestFormWizard(UserActionsMixin, SessionWizardView):  # pylint: d
         group_type = cleaned_data.get("group_type")
 
         if group_type == GroupType.LOCAL_AUTHORITY:
-            AccessRequest.create_access_request(
+            access_request = AccessRequest.create_access_request(
                 requester=self.request.user,
                 group_type=group_type,
                 da_group_type=None,
@@ -213,7 +231,7 @@ class AccessRequestFormWizard(UserActionsMixin, SessionWizardView):  # pylint: d
                 )
             )
 
-            AccessRequest.create_access_request(
+            access_request = AccessRequest.create_access_request(
                 requester=self.request.user,
                 group_type=group_type,
                 da_group_type=da_group_type,
@@ -223,13 +241,17 @@ class AccessRequestFormWizard(UserActionsMixin, SessionWizardView):  # pylint: d
 
         else:
             group_info = GroupInfo.objects.get(group_type=group_type)
-            AccessRequest.create_access_request(
+            access_request = AccessRequest.create_access_request(
                 requester=self.request.user,
                 group_type=group_type,
                 da_group_type=None,
                 group_info=group_info,
                 justification=cleaned_data.get("justification"),
             )
+
+        self.request.session["latest_access_request_group_name"] = (
+            render_name_label_from_group_info(access_request.group_info)
+        )
 
         return redirect("user-management:access-request-confirmation")
 
@@ -243,4 +265,7 @@ class AccessRequestFormConfirmationPageView(TemplateView):  # pylint: disable=vi
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["breadcrumbs"] = ACCESS_REQUEST_FORM_BREADCRUMBS.get("confirmation")
+        context["group_name"] = self.request.session.pop(
+            "latest_access_request_group_name", None
+        )
         return context

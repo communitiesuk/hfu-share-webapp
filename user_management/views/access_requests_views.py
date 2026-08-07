@@ -321,7 +321,7 @@ class AccessRequestYourRequestView(UserActionsMixin, SummaryListView):
 
     created_at = SummaryListRow(verbose_name="Request date")
     requester__first_name = SummaryListRow(verbose_name="Name")
-    group_info = SummaryListRow(verbose_name="Local Authority")
+    group_info = SummaryListRow(verbose_name="Local authority")
     justification = SummaryListRow(verbose_name="Tell us why access is needed")
     group_type = SummaryListRow(verbose_name="User group")
     rejection_justification = SummaryListRow(verbose_name="Reason for rejections")
@@ -346,7 +346,7 @@ class AccessRequestYourRequestView(UserActionsMixin, SummaryListView):
     def get_fields(self):
         fields = None
         if self.object.group_type == GroupType.LOCAL_AUTHORITY:
-            self.group_info.verbose_name = "Local Authority"
+            self.group_info.verbose_name = "Local authority"
             self.group_type.verbose_name = "User group"
             fields = [
                 "created_at",
@@ -356,7 +356,7 @@ class AccessRequestYourRequestView(UserActionsMixin, SummaryListView):
             ]
         elif self.object.group_type == GroupType.DEVOLVED_ADMINISTRATION:
             if self.object.da_group_type == AccessRequest.DaGroupType.CENTRAL_USER:
-                self.group_info.verbose_name = "Country group"
+                self.group_info.verbose_name = "Devolved administration"
                 self.group_type.verbose_name = "User group"
                 fields = [
                     "created_at",
@@ -366,7 +366,7 @@ class AccessRequestYourRequestView(UserActionsMixin, SummaryListView):
                     "justification",
                 ]
             if self.object.da_group_type == AccessRequest.DaGroupType.LOCAL_AUTHORITY:
-                self.group_info.verbose_name = "Local Authority"
+                self.group_info.verbose_name = "Local authority"
                 self.group_type.verbose_name = "User group"
                 fields = [
                     "created_at",
@@ -376,7 +376,7 @@ class AccessRequestYourRequestView(UserActionsMixin, SummaryListView):
                     "justification",
                 ]
         elif self.object.group_type == GroupType.MHCLG:
-            self.group_info.verbose_name = "Local Authority"
+            self.group_info.verbose_name = "Local authority"
             self.group_type.verbose_name = "Choose level of permissions"
             fields = [
                 "created_at",
@@ -385,7 +385,7 @@ class AccessRequestYourRequestView(UserActionsMixin, SummaryListView):
                 "justification",
             ]
         elif self.object.group_type == GroupType.SERVICE_SUPPORT:
-            self.group_info.verbose_name = "Local Authority"
+            self.group_info.verbose_name = "Local authority"
             self.group_type.verbose_name = "Choose level of permissions"
             fields = [
                 "created_at",
@@ -394,7 +394,7 @@ class AccessRequestYourRequestView(UserActionsMixin, SummaryListView):
                 "justification",
             ]
         elif self.object.group_type == GroupType.HOME_OFFICE:
-            self.group_info.verbose_name = "Local Authority"
+            self.group_info.verbose_name = "Local authority"
             self.group_type.verbose_name = "User group"
             fields = [
                 "created_at",

@@ -73,7 +73,7 @@ class AccessRequestFormGroupTypeStep(forms.Form):
 class AccessRequestFormDaGroupTypeStep(forms.Form):
     da_group_type = forms.ChoiceField(
         choices=AccessRequest.DaGroupType.choices,
-        label="Select devolved administrator user group",
+        label="",
         widget=forms.RadioSelect(),
     )
 
@@ -81,17 +81,34 @@ class AccessRequestFormDaGroupTypeStep(forms.Form):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Field.radios("da_group_type", legend_size=Size.LARGE),
-            Button("button", "Next"),
+            HTML(
+                '<p class="govuk-body">'
+                "If you need to see the data for a whole country select "
+                "'Central user'. If you need the data for a local authority "
+                "in a devolved administration select 'Local authority'."
+                "</p>"
+            ),
+            Field.radios("da_group_type"),
+            Div(
+                Button("button", "Next"),
+                HTML(
+                    '<button type="submit" name="wizard_goto_step" value="group_type" '
+                    'class="govuk-link govuk-link--no-visited-state">'
+                    "Cancel"
+                    "</button>"
+                ),
+                css_class="govuk-button-group",
+            ),
         )
 
 
 class AccessRequestFormDevolvedAdministrationStep(forms.Form):
     devolved_administration = forms.ModelChoiceField(
-        queryset=GroupInfo.objects.filter(
-            group_type=GroupType.DEVOLVED_ADMINISTRATION
-        ).exclude(group__name="da_england"),
-        label="Select relevant devolved administration",
+        queryset=GroupInfo.objects.filter(group_type=GroupType.DEVOLVED_ADMINISTRATION)
+        .exclude(group__name="da_england")
+        .exclude(da_name__isnull=True)
+        .exclude(da_name=""),
+        label="Select a devolved administration",
         widget=forms.RadioSelect(),
     )
 
@@ -102,8 +119,18 @@ class AccessRequestFormDevolvedAdministrationStep(forms.Form):
             "devolved_administration"
         ].label_from_instance = render_name_label_from_group_info
         self.helper.layout = Layout(
-            Field.radios("devolved_administration", legend_size=Size.LARGE),
-            Button("button", "Next"),
+            Field.radios("devolved_administration", legend_size=Size.MEDIUM),
+            Div(
+                Button("button", "Next"),
+                HTML(
+                    '<button type="submit" name="wizard_goto_step" '
+                    'value="da_group_type" '
+                    'class="govuk-link govuk-link--no-visited-state">'
+                    "Cancel"
+                    "</button>"
+                ),
+                css_class="govuk-button-group",
+            ),
         )
 
 
@@ -123,6 +150,7 @@ class AccessRequestFormLocalAuthorityStep(forms.Form):
             "access to the LTLA data for that area, they do not need to submit "
             "another data access request for LTLA data."
         ),
+        error_messages={"required": "You must select one."},
         widget=SearchableSelect(),
     )
 
@@ -140,7 +168,7 @@ class AccessRequestFormLocalAuthorityStep(forms.Form):
 
 class AccessRequestFormJustificationStep(forms.Form):
     justification = forms.CharField(
-        label="Tell us why access is needed",
+        label="",
         help_text="For example, I am working on the Homes for Ukraine scheme in (your "
         "local authority) and need access to the records.",
         widget=forms.Textarea(),
@@ -151,7 +179,13 @@ class AccessRequestFormJustificationStep(forms.Form):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Field.textarea("justification", label_size=Size.LARGE, rows=5),
+            HTML(
+                '<p class="govuk-body">'
+                "Tell us which local authority or department you work for "
+                "and why you need access to this data."
+                "</p>"
+            ),
+            Field.textarea("justification", rows=5),
             Button("button", "Next"),
         )
 
