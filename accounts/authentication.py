@@ -33,12 +33,11 @@ class Authentication:
         # Eagerly load the claims from the session
         self.claims = self.request.session.get("id_token_claims", {})
 
-    def get_auth_uri(self, state: Optional[str] = None) -> str:
+    def get_auth_uri(self) -> str:
         redirect_uri = self._get_redirect_uri()
         flow = self.msal_app.initiate_auth_code_flow(
             scopes=settings.ENTRA_AUTH["SCOPES"],
             redirect_uri=redirect_uri,
-            state=state,
         )
         self.request.session[self.auth_flow_session_key] = flow
         return flow["auth_uri"]
