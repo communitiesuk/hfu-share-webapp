@@ -213,12 +213,8 @@ class AccessRequestFormWizardDevolvedAdministrationContentTestCase(
             {"da_group_type-da_group_type": AccessRequest.DaGroupType.LOCAL_AUTHORITY},
         )
         self.post_step(
-            "devolved_administration",
-            {
-                "devolved_administration-devolved_administration": (
-                    self.da_group_info.pk
-                )
-            },
+            "local_authority",
+            {"local_authority-local_authority": self.la_group_info.pk},
         )
         response = self.post_step(
             "justification", {"justification-justification": "Testing"}
@@ -229,7 +225,7 @@ class AccessRequestFormWizardDevolvedAdministrationContentTestCase(
         self.assertContains(response, "User group")
         self.assertContains(response, "Devolved administration - local authority")
         self.assertContains(response, "Devolved administration")
-        self.assertContains(response, "Northern Ireland")
+        self.assertContains(response, "Test LTLA")
         self.assertContains(response, "Tell us why you need access")
         self.assertContains(response, "Testing")
 
@@ -279,7 +275,8 @@ class AccessRequestFormWizardDevolvedAdministrationContentTestCase(
         self.assertEqual(response.status_code, http.client.OK)
         self.assertContains(
             response,
-            "Your request for access to data for Northern Ireland is submitted",
+            "Your request for access to data for Northern Ireland is submitted.",
+            html=True,
         )
         self.assertContains(
             response, "Check your homepage for updates about your request"
