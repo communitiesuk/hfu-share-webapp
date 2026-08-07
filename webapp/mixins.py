@@ -1,8 +1,9 @@
 import re
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 from datetime import timezone as dt_timezone
-from typing import Any, Optional, Protocol, Set, cast
+from typing import Any, ClassVar, Optional, Protocol, Set, TypeAlias, TypedDict, cast
 
 from auditlog.models import LogEntry
 from dateutil import parser
@@ -10,6 +11,7 @@ from dateutil.parser import ParserError
 from dateutil.tz import gettz
 from django.conf import settings
 from django.contrib import messages
+from django.core.exceptions import ImproperlyConfigured
 from django.core.paginator import Paginator
 from django.db.models import Field, Model, OuterRef, QuerySet, Subquery
 from django.http import HttpRequest, HttpResponse
@@ -982,3 +984,128 @@ class TableRendererMixin:
         if value.postcode:
             return value.postcode
         return ""
+
+
+Context: TypeAlias = dict[str, Any]
+
+
+class UserActionsMixinProtocol(Protocol):
+    def user_action_allowed(
+        self, group_types: Any | None, mode: Optional[str] = None
+    ) -> bool: ...
+
+
+class Tab(TypedDict):
+    url: str
+    text: str
+    current: bool
+
+
+class DetailViewMixin(ABC):
+    request: HttpRequest
+    object: Any
+    view_name: ClassVar[str]
+    namespace: ClassVar[str]
+    singular_name: ClassVar[str]
+    plural_name: ClassVar[str]
+    view_name_to_tab_text: dict[str, str] = {
+        "overview": "Overview",
+        "central-safeguarding": "Central safeguarding",
+        "safeguarding-checks": "Safeguarding checks",
+        "actions": "Actions",
+        "linked-records": "Linked records",
+        "files": "Files",
+        "properties": "Properties",
+        "comments": "Comments",
+        "history": "History",
+        "vir": "VIR",
+    }
+    views_with_full_width_tab_content = {
+        "properties",
+    }
+
+    @property
+    @abstractmethod
+    def views_for_record(self) -> tuple[type["DetailViewMixin"], ...]: ...
+
+    def get_template_names(self) -> list[str]:
+        return [
+            (
+                f"{self.namespace.replace('-', '_')}/detail_view/"
+                f"detail_view_{self.view_name.replace('-', '_')}.html"
+            )
+        ]
+
+    def add_breadcrumbs(self, context: Context) -> None:
+        context["breadcrumbs"] = [
+            {
+                "text": self.plural_name,
+                "url": reverse(f"{self.namespace}:{self.namespace}"),
+            },
+            {"text": f"{self.singular_name} record"},
+        ]
+
+    def add_back_button(self, context: Context) -> None:
+        context["back_button"] = {
+            "url": reverse(f"{self.namespace}:{self.namespace}"),
+            "text": f"Back to list of {self.plural_name.lower()}",
+        }
+
+    def should_show_tab_for_user(self, view_name: str) -> bool:
+        return True
+
+    def get_tab_text(self, view_name: str) -> str:
+        try:
+            return self.view_name_to_tab_text[view_name]
+        except KeyError as e:
+            raise ImproperlyConfigured(f"No tab text exists for '{view_name}'") from e
+
+    def get_tab(self, view_name: str, url_args: tuple[Any, ...]) -> Tab:
+        return {
+            "url": reverse(f"{self.namespace}:detail-{view_name}", args=url_args),
+            "text": self.get_tab_text(view_name),
+            "current": self.view_name == view_name,
+        }
+
+    def get_url_args(self) -> tuple[Any, ...]:
+        return (self.object.id,)
+
+    def add_tabs_navigation(self, context: Context) -> None:
+        url_args = self.get_url_args()
+        context["tabs"] = []
+
+        for view in self.views_for_record:
+            if self.should_show_tab_for_user(view.view_name):
+                context["tabs"].append(
+                    self.get_tab(view.view_name, url_args),
+                )
+
+    @property
+    def page_caption(self) -> str:
+        return f"{self.singular_name} record for"
+
+    @property
+    @abstractmethod
+    def page_heading(self) -> str: ...
+
+    @property
+    def page_heading_tag(self) -> str | None:
+        return None
+
+    def add_page_headings(self, context: Context) -> None:
+        context["page_heading"] = self.page_heading
+        context["page_caption"] = self.page_caption
+        context["page_heading_tag"] = self.page_heading_tag
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        self.add_breadcrumbs(context)
+        self.add_back_button(context)
+        self.add_tabs_navigation(context)
+        self.add_page_headings(context)
+        context["use_full_width"] = (
+            self.view_name in self.views_with_full_width_tab_content
+        )
+
+        return context
