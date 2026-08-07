@@ -121,7 +121,12 @@ This means UAM download functionality works immediately after running the seeder
 
 If you run the web app outside Docker and want to use the LocalStack S3 service, make sure your environment variables in the .env file are set for the AWS region, S3 bucket name and LocalStack AWS endpoint.
 
-Note: LocalStack is only required if you need upload and download functionality for files in UAMs, Interactions, and Comments. Without LocalStack, file features will be missing in the app.
+> [!NOTE]
+> LocalStack is only required if you need upload and download functionality for files in UAMs, Interactions, and Comments. Without LocalStack, file features will be missing in the app.
+
+> [!IMPORTANT]
+> Versions released after `4.14.0` require a LocalStack account and authentication token (`LOCALSTACK_AUTH_TOKEN`) to start.
+> As this project only uses LocalStack for local S3 emulation during development, we have chosen to remain on `4.14.0` for now to avoid introducing this additional setup requirement for developers.
 
 ## Linting, formatting, and tests
 ### Linting
@@ -135,7 +140,8 @@ poetry run format
 ```
 
 ### Tests
-Note: this requires the database container to be up and running
+> [!NOTE]
+> This requires the database container to be up and running
 ```shell
 poetry run test
 poetry run test-parallel
