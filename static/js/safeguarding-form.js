@@ -1,200 +1,387 @@
-document.addEventListener("DOMContentLoaded", function () {
-    // Cache DOM elements
-    const el = id => document.getElementById(id);
-    const group = id => el(id)?.closest(".govuk-form-group");
+class GovUKFormGroup {
+    static INPUT_ELEMENT_NAME = null;
 
-    const checkTypeField = el("id_check_type");
-    const statusField = el("id_status");
-    const accExistsFail = group("id_accommodation_exists_failure");
-    const accSuitableFail = group("id_accommodation_suitable_failure");
-    const sponsorDBSType = group("id_sponsor_dbs_passed");
-    const sponsorFail = group("id_sponsor_dbs_failure");
-    const accommodations = group("id_accommodations");
-    const sponsors = group("id_sponsors");
-    const notes = group("id_notes");
-    const notesField = el("id_notes");
-    const sponsorFailReasonField = el("id_sponsor_dbs_failure");
-    const statusGroup = statusField?.closest(".govuk-form-group");
-    const buttons = document.querySelectorAll("button");
+    constructor() {
+        const { INPUT_ELEMENT_NAME } = this.constructor;
 
-    const ACCOMM_EXISTS = "1";
-    const ACCOMM_SUITABLE = "2";
-    const SPONSOR_DBS = "3";
-    const GROUP_ARRIVED = "4";
-
-    const PASSED = "Passed";
-    const FAILED = "Failed";
-
-    const COMMENT_REQUIRED_ERROR = "You must enter a reason.";
-
-    function showField(group) {
-        if (!group) return;
-        group.style.display = "";
-        // Re-enable so inputs are included in the POST request
-        group.querySelectorAll("input, select, textarea").forEach(el => el.disabled = false);
+        this.$formGroup = $(`#div_id_${INPUT_ELEMENT_NAME}`);
+        this.$inputElement = this.$formGroup.find(`#id_${INPUT_ELEMENT_NAME}`);
     }
 
-    function hideField(group) {
-        if (!group) return;
-        group.style.display = "none";
-        // Disable so inputs are excluded from the POST request
-        group.querySelectorAll("input, select, textarea").forEach(el => el.disabled = true);
-    }
-
-    function hideAllFields() {
-        [accExistsFail, accSuitableFail, sponsorDBSType, sponsorFail, accommodations, sponsors, notes, statusGroup]
-            .forEach(hideField);
-    }
-
-    function updateVisibility() {
-        const selectedCheckType = checkTypeField?.value;
-        const selectedStatus = statusField?.value;
-        hideAllFields();
-        const buttonsDisabled = !selectedCheckType;
-        buttons.forEach(btn => btn.disabled = buttonsDisabled);
-        if (!selectedCheckType) return;
-        showField(statusGroup);
-        switch (selectedCheckType) {
-            case ACCOMM_EXISTS:
-                showField(accommodations);
-                showField(notes);
-                if (selectedStatus === FAILED) showField(accExistsFail);
-                break;
-            case ACCOMM_SUITABLE:
-                showField(accommodations);
-                showField(notes);
-                if (selectedStatus === FAILED) showField(accSuitableFail);
-                break;
-            case SPONSOR_DBS:
-                showField(sponsors);
-                showField(notes);
-                if (selectedStatus === PASSED) showField(sponsorDBSType);
-                else if (selectedStatus === FAILED) showField(sponsorFail);
-                break;
-            case GROUP_ARRIVED:
-                showField(notes);
-                break;
-        }
-    }
-
-    function setNotesRequiredIfNeeded() {
-        const selectedCheckType = checkTypeField?.value;
-        const selectedStatus = statusField?.value;
-        const sponsorFailReason = sponsorFailReasonField ? sponsorFailReasonField.value : null;
-        const help = document.getElementById('id_notes_hint');
-        if (
-            selectedCheckType === SPONSOR_DBS &&
-            selectedStatus === FAILED &&
-            sponsorFailReason === "SPONSOR_NOT_SUITABLE"
-        ) {
-            if (notesField) notesField.required = true;
-            if (help) {
-                help.setAttribute("aria-live", "polite");
-                help.textContent = "You must add a reason if you select 'Sponsor is not suitable - other reasons' from the list for UKVI to review the comments. For any other reason selected adding a comment is optional.";
-            }
+    toggleVisibility(show) {
+        if (show) {
+            this.$formGroup.removeClass("govuk-visually-hidden");
+            this.$inputElement.removeAttr("tabIndex");
+            this.$inputElement.removeAttr('disabled')
         } else {
-            if (notesField) notesField.required = false;
-            if (help) {
-                help.setAttribute("aria-live", "polite");
-                help.textContent = "You can add any reason for the option you selected, if needed. The text you enter should be short and clear. (optional)";
+            this.$formGroup.addClass("govuk-visually-hidden");
+            this.$inputElement.attr("tabIndex", -1);
+            this.$inputElement.attr('disabled', 'disabled')
+        }
+    }
+}
+
+class SelectField extends GovUKFormGroup {
+    selectedValue() {
+        return this.$inputElement.find(":selected").val();
+    }
+}
+
+class CheckType extends SelectField {
+    static INPUT_ELEMENT_NAME = "check_type";
+
+    static OPTIONS = {
+        ACCOMM_EXISTS: "1",
+        ACCOMM_SUITABLE: "2",
+        SPONSOR_DBS: "3",
+        GROUP_ARRIVED: "4",
+    };
+}
+
+class Status extends SelectField {
+    static INPUT_ELEMENT_NAME = "status";
+
+    static OPTIONS = {
+        NOT_STARTED: "Not Started",
+        PASSED: "Passed",
+        FAILED: "Failed",
+        NO_LONGER_REQUIRED: "No Longer Required",
+    };
+}
+
+class AccExistsFailureReason extends SelectField {
+    static INPUT_ELEMENT_NAME = "accommodation_exists_failure";
+
+    static OPTIONS = {
+        DOES_NOT_EXIST: "DOES_NOT_EXIST",
+        NOT_RESIDENTIAL: "NOT_RESIDENTIAL",
+    };
+}
+
+class AccSuitableFailureReason extends SelectField {
+    static INPUT_ELEMENT_NAME = "accommodation_suitable_failure";
+
+    static OPTIONS = {
+        POOR_CONDITION: "POOR_CONDITION",
+        OVERCROWDED: "OVERCROWDED",
+        UNSUITABLE_FACILITIES: "UNSUITABLE_FACILITIES",
+        NOT_ENOUGH_SPACE: "NOT_ENOUGH_SPACE",
+        SPONSOR_DOES_NOT_LIVE_AT_ADDRESS: "SPONSOR_DOES_NOT_LIVE_AT_ADDRESS",
+        SPONSOR_NOT_LINKED_TO_ADDRESS: "SPONSOR_NOT_LINKED_TO_ADDRESS",
+        NO_CONSENT_TO_LIVE_AT_ADDRESS: "NO_CONSENT_TO_LIVE_AT_ADDRESS",
+    };
+}
+
+class SponsorDBSFailureReason extends SelectField {
+    static INPUT_ELEMENT_NAME = "sponsor_dbs_failure";
+
+    static OPTIONS = {
+        DBS_CHECK_FAILED: "DBS_CHECK_FAILED",
+        NO_RESPONSE: "NO_RESPONSE",
+        SPONSOR_NOT_SUITABLE: "SPONSOR_NOT_SUITABLE",
+        NO_CONSENT_TO_BE_SPONSOR: "NO_CONSENT_TO_BE_SPONSOR",
+    };
+}
+
+class Accommodations extends SelectField {
+    static INPUT_ELEMENT_NAME = "accommodations";
+}
+
+class Sponsors extends SelectField {
+    static INPUT_ELEMENT_NAME = "sponsors";
+}
+
+class SponsorDBSType extends SelectField {
+    static INPUT_ELEMENT_NAME = "sponsor_dbs_passed";
+
+    static OPTIONS = {
+        BASIC: "BASIC_DBS",
+        ENHANCED: "ENHANCED_DBS",
+    };
+}
+
+class Comments extends GovUKFormGroup {
+    static INPUT_ELEMENT_NAME = "notes";
+    static ERROR_ID = `id_${this.INPUT_ELEMENT_NAME}-error`;
+    static ERROR_MESSAGE = "You must enter a reason.";
+
+    constructor(errorSummary) {
+        super();
+
+        this.$hint = $(`#id_${Comments.INPUT_ELEMENT_NAME}_hint`);
+        this.errorSummary = errorSummary;
+    }
+
+    getValue() {
+        return this.$inputElement.val().trim();
+    }
+
+    focus() {
+        this.$inputElement.focus();
+    }
+
+    toggleRequired(isRequired) {
+        if (isRequired) {
+            this.$inputElement.attr("required", true);
+            this.$hint.attr("aria-live", "polite");
+            this.$hint.text(
+                "You must add a reason if you select 'Sponsor is not suitable - other reasons' from the list for UKVI to review the comments. For any other reason selected adding a comment is optional.",
+            );
+        } else {
+            this.$inputElement.removeAttr("required");
+            this.$hint.attr("aria-live", "polite");
+            this.$hint.text(
+                "You can add any reason for the option you selected, if needed. The text you enter should be short and clear. (optional)",
+            );
+        }
+        this.toggleError(false);
+    }
+
+    toggleError(show) {
+        if (show) {
+            this.errorSummary.addErrorMessage(Comments.ERROR_ID, Comments.ERROR_MESSAGE);
+            this.addErrorMessage();
+        } else {
+            this.errorSummary.removeErrorMessage(Comments.ERROR_ID);
+            this.removeErrorMessage();
+        }
+    }
+
+    hasErrorMessage() {
+        return this.findErrorMessage().length > 0;
+    }
+
+    findErrorMessage() {
+        return this.$formGroup.find(`#${Comments.ERROR_ID}`);
+    }
+
+    addErrorMessage() {
+        if (!this.hasErrorMessage()) {
+            this.$formGroup.addClass("govuk-form-group--error");
+            this.$inputElement.addClass("govuk-textarea--error");
+
+            const ariaDescribedBy = this.$inputElement.attr("aria-describedby");
+            this.$inputElement.attr("aria-describedby", `${ariaDescribedBy} ${Comments.ERROR_ID}`);
+
+            this.$inputElement.before(
+                $(`
+<p id="${Comments.ERROR_ID}" class="govuk-error-message">
+    <span class="govuk-visually-hidden">Error:</span> ${Comments.ERROR_MESSAGE}
+</p>
+`),
+            );
+        }
+    }
+
+    removeErrorMessage() {
+        if (this.hasErrorMessage()) {
+            this.$formGroup.removeClass("govuk-form-group--error");
+            this.$inputElement.removeClass("govuk-textarea--error");
+
+            const ariaDescribedBy = this.$inputElement.attr("aria-describedby");
+            this.$inputElement.attr(
+                "aria-describedby",
+                ariaDescribedBy.replace(Comments.ERROR_ID, "").trim(),
+            );
+
+            this.findErrorMessage().remove();
+        }
+    }
+}
+
+class ErrorSummary {
+    static ERROR_SUMMARY_HTML = `
+<div class="govuk-error-summary" data-module="govuk-error-summary">
+    <div role="alert">
+        <h2 class="govuk-error-summary__title">
+            There is a problem
+        </h2>
+        <div class="govuk-error-summary__body">
+            <ul class="govuk-list govuk-error-summary__list"></ul>
+        </div>
+    </div>
+</div>
+`;
+
+    constructor() {
+        this.$container = $("#safeguarding-errors-container");
+        this.$errorSummary = this.$container.find(".govuk-error-summary");
+    }
+
+    hasErrorSummary() {
+        return this.$errorSummary.length > 0;
+    }
+
+    hasErrorMessage(errorId) {
+        return this.findErrorMessage(errorId).length > 0;
+    }
+
+    findErrorMessage(errorId) {
+        return this.$errorSummary.find(`[href='#${errorId}']`).parent();
+    }
+
+    numberOfErrorMessages() {
+        return this.$errorSummary.find("ul > li").length;
+    }
+
+    addErrorMessage(errorId, errorMessage) {
+        if (!this.hasErrorSummary()) {
+            this.$errorSummary = $(ErrorSummary.ERROR_SUMMARY_HTML);
+            this.$container.append(this.$errorSummary);
+        }
+
+        if (!this.hasErrorMessage(errorId)) {
+            const $errorMessage = $(`
+<li>
+    <a href="#${errorId}">${errorMessage}</a>
+</li>
+`);
+            this.$errorSummary.find("ul").append($errorMessage);
+        }
+    }
+
+    removeErrorMessage(errorId) {
+        if (this.hasErrorSummary()) {
+            if (this.hasErrorMessage(errorId)) {
+                this.findErrorMessage(errorId).remove();
             }
-            clearNotesError();
-        }
-    }
 
-    function showNotesError() {
-        if (!notes || !notesField) return;
-        notes.classList.add("govuk-form-group--error");
-        notesField.classList.add("govuk-textarea--error");
-        notesField.setAttribute("aria-invalid", "true");
-        if (!el("id_notes_error")) {
-            const errorSpan = document.createElement("span");
-            errorSpan.className = "govuk-error-message";
-            errorSpan.id = "id_notes_error";
-            errorSpan.innerHTML = `<span class="govuk-visually-hidden">Error:</span> ${COMMENT_REQUIRED_ERROR}`;
-            notesField.parentNode.insertBefore(errorSpan, notesField);
-        }
-        let describedby = notesField.getAttribute("aria-describedby") || "";
-        if (!describedby.includes("id_notes_error")) {
-            notesField.setAttribute("aria-describedby", (describedby + " id_notes_error").trim());
-        }
-        let errorSummary = document.querySelector('.govuk-error-summary');
-        if (!errorSummary) {
-            errorSummary = document.createElement('div');
-            errorSummary.className = 'govuk-error-summary';
-            errorSummary.setAttribute('role', 'alert');
-            errorSummary.setAttribute('aria-live', 'assertive');
-            errorSummary.setAttribute('tabindex', '-1');
-            errorSummary.innerHTML = `
-                <h2 class="govuk-error-summary__title">There is a problem</h2>
-                <div class="govuk-error-summary__body">
-                    <ul class="govuk-list govuk-error-summary__list"></ul>
-                </div>
-            `;
-            const h1 = document.querySelector('h1.govuk-body-l');
-            if (h1 && h1.parentNode) {
-                h1.parentNode.insertBefore(errorSummary, h1);
-            } else {
-                const form = notes.closest('form');
-                if (form) form.insertBefore(errorSummary, form.firstChild?.nextSibling || form.firstChild);
+            if (this.numberOfErrorMessages() === 0) {
+                this.$errorSummary.remove();
             }
         }
-        errorSummary.focus();
-        const errorList = errorSummary.querySelector('.govuk-error-summary__list');
-        if (errorList && !errorList.querySelector('#error-summary-notes')) {
-            const li = document.createElement('li');
-            li.id = 'error-summary-notes';
-            li.innerHTML = `<a href="#id_notes">${COMMENT_REQUIRED_ERROR}</a>`;
-            errorList.appendChild(li);
+    }
+}
+
+class Form {
+    constructor() {
+        this.$form = $("#safeguarding-form");
+        this.checkType = new CheckType();
+        this.status = new Status();
+        this.accExistsFailureReason = new AccExistsFailureReason();
+        this.accSuitableFailureReason = new AccSuitableFailureReason();
+        this.sponsorDBSFailureReason = new SponsorDBSFailureReason();
+        this.accommodations = new Accommodations();
+        this.sponsors = new Sponsors();
+        this.sponsorDBSType = new SponsorDBSType();
+        this.comments = new Comments(new ErrorSummary());
+        this.$buttons = this.$form.find("button");
+    }
+
+    init() {
+        this.checkType.$inputElement.on("change", () => {
+            this.updateVisibility();
+            this.setNotesRequiredIfNeeded();
+        });
+
+        this.status.$inputElement.on("change", () => {
+            this.updateVisibility();
+            this.setNotesRequiredIfNeeded();
+        });
+
+        this.sponsorDBSFailureReason.$inputElement.on("change", () => {
+            this.setNotesRequiredIfNeeded();
+        });
+
+        this.$form.on("submit", (event) => {
+            this.validateNotes(event);
+        });
+
+        this.setNotesRequiredIfNeeded();
+        this.updateVisibility();
+    }
+
+    hideAllFormsExceptCheckType() {
+        [
+            this.status,
+            this.accExistsFailureReason,
+            this.accSuitableFailureReason,
+            this.sponsorDBSFailureReason,
+            this.accommodations,
+            this.sponsors,
+            this.sponsorDBSType,
+            this.comments,
+        ].forEach((formGroup) => {
+            formGroup.toggleVisibility(false);
+        });
+    }
+
+    toggleButtonInteractability(disabled) {
+        if (disabled) {
+            this.$buttons.attr("disabled", true);
+            this.$buttons.attr("aria-disabled", true);
+        } else {
+            this.$buttons.removeAttr("disabled");
+            this.$buttons.removeAttr("aria-disabled");
         }
     }
 
-    function clearNotesError() {
-        if (!notes || !notesField) return;
-        notes.classList.remove("govuk-form-group--error");
-        notesField.classList.remove("govuk-textarea--error");
-        notesField.removeAttribute("aria-invalid");
-        const errorSpan = el("id_notes_error");
-        if (errorSpan) errorSpan.remove();
-        let describedby = notesField.getAttribute("aria-describedby") || "";
-        notesField.setAttribute("aria-describedby", describedby.replace("id_notes_error", "").trim());
-        const errorSummary = document.querySelector('.govuk-error-summary');
-        if (errorSummary) {
-            const li = errorSummary.querySelector('#error-summary-notes');
-            if (li) li.remove();
-            if (!errorSummary.querySelector('li')) errorSummary.remove();
+    updateVisibility() {
+        const selectedCheckType = this.checkType.selectedValue();
+        const selectedStatus = this.status.selectedValue();
+
+        this.hideAllFormsExceptCheckType();
+        this.toggleButtonInteractability(!selectedCheckType);
+
+        if (!selectedCheckType) return;
+
+        this.status.toggleVisibility(true);
+
+        switch (selectedCheckType) {
+            case CheckType.OPTIONS.ACCOMM_EXISTS:
+                this.accommodations.toggleVisibility(true);
+                this.comments.toggleVisibility(true);
+                if (selectedStatus === Status.OPTIONS.FAILED)
+                    this.accExistsFailureReason.toggleVisibility(true);
+                break;
+            case CheckType.OPTIONS.ACCOMM_SUITABLE:
+                this.accommodations.toggleVisibility(true);
+                this.comments.toggleVisibility(true);
+                if (selectedStatus === Status.OPTIONS.FAILED)
+                    this.accSuitableFailureReason.toggleVisibility(true);
+                break;
+            case CheckType.OPTIONS.SPONSOR_DBS:
+                this.sponsors.toggleVisibility(true);
+                this.comments.toggleVisibility(true);
+                if (selectedStatus === Status.OPTIONS.PASSED)
+                    this.sponsorDBSType.toggleVisibility(true);
+                else if (selectedStatus === Status.OPTIONS.FAILED)
+                    this.sponsorDBSFailureReason.toggleVisibility(true);
+                break;
+            case CheckType.OPTIONS.GROUP_ARRIVED:
+                this.comments.toggleVisibility(true);
+                break;
         }
     }
 
-    function validateNotesOnSubmit(e) {
-        const selectedCheckType = checkTypeField?.value;
-        const selectedStatus = statusField?.value;
-        const sponsorFailReason = sponsorFailReasonField ? sponsorFailReasonField.value : null;
-        if (
-            selectedCheckType === SPONSOR_DBS &&
-            selectedStatus === FAILED &&
-            sponsorFailReason === "SPONSOR_NOT_SUITABLE" &&
-            (!notesField || !notesField.value.trim())
-        ) {
-            showNotesError();
-            if (notesField) notesField.focus();
-            e.preventDefault();
+    isNotesRequired() {
+        const selectedCheckType = this.checkType.selectedValue();
+        const selectedStatus = this.status.selectedValue();
+        const sponsorFailReason = this.sponsorDBSFailureReason.selectedValue();
+
+        return (
+            selectedCheckType === CheckType.OPTIONS.SPONSOR_DBS &&
+            selectedStatus === Status.OPTIONS.FAILED &&
+            sponsorFailReason === SponsorDBSFailureReason.OPTIONS.SPONSOR_NOT_SUITABLE
+        );
+    }
+
+    setNotesRequiredIfNeeded() {
+        this.comments.toggleRequired(this.isNotesRequired());
+    }
+
+    validateNotes(event) {
+        if (this.isNotesRequired() && !this.comments.getValue()) {
+            this.comments.toggleError(true);
+            this.comments.focus();
+
+            event.preventDefault();
+
             return false;
         } else {
-            clearNotesError();
+            this.comments.toggleError(false);
         }
     }
+}
 
-    // Listen for changes
-    if (checkTypeField) checkTypeField.addEventListener("change", updateVisibility);
-    if (statusField) statusField.addEventListener("change", updateVisibility);
-    if (checkTypeField) checkTypeField.addEventListener("change", setNotesRequiredIfNeeded);
-    if (statusField) statusField.addEventListener("change", setNotesRequiredIfNeeded);
-    if (sponsorFailReasonField) sponsorFailReasonField.addEventListener("change", setNotesRequiredIfNeeded);
-    buttons.forEach(btn => {
-        if (btn.type === "submit") {
-            btn.addEventListener("click", validateNotesOnSubmit);
-        }
-    });
-    updateVisibility();
-});
+$(() => new Form().init());
