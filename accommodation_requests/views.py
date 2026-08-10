@@ -72,11 +72,13 @@ from webapp.constants import (
 from webapp.enhanced_sentry_logging import db_values, log_event, log_persistence_check
 from webapp.mixins import (
     AuditLogTimelineEventsMixin,
+    DetailViewMixin,
     FilterPanelMixin,
     InteractionWithFilesTimelineEventsMixin,
     MultiLABannerMixin,
     PermissionsMixin,
     PIISafeRecordNameMixin,
+    UserActionsMixinProtocol,
 )
 from webapp.s3 import get_presigned_download_url, s3_file_exists
 from webapp.search import perform_search
@@ -359,8 +361,59 @@ class AccommodationRequestsListView(PermissionsMixin, SingleTableMixin, FilterVi
         return super().get_queryset().only(*fields_needed)
 
 
+class AccommodationRequestDetailViewMixin(UserActionsMixinProtocol, DetailViewMixin):
+    namespace = "accommodation-requests"
+    singular_name = "Accommodation request"
+    plural_name = "Accommodation requests"
+
+    @property
+    def views_for_record(self):
+        return (
+            AccommodationRequestDetailOverviewView,
+            AccommodationRequestDetailSafeguardingChecksView,
+            AccommodationRequestDetailActionsView,
+            AccommodationRequestDetailLinkedRecordsView,
+            AccommodationRequestDetailPropertiesView,
+            AccommodationRequestDetailCommentsView,
+            AccommodationRequestDetailHistoryView,
+        )
+
+    def add_back_button(self, context) -> None:
+        if self.request.GET.get("from") != "unassigned-accommodation-requests":
+            super().add_back_button(context)
+            return
+
+        context["back_button"] = {
+            "url": reverse(
+                "unassigned-accommodation-requests:unassigned-accommodation-requests"
+            ),
+            "text": "Back to unassigned accommodation requests",
+        }
+
+    def should_show_tab_for_user(self, view_name: str) -> bool:
+        match view_name:
+            case "actions":
+                return self.user_action_allowed(
+                    group_types=AccommodationRequestDetailActionsView.group_type
+                )
+            case "history":
+                return self.user_action_allowed(
+                    group_types=AccommodationRequestDetailHistoryView.group_type
+                )
+            case _:
+                return True
+
+    @property
+    def page_heading(self):
+        return self.object.title
+
+
 class AccommodationRequestDetailOverviewView(
-    PIISafeRecordNameMixin, MultiLABannerMixin, PermissionsMixin, SummaryListView
+    PIISafeRecordNameMixin,
+    MultiLABannerMixin,
+    PermissionsMixin,
+    AccommodationRequestDetailViewMixin,
+    SummaryListView,
 ):
     group_type = [
         GroupType.DEV,
@@ -370,7 +423,7 @@ class AccommodationRequestDetailOverviewView(
         GroupType.HOME_OFFICE,
         GroupType.SERVICE_SUPPORT,
     ]
-    template_name = "accommodation_requests/detail_view/detail_view_overview.html"
+    view_name = "overview"
     model = MvAccommodationRequest
 
     def get_context_data(self, **kwargs):
@@ -378,14 +431,6 @@ class AccommodationRequestDetailOverviewView(
         context = super().get_context_data(**kwargs)
         user = self.request.user
         ar = self.object
-
-        context["show_actions_tab"] = self.user_can_edit(
-            group_types=AccommodationRequestDetailActionsView.group_type
-        )
-        context["show_history_tab"] = self.user_action_allowed(
-            group_types=AccommodationRequestDetailHistoryView.group_type
-        )
-        context["back_button"] = self.get_back_button()
 
         if (
             not ar.get_sponsors_restrict_for_user(user).exists()
@@ -457,17 +502,6 @@ class AccommodationRequestDetailOverviewView(
         ]
         return context
 
-    def get_back_button(self):
-        if self.request.GET.get("from") != "unassigned-accommodation-requests":
-            return None
-
-        return {
-            "url": reverse(
-                "unassigned-accommodation-requests:unassigned-accommodation-requests"
-            ),
-            "text": "Back to unassigned accommodation requests",
-        }
-
     def get_assign_to_la_link(self):
         if not self.user_can_edit(
             group_types=UNASSIGNED_ACCOMMODATION_REQUESTS_ALLOWED_GROUP_TYPES
@@ -487,7 +521,11 @@ class AccommodationRequestDetailOverviewView(
 
 
 class AccommodationRequestDetailActionsView(
-    PIISafeRecordNameMixin, MultiLABannerMixin, PermissionsMixin, ActionsListView
+    PIISafeRecordNameMixin,
+    MultiLABannerMixin,
+    PermissionsMixin,
+    AccommodationRequestDetailViewMixin,
+    ActionsListView,
 ):
     group_type = [
         GroupType.DEV,
@@ -496,7 +534,7 @@ class AccommodationRequestDetailActionsView(
         GroupType.MHCLG,
         GroupType.SERVICE_SUPPORT,
     ]
-    template_name = "accommodation_requests/detail_view/detail_view_actions.html"
+    view_name = "actions"
     model = MvAccommodationRequest
 
     def get_actions(self) -> list[Action]:
@@ -664,15 +702,15 @@ class AccommodationRequestDetailActionsView(
                 reassignment_message,
                 extra_tags="html_safe",
             )
-        ctx["show_actions_tab"] = self.user_can_edit(group_types=self.group_type)
-        ctx["show_history_tab"] = self.user_action_allowed(
-            group_types=AccommodationRequestDetailHistoryView.group_type
-        )
         return ctx
 
 
 class AccommodationRequestDetailLinkedRecordsView(
-    PIISafeRecordNameMixin, MultiLABannerMixin, PermissionsMixin, DetailView
+    PIISafeRecordNameMixin,
+    MultiLABannerMixin,
+    PermissionsMixin,
+    AccommodationRequestDetailViewMixin,
+    DetailView,
 ):
     group_type = [
         GroupType.DEV,
@@ -682,18 +720,12 @@ class AccommodationRequestDetailLinkedRecordsView(
         GroupType.HOME_OFFICE,
         GroupType.SERVICE_SUPPORT,
     ]
-    template_name = "accommodation_requests/detail_view/detail_view_linked_records.html"
+    view_name = "linked-records"
     model = MvAccommodationRequest
 
     def get_context_data(self, **kwargs):
         self.add_multi_la_message()
         ctx = super().get_context_data(**kwargs)
-        ctx["show_actions_tab"] = self.user_can_edit(
-            group_types=AccommodationRequestDetailActionsView.group_type
-        )
-        ctx["show_history_tab"] = self.user_action_allowed(
-            group_types=AccommodationRequestDetailHistoryView.group_type
-        )
 
         linked_records = []
         user = self.request.user
@@ -736,7 +768,11 @@ class AccommodationRequestDetailLinkedRecordsView(
 
 
 class AccommodationRequestDetailSafeguardingChecksView(
-    PIISafeRecordNameMixin, MultiLABannerMixin, PermissionsMixin, SummaryListView
+    PIISafeRecordNameMixin,
+    MultiLABannerMixin,
+    PermissionsMixin,
+    AccommodationRequestDetailViewMixin,
+    SummaryListView,
 ):
     group_type = [
         GroupType.DEV,
@@ -746,9 +782,7 @@ class AccommodationRequestDetailSafeguardingChecksView(
         GroupType.HOME_OFFICE,
         GroupType.SERVICE_SUPPORT,
     ]
-    template_name = (
-        "accommodation_requests/detail_view/detail_view_safeguarding_checks.html"
-    )
+    view_name = "safeguarding-checks"
     model = MvAccommodationRequest
 
     def get_context_data(self, **kwargs):
@@ -762,12 +796,6 @@ class AccommodationRequestDetailSafeguardingChecksView(
                 GroupType.MHCLG,
             ]
         )
-        ctx["show_actions_tab"] = self.user_can_edit(
-            group_types=AccommodationRequestDetailActionsView.group_type
-        )
-        ctx["show_history_tab"] = self.user_action_allowed(
-            group_types=AccommodationRequestDetailHistoryView.group_type
-        )
         ctx["fields"] = get_safeguarding_checks_summary_list_items(
             self.object,
             self.request.user,
@@ -780,6 +808,7 @@ class AccommodationRequestDetailPropertiesView(
     PIISafeRecordNameMixin,
     MultiLABannerMixin,
     PermissionsMixin,
+    AccommodationRequestDetailViewMixin,
     TwoColumnSummaryListView,
 ):
     group_type = [
@@ -790,18 +819,12 @@ class AccommodationRequestDetailPropertiesView(
         GroupType.HOME_OFFICE,
         GroupType.SERVICE_SUPPORT,
     ]
-    template_name = "accommodation_requests/detail_view/detail_view_properties.html"
+    view_name = "properties"
     model = MvAccommodationRequest
 
     def get_context_data(self, **kwargs):
         self.add_multi_la_message()
         ctx = super().get_context_data(**kwargs)
-        ctx["show_actions_tab"] = self.user_can_edit(
-            group_types=AccommodationRequestDetailActionsView.group_type
-        )
-        ctx["show_history_tab"] = self.user_action_allowed(
-            group_types=AccommodationRequestDetailHistoryView.group_type
-        )
         return ctx
 
     class Meta:
@@ -814,6 +837,7 @@ class AccommodationRequestDetailHistoryView(
     PermissionsMixin,
     InteractionWithFilesTimelineEventsMixin,
     AuditLogTimelineEventsMixin,
+    AccommodationRequestDetailViewMixin,
     DetailView,
 ):
     group_type = [
@@ -824,7 +848,7 @@ class AccommodationRequestDetailHistoryView(
         GroupType.LOCAL_AUTHORITY,
         GroupType.DEVOLVED_ADMINISTRATION,
     ]
-    template_name = "accommodation_requests/detail_view/detail_view_history.html"
+    view_name = "history"
     model = MvAccommodationRequest
 
     def _show_events(self):
@@ -858,12 +882,6 @@ class AccommodationRequestDetailHistoryView(
     def get_context_data(self, **kwargs):
         self.add_multi_la_message()
         ctx = super().get_context_data(**kwargs)
-        ctx["show_actions_tab"] = self.user_can_edit(
-            group_types=AccommodationRequestDetailActionsView.group_type
-        )
-        ctx["show_history_tab"] = self.user_action_allowed(
-            group_types=self.group_type,
-        )
         ctx["history_description"] = (
             "This history shows the dates a change was made to the accommodation "
             "request record on the system."
@@ -1850,7 +1868,11 @@ class MoveGuestsIsStayingInLaFormView(
 
 
 class AccommodationRequestDetailCommentsView(
-    PIISafeRecordNameMixin, MultiLABannerMixin, PermissionsMixin, DetailView
+    PIISafeRecordNameMixin,
+    MultiLABannerMixin,
+    PermissionsMixin,
+    AccommodationRequestDetailViewMixin,
+    DetailView,
 ):
     group_type = [
         GroupType.DEV,
@@ -1860,18 +1882,12 @@ class AccommodationRequestDetailCommentsView(
         GroupType.HOME_OFFICE,
         GroupType.SERVICE_SUPPORT,
     ]
-    template_name = "accommodation_requests/detail_view/detail_view_comments.html"
+    view_name = "comments"
     model = MvAccommodationRequest
 
     def get_context_data(self, **kwargs):
         self.add_multi_la_message()
         ctx = super().get_context_data(**kwargs)
-        ctx["show_actions_tab"] = self.user_can_edit(
-            group_types=AccommodationRequestDetailActionsView.group_type
-        )
-        ctx["show_history_tab"] = self.user_action_allowed(
-            group_types=AccommodationRequestDetailHistoryView.group_type
-        )
         comments = Comment.objects.filter(
             attached_accommodation_request_id=self.object.id
         ).order_by("-created_at")

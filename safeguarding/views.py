@@ -59,6 +59,7 @@ from webapp.constants import (
     visa_status_list_ordered,
 )
 from webapp.mixins import (
+    DetailViewMixin,
     FilterPanelMixin,
     GroupRequiredMixin,
     PermissionsMixin,
@@ -635,8 +636,56 @@ class EscalatedChecksView(
         return ctx
 
 
+class SafeguardingDetailViewMixin(DetailViewMixin):
+    namespace = "safeguarding"
+    singular_name = "Escalated check"
+    plural_name = "Escalated checks"
+
+    @property
+    def views_for_record(self):
+        return (
+            SafeguardingDetailOverviewView,
+            SafeguardingDetailCentralSafeguardingView,
+            SafeguardingDetailSafeguardingChecksView,
+            SafeguardingDetailLinkedRecordsView,
+            SafeguardingDetailPropertiesView,
+        )
+
+    def add_breadcrumbs(self, context) -> None:
+        context["breadcrumbs"] = [
+            {
+                "text": "Escalated checks",
+                "url": reverse("safeguarding:escalated_checks"),
+            },
+            {"text": self.object.get_full_name},
+        ]
+
+    def add_back_button(self, context) -> None:
+        context["back_button"] = {
+            "url": reverse("safeguarding:escalated_checks"),
+            "text": "Back to list of escalated checks",
+        }
+
+    def get_url_args(self):
+        return (
+            self.object.id,
+            self.kwargs.get("referral_id"),
+        )
+
+    @property
+    def page_caption(self):
+        return "Escalated checks"
+
+    @property
+    def page_heading(self):
+        return self.object.get_page_title
+
+
 class SafeguardingDetailOverviewView(
-    PIISafeRecordNameMixin, PermissionsMixin, SummaryListView
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    SafeguardingDetailViewMixin,
+    SummaryListView,
 ):
     group_type = [
         GroupType.HOME_OFFICE,
@@ -644,7 +693,7 @@ class SafeguardingDetailOverviewView(
         GroupType.DEV,
         GroupType.SERVICE_SUPPORT,
     ]
-    template_name = "safeguarding/detail_view/detail_view_overview.html"
+    view_name = "overview"
     model = MvPerson
 
     def get_context_data(self, **kwargs):
@@ -808,7 +857,10 @@ def render_safeguarding_check_status(
 
 
 class SafeguardingDetailSafeguardingChecksView(
-    PIISafeRecordNameMixin, PermissionsMixin, DetailView
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    SafeguardingDetailViewMixin,
+    DetailView,
 ):
     group_type = [
         GroupType.HOME_OFFICE,
@@ -816,7 +868,7 @@ class SafeguardingDetailSafeguardingChecksView(
         GroupType.DEV,
         GroupType.SERVICE_SUPPORT,
     ]
-    template_name = "safeguarding/detail_view/detail_view_safeguarding_checks.html"
+    view_name = "safeguarding-checks"
     model = MvPerson
 
     def get_context_data(self, **kwargs):
@@ -837,7 +889,10 @@ class SafeguardingDetailSafeguardingChecksView(
 
 
 class SafeguardingDetailLinkedRecordsView(
-    PIISafeRecordNameMixin, PermissionsMixin, SummaryListView
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    SafeguardingDetailViewMixin,
+    SummaryListView,
 ):
     group_type = [
         GroupType.HOME_OFFICE,
@@ -845,7 +900,7 @@ class SafeguardingDetailLinkedRecordsView(
         GroupType.DEV,
         GroupType.SERVICE_SUPPORT,
     ]
-    template_name = "safeguarding/detail_view/detail_view_linked_records.html"
+    view_name = "linked-records"
     model = MvPerson
 
     def get_context_data(self, **kwargs):
@@ -857,42 +912,42 @@ class SafeguardingDetailLinkedRecordsView(
         linked_records = []
         user = self.request.user
 
-        if not accommodation_request:
-            ctx["fields"] = linked_records
-            return ctx
+        if accommodation_request:
+            primary_accommodation = (
+                accommodation_request.get_primary_accommodation_restrict_for_user(user)
+            )
+            if primary_accommodation:
+                linked_records.append(("Accommodation", primary_accommodation))
 
-        primary_accommodation = (
-            accommodation_request.get_primary_accommodation_restrict_for_user(user)
-        )
-        if primary_accommodation:
-            linked_records.append(("Accommodation", primary_accommodation))
+            guests = accommodation_request.get_people_restrict_for_user(user)
+            if guests.exists():
+                linked_records.append(("Guests", guests))
 
-        guests = accommodation_request.get_people_restrict_for_user(user)
-        if guests.exists():
-            linked_records.append(("Guests", guests))
+            primary_sponsor = (
+                accommodation_request.get_primary_sponsor_restrict_for_user(user)
+            )
+            if primary_sponsor:
+                linked_records.append(("Sponsor", primary_sponsor))
 
-        primary_sponsor = accommodation_request.get_primary_sponsor_restrict_for_user(
-            user
-        )
-        if primary_sponsor:
-            linked_records.append(("Sponsor", primary_sponsor))
+            active_host = accommodation_request.get_host_restrict_for_user(user)
+            if active_host:
+                linked_records.append(("Host", active_host))
 
-        active_host = accommodation_request.get_host_restrict_for_user(user)
-        if active_host:
-            linked_records.append(("Host", active_host))
-
-        visa_applications = (
-            accommodation_request.get_visa_applications_restrict_for_user(user)
-        )
-        if visa_applications.exists():
-            linked_records.append(("Visa applications", visa_applications))
+            visa_applications = (
+                accommodation_request.get_visa_applications_restrict_for_user(user)
+            )
+            if visa_applications.exists():
+                linked_records.append(("Visa applications", visa_applications))
 
         ctx["fields"] = linked_records
         return ctx
 
 
 class SafeguardingDetailPropertiesView(
-    PIISafeRecordNameMixin, PermissionsMixin, TwoColumnSummaryListView
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    SafeguardingDetailViewMixin,
+    TwoColumnSummaryListView,
 ):
     group_type = [
         GroupType.HOME_OFFICE,
@@ -900,7 +955,7 @@ class SafeguardingDetailPropertiesView(
         GroupType.DEV,
         GroupType.SERVICE_SUPPORT,
     ]
-    template_name = "safeguarding/detail_view/detail_view_properties.html"
+    view_name = "properties"
     model = MvPerson
 
     accommodation_request__accommodation_details_confirmed = SummaryListRow(
@@ -1280,12 +1335,13 @@ class SafeguardingDetailCentralSafeguardingView(
     PIISafeRecordNameMixin,
     UserActionsMixin,
     GroupRequiredMixin,
+    SafeguardingDetailViewMixin,
     DetailView,
     SingleTableMixin,
     FormView,
 ):
     group_type = [GroupType.HOME_OFFICE, GroupType.MHCLG, GroupType.DEV]
-    template_name = "safeguarding/detail_view/detail_view_central_safeguarding.html"
+    view_name = "central-safeguarding"
     model = MvPerson
     table_class = CentralSafeguardingTable
     table_pagination = {"per_page": os.environ.get("PAGINATION_PAGE_SIZE")}
