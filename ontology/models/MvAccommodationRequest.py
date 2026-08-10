@@ -24,12 +24,39 @@ from ontology.models.MvAccommodation import MvAccommodation
 from ontology.models.MvGroup import MvGroup
 from ontology.models.MvPerson import MvPerson, get_person_age_sort_key
 from ontology.models.MvVolunteer import MvVolunteer
+from ontology.models.PersonMasterRecord import PersonMasterRecord
 from ontology.models.SponsorshipCertificationForm import SponsorshipCertificationForm
 from ontology.models.VisaApplication import VisaApplication
 from ontology.utils import LinkedRecordData
 from webapp.enhanced_sentry_logging import log_event
 
 logger = logging.getLogger(__name__)
+
+
+def resolve_person_ids_to_principal(person_ids: list[str]) -> list[str]:
+    if not person_ids:
+        return []
+
+    duplicate_ids = set(
+        MvPerson.objects.filter(id__in=person_ids, is_principal=False).values_list(
+            "id", flat=True
+        )
+    )
+    if not duplicate_ids:
+        return person_ids
+
+    principal_id_by_duplicate_id = dict(
+        PersonMasterRecord.objects.filter(persons__id__in=duplicate_ids).values_list(
+            "persons__id", "principal_record_id"
+        )
+    )
+
+    resolved_ids = set(person_ids) - duplicate_ids
+    resolved_ids.update(
+        principal_id_by_duplicate_id.get(duplicate_id) or duplicate_id
+        for duplicate_id in duplicate_ids
+    )
+    return list(resolved_ids)
 
 
 class MvAccommodationRequestQueryset(models.QuerySet):
@@ -696,11 +723,17 @@ class MvAccommodationRequest(models.Model):
 
     def get_people(self) -> list[MvPerson]:
         if self.person_id:
-            return list(MvPerson.objects.filter(id__in=self.person_id))
+            return list(
+                MvPerson.objects.filter(
+                    id__in=resolve_person_ids_to_principal(self.person_id)
+                )
+            )
         return []
 
     def get_people_restrict_for_user(self, user: User):
-        return MvPerson.objects.get_for_user(user).filter(id__in=self.person_id or [])
+        return MvPerson.objects.get_for_user(user).filter(
+            id__in=resolve_person_ids_to_principal(self.person_id or [])
+        )
 
     @staticmethod
     def format_guest_names(guests: list[MvPerson]) -> str:

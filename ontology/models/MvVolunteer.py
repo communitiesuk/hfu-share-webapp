@@ -10,11 +10,20 @@ from ontology.mixins import LocalAuthorityPermissionsManagerMixin
 from ontology.models import CheckType, DevCheckV2
 from ontology.models.DevCheckV2 import validate_safeguarding_status
 from ontology.models.MvPerson import MvPerson
+from ontology.models.SponsorMasterRecord import SponsorMasterRecord
 from ontology.utils import LinkedRecordData
 
 
 def generate_id():
     return f"sponsor-{uuid.uuid4()}"
+
+
+def expand_sponsor_id_group(sponsor_id: str) -> list[str]:
+    duplicate_ids = SponsorMasterRecord.objects.filter(
+        principal_record_id=sponsor_id
+    ).values_list("sponsors__id", flat=True)
+
+    return list({sponsor_id, *duplicate_ids})
 
 
 class MvVolunteerManager(LocalAuthorityPermissionsManagerMixin, models.Manager):
@@ -236,19 +245,21 @@ class MvVolunteer(models.Model):
     def get_accommodation_requests(self):
         from ontology.models.MvAccommodationRequest import MvAccommodationRequest
 
+        sponsor_ids = expand_sponsor_id_group(self.id)
         return MvAccommodationRequest.objects.filter(
-            Q(active_host_id=self.id)
-            | Q(primary_sponsor_id=self.id)
-            | Q(sponsor_id__contains=[self.id])
+            Q(active_host_id__in=sponsor_ids)
+            | Q(primary_sponsor_id__in=sponsor_ids)
+            | Q(sponsor_id__overlap=sponsor_ids)
         )
 
     def get_accommodation_requests_restrict_for_user(self, user: User):
         from ontology.models.MvAccommodationRequest import MvAccommodationRequest
 
+        sponsor_ids = expand_sponsor_id_group(self.id)
         return MvAccommodationRequest.objects.get_for_user(user).filter(
-            Q(active_host_id=self.id)
-            | Q(primary_sponsor_id=self.id)
-            | Q(sponsor_id__contains=[self.id])
+            Q(active_host_id__in=sponsor_ids)
+            | Q(primary_sponsor_id__in=sponsor_ids)
+            | Q(sponsor_id__overlap=sponsor_ids)
         )
 
     def get_accommodations(self, user: User):
