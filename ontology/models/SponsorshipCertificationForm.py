@@ -206,7 +206,7 @@ class SponsorshipCertificationForm(models.Model):
         null=True, blank=True, db_column="sponsor_declaration"
     )
     reference = models.TextField(
-        primary_key=True, db_column="reference", verbose_name="Application Number"
+        primary_key=True, db_column="reference", verbose_name="Application number"
     )
     started_at = models.DateTimeField(null=True, blank=True, db_column="started_at")
     uk_parental_consent_file_size = models.BigIntegerField(

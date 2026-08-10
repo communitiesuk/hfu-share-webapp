@@ -72,7 +72,7 @@ class UamDetailOverviewViewTests(TestSessionTokenMixin, UamsBaseTestCase):
         self.assertContains(response, "NW5 1TL")
         self.assertContains(response, "Local authority")
         self.assertContains(response, "Somerset")
-        self.assertContains(response, "Application Number")
+        self.assertContains(response, "Application number")
         self.assertContains(response, "000000")
         self.assertContains(response, "Child sponsorship approval number")
         self.assertContains(response, "111111")
