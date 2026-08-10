@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.9.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.8.0...2.9.0) (2026-08-10)
+
+
+### Features
+
+* HFURB-2804 update breadcrumb and heading text to align with user access terminology ([#88](https://github.com/communitiesuk/hfu-share-webapp/issues/88)) ([1dc345d](https://github.com/communitiesuk/hfu-share-webapp/commit/1dc345d7d9288e67ffc60b34f5f5167798ae31fe))
+* HFURB-4005 - refactor the details pages so they share a template ([#79](https://github.com/communitiesuk/hfu-share-webapp/issues/79)) ([7af914d](https://github.com/communitiesuk/hfu-share-webapp/commit/7af914d51c91f895d18aeb4acbbfe1bf2322111c))
+* request access flow content updates (HFURB-1624) ([#84](https://github.com/communitiesuk/hfu-share-webapp/issues/84)) ([c2f7233](https://github.com/communitiesuk/hfu-share-webapp/commit/c2f7233f618c226cca85c1486f4a806564b549c0))
+
+
+### Bug Fixes
+
+* HFURB-3883 format dates and datetimes from templates ([#78](https://github.com/communitiesuk/hfu-share-webapp/issues/78)) ([2317f61](https://github.com/communitiesuk/hfu-share-webapp/commit/2317f61ef1b2fbf069feb1d26d9520390ea22a6e))
+* HFURB-4033 rename 'Application Number' to 'Application number' on the SponsorshipCertificationForm model ([#89](https://github.com/communitiesuk/hfu-share-webapp/issues/89)) ([acb9950](https://github.com/communitiesuk/hfu-share-webapp/commit/acb9950d03db3ecc4d766afd3d5a5a9aaf4e15fb))
+* update the safeguarding from JS so that is easier to understand ([#73](https://github.com/communitiesuk/hfu-share-webapp/issues/73)) ([0919a33](https://github.com/communitiesuk/hfu-share-webapp/commit/0919a33f3db89af2f35dd9228d986a9d929b8b0f))
+
 ## [2.8.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.7.0...2.8.0) (2026-08-05)
 
 
