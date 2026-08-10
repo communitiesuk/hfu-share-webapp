@@ -34,7 +34,7 @@
         {% include "webapp/components/selectable_card/selectable_card.html" with heading="Applications to sponsor a child" target="uams:uams" body="View requests to sponsor a Ukrainian child (eligible children or minors) who will be living in the UK without a parent or guardian. Checks must be completed offline before the guest applies for a visa." %}
     {% endif %}
     {% if available_links.manage_permissions %}
-        {% include "webapp/components/selectable_card/selectable_card.html" with heading="Manage people, access and permissions" target="user-management:users" body="Manage people, access and permissions." %}
+        {% include "webapp/components/selectable_card/selectable_card.html" with heading="Manage user access" target="user-management:users" body="Manage people, access and permissions." %}
     {% endif %}
     {% if available_links.visa_information_requests %}
         {% include "webapp/components/selectable_card/selectable_card.html" with heading="Visa Information Requests" target="visa_applications:visa-information-requests" body="Check for current Visa Information Requests that you need to respond to." badge_value=pending_virs %}

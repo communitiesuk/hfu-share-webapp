@@ -275,9 +275,7 @@ class LandingPageTests(TestSessionTokenMixin, TestCase):
                 "Review failed safeguarding checks.",
             )
         )
-        self.assertTrue(
-            selectable_card_exists("Manage people, access and permissions", html)
-        )
+        self.assertTrue(selectable_card_exists("Manage user access", html))
         self.assertTrue(
             selectable_card_exists(
                 "Download data",
@@ -345,9 +343,7 @@ class LandingPageCardVisibilityTests(TestSessionTokenMixin, TestCase):
             selectable_card_exists("Manage unassigned accommodation requests", html)
         )
         self.assertFalse(selectable_card_exists("Escalated checks", html))
-        self.assertFalse(
-            selectable_card_exists("Manage people, access and permissions", html)
-        )
+        self.assertFalse(selectable_card_exists("Manage user access", html))
         self.assertFalse(
             selectable_card_exists(
                 "Find and deduplicate 2 records that represent the same accommodation, "
@@ -369,9 +365,7 @@ class LandingPageCardVisibilityTests(TestSessionTokenMixin, TestCase):
         self.assertTrue(selectable_card_exists("Visa applications", html))
         self.assertTrue(selectable_card_exists("Reassignment requests", html))
         self.assertTrue(selectable_card_exists("Escalated checks", html))
-        self.assertTrue(
-            selectable_card_exists("Manage people, access and permissions", html)
-        )
+        self.assertTrue(selectable_card_exists("Manage user access", html))
         self.assertTrue(selectable_card_exists("Download data", html))
         self.assertTrue(selectable_card_exists("Applications to sponsor a child", html))
         self.assertTrue(selectable_card_exists("Visa Information Requests", html))
@@ -416,9 +410,7 @@ class LandingPageCardVisibilityTests(TestSessionTokenMixin, TestCase):
             selectable_card_exists("Manage unassigned accommodation requests", html)
         )
         self.assertFalse(selectable_card_exists("Escalated checks", html))
-        self.assertFalse(
-            selectable_card_exists("Manage people, access and permissions", html)
-        )
+        self.assertFalse(selectable_card_exists("Manage user access", html))
 
     def test_ukvi_user_sees_expected_cards(self):
         user = get_ukvi_user()
@@ -442,9 +434,7 @@ class LandingPageCardVisibilityTests(TestSessionTokenMixin, TestCase):
         self.assertFalse(
             selectable_card_exists("Manage unassigned accommodation requests", html)
         )
-        self.assertFalse(
-            selectable_card_exists("Manage people, access and permissions", html)
-        )
+        self.assertFalse(selectable_card_exists("Manage user access", html))
         self.assertFalse(
             selectable_card_exists(
                 "Find and deduplicate 2 records that represent the same accommodation, "
@@ -477,9 +467,7 @@ class LandingPageCardVisibilityTests(TestSessionTokenMixin, TestCase):
         self.assertFalse(
             selectable_card_exists("Manage unassigned accommodation requests", html)
         )
-        self.assertFalse(
-            selectable_card_exists("Manage people, access and permissions", html)
-        )
+        self.assertFalse(selectable_card_exists("Manage user access", html))
         self.assertFalse(
             selectable_card_exists(
                 "Find and deduplicate 2 records that represent the same accommodation, "
@@ -510,9 +498,7 @@ class LandingPageCardVisibilityTests(TestSessionTokenMixin, TestCase):
         self.assertTrue(selectable_card_exists("Download data", html))
 
         # Should not see these cards
-        self.assertFalse(
-            selectable_card_exists("Manage people, access and permissions", html)
-        )
+        self.assertFalse(selectable_card_exists("Manage user access", html))
         self.assertFalse(
             selectable_card_exists(
                 "Find and deduplicate 2 records that represent the same accommodation, "
@@ -545,9 +531,7 @@ class LandingPageCardVisibilityTests(TestSessionTokenMixin, TestCase):
         self.assertFalse(
             selectable_card_exists("Manage unassigned accommodation requests", html)
         )
-        self.assertFalse(
-            selectable_card_exists("Manage people, access and permissions", html)
-        )
+        self.assertFalse(selectable_card_exists("Manage user access", html))
         self.assertFalse(
             selectable_card_exists(
                 "Find and deduplicate 2 records that represent the same accommodation, "
@@ -583,9 +567,7 @@ class LandingPageCardVisibilityTests(TestSessionTokenMixin, TestCase):
         self.assertContains(response, "Request access to data")
 
         # Should not see these cards
-        self.assertFalse(
-            selectable_card_exists("Manage people, access and permissions", html)
-        )
+        self.assertFalse(selectable_card_exists("Manage user access", html))
         self.assertFalse(
             selectable_card_exists(
                 "Find and deduplicate 2 records that represent the same accommodation, "
