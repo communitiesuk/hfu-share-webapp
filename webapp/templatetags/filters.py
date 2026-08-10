@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date
 from urllib import parse
 
 from django import template
@@ -10,6 +10,7 @@ from django.utils.html import format_html
 from accounts.models import AccessRequest
 from ontology.utils import LinkedRecordData
 from webapp.constants import status_to_tag_colour
+from webapp.formatting import format_date_value
 
 register = template.Library()
 
@@ -20,18 +21,18 @@ def is_list(value):
 
 
 @register.filter
-def is_date(value):
-    return isinstance(value, date) and not isinstance(value, datetime)
-
-
-@register.filter
-def is_datetime(value):
-    return isinstance(value, datetime)
+def is_date_or_datetime(value):
+    return isinstance(value, date)
 
 
 @register.filter
 def is_bool(value):
     return isinstance(value, bool)
+
+
+@register.filter
+def format_date(value, style="detail"):
+    return format_date_value(value, list_view=style == "list")
 
 
 @register.filter

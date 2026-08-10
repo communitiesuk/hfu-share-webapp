@@ -15,10 +15,8 @@
     {% endif %}
 {% elif value|is_linked_record %}
     {% linked_record_link value linked_from_object label %}
-{% elif value|is_date %}
-    {{ value|date:"j F Y" }}
-{% elif value|is_datetime %}
-    {{ value|date:"j F Y \\a\\t g:ia"|cut:"." }}
+{% elif value|is_date_or_datetime %}
+    {{ value|format_date }}
 {% elif value|is_bool %}
     {{ value|yesno:"Yes,No" }}
 {% elif "visa status" in label|lower and value is not None %}

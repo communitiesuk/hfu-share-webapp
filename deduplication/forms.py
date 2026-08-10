@@ -22,6 +22,7 @@ from ontology.models import (
     MvVolunteer,
     VisaApplication,
 )
+from webapp.formatting import format_date_value
 from webapp.mixins import ReadOnlyFieldsMixin
 
 
@@ -241,7 +242,7 @@ class SelectCorrectDetailsStepForm(ReadOnlyFieldsMixin, forms.Form):
         if len(data) == 1:
             value = data.pop()
             if field_name == "date_of_birth":
-                submitted_value = formatted_value = value.strftime("%-d %B %Y")
+                submitted_value = formatted_value = format_date_value(value)
             else:
                 submitted_value = value.id if hasattr(value, "id") else value
                 formatted_value = value
@@ -359,8 +360,8 @@ class SelectCorrectDetailsStepForm(ReadOnlyFieldsMixin, forms.Form):
 
         date_of_birth_choices = [
             (
-                f"{date_of_birth.strftime('%-d %B %Y')}",
-                f"{date_of_birth.strftime('%-d %B %Y')}",
+                format_date_value(date_of_birth),
+                format_date_value(date_of_birth),
             )
             for date_of_birth in unique_date_of_birth
         ]
@@ -568,8 +569,8 @@ class SelectCorrectDetailsStepForm(ReadOnlyFieldsMixin, forms.Form):
 
         date_of_birth_choices = [
             (
-                f"{date_of_birth.strftime('%-d %B %Y')}",
-                f"{date_of_birth.strftime('%-d %B %Y')}",
+                format_date_value(date_of_birth),
+                format_date_value(date_of_birth),
             )
             for date_of_birth in unique_date_of_birth
         ]

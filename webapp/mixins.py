@@ -8,8 +8,6 @@ from typing import Any, ClassVar, Optional, Protocol, Set, TypeAlias, TypedDict,
 from auditlog.models import LogEntry
 from dateutil import parser
 from dateutil.parser import ParserError
-from dateutil.tz import gettz
-from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import ImproperlyConfigured
 from django.core.paginator import Paginator
@@ -42,6 +40,7 @@ from ontology.models import (
     MvVolunteer,
 )
 from webapp.constants import AUDIT_EVENT_TYPE_ACTION
+from webapp.formatting import format_date_value, to_local_date
 from webapp.s3 import s3_file_exists
 from webapp.templatetags.timeline_extras import (
     AuditEventType,
@@ -616,11 +615,11 @@ class AuditLogTimelineEventsMixin(BaseTimelineEventsMixin):
                 return field_value
 
             if field_type == "DateField":
-                return value.date().strftime("%-d %B %Y")
+                return format_date_value(value.date())
             elif field_type == "DateTimeField":
-                value = value.replace(tzinfo=dt_timezone.utc)
-                value = value.astimezone(gettz(settings.TIME_ZONE))
-                return value.strftime("%-d %B %Y")
+                return format_date_value(
+                    to_local_date(value.replace(tzinfo=dt_timezone.utc))
+                )
 
         elif field_type == "ArrayField":
             return field_value[1:-1]

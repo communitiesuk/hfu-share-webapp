@@ -134,6 +134,31 @@ class AuditLogTimelineMixinTest(TestCase):
             in date_update_event.content
         )
 
+    def test_object_audit_log_content_is_correct_for_datetimes(self):
+        accommodation_request = self.create_object()
+        self.view.object = accommodation_request
+
+        self.create_log_entry(
+            accommodation_request,
+            timezone.now(),
+            {
+                "last_modified_at": [
+                    "None",
+                    "2023-01-03T14:30:00+00:00",
+                ],
+            },
+        )
+
+        timeline_events = self.view.get_timeline_events(accommodation_request)
+
+        timeline_events.sort(key=lambda e: e.date)
+        datetime_update_event = timeline_events[-1]
+
+        self.assertIn(
+            "Last modified at added: now 3 January 2023.",
+            datetime_update_event.content,
+        )
+
     def test_object_audit_log_content_is_correct_for_arrays(self):
         accommodation_request = self.create_object()
         self.view.object = accommodation_request

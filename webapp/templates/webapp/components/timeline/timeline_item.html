@@ -1,4 +1,4 @@
-{% load timeline_extras %}
+{% load filters timeline_extras %}
 {% timeline_event_is_interaction event_type as is_interaction %}
 {% timeline_event_is_comment event_type as is_comment %}
 {% timeline_event_is_log_entry event_type as is_log_entry %}
@@ -12,7 +12,7 @@
     <time class="govuk-body govuk-!-margin-bottom-2"
           id="event-datetime-{{ forloop.counter }}"
           datetime="{{ date|date:'Y-m-d\TH:i' }}"
-          aria-label="Event date">{{ date|date:"j F Y \\a\\t g:ia"|cut:"." }}</time>
+          aria-label="Event date">{{ date|format_date }}</time>
     {% if author_display_name %}
         <p class="govuk-body-m govuk-hint govuk-!-margin-top-1">By {{ author_display_name }}</p>
     {% endif %}

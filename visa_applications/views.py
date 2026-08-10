@@ -395,25 +395,11 @@ class VisaApplicationOverviewView(
             ),
             (
                 "Application date",
-                (
-                    visa_application.application_event_datetime.strftime(
-                        "%d %b %Y at %-I:%M%p"
-                    )
-                    .replace("AM", "am")
-                    .replace("PM", "pm")
-                    if visa_application.application_event_datetime
-                    else None
-                ),
+                visa_application.application_event_datetime,
             ),
             (
                 "Decision date",
-                (
-                    visa_application.visa_decision_date.strftime("%d %b %Y at %-I:%M%p")
-                    .replace("AM", "am")
-                    .replace("PM", "pm")
-                    if visa_application.visa_decision_date
-                    else None
-                ),
+                visa_application.visa_decision_date,
             ),
             (
                 "Sponsor name",
