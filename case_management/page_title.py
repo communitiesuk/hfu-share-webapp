@@ -77,7 +77,7 @@ def get_section_title(resolver_match: ResolverMatch) -> str:
         "downloads": "Download data",
         "safeguarding": "Escalated checks",
         "uams": "UAMs",
-        "user-management": "Request access",
+        "user-management": "Manage user access",
         "unassigned-accommodation-requests": (
             "Manage unassigned accommodation requests"
         ),
@@ -91,7 +91,14 @@ def get_section_title(resolver_match: ResolverMatch) -> str:
 
     # overrides for specific user-management pages
     if app_name == "user-management":
-        if resolver_match.url_name == "access-request-details":
+        if resolver_match.url_name in (
+            "access-request-intro",
+            "access-request-form",
+            "access-request-your-request",
+            "access-request-confirmation",
+        ):
+            return "Request access"
+        elif resolver_match.url_name == "access-request-details":
             return "Review access request"
         elif resolver_match.url_name == "user-details":
             return "User account"
