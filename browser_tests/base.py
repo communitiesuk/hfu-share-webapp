@@ -22,6 +22,9 @@ class BrowserTestCase(StaticLiveServerTestCase):
         cls.browser = cls.playwright.chromium.launch(
             headless=os.environ.get("HEADLESS", "1") == "1"
         )
+        cls.dev_url = os.environ["HFU_DEV_URL"]
+        cls.dev_email = os.environ["HFU_DEV_EMAIL"]
+        cls.dev_password = os.environ["HFU_DEV_PASSWORD"]
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -33,3 +36,9 @@ class BrowserTestCase(StaticLiveServerTestCase):
         super().setUp()
         self.page = self.browser.new_page()
         self.addCleanup(self.page.close)
+
+    def login(self) -> None:
+        self.page.goto(self.dev_url)
+        self.page.get_by_label("Email address").fill(self.dev_email)
+        self.page.get_by_label("Password").fill(self.dev_password)
+        self.page.get_by_role("button", name="Sign in").click()
