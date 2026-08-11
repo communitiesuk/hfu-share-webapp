@@ -6,14 +6,8 @@ from browser_tests.base import BrowserTestCase
 
 
 class BrowserTests(BrowserTestCase):
-    def test_has_title(self) -> None:
-        self.page.goto("https://example.com/")
+    def test_landing_page_redirects_to_login(self):
+        self.page.goto("<dev_url_here>")
 
-        expect(self.page).to_have_title(re.compile("Example Domain"))
-
-    def test_get_started_link(self) -> None:
-        self.page.goto("https://example.com/")
-
-        self.page.get_by_role("link", name="Learn more").click()
-
-        expect(self.page.get_by_role("heading", name="Example Domain")).to_be_visible()
+        expect(self.page).to_have_url(re.compile("landing-page"))
+        expect(self.page.get_by_role("heading", name="Sign In - EntraID disabled")).to_be_visible()
