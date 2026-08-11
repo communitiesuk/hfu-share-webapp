@@ -73,6 +73,7 @@ FIX_DUPLICATE_RECORDS_ENABLED = (
 
 INSTALLED_APPS = [
     "auditlog",
+    "browser_tests",
     "webapp.apps.WebappConfig",
     "user_management.apps.WebappConfig",
     "accommodation_requests.apps.WebappConfig",
