@@ -3,6 +3,7 @@ from typing import ClassVar
 
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import tag
+from dotenv import load_dotenv
 from playwright.sync_api import Browser, Page, Playwright, sync_playwright
 
 
@@ -14,6 +15,7 @@ class BrowserTestCase(StaticLiveServerTestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
+        load_dotenv(override=False)
         os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
         super().setUpClass()
         cls.playwright = sync_playwright().start()
