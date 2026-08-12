@@ -142,6 +142,30 @@ poetry run test-parallel
 poetry run test-parallel uams.tests.test_detail_files
 ```
 
+### Browser tests
+> [!NOTE]
+> This DOES NOT require the database container to be up and running
+
+We use [Playwright](https://playwright.dev/python/) to run our browser tests.
+
+You will need to install a browser to run them which can be done with:
+```shell
+poetry run playwright install --with-deps chromium
+```
+
+You need to set the following env variables to run the test:
+```shell
+BROWSER_TEST_URL            # Retrieve from the terraform repo
+BROWSER_TEST_USER_EMAIL     # Retrieve from AWS secrets manager
+BROWSER_TEST_USER_PASSWORD  # Retrieve from AWS secrets manager
+```
+
+For running the test:
+```shell
+poetry run test-browser
+poetry run test-browser browser_tests/tests/test_home_page.py
+```
+
 ### Install pre-commit hooks
 If you've added a new pre-commit hook or the currently installed ones aren't running, you can try running
 ```shell

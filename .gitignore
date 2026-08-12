@@ -181,3 +181,6 @@ pyrightconfig.json
 # Database backups
 *.json
 *.sql
+
+# Playwright
+test-results/

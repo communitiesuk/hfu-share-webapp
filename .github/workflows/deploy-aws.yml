@@ -189,3 +189,10 @@ jobs:
     secrets:
       SLACK_SUCCESS_WEBHOOK_URL: ${{ secrets.SLACK_SUCCESS_WEBHOOK_URL }}
       SLACK_FAILURE_WEBHOOK_URL: ${{ secrets.SLACK_FAILURE_WEBHOOK_URL }}
+
+  run_browser_tests:
+    needs: [ deploy ]
+    if: |
+      github.event_name == 'push' ||
+      inputs.environment == 'aws-dev'
+    uses: ./.github/workflows/run-browser-tests.yml
