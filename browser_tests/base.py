@@ -11,6 +11,9 @@ from playwright.sync_api import Browser, Page, Playwright, sync_playwright
 class BrowserTestCase(StaticLiveServerTestCase):
     playwright: ClassVar[Playwright]
     browser: ClassVar[Browser]
+    base_url: ClassVar[str]
+    test_user_email: ClassVar[str]
+    test_user_password: ClassVar[str]
     page: Page
 
     @classmethod
@@ -22,9 +25,9 @@ class BrowserTestCase(StaticLiveServerTestCase):
         cls.browser = cls.playwright.chromium.launch(
             headless=os.environ.get("HEADLESS", "1") == "1"
         )
-        cls.dev_url = os.environ["HFU_DEV_URL"]
-        cls.dev_email = os.environ["HFU_DEV_EMAIL"]
-        cls.dev_password = os.environ["HFU_DEV_PASSWORD"]
+        cls.base_url = os.environ["BROWSER_TEST_URL"]
+        cls.test_user_email = os.environ["BROWSER_TEST_USER_EMAIL"]
+        cls.test_user_password = os.environ["BROWSER_TEST_USER_PASSWORD"]
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -38,7 +41,7 @@ class BrowserTestCase(StaticLiveServerTestCase):
         self.addCleanup(self.page.close)
 
     def login(self) -> None:
-        self.page.goto(self.dev_url)
-        self.page.get_by_label("Email address").fill(self.dev_email)
-        self.page.get_by_label("Password").fill(self.dev_password)
+        self.page.goto(self.base_url)
+        self.page.get_by_label("Email address").fill(self.test_user_email)
+        self.page.get_by_label("Password").fill(self.test_user_password)
         self.page.get_by_role("button", name="Sign in").click()
