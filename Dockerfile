@@ -63,7 +63,7 @@ RUN --mount=type=secret,id=codeartifact_token \
     poetry source add --priority=primary codeartifact "$CODEARTIFACT_URL"; \
     poetry config http-basic.codeartifact aws "$TOKEN"; \
     poetry lock; \
-    poetry install --no-interaction; \
+    poetry install --no-interaction --without dev; \
 '
 
 ### Remove Poetry and its cache

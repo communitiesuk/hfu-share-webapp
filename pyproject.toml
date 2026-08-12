@@ -29,8 +29,7 @@ python-dateutil = "^2.9.0.post0"
 shellcheck-py = "^0.11.0.1"
 notifications-python-client = "^10.0.1"
 beautifulsoup4 = "^4.14.3"
-pytest-playwright = "^0.9.0"
-playwright = "^1.62.0"
+faker = "^37.8.0"
 
 [tool.poetry.group.dev.dependencies]
 pylint = "^3.3.7"
@@ -51,7 +50,7 @@ beautifulsoup4 = "^4.14.3"
 pytest = "^9.0.3"
 pytest-django = "^4.12.0"
 pytest-env = "^1.6.0"
-pytest-playwright = "^0.9.0"
+playwright = "^1.62.0"
 
 [tool.poetry.scripts]
 dev = "scripts:run_development_server"
