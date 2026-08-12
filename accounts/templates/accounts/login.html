@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load crispy_forms_filters crispy_forms_tags crispy_forms_gds %}
 {% block content %}
-    <h2 class="govuk-heading-l">Sign In - EntraID disabled</h2>
+    {% include "webapp/components/heading/heading.html" with page_heading="Sign in" tag="Entra ID disabled" %}
     {% error_summary form %}
     {% crispy form %}
 {% endblock content %}
