@@ -3,7 +3,11 @@
 {% block breadcrumbs %}
 {% endblock breadcrumbs %}
 {% block content %}
-    {% include "webapp/components/heading/heading.html" with page_heading="Sign in" tag="Entra ID disabled" %}
-    {% error_summary form %}
-    {% crispy form %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-half">
+            {% error_summary form %}
+            {% include "webapp/components/heading/heading.html" with page_heading="Sign in" tag="Entra ID disabled" %}
+            {% crispy form %}
+        </div>
+    </div>
 {% endblock content %}
