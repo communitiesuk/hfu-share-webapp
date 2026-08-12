@@ -43,7 +43,8 @@ def test():
     try:
         subprocess.run(["coverage", "erase"], check=True)
         subprocess.run(
-            ["coverage", "run", "manage.py", "test"] + sys.argv[1:],
+            ["coverage", "run", "manage.py", "test", "--exclude-tag=browser"]
+            + sys.argv[1:],
             check=True,
             env=dict(os.environ, ENTRA_ID_ENABLED="True"),
         )
@@ -65,6 +66,7 @@ def test_parallel():
                 "run",
                 "manage.py",
                 "test",
+                "--exclude-tag=browser",
                 "--parallel",
                 cpu_count,
             ]
@@ -73,6 +75,18 @@ def test_parallel():
             env=dict(os.environ, ENTRA_ID_ENABLED="True"),
         )
         subprocess.run(["coverage", "report"], check=True)
+    except subprocess.CalledProcessError as error:
+        print("Test run not successful: ")
+        print(error)
+        sys.exit(error.returncode)
+
+
+def test_browser():
+    try:
+        subprocess.run(
+            ["python", "manage.py", "test", "--tag=browser"] + sys.argv[1:],
+            check=True,
+        )
     except subprocess.CalledProcessError as error:
         print("Test run not successful: ")
         print(error)

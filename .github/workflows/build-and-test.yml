@@ -217,6 +217,63 @@ jobs:
           -t hfu-case-management-webapp:github-tests \
           -f Dockerfile .
 
+  browser-tests:
+    name: Browser tests (non-blocking)
+    needs: poetry-cache-setup
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    environment: aws-dev
+    env:
+      DB_HOST: 'localhost'
+      DB_USERNAME: 'postgres'
+      DB_PASSWORD: 'postgres'
+    services:
+      postgres:
+        image: postgres:16.8
+        env:
+          POSTGRES_PASSWORD: 'postgres'
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+      - name: Setup Python and Poetry + Restore Poetry cache
+        uses: ./.github/actions/setup-python-poetry
+        with:
+          role-session-name: BuildAndTest-BrowserTests-${{ github.run_id }}
+          aws-region: ${{ vars.AWS_REGION }}
+          aws-role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          aws-codeartifact-account-id: ${{ secrets.AWS_CODEARTIFACT_ACCOUNT_ID }}
+
+      - name: Install Playwright browsers
+        run: poetry run playwright install --with-deps chromium
+
+      - name: Fetch browser test credentials
+        run: |
+          secret_json=$(aws secretsmanager get-secret-value \
+            --secret-id browser-test-user-credentials-dev \
+            --query SecretString --output text)
+          password=$(jq -r '.BROWSER_TEST_USER_PASSWORD' <<< "$secret_json")
+          echo "::add-mask::$password"
+          {
+            echo "BROWSER_TEST_URL=$(jq -r '.BROWSER_TEST_URL' <<< "$secret_json")"
+            echo "BROWSER_TEST_USER_EMAIL=$(jq -r '.BROWSER_TEST_USER_EMAIL' <<< "$secret_json")"
+            echo "BROWSER_TEST_USER_PASSWORD=$password"
+          } >> "$GITHUB_ENV"
+
+      - name: Run browser tests
+        run: poetry run test-browser
+        env:
+          SECRET_KEY: 'a_very_long_and_random_string_for_tests'
+          ENTRA_AUTHORITY: 'https://login.microsoftonline.com/organizations'
+
   checks-passed:
     name: Build & Test
     runs-on: ubuntu-latest
