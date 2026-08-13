@@ -1,0 +1,56 @@
+STATIC_PAGES = [
+    ("/", "home page"),
+    ("/landing-page", "landing page"),
+    ("/accessibility-statement", "accessibility statement"),
+    ("/cookies", "cookies page"),
+    ("/guests/", "guests list"),
+    ("/sponsors/", "sponsors list"),
+    ("/accommodations/", "accommodations list"),
+    ("/accommodation-requests/", "accommodation requests list"),
+    ("/unassigned-accommodation-requests/", "unassigned accommodation requests list"),
+    ("/uams/", "UAMs list"),
+    ("/visa-applications/", "visa applications list"),
+    ("/visa-applications/visa-information-requests", "visa information requests list"),
+    ("/downloads/", "downloads page"),
+    ("/reassignment-requests/made/", "reassignment requests made"),
+    ("/reassignment-requests/received/", "reassignment requests received"),
+    ("/safeguarding/escalated_checks", "escalated checks"),
+    ("/deduplication/", "deduplication start page"),
+    ("/deduplication/guests/", "guest deduplication wizard"),
+    ("/deduplication/sponsors/", "sponsor deduplication wizard"),
+    ("/deduplication/accommodations/", "accommodation deduplication wizard"),
+    ("/review-potential-duplicate-records", "review potential duplicates start page"),
+    (
+        "/review-potential-duplicate-records/guests/manual",
+        "manual guest duplicates page",
+    ),
+    (
+        "/review-potential-duplicate-records/guests/suggested",
+        "suggested guest duplicates page",
+    ),
+    ("/user-management/users", "manage people"),
+    ("/user-management/groups", "manage groups"),
+    ("/user-management/access-requests", "manage access requests"),
+    ("/user-management/request-access/intro", "request access intro"),
+    ("/user-management/request-access", "request access form"),
+]
+
+RECORD_LIST_PAGES = [
+    ("/guests/", "guest"),
+    ("/sponsors/", "sponsor"),
+    ("/accommodations/", "accommodation"),
+    ("/accommodation-requests/", "accommodation request"),
+    ("/uams/", "UAM"),
+    ("/visa-applications/", "visa application"),
+]
+
+NOT_SCANNABLE = {
+    "/auth_callback",
+    "/csp-report/",
+    "/favicon.ico",
+    "/login",
+    "/logout",
+    "/accommodations/postcode-search",
+    "/safeguarding/escalated_checks/download",
+    "/user-management/confirmation",
+}
