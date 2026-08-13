@@ -79,6 +79,25 @@ def test_parallel():
         sys.exit(error.returncode)
 
 
+def test_browser():
+    try:
+        test_args = sys.argv[1:]
+
+        subprocess.run(
+            [
+                "pytest",
+                "-c",
+                "browser_tests/pytest.ini",
+            ]
+            + (test_args if test_args else ["browser_tests"]),
+            check=True,
+        )
+    except subprocess.CalledProcessError as error:
+        print("Browser test run not successful: ")
+        print(error)
+        sys.exit(error.returncode)
+
+
 def seed_db():
     """
     Usage from within ECS container:
