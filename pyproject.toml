@@ -70,9 +70,9 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.pylint]
-load-plugins = ["hfurb_scripts.lint_extras.find_f_strings_in_format_html", "hfurb_scripts.lint_extras.check_view_access_control"]
+load-plugins = ["hfurb_scripts.lint_extras.find_f_strings_in_format_html", "hfurb_scripts.lint_extras.check_view_access_control", "hfurb_scripts.lint_extras.check_generic_link_text"]
 disable = ["all"]  # Disable all rules by default
-enable = ["W1350", "W1351"]  # Only enable our custom rule
+enable = ["W1350", "W1351", "W1353"]  # Only enable our custom rules
 
 [tool.ruff]
 target-version = "py313"
