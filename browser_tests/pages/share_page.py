@@ -2,13 +2,14 @@ import os
 
 from playwright.sync_api import Page, expect
 
+from ..test_users import BrowserTestUser
+
 
 class SharePage:
-    def __init__(self, page: Page):
+    def __init__(self, page: Page, user: BrowserTestUser):
         self.page = page
         self.base_url = os.environ.get("BROWSER_TEST_URL")
-        self.user_email = os.environ.get("BROWSER_TEST_USER_EMAIL")
-        self.user_password = os.environ.get("BROWSER_TEST_USER_PASSWORD")
+        self.user = user
 
     def open(self):
         self.page.goto(self.base_url)
@@ -18,8 +19,8 @@ class SharePage:
 
         self.assert_has_heading_with_status("Sign in", "Status: Entra ID disabled")
 
-        self.enter_text_into_form_field("Email address", self.user_email)
-        self.enter_text_into_form_field("Password", self.user_password)
+        self.enter_text_into_form_field("Email address", self.user.email)
+        self.enter_text_into_form_field("Password", self.user.password)
 
         self.click_button("Sign in")
 
