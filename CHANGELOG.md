@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.10.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.9.0...2.10.0) (2026-08-13)
+
+
+### Features
+
+* HFURB-1365 - add initial playwright config and tests ([#93](https://github.com/communitiesuk/hfu-share-webapp/issues/93)) ([f7957fd](https://github.com/communitiesuk/hfu-share-webapp/commit/f7957fdd3c38259de7a064625d84cedf4551684c))
+* Move login redirect url to session ([#91](https://github.com/communitiesuk/hfu-share-webapp/issues/91)) ([8951d76](https://github.com/communitiesuk/hfu-share-webapp/commit/8951d7684943ec63833ca6f1d24281ed23ead9bf))
+* update login template to use heading component for consistency ([#94](https://github.com/communitiesuk/hfu-share-webapp/issues/94)) ([179bf7e](https://github.com/communitiesuk/hfu-share-webapp/commit/179bf7e8687aee53e2537bc63235bb60056db839))
+
+
+### Bug Fixes
+
+* allow deduplication of records without a date of birth ([#96](https://github.com/communitiesuk/hfu-share-webapp/issues/96)) ([be6dcc3](https://github.com/communitiesuk/hfu-share-webapp/commit/be6dcc38ba6f691661420f522eb40dbd0c86e42f))
+* pin localstack to latest version that does not need authentication ([#86](https://github.com/communitiesuk/hfu-share-webapp/issues/86)) ([631f9e3](https://github.com/communitiesuk/hfu-share-webapp/commit/631f9e38c49b9b50f1279e705deb7b46aa18ebd6))
+
 ## [2.9.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.8.0...2.9.0) (2026-08-10)
 
 
