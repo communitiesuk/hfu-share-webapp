@@ -27,7 +27,7 @@
             {% block pagination.range %}
                 <ul class="govuk-pagination__list">
                     {% for p in paginated_objs|table_page_range:paginated_objs.paginator %}
-                        <li class="govuk-pagination__item{% if p == paginated_objs.number %} govuk-pagination__item--current{% endif %}{% if p == '...' %} govuk-pagination__item--ellipses{% endif %}">
+                        <li class="govuk-pagination__item{% if p == paginated_objs.number %} govuk-pagination__item--current{% endif %}{% if p == '...' %} govuk-pagination__item--ellipsis{% endif %}">
                             {% if p == '...' %}
                                 ⋯
                             {% else %}
