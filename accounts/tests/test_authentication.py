@@ -136,11 +136,8 @@ class LinkEntraIdentityTestCase(TestCase):
         self.assertIsInstance(user, AnonymousUser)
         self.assertEqual(User.objects.count(), 0)
 
-    @patch("accounts.authentication.sentry_sdk.capture_message")
     @patch("accounts.authentication.User.objects.create_user")
-    def test_denies_access_when_the_account_cannot_be_created(
-        self, mock_create_user, mock_capture_message
-    ):
+    def test_denies_access_when_the_account_cannot_be_created(self, mock_create_user):
         mock_create_user.side_effect = IntegrityError(
             "duplicate key value violates unique constraint "
             '"accounts_user_username_key"'
@@ -150,8 +147,3 @@ class LinkEntraIdentityTestCase(TestCase):
 
         self.assertIsInstance(user, AnonymousUser)
         self.assertEqual(User.objects.count(), 0)
-        mock_capture_message.assert_called_once_with(
-            "Could not attach Entra identity to an account",
-            level="warning",
-            contexts={"entra": {"oid": OBJECT_ID, "tid": TENANT_ID}},
-        )

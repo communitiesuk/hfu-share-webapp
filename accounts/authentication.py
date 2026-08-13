@@ -10,8 +10,6 @@ from django.contrib.auth.models import AbstractBaseUser, AnonymousUser
 from django.db import IntegrityError, transaction
 from django.http import HttpRequest
 
-from case_management.settings import sentry_sdk
-
 from .exceptions import EntraAuthException, FlowError, TokenError
 from .models import User
 
@@ -91,13 +89,6 @@ class Authentication:
         try:
             return self._get_or_create_user(**attributes)
         except IntegrityError:
-            sentry_sdk.capture_message(
-                "Could not attach Entra identity to an account",
-                level="warning",
-                contexts={
-                    "entra": {"oid": attributes["oid"], "tid": attributes["tid"]}
-                },
-            )
             return AnonymousUser()
 
     def get_logout_uri(self) -> str:
