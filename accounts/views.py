@@ -14,7 +14,7 @@ LOGIN_REDIRECT_SESSION_KEY = "login_redirect_url"
 logger = logging.getLogger(__name__)
 
 
-def _get_safe_redirect_url(request: HttpRequest, candidate: str | None):
+def _get_safe_redirect_url(request: HttpRequest, candidate: str | None) -> str | None:
     if not candidate:
         return None
 

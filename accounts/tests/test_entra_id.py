@@ -8,6 +8,7 @@ from django.urls import reverse
 
 from accounts.exceptions import FlowError
 from accounts.tests.base import TestSessionTokenMixin
+from accounts.views import LOGIN_REDIRECT_SESSION_KEY
 from user_management.tests.base import get_admin_user
 
 ENTRA_DOMAIN = "login.microsoftonline.com"
@@ -91,7 +92,7 @@ class EntraIdRedirectsUserToPageTheyWantedToVisitTestCase(TestCase):
                 reverse("accounts:login"), {"next": test_url}, follow=False
             )
             self.assertEqual(login_response.status_code, 302)
-            self.assertEqual(self.client.session["login_redirect_url"], test_url)
+            self.assertEqual(self.client.session[LOGIN_REDIRECT_SESSION_KEY], test_url)
 
             callback_response = self.client.get(reverse("accounts:callback"))
             self.assertRedirects(
@@ -120,7 +121,7 @@ class EntraIdRedirectsUserToPageTheyWantedToVisitTestCase(TestCase):
                 with self.settings(ENTRA_ID_ENABLED=True):
                     self.client.session.flush()
                     self.client.get(reverse("accounts:login"), {"next": next_url})
-                    self.assertNotIn("login_redirect_url", self.client.session)
+                    self.assertNotIn(LOGIN_REDIRECT_SESSION_KEY, self.client.session)
 
                     response = self.client.get(reverse("accounts:callback"))
                     self.assertRedirects(
@@ -144,7 +145,7 @@ class EntraIdRedirectsUserToPageTheyWantedToVisitTestCase(TestCase):
         with self.settings(ENTRA_ID_ENABLED=True):
             self.client.session.flush()
             self.client.get(reverse("accounts:login"))
-            self.assertNotIn("login_redirect_url", self.client.session)
+            self.assertNotIn(LOGIN_REDIRECT_SESSION_KEY, self.client.session)
 
             response = self.client.get(reverse("accounts:callback"))
             self.assertRedirects(
