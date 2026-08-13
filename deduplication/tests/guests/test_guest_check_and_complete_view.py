@@ -5,6 +5,7 @@ from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
 from deduplication.views import SelectAndReviewRecordsStep
+from ontology.models import MvPerson
 from ontology.tests.factories import MvAccommodationRequestFactory, MvPersonFactory
 from user_management.tests.base import get_admin_user
 
@@ -529,6 +530,143 @@ class DeduplicationGuestSelectedViewTests(TestSessionTokenMixin, TestCase):
             "You can undo the deduplication from the "
             "principal record in the actions tab.",
         )
+
+    def test_completes_deduplication_when_no_record_has_date_of_birth(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        first_guest = MvPersonFactory(
+            first_name="nodobfirstname",
+            last_name="nodoblastname",
+            gender="Female",
+            date_of_birth=None,
+            email=["nodob@example.com"],
+            phone=["07777777777"],
+            passport_id=["XX77777"],
+            visa_status="Issued",
+            application_number=["5555-5555-5555-5555"],
+            is_principal=True,
+        )
+        second_guest = MvPersonFactory(
+            first_name="nodobfirstname",
+            last_name="nodoblastname",
+            gender="Female",
+            date_of_birth=None,
+            email=["nodob@example.com"],
+            phone=["07777777777"],
+            passport_id=["XX77777"],
+            visa_status="Issued",
+            application_number=["5555-5555-5555-5555"],
+            is_principal=True,
+        )
+
+        accommodation_request = MvAccommodationRequestFactory(
+            person_id=[first_guest.pk, second_guest.pk],
+            checks_status="Checks Required",
+        )
+        first_guest.accommodation_request = accommodation_request
+        second_guest.accommodation_request = accommodation_request
+        first_guest.save()
+        second_guest.save()
+
+        self.client.post(
+            reverse(
+                "deduplication:guests:select-and-review-records-manual-step",
+                kwargs={"step": SelectAndReviewRecordsStep.SELECT_RECORD},
+            ),
+            {
+                "select-record-guest_record": [
+                    first_guest.id,
+                    second_guest.id,
+                ],
+                "SelectAndReviewRecordsFormWizard-current_step": (
+                    SelectAndReviewRecordsStep.SELECT_RECORD,
+                ),
+            },
+            follow=True,
+        )
+
+        self.client.post(
+            reverse(
+                "deduplication:guests:select-and-review-records-manual-step",
+                kwargs={"step": SelectAndReviewRecordsStep.VIEW_SELECTED_RECORDS},
+            ),
+            {
+                "select-record": [first_guest.id, second_guest.id],
+                "SelectAndReviewRecordsFormWizard-current_step": (
+                    SelectAndReviewRecordsStep.VIEW_SELECTED_RECORDS,
+                ),
+            },
+            follow=True,
+        )
+
+        self.client.post(
+            reverse(
+                "deduplication:guests:select-and-review-records-manual-step",
+                kwargs={"step": SelectAndReviewRecordsStep.REVIEW_SELECTED_RECORDS},
+            ),
+            {
+                "select-record": [first_guest.id, second_guest.id],
+                "SelectAndReviewRecordsFormWizard-current_step": (
+                    SelectAndReviewRecordsStep.REVIEW_SELECTED_RECORDS,
+                ),
+            },
+            follow=True,
+        )
+
+        self.client.post(
+            reverse(
+                "deduplication:guests:select-and-review-records-manual-step",
+                kwargs={"step": SelectAndReviewRecordsStep.SELECT_CORRECT_DETAILS},
+            ),
+            {
+                f"{self.step_prefix}first_name": first_guest.first_name,
+                f"{self.step_prefix}last_name": first_guest.last_name,
+                f"{self.step_prefix}sex": first_guest.gender,
+                f"{self.step_prefix}email_address": [first_guest.email[0]],
+                f"{self.step_prefix}phone_numbers": [first_guest.phone[0]],
+                f"{self.step_prefix}passport_number": first_guest.passport_id[0],
+                f"{self.step_prefix}application_number": [
+                    first_guest.application_number
+                ],
+                f"{self.step_prefix}visa_status": first_guest.visa_status,
+                "SelectAndReviewRecordsFormWizard-current_step": (
+                    SelectAndReviewRecordsStep.SELECT_CORRECT_DETAILS,
+                ),
+            },
+            follow=True,
+        )
+
+        response = self.client.post(
+            reverse(
+                "deduplication:guests:select-and-review-records-manual-step",
+                kwargs={"step": SelectAndReviewRecordsStep.CHECK_AND_COMPLETE},
+            ),
+            {
+                "SelectAndReviewRecordsFormWizard-current_step": (
+                    SelectAndReviewRecordsStep.CHECK_AND_COMPLETE,
+                ),
+            },
+            follow=True,
+        )
+
+        self.assertContains(response, "Success")
+        self.assertContains(response, "You have deduplicated 2 guest records")
+        self.assertNotContains(
+            response,
+            "The selected records have not been marked as duplicates. "
+            "No new principal record was created.",
+        )
+
+        principal_record = (
+            MvPerson.objects.filter(
+                first_name="nodobfirstname",
+                is_principal=True,
+            )
+            .exclude(pk__in=[first_guest.pk, second_guest.pk])
+            .get()
+        )
+        self.assertIsNone(principal_record.date_of_birth)
 
     def test_handles_multi_uan_guests(self):
         user = get_admin_user()

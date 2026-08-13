@@ -2507,8 +2507,11 @@ class SelectAndReviewSponsorRecordsFormWizard(SelectAndViewRecordsFormWizard):
             ps = self.get_cleaned_data_for_step(
                 SelectAndReviewRecordsStep.SELECT_CORRECT_DETAILS
             )
-            date_of_birth_str = ps["date_of_birth"].split(" (")[0]
-            date_of_birth = datetime.strptime(date_of_birth_str, "%d %B %Y").date()
+            if ps["date_of_birth"]:
+                date_of_birth_str = ps["date_of_birth"].split(" (")[0]
+                date_of_birth = datetime.strptime(date_of_birth_str, "%d %B %Y").date()
+            else:
+                date_of_birth = None
             principal_sponsor_details = {
                 "first_name": f"{ps['first_name']}",
                 "last_name": f"{ps['last_name']}",
@@ -2945,8 +2948,11 @@ class SelectAndReviewGuestRecordsFormWizard(SelectAndViewRecordsFormWizard):
             ps = self.get_cleaned_data_for_step(
                 SelectAndReviewRecordsStep.SELECT_CORRECT_DETAILS
             )
-            date_of_birth_str = ps["date_of_birth"].split(" (")[0]
-            date_of_birth = datetime.strptime(date_of_birth_str, "%d %B %Y").date()
+            if ps["date_of_birth"]:
+                date_of_birth_str = ps["date_of_birth"].split(" (")[0]
+                date_of_birth = datetime.strptime(date_of_birth_str, "%d %B %Y").date()
+            else:
+                date_of_birth = None
             principal_guest_details = {
                 "first_name": ps["first_name"],
                 "last_name": ps["last_name"],

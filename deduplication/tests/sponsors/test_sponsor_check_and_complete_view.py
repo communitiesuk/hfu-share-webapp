@@ -463,6 +463,135 @@ class DeduplicationSponsorSelectedViewTests(TestSessionTokenMixin, TestCase):
             "principal record in the actions tab.",
         )
 
+    def test_completes_deduplication_when_no_record_has_date_of_birth(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        first_sponsor = MvVolunteerFactory(
+            first_name="nodobfirstname",
+            last_name="nodoblastname",
+            sex="Female",
+            date_of_birth=None,
+            email="nodob@example.com",
+            phone_number=["01134960698"],
+            residential_postcodes=["OX1 1OX"],
+            flag_unsuitable=False,
+            is_principal=True,
+            sponsor_type=MvVolunteer.SponsorType.INDIVIDUAL,
+        )
+        second_sponsor = MvVolunteerFactory(
+            first_name="nodobfirstname",
+            last_name="nodoblastname",
+            sex="Female",
+            date_of_birth=None,
+            email="nodob@example.com",
+            phone_number=["01134960698"],
+            residential_postcodes=["OX1 1OX"],
+            flag_unsuitable=False,
+            is_principal=True,
+            sponsor_type=MvVolunteer.SponsorType.INDIVIDUAL,
+        )
+
+        self.client.post(
+            reverse(
+                "deduplication:sponsors:select-and-review-records-manual-step",
+                kwargs={"step": SelectAndReviewRecordsStep.SELECT_RECORD},
+            ),
+            {
+                "select-record-sponsor_record": [
+                    first_sponsor.id,
+                    second_sponsor.id,
+                ],
+                "SelectAndReviewRecordsFormWizard-current_step": (
+                    SelectAndReviewRecordsStep.SELECT_RECORD,
+                ),
+            },
+            follow=True,
+        )
+
+        self.client.post(
+            reverse(
+                "deduplication:sponsors:select-and-review-records-manual-step",
+                kwargs={"step": SelectAndReviewRecordsStep.VIEW_SELECTED_RECORDS},
+            ),
+            {
+                "select-record": [first_sponsor.id, second_sponsor.id],
+                "SelectAndReviewRecordsFormWizard-current_step": (
+                    SelectAndReviewRecordsStep.VIEW_SELECTED_RECORDS,
+                ),
+            },
+            follow=True,
+        )
+
+        self.client.post(
+            reverse(
+                "deduplication:sponsors:select-and-review-records-manual-step",
+                kwargs={"step": SelectAndReviewRecordsStep.REVIEW_SELECTED_RECORDS},
+            ),
+            {
+                "select-record": [first_sponsor.id, second_sponsor.id],
+                "SelectAndReviewRecordsFormWizard-current_step": (
+                    SelectAndReviewRecordsStep.REVIEW_SELECTED_RECORDS,
+                ),
+            },
+            follow=True,
+        )
+
+        self.client.post(
+            reverse(
+                "deduplication:sponsors:select-and-review-records-manual-step",
+                kwargs={"step": SelectAndReviewRecordsStep.SELECT_CORRECT_DETAILS},
+            ),
+            {
+                f"{self.step_prefix}first_name": first_sponsor.first_name,
+                f"{self.step_prefix}last_name": first_sponsor.last_name,
+                f"{self.step_prefix}sex": first_sponsor.sex,
+                f"{self.step_prefix}email_address": first_sponsor.email,
+                f"{self.step_prefix}phone_numbers": first_sponsor.phone_number,
+                f"{self.step_prefix}residential_postcodes": (
+                    first_sponsor.residential_postcodes
+                ),
+                f"{self.step_prefix}flag_unsuitable": False,
+                "SelectAndReviewRecordsFormWizard-current_step": (
+                    SelectAndReviewRecordsStep.SELECT_CORRECT_DETAILS,
+                ),
+            },
+            follow=True,
+        )
+
+        response = self.client.post(
+            reverse(
+                "deduplication:sponsors:select-and-review-records-manual-step",
+                kwargs={"step": SelectAndReviewRecordsStep.CHECK_AND_COMPLETE},
+            ),
+            {
+                "SelectAndReviewRecordsFormWizard-current_step": (
+                    SelectAndReviewRecordsStep.CHECK_AND_COMPLETE,
+                ),
+            },
+            follow=True,
+        )
+
+        self.assertContains(response, "Success")
+        self.assertContains(
+            response, "You have deduplicated 2 sponsor and host records"
+        )
+        self.assertNotContains(
+            response,
+            "The selected records have not been marked as duplicates. "
+            "No new principal record was created.",
+        )
+
+        principal_record = (
+            MvVolunteer.objects.filter(
+                first_name="nodobfirstname",
+                is_principal=True,
+            )
+            .exclude(pk__in=[first_sponsor.pk, second_sponsor.pk])
+            .get()
+        )
+        self.assertIsNone(principal_record.date_of_birth)
+
     def test_redirects_with_named_error_if_record_no_longer_principal(self):
         user = get_admin_user()
         self.client.force_login(user)

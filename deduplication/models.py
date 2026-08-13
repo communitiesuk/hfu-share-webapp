@@ -249,7 +249,7 @@ class SponsorDuplicateGroup(models.Model):
         )
         principal_record_values["sponsor_type"] = MvVolunteer.SponsorType.INDIVIDUAL
 
-        if "date_of_birth" in principal_record_values:
+        if principal_record_values.get("date_of_birth"):
             principal_record_values["age"] = calculate_age(
                 principal_record_values["date_of_birth"]
             )
@@ -1448,7 +1448,7 @@ class GuestDuplicateGroup(models.Model):
             default=None,
         )
         principal_record_values["created_by"] = user.email
-        if "date_of_birth" in principal_record_values:
+        if principal_record_values.get("date_of_birth"):
             principal_record_values["age"] = calculate_age(
                 principal_record_values["date_of_birth"]
             )
