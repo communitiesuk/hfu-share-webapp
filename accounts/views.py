@@ -9,17 +9,35 @@ from django.utils.http import url_has_allowed_host_and_scheme
 
 from .authentication import Authentication
 from .exceptions import FlowError
-from .utils import EntraStateSerializer
 
-serializer = EntraStateSerializer()
+LOGIN_REDIRECT_SESSION_KEY = "login_redirect_url"
 logger = logging.getLogger(__name__)
+
+
+def _get_safe_redirect_url(request: HttpRequest, candidate: str | None) -> str | None:
+    if not candidate:
+        return None
+
+    if url_has_allowed_host_and_scheme(
+        candidate,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
+        return candidate
+
+    return None
 
 
 @login_not_required
 def entra_login(request: HttpRequest):
-    redirect_url = Authentication(request).get_auth_uri(
-        state=serializer.serialize(next=request.GET.get("next"))
-    )
+    next_url = request.GET.get("next")
+    safe_next_url = _get_safe_redirect_url(request, next_url)
+    if safe_next_url:
+        request.session[LOGIN_REDIRECT_SESSION_KEY] = safe_next_url
+    else:
+        request.session.pop(LOGIN_REDIRECT_SESSION_KEY, None)
+
+    redirect_url = Authentication(request).get_auth_uri()
     return HttpResponseRedirect(redirect_url)
 
 
@@ -46,15 +64,11 @@ def entra_callback(request: HttpRequest):
     if user:
         login(request, user)
 
-        next_url = settings.LOGIN_REDIRECT_URL
-        if state := request.GET.get("state"):
-            candidate = serializer.deserialize(state).get("next")
-            if candidate and url_has_allowed_host_and_scheme(
-                candidate,
-                allowed_hosts={request.get_host()},
-                require_https=request.is_secure(),
-            ):
-                next_url = candidate
+        next_url = request.session.pop(LOGIN_REDIRECT_SESSION_KEY, None)
+        next_url = _get_safe_redirect_url(request, next_url)
+
+        if not next_url:
+            next_url = settings.LOGIN_REDIRECT_URL
 
         return HttpResponseRedirect(next_url)
 

@@ -1,5 +1,4 @@
 from unittest.mock import ANY, patch
-from urllib.parse import parse_qs, urlparse
 
 from django.conf import settings
 from django.contrib.auth import SESSION_KEY
@@ -9,6 +8,7 @@ from django.urls import reverse
 
 from accounts.exceptions import FlowError
 from accounts.tests.base import TestSessionTokenMixin
+from accounts.views import LOGIN_REDIRECT_SESSION_KEY
 from user_management.tests.base import get_admin_user
 
 ENTRA_DOMAIN = "login.microsoftonline.com"
@@ -73,11 +73,13 @@ class EntraIdMissingSessionTokenTestCase(TestCase):
 
 
 class EntraIdRedirectsUserToPageTheyWantedToVisitTestCase(TestCase):
-    @patch("accounts.authentication.Authentication.get_token_from_flow")
+    @patch("accounts.views.Authentication.get_auth_uri")
+    @patch("accounts.views.Authentication.get_token_from_flow")
     @patch("accounts.views.authenticate")
     def test_redirects_to_the_page_they_wanted_to_visit(
-        self, mock_authenticate, mock_get_token_from_flow
+        self, mock_authenticate, mock_get_token_from_flow, mock_get_auth_uri
     ):
+        mock_get_auth_uri.return_value = "https://example.com/auth"
         mock_get_token_from_flow.return_value = "token"
         entra_user = get_admin_user()
         entra_user.backend = "accounts.backend.EntraBackend"
@@ -86,23 +88,24 @@ class EntraIdRedirectsUserToPageTheyWantedToVisitTestCase(TestCase):
         test_url = "/test-page-that-the-user-wants"
 
         with self.settings(ENTRA_ID_ENABLED=True):
-            self.client.force_login(get_admin_user())
-            response = self.client.get(test_url, follow=True)
+            login_response = self.client.get(
+                reverse("accounts:login"), {"next": test_url}, follow=False
+            )
+            self.assertEqual(login_response.status_code, 302)
+            self.assertEqual(self.client.session[LOGIN_REDIRECT_SESSION_KEY], test_url)
 
-            final_redirect_url, _ = response.redirect_chain[-1]
-            parsed_redirect_url = urlparse(final_redirect_url)
-            state = parse_qs(parsed_redirect_url.query)["state"][0]
+            callback_response = self.client.get(reverse("accounts:callback"))
+            self.assertRedirects(
+                callback_response, test_url, fetch_redirect_response=False
+            )
 
-            auth_callback = reverse("accounts:callback") + "?state=" + state
-
-            response = self.client.get(auth_callback)
-            self.assertRedirects(response, test_url, fetch_redirect_response=False)
-
-    @patch("accounts.authentication.Authentication.get_token_from_flow")
+    @patch("accounts.views.Authentication.get_auth_uri")
+    @patch("accounts.views.Authentication.get_token_from_flow")
     @patch("accounts.views.authenticate")
     def test_does_not_redirect_to_an_unsafe_next_url(
-        self, mock_authenticate, mock_get_token_from_flow
+        self, mock_authenticate, mock_get_token_from_flow, mock_get_auth_uri
     ):
+        mock_get_auth_uri.return_value = "https://example.com/auth"
         mock_get_token_from_flow.return_value = "token"
         entra_user = get_admin_user()
         entra_user.backend = "accounts.backend.EntraBackend"
@@ -116,41 +119,35 @@ class EntraIdRedirectsUserToPageTheyWantedToVisitTestCase(TestCase):
         for next_url in unsafe_next_urls:
             with self.subTest(next_url=next_url):
                 with self.settings(ENTRA_ID_ENABLED=True):
-                    self.client.force_login(get_admin_user())
-                    response = self.client.get(f"/login?next={next_url}", follow=True)
+                    self.client.session.flush()
+                    self.client.get(reverse("accounts:login"), {"next": next_url})
+                    self.assertNotIn(LOGIN_REDIRECT_SESSION_KEY, self.client.session)
 
-                    final_redirect_url, _ = response.redirect_chain[-1]
-                    parsed_redirect_url = urlparse(final_redirect_url)
-                    state = parse_qs(parsed_redirect_url.query)["state"][0]
-
-                    auth_callback = reverse("accounts:callback") + "?state=" + state
-
-                    response = self.client.get(auth_callback)
+                    response = self.client.get(reverse("accounts:callback"))
                     self.assertRedirects(
                         response,
                         settings.LOGIN_REDIRECT_URL,
                         fetch_redirect_response=False,
                     )
 
-    @patch("accounts.authentication.Authentication.get_token_from_flow")
+    @patch("accounts.views.Authentication.get_auth_uri")
+    @patch("accounts.views.Authentication.get_token_from_flow")
     @patch("accounts.views.authenticate")
     def test_redirects_to_the_landing_page_if_no_next_url(
-        self, mock_authenticate, mock_get_token_from_flow
+        self, mock_authenticate, mock_get_token_from_flow, mock_get_auth_uri
     ):
+        mock_get_auth_uri.return_value = "https://example.com/auth"
         mock_get_token_from_flow.return_value = "token"
         entra_user = get_admin_user()
         entra_user.backend = "accounts.backend.EntraBackend"
         mock_authenticate.return_value = entra_user
 
-        test_url = "/test-page-that-the-user-wants"
-
         with self.settings(ENTRA_ID_ENABLED=True):
-            self.client.force_login(get_admin_user())
-            self.client.get(test_url, follow=True)
+            self.client.session.flush()
+            self.client.get(reverse("accounts:login"))
+            self.assertNotIn(LOGIN_REDIRECT_SESSION_KEY, self.client.session)
 
-            auth_callback = reverse("accounts:callback")
-
-            response = self.client.get(auth_callback)
+            response = self.client.get(reverse("accounts:callback"))
             self.assertRedirects(
                 response, settings.LOGIN_REDIRECT_URL, fetch_redirect_response=False
             )
