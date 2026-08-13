@@ -8,9 +8,7 @@ from django.utils import timezone as django_timezone
 from django.utils.safestring import SafeString
 
 from ontology.admin_forms import DateRangeForm
-from ontology.models import (
-    CheckType,
-)
+from ontology.models import CheckType
 
 GO_LIVE_DATE = datetime(2025, 9, 15, tzinfo=timezone.utc)
 
@@ -86,6 +84,32 @@ class GuestsWithIncorrectTitlesExcludingDuplicatesFilter(SimpleListFilter):
 
             if self.value() == "exclude_duplicates":
                 qs = qs.exclude(title__contains="[Duplicate]")
+
+            return qs
+
+        return None
+
+
+class GuestsWithMismatchedARFilter(SimpleListFilter):
+    title = "Mismatched Accommodation Request"
+    parameter_name = "mismatched_ar"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("exclude_nulls", "Yes (Exclude nulls)"),
+            ("include_nulls", "Yes (Include nulls)"),
+        )
+
+    def queryset(self, request, queryset):
+        print(self.value())
+
+        if self.value() in ["exclude_nulls", "include_nulls"]:
+            qs = queryset.exclude(accommodation_request__person_id__contains=[F("id")])
+
+            if self.value() == "exclude_nulls":
+                return qs.exclude(
+                    accommodation_request_id=None,
+                )
 
             return qs
 

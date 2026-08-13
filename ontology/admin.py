@@ -35,6 +35,7 @@ from ontology.admin_filters import (
     ChecksSinceShareGoLiveFilter,
     DateRangeFilter,
     GuestsWithIncorrectTitlesExcludingDuplicatesFilter,
+    GuestsWithMismatchedARFilter,
 )
 from ontology.models import (
     Announcement,
@@ -210,6 +211,7 @@ class MvPersonAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
         "visa_status",
         "is_principal",
         GuestsWithIncorrectTitlesExcludingDuplicatesFilter,
+        GuestsWithMismatchedARFilter,
     ]
     actions = ["update_guest_titles_action"]
 
