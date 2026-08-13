@@ -22,7 +22,9 @@
             {% if content|length > 2000 %}
                 <a id="event-show-less-link-{{ forloop.counter }}"
                    class="govuk-link"
-                   href="{{ request.path }}{% if page_param %}?page={{ page_param }}{% endif %}#event-datetime-{{ forloop.counter }}">Show less</a>
+                   href="{{ request.path }}{% if page_param %}?page={{ page_param }}{% endif %}#event-datetime-{{ forloop.counter }}">Show less<span class="govuk-visually-hidden"> of
+                    {% if title %}{{ title }}{% endif %}
+                {{ date|format_date }}</span></a>
             {% endif %}
         {% else %}
             <p id="event-content-{{ forloop.counter }}"
@@ -30,7 +32,9 @@
             {% if content|length > 2000 %}
                 <a id="event-show-more-link-{{ forloop.counter }}"
                    class="govuk-link"
-                   href="{% if page_param %}?page={{ page_param }}&show_expanded_content={{ forloop.counter }}{% else %}?show_expanded_content={{ forloop.counter }}{% endif %}#event-datetime-{{ forloop.counter }}">Show more</a>
+                   href="{% if page_param %}?page={{ page_param }}&show_expanded_content={{ forloop.counter }}{% else %}?show_expanded_content={{ forloop.counter }}{% endif %}#event-datetime-{{ forloop.counter }}">Show more<span class="govuk-visually-hidden"> of
+                    {% if title %}{{ title }}{% endif %}
+                {{ date|format_date }}</span></a>
             {% endif %}
         {% endif %}
         {% if event.id in events_with_files %}

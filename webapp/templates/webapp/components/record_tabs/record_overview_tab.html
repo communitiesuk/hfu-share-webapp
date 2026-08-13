@@ -5,7 +5,7 @@
     {% if edit_url %}
         {% if not is_duplicate %}
             <div class="govuk-grid-column-one-quarter govuk-!-text-align-right">
-                <a class="govuk-link govuk-link--no-visited-state" href="{{ edit_url }}">Change</a>
+                <a class="govuk-link govuk-link--no-visited-state" href="{{ edit_url }}">Change<span class="govuk-visually-hidden">record details</span></a>
             </div>
         {% endif %}
     {% endif %}

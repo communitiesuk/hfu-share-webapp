@@ -1836,7 +1836,9 @@ class RematchGuestsFormWizardTestCase(
         self.assertContains(response, self.accommodation_one.full_address)
         self.assertContains(
             response,
-            '<button type="submit" name="submit" class="govuk-link">Select</button>',
+            '<button type="submit" name="submit" class="govuk-link">Select'
+            '<span class="govuk-visually-hidden"> '
+            f"{self.accommodation_one.full_address}</span></button>",
         )
 
     def test_accommodation_request_is_updated_after_confirmation(self):

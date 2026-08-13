@@ -104,12 +104,12 @@ class UnassignedAccommodationRequestsTable(tables.Table):
     def hide_link(self, record):
         return format_html(
             '<a class="govuk-body-s govuk-link govuk-link--no-visited-state" '
-            'href="{}">{}</a>',
+            'href="{}">Hide<span class="govuk-visually-hidden"> {}</span></a>',
             reverse(
                 "unassigned-accommodation-requests:hide",
                 args=[record.id],
             ),
-            "Hide",
+            record.title,
         )
 
     def unhide_form(self, record):
@@ -118,6 +118,7 @@ class UnassignedAccommodationRequestsTable(tables.Table):
             '<input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}">'
             '<button type="submit" class="govuk-link govuk-link--no-visited-state">'
             "Unhide"
+            '<span class="govuk-visually-hidden"> {record_name}</span>'
             "</button>"
             "</form>",
             action_url=reverse(
@@ -125,6 +126,7 @@ class UnassignedAccommodationRequestsTable(tables.Table):
                 args=[record.id],
             ),
             csrf_token=get_token(self.request),
+            record_name=record.title,
         )
 
     def render_hide(self, record: MvAccommodationRequest):

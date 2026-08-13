@@ -105,7 +105,8 @@ class GroupDetailsView(
             "",
             '<div style="display: flex; justify-content: space-between;">'
             '<a href="{}" class="govuk-link govuk-link--no-underline">{}</a>'
-            '<a href="{}" class="govuk-link govuk-link--no-visited-state">Remove</a>'
+            '<a href="{}" class="govuk-link govuk-link--no-visited-state">Remove'
+            '<span class="govuk-visually-hidden"> {}</span></a>'
             "</div>",
             (
                 (
@@ -115,6 +116,7 @@ class GroupDetailsView(
                         "user-management:group-remove-user",
                         kwargs={"user_pk": user.pk, "group_pk": self.object.pk},
                     ),
+                    user.email,
                 )
                 for user in users
             ),

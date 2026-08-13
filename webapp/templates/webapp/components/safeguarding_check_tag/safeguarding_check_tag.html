@@ -7,7 +7,7 @@
     <span>{{ associated_entity }}</span>
     {% if user_can_add_update and check and obj %}
         <a class="govuk-link govuk-link--no-visited-state govuk-!-margin-left-2"
-           href="{% url 'accommodation-requests:update-safeguarding-checks' obj %}?dev_check_v2_id={{ check }}">Edit</a>
+           href="{% url 'accommodation-requests:update-safeguarding-checks' obj %}?dev_check_v2_id={{ check }}">Edit<span class="govuk-visually-hidden"> {{ check_type_label|default:"safeguarding" }} check for {{ associated_entity }}</span></a>
     {% endif %}
 </div>
 {% if not safeguarding_check_status|safeguarding_check_status_is_not_started %}

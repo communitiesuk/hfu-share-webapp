@@ -401,7 +401,7 @@ class ManualSponsorDeduplicationTable(dj_tables.Table):
     def render_is_eoi(self, value):
         return "True" if value is True else "False"
 
-    def render_select(self, value):
+    def render_select(self, value, record):
         hidden_sponsor_inputs = mark_safe(
             "".join(
                 [
@@ -421,12 +421,14 @@ class ManualSponsorDeduplicationTable(dj_tables.Table):
             '<input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}"/>'
             '<input type="hidden" name="select-record-sponsor_record"'
             'id="id_select-record-sponsor_record" value="{value}"/>'
-            '<button type="submit" name="submit" class="govuk-link">Select</button>'
+            '<button type="submit" name="submit" class="govuk-link">Select'
+            '<span class="govuk-visually-hidden"> {record_name}</span></button>'
             "</form>",
             management_form=self.context["wizard"]["management_form"],
             value=value,
             csrf_token=get_token(self.request),
             hidden_sponsor_inputs=hidden_sponsor_inputs,
+            record_name=record.get_full_name(),
         )
 
     class Meta:
@@ -678,7 +680,7 @@ class ManualGuestDeduplicationTable(dj_tables.Table):
             value=value,
         )
 
-    def render_select(self, value):
+    def render_select(self, value, record):
         hidden_guest_inputs = mark_safe(
             "".join(
                 [
@@ -698,12 +700,14 @@ class ManualGuestDeduplicationTable(dj_tables.Table):
             '<input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}"/>'
             '<input type="hidden" name="select-record-guest_record"'
             'id="id_select-record-guest_record" value="{value}"/>'
-            '<button type="submit" name="submit" class="govuk-link">Select</button>'
+            '<button type="submit" name="submit" class="govuk-link">Select'
+            '<span class="govuk-visually-hidden"> {record_name}</span></button>'
             "</form>",
             management_form=self.context["wizard"]["management_form"],
             value=value,
             csrf_token=get_token(self.request),
             hidden_guest_inputs=hidden_guest_inputs,
+            record_name=record.get_full_name(),
         )
 
     def render_visa_status(self, value):
@@ -847,7 +851,7 @@ class ManualAccommodationDeduplicationTable(dj_tables.Table, TableRendererMixin)
             value,
         )
 
-    def render_select(self, value):
+    def render_select(self, value, record):
         hidden_accommodation_inputs = mark_safe(
             "".join(
                 [
@@ -868,12 +872,14 @@ class ManualAccommodationDeduplicationTable(dj_tables.Table, TableRendererMixin)
             '<input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}"/>'
             '<input type="hidden" name="select-record-accommodation_record"'
             'id="id_select-record-accommodation_record" value="{value}"/>'
-            '<button type="submit" name="submit" class="govuk-link">Select</button>'
+            '<button type="submit" name="submit" class="govuk-link">Select'
+            '<span class="govuk-visually-hidden"> {record_name}</span></button>'
             "</form>",
             management_form=self.context["wizard"]["management_form"],
             value=value,
             csrf_token=get_token(self.request),
             hidden_accommodation_inputs=hidden_accommodation_inputs,
+            record_name=record.full_address,
         )
 
     class Meta:
@@ -971,7 +977,7 @@ class ManualViewSelectedSponsorsTable(dj_tables.Table):
     def render_is_eoi(self, value):
         return "True" if value is True else "False"
 
-    def render_remove(self, value):
+    def render_remove(self, value, record):
         return format_html(
             '<form method="post">'
             "{management_form}"
@@ -979,11 +985,13 @@ class ManualViewSelectedSponsorsTable(dj_tables.Table):
             '<input type="hidden" '
             'name="review-selected-records-sponsor_record_to_remove"'
             'id="id_review-selected-records-sponsor_record_to_remove" value="{value}"/>'
-            '<button type="submit" name="submit" class="govuk-link">Remove</button>'
+            '<button type="submit" name="submit" class="govuk-link">Remove'
+            '<span class="govuk-visually-hidden"> {record_name}</span></button>'
             "</form>",
             management_form=self.context["wizard"]["management_form"],
             value=value,
             csrf_token=get_token(self.request),
+            record_name=record.get_full_name(),
         )
 
     class Meta:
@@ -1070,18 +1078,20 @@ class ManualViewSelectedGuestsTable(dj_tables.Table):
             value=value,
         )
 
-    def render_remove(self, value):
+    def render_remove(self, value, record):
         return format_html(
             '<form method="post">'
             "{management_form}"
             '<input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}"/>'
             '<input type="hidden" name="review-selected-records-guest_record_to_remove"'
             'id="id_review-selected-records-guest_record_to_remove" value="{value}"/>'
-            '<button type="submit" name="submit" class="govuk-link">Remove</button>'
+            '<button type="submit" name="submit" class="govuk-link">Remove'
+            '<span class="govuk-visually-hidden"> {record_name}</span></button>'
             "</form>",
             management_form=self.context["wizard"]["management_form"],
             value=value,
             csrf_token=get_token(self.request),
+            record_name=record.get_full_name(),
         )
 
     def render_visa_status(self, value):
@@ -1168,7 +1178,7 @@ class ManualViewSelectedAccommodationsTable(dj_tables.Table, TableRendererMixin)
             value,
         )
 
-    def render_remove(self, value):
+    def render_remove(self, value, record):
         return format_html(
             '<form method="post">'
             "{management_form}"
@@ -1177,11 +1187,13 @@ class ManualViewSelectedAccommodationsTable(dj_tables.Table, TableRendererMixin)
             'name="review-selected-records-accommodation_record_to_remove"'
             'id="id_review-selected-records-accommodation_record_to_remove" '
             'value="{value}"/>'
-            '<button type="submit" name="submit" class="govuk-link">Remove</button>'
+            '<button type="submit" name="submit" class="govuk-link">Remove'
+            '<span class="govuk-visually-hidden"> {record_name}</span></button>'
             "</form>",
             management_form=self.context["wizard"]["management_form"],
             value=value,
             csrf_token=get_token(self.request),
+            record_name=record.full_address,
         )
 
     class Meta:

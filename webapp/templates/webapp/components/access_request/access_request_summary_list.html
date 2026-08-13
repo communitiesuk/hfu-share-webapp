@@ -17,7 +17,9 @@
                             <button class="govuk-link"
                                     type="submit"
                                     name="wizard_goto_step"
-                                    value="{{ question }}">Change</button>
+                                    value="{{ question }}">
+                                Change<span class="govuk-visually-hidden">{{ question_data.question }}</span>
+                            </button>
                         </dd>
                     {% endif %}
                 </div>
@@ -44,7 +46,9 @@
                                 <button class="govuk-link"
                                         type="submit"
                                         name="wizard_goto_step"
-                                        value="{{ question }}">Change</button>
+                                        value="{{ question }}">
+                                    Change<span class="govuk-visually-hidden">{{ question_data.question }}</span>
+                                </button>
                             </dd>
                         {% endif %}
                     </div>

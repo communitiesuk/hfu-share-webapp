@@ -15,7 +15,9 @@
                    style="flex: 1" />
             <a href="#"
                class="remove-array-item govuk-link"
-               style="white-space: nowrap">Remove</a>
+               style="white-space: nowrap">Remove
+                {% if widget.attrs.label %}<span class="govuk-visually-hidden">{{ widget.attrs.label }}</span>{% endif %}
+            </a>
         </div>
     {% endfor %}
     <!-- Hidden template item to clone -->
@@ -31,7 +33,9 @@
                style="flex: 1" />
         <a href="#"
            class="remove-array-item govuk-link"
-           style="white-space: nowrap">Remove</a>
+           style="white-space: nowrap">Remove
+            {% if widget.attrs.label %}<span class="govuk-visually-hidden">{{ widget.attrs.label }}</span>{% endif %}
+        </a>
     </div>
     <a href="#"
        class="add-array-item govuk-link"

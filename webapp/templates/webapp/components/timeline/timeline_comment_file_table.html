@@ -14,7 +14,7 @@
                 <td class="govuk-table__cell govuk-!-width-one-quarter">
                     {% url 'accommodation-requests:comments-download-attachment' pk=event.attached_accommodation_request_id.id comment_id=event.id attachment_id=attachment.id as download_url %}
                     <a href="{{ download_url }}"
-                       class="govuk-link govuk-link--no-visited-state">Download file</a>
+                       class="govuk-link govuk-link--no-visited-state">Download file<span class="govuk-visually-hidden">{{ attachment.filename|default:attachment.s3_file_name|default:"" }}</span></a>
                 </td>
             </tr>
         {% endfor %}

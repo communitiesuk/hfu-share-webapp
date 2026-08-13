@@ -39,8 +39,12 @@
             </tbody>
         </table>
         <div style="display: flex; gap: 16px">
-            <button class="govuk-button">Continue</button>
-            <button class="govuk-button govuk-button--warning">Reject suggestion</button>
+            <button class="govuk-button">
+                Continue<span class="govuk-visually-hidden">with {{ title }}</span>
+            </button>
+            <button class="govuk-button govuk-button--warning">
+                Reject suggestion<span class="govuk-visually-hidden">{{ title }}</span>
+            </button>
         </div>
     </div>
 </div>
