@@ -19,6 +19,7 @@ from django.middleware.csrf import get_token
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, TemplateView
@@ -184,7 +185,7 @@ class RejectedAccessRequestsTable(tables.Table):
     )
     rejection_justification = Column(verbose_name="Reason")
     remove = Column(
-        verbose_name="",
+        verbose_name=mark_safe('<span class="govuk-visually-hidden">Actions</span>'),
         orderable=False,
         empty_values=(),
         attrs={"td": {"style": "text-align: right;"}},

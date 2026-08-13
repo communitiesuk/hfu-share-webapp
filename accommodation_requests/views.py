@@ -20,6 +20,7 @@ from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from django.utils.html import escape, format_html
+from django.utils.safestring import mark_safe
 from django.views.generic import DetailView, FormView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
 from django_filters import (
@@ -1676,7 +1677,11 @@ class AccommodationTable(tables.Table):
     postcode = Column(
         verbose_name="Postcode", attrs=SELECT_ACCOMMODATION_TABLE_COLUMN_ATTRS
     )
-    select = Column(accessor="pk", verbose_name="", orderable=False)
+    select = Column(
+        accessor="pk",
+        verbose_name=mark_safe('<span class="govuk-visually-hidden">Actions</span>'),
+        orderable=False,
+    )
 
     def render_full_address(self, record: MvAccommodation, value):
         return format_html(
