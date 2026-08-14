@@ -6,21 +6,13 @@ from playwright.sync_api import Page
 
 from browser_tests.pages.home_page import HomePage
 
+from .test_users import USER_TYPES, BrowserTestUserFactory
+
 
 def _verify_config():
-    required_browser_test_params = [
-        "BROWSER_TEST_URL",
-        "BROWSER_TEST_USER_EMAIL",
-        "BROWSER_TEST_USER_PASSWORD",
-    ]
-
-    missing_browser_test_params = [
-        param for param in required_browser_test_params if not os.getenv(param)
-    ]
-
-    if missing_browser_test_params:
+    if not os.getenv("BROWSER_TEST_URL"):
         pytest.exit(
-            f"Missing environment variables: {', '.join(missing_browser_test_params)}",
+            "Missing environment variables: BROWSER_TEST_URL",
             returncode=1,
         )
 
@@ -31,14 +23,43 @@ def pytest_sessionstart(session):
 
 
 @pytest.fixture
-def sign_in_page(page: Page):
-    home_page = HomePage(page)
-    home_page.open()
-    return home_page
+def sign_in_page_factory(page: Page):
+    def create(user_type):
+        home_page = HomePage(page, BrowserTestUserFactory.create(user_type))
+        home_page.open()
+        return home_page
+
+    return create
 
 
 @pytest.fixture
-def home_page(page: Page):
-    home_page = HomePage(page)
-    home_page.sign_in()
-    return home_page
+def home_page_factory(page: Page):
+    def create(user_type):
+        home_page = HomePage(page, BrowserTestUserFactory.create(user_type))
+        home_page.sign_in()
+        return home_page
+
+    return create
+
+
+def create_home_page_fixture(user_type: str):
+    @pytest.fixture
+    def fixture(home_page_factory):
+        return home_page_factory(user_type)
+
+    return fixture
+
+
+def create_sign_in_page_fixture(user_type: str):
+    @pytest.fixture
+    def fixture(sign_in_page_factory):
+        return sign_in_page_factory(user_type)
+
+    return fixture
+
+
+for user_type in USER_TYPES:
+    fixture_param = f"_with_{user_type}_user" if user_type != "default" else ""
+
+    globals()[f"home_page{fixture_param}"] = create_home_page_fixture(user_type)
+    globals()[f"sign_in_page{fixture_param}"] = create_sign_in_page_fixture(user_type)
