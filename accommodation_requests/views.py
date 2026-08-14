@@ -1680,7 +1680,9 @@ class AccommodationTable(tables.Table):
 
     def render_full_address(self, record: MvAccommodation, value):
         return format_html(
-            '<a class="govuk-body-s govuk-link" href="{}" target="_blank">{}</a>',
+            '<a class="govuk-body-s govuk-link" href="{}" '
+            'rel="noreferrer noopener" target="_blank">{} '
+            '<span class="govuk-visually-hidden">(opens in new tab)</span></a>',
             reverse("accommodations:detail-overview", args=[record.id]),
             value,
         )
