@@ -1,12 +1,13 @@
 from axe_playwright_python.sync_playwright import Axe
-from playwright.sync_api import Page
+
+from .pages.share_page import SharePage
 
 WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"]
 
 
-def collect_axe_violations(page: Page, page_name: str) -> str | None:
+def collect_axe_violations(page: SharePage, page_name: str) -> str | None:
     results = Axe().run(
-        page,
+        page.page,
         options={"runOnly": {"type": "tag", "values": WCAG_TAGS}},
     )
 
@@ -19,6 +20,6 @@ def collect_axe_violations(page: Page, page_name: str) -> str | None:
     )
 
 
-def assert_no_axe_violations(page: Page, page_name: str) -> None:
+def assert_no_axe_violations(page: SharePage, page_name: str) -> None:
     report = collect_axe_violations(page, page_name)
     assert report is None, report

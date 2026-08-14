@@ -1,4 +1,5 @@
 import os
+from typing import cast
 
 from playwright.sync_api import Page, expect
 
@@ -8,11 +9,14 @@ from ..test_users import BrowserTestUser
 class SharePage:
     def __init__(self, page: Page, user: BrowserTestUser):
         self.page = page
-        self.base_url = os.environ.get("BROWSER_TEST_URL")
+        self.base_url = cast(str, os.environ.get("BROWSER_TEST_URL")).rstrip("/")
         self.user = user
 
     def open(self):
-        self.page.goto(self.base_url)
+        return self.page.goto(self.base_url)
+
+    def goto(self, path: str):
+        return self.page.goto(self.base_url + path)
 
     def sign_in(self):
         self.page.goto(self.base_url)
@@ -25,11 +29,11 @@ class SharePage:
         self.click_button("Sign in")
 
     def assert_has_heading(self, heading_text):
-        expect(self._page_heading).to_have_text(heading_text)
+        expect(self.page_heading).to_have_text(heading_text)
 
     def assert_has_heading_with_status(self, heading_text, status_text):
-        expect(self._page_heading_with_status_heading).to_have_text(heading_text)
-        expect(self._page_heading_with_status_status).to_have_text(status_text)
+        expect(self.page_heading_with_status_heading).to_have_text(heading_text)
+        expect(self.page_heading_with_status_status).to_have_text(status_text)
 
     def assert_has_secondary_heading(self, heading_text):
         expect(
@@ -54,16 +58,16 @@ class SharePage:
         self.click_link(link_text, element=self.page.locator(".govuk-footer"))
 
     @property
-    def _page_heading(self):
+    def page_heading(self):
         return self.page.get_by_role("heading", level=1)
 
     @property
-    def _page_heading_with_status_heading(self):
-        return self._page_heading.locator("span > span")
+    def page_heading_with_status_heading(self):
+        return self.page_heading.locator("span > span")
 
     @property
-    def _page_heading_with_status_status(self):
-        return self._page_heading.locator("span > strong")
+    def page_heading_with_status_status(self):
+        return self.page_heading.locator("span > strong")
 
     def find_secondary_page_heading(self, heading_text):
         return self.page.get_by_role("heading", level=2, name=heading_text)
