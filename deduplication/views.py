@@ -391,8 +391,9 @@ class ManualSponsorDeduplicationTable(dj_tables.Table):
     created_date = CustomDateTimeColumn(verbose_name="Date added")
     select = Column(
         accessor="pk",
-        verbose_name=mark_safe('<span class="govuk-visually-hidden">Actions</span>'),
+        verbose_name="Actions",
         orderable=False,
+        attrs={"th": {"visually_hidden_header": True}},
     )
 
     def render_full_name(self, record: MvVolunteer, value):
@@ -675,8 +676,9 @@ class ManualGuestDeduplicationTable(dj_tables.Table):
     application_number = Column(verbose_name="Unique Application Number (UAN)")
     select = Column(
         accessor="pk",
-        verbose_name=mark_safe('<span class="govuk-visually-hidden">Actions</span>'),
+        verbose_name="Actions",
         orderable=False,
+        attrs={"th": {"visually_hidden_header": True}},
     )
 
     def render_get_full_name(self, record: MvPerson, value):
@@ -848,8 +850,9 @@ class ManualAccommodationDeduplicationTable(dj_tables.Table, TableRendererMixin)
     utla_name = Column(verbose_name="Upper tier LA")
     select = Column(
         accessor="pk",
-        verbose_name=mark_safe('<span class="govuk-visually-hidden">Actions</span>'),
+        verbose_name="Actions",
         orderable=False,
+        attrs={"th": {"visually_hidden_header": True}},
     )
 
     def render_full_address(self, record: MvAccommodation, value):
@@ -966,8 +969,9 @@ class ManualViewSelectedSponsorsTable(dj_tables.Table):
     created_date = CustomDateTimeColumn(verbose_name="Date added")
     remove = Column(
         accessor="pk",
-        verbose_name=mark_safe('<span class="govuk-visually-hidden">Actions</span>'),
+        verbose_name="Actions",
         orderable=False,
+        attrs={"th": {"visually_hidden_header": True}},
     )
 
     def __init__(self, *args, **kwargs):
@@ -1072,8 +1076,9 @@ class ManualViewSelectedGuestsTable(dj_tables.Table):
     application_number = Column(verbose_name="Unique Application Number (UAN)")
     remove = Column(
         accessor="pk",
-        verbose_name=mark_safe('<span class="govuk-visually-hidden">Actions</span>'),
+        verbose_name="Actions",
         orderable=False,
+        attrs={"th": {"visually_hidden_header": True}},
     )
 
     def __init__(self, *args, **kwargs):
@@ -1174,8 +1179,9 @@ class ManualViewSelectedAccommodationsTable(dj_tables.Table, TableRendererMixin)
     utla_name = Column(verbose_name="Upper tier LA")
     remove = Column(
         accessor="pk",
-        verbose_name=mark_safe('<span class="govuk-visually-hidden">Actions</span>'),
+        verbose_name="Actions",
         orderable=False,
+        attrs={"th": {"visually_hidden_header": True}},
     )
 
     def __init__(self, *args, **kwargs):

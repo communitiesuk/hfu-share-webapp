@@ -20,7 +20,6 @@ from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from django.utils.html import escape, format_html
-from django.utils.safestring import mark_safe
 from django.views.generic import DetailView, FormView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
 from django_filters import (
@@ -1679,8 +1678,9 @@ class AccommodationTable(tables.Table):
     )
     select = Column(
         accessor="pk",
-        verbose_name=mark_safe('<span class="govuk-visually-hidden">Actions</span>'),
+        verbose_name="Actions",
         orderable=False,
+        attrs={"th": {"visually_hidden_header": True}},
     )
 
     def render_full_address(self, record: MvAccommodation, value):
