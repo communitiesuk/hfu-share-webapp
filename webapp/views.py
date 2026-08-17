@@ -2,14 +2,10 @@ import inspect
 import logging
 import os
 from dataclasses import dataclass
-from datetime import datetime, timedelta
 from functools import reduce
 from typing import Any
 
 import django_filters
-from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import Field, Layout
-from crispy_forms_gds.layout.constants import Size
 from django.contrib.auth.decorators import login_not_required
 from django.db.models import ForeignKey, Manager, TextField
 from django.forms import TextInput
@@ -23,12 +19,9 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, TemplateView
 from django_filters import FilterSet, MultipleChoiceFilter
-from django_filters.views import FilterView
 from django_tables2 import (
     Column,
-    LazyPaginator,
     MultiTableMixin,
-    SingleTableMixin,
     tables,
 )
 
@@ -37,8 +30,6 @@ from accounts.models import AccessRequest
 from case_management.settings import STATIC_URL
 from ontology.models import (
     MvAccommodationRequest,
-    MvPerson,
-    PersonMasterRecord,
     ReassignmentRequest,
     VisaApplication,
     VisaInformationRequest,
@@ -47,7 +38,6 @@ from ontology.utils import LinkedRecordData
 from user_management.templatetags.access_request_extras import (
     render_name_label_from_group_info,
 )
-from webapp.columns import GovUkCheckboxColumn
 from webapp.constants import (
     ACCESS_REQUEST_TABLE_COLUMN_ATTRS,
     UNASSIGNED_ACCOMMODATION_REQUESTS_ALLOWED_GROUP_TYPES,
@@ -57,17 +47,11 @@ from webapp.constants import (
     visa_status_some_issued,
 )
 from webapp.mixins import (
-    FilterPanelMixin,
-    PermissionsMixin,
     UserActionsMixin,
 )
 from webapp.utils import (
-    CustomDateColumn,
-    CustomDateFromToRangeFilter,
     CustomDateTimeColumn,
-    CustomRangeFilter,
 )
-from webapp.widgets import DatePicker, InlineRangeInput, StackedRangeInput
 
 logger = logging.getLogger(__name__)
 
@@ -361,233 +345,6 @@ class AccessibilityStatementView(TemplateView):
 class CookiesView(TemplateView):
     # pylint: disable=view-missing-access-control
     template_name = "webapp/pages/cookies/cookies.html"
-
-
-class SuggestedPersonDuplicatesFilter(FilterSet, FilterPanelMixin):
-    applicant_age = CustomRangeFilter(
-        label="Age",
-        widget=InlineRangeInput(attrs={"unit_hint": "years"}),
-        field_name="persons__age",
-        distinct=True,
-        error_messages={
-            "invalid_range": "'Minimum' must be lower than 'Maximum'.",
-        },
-    )
-
-    sex = MultipleChoiceFilter(
-        choices=[
-            ("Male", "Male"),
-            ("Female", "Female"),
-        ],
-        null_label="No data",
-        label="Sex",
-        field_name="persons__gender",
-        widget=CheckboxSelectMultiple(),
-        distinct=True,
-    )
-
-    date_of_birth = CustomDateFromToRangeFilter(
-        label="Date of birth",
-        field_name="persons__date_of_birth",
-        widget=StackedRangeInput(
-            sub_widget=DatePicker,
-            attrs={
-                "from_hint": f"For example "
-                f"{(datetime.today() - timedelta(days=10000)).strftime('%d/%m/%Y')}",
-                "to_hint": f"For example "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%d/%m/%Y')}",
-                "from_label": "Date from",
-                "to_label": "Date to",
-            },
-        ),
-        distinct=True,
-        error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
-        },
-    )
-
-    @property
-    def form(self):
-        form = super().form
-        form.helper = FormHelper()
-        form.helper.layout = Layout(
-            Field(
-                "applicant_age",
-                context={"legend_size": "govuk-fieldset__legend--m"},
-            ),
-            Field.checkboxes("sex", small=True, legend_size=Size.MEDIUM),
-            Field(
-                "date_of_birth",
-                context={
-                    "legend_size": "govuk-fieldset__legend--m",
-                },
-            ),
-        )
-        return form
-
-    class Meta:
-        model = PersonMasterRecord
-        fields = [
-            "persons",
-        ]
-
-
-class ManualPersonDuplicatesFilter(FilterSet, FilterPanelMixin):
-    age = CustomRangeFilter(
-        label="Age",
-        widget=InlineRangeInput(attrs={"unit_hint": "years"}),
-        field_name="age",
-        distinct=True,
-        error_messages={
-            "invalid_range": "'Minimum' must be lower than 'Maximum'.",
-        },
-    )
-
-    sex = MultipleChoiceFilter(
-        choices=[
-            ("Male", "Male"),
-            ("Female", "Female"),
-        ],
-        null_label="No data",
-        label="Sex",
-        field_name="gender",
-        widget=CheckboxSelectMultiple(),
-        distinct=True,
-    )
-
-    date_of_birth = CustomDateFromToRangeFilter(
-        label="Date of birth",
-        field_name="date_of_birth",
-        widget=StackedRangeInput(
-            sub_widget=DatePicker,
-            attrs={
-                "from_hint": f"For example "
-                f"{(datetime.today() - timedelta(days=10000)).strftime('%d/%m/%Y')}",
-                "to_hint": f"For example "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%d/%m/%Y')}",
-                "from_label": "Date from",
-                "to_label": "Date to",
-            },
-        ),
-        distinct=True,
-        error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
-        },
-    )
-
-    @property
-    def form(self):
-        form = super().form
-        form.helper = FormHelper()
-        form.helper.layout = Layout(
-            Field(
-                "age",
-                context={"legend_size": "govuk-fieldset__legend--m"},
-            ),
-            Field.checkboxes("sex", small=True, legend_size=Size.MEDIUM),
-            Field(
-                "date_of_birth",
-                context={
-                    "legend_size": "govuk-fieldset__legend--m",
-                },
-            ),
-        )
-        return form
-
-    class Meta:
-        model = MvPerson
-        fields = [
-            "age",
-            "sex",
-            "date_of_birth",
-        ]
-
-
-class PotentialDuplicateListView(PermissionsMixin, TemplateView):
-    group_type = [
-        GroupType.DEV,
-        GroupType.LOCAL_AUTHORITY,
-        GroupType.DEVOLVED_ADMINISTRATION,
-        GroupType.SERVICE_SUPPORT,
-    ]
-    template_name = "webapp/pages/deduplication/review_potential_duplicate_records.html"
-    table_pagination = {"per_page": os.environ.get("PAGINATION_PAGE_SIZE")}
-    paginator_class = LazyPaginator
-
-
-class PotentialDuplicateGuestSuggestedListView(PermissionsMixin, FilterView):
-    group_type = [
-        GroupType.DEV,
-        GroupType.LOCAL_AUTHORITY,
-        GroupType.DEVOLVED_ADMINISTRATION,
-        GroupType.SERVICE_SUPPORT,
-    ]
-    filterset_class = SuggestedPersonDuplicatesFilter
-    model = PersonMasterRecord
-    table_pagination = {"per_page": os.environ.get("PAGINATION_PAGE_SIZE")}
-    paginator_class = LazyPaginator
-
-    template_name = (
-        "webapp/"
-        "pages/"
-        "deduplication/"
-        "guests/"
-        "review_potential_duplicate_guest_records_suggested.html"
-    )
-
-
-class ManualGuestDeduplicationTable(tables.Table):
-    select = GovUkCheckboxColumn(
-        accessor="id",
-    )
-    full_name = Column(verbose_name="Name", order_by=("first_name", "last_name"))
-    age = Column(verbose_name="Age")
-    gender = Column(verbose_name="Sex")
-    date_of_birth = CustomDateColumn(verbose_name="Date of birth")
-    email = Column(verbose_name="Email address")
-    phone = Column(verbose_name="Phone number")
-
-    def render_email(self, value):
-        return value[0] if value else ""
-
-    def render_phone(self, value):
-        return value[0] if value else ""
-
-    class Meta:
-        model = MvPerson
-        template_name = "webapp/components/tables/table.html"
-        fields = (
-            "select",
-            "full_name",
-            "age",
-            "gender",
-            "date_of_birth",
-            "email",
-            "phone",
-        )
-
-
-class PotentialDuplicateGuestManualListView(
-    PermissionsMixin, SingleTableMixin, FilterView
-):
-    group_type = [
-        GroupType.DEV,
-        GroupType.LOCAL_AUTHORITY,
-        GroupType.DEVOLVED_ADMINISTRATION,
-        GroupType.SERVICE_SUPPORT,
-    ]
-    model = MvPerson
-    table_class = ManualGuestDeduplicationTable
-    filterset_class = ManualPersonDuplicatesFilter
-    table_pagination = {"per_page": os.environ.get("PAGINATION_PAGE_SIZE")}
-    paginator_class = LazyPaginator
-    template_name = (
-        "webapp/"
-        "pages/"
-        "deduplication/"
-        "guests/"
-        "review_potential_duplicate_guest_records_manual.html"
-    )
 
 
 @dataclass
