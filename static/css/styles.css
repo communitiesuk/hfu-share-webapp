@@ -425,7 +425,7 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
 }
 
 .pink-banner .govuk-tag {
-  background-color: #ff2f92;
-  color: white;
+  background-color: #F499BE;
+  color: var(--govuk-text-colour);
   max-width: none;
 }
