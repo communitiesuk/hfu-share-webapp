@@ -389,7 +389,12 @@ class ManualSponsorDeduplicationTable(dj_tables.Table):
     phone_number = Column(verbose_name="Phone number")
     is_eoi = Column(verbose_name="EOI host")
     created_date = CustomDateTimeColumn(verbose_name="Date added")
-    select = Column(accessor="pk", verbose_name="", orderable=False)
+    select = Column(
+        accessor="pk",
+        verbose_name="Actions",
+        orderable=False,
+        attrs={"th": {"visually_hidden_header": True}},
+    )
 
     def render_full_name(self, record: MvVolunteer, value):
         return format_html(
@@ -669,7 +674,12 @@ class ManualGuestDeduplicationTable(dj_tables.Table):
         verbose_name="Latest visa application date"
     )
     application_number = Column(verbose_name="Unique Application Number (UAN)")
-    select = Column(accessor="pk", verbose_name="", orderable=False)
+    select = Column(
+        accessor="pk",
+        verbose_name="Actions",
+        orderable=False,
+        attrs={"th": {"visually_hidden_header": True}},
+    )
 
     def render_get_full_name(self, record: MvPerson, value):
         return format_html(
@@ -838,7 +848,12 @@ class ManualAccommodationDeduplicationTable(dj_tables.Table, TableRendererMixin)
     postcode = Column(verbose_name="Postcode")
     ltla_name = Column(verbose_name="Lower tier LA")
     utla_name = Column(verbose_name="Upper tier LA")
-    select = Column(accessor="pk", verbose_name="", orderable=False)
+    select = Column(
+        accessor="pk",
+        verbose_name="Actions",
+        orderable=False,
+        attrs={"th": {"visually_hidden_header": True}},
+    )
 
     def render_full_address(self, record: MvAccommodation, value):
         return format_html(
@@ -952,7 +967,12 @@ class ManualViewSelectedSponsorsTable(dj_tables.Table):
     phone_number = Column(verbose_name="Phone number")
     is_eoi = Column(verbose_name="EOI host")
     created_date = CustomDateTimeColumn(verbose_name="Date added")
-    remove = Column(accessor="pk", verbose_name="", orderable=False)
+    remove = Column(
+        accessor="pk",
+        verbose_name="Actions",
+        orderable=False,
+        attrs={"th": {"visually_hidden_header": True}},
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1054,7 +1074,12 @@ class ManualViewSelectedGuestsTable(dj_tables.Table):
         verbose_name="Latest visa application date"
     )
     application_number = Column(verbose_name="Unique Application Number (UAN)")
-    remove = Column(accessor="pk", verbose_name="", orderable=False)
+    remove = Column(
+        accessor="pk",
+        verbose_name="Actions",
+        orderable=False,
+        attrs={"th": {"visually_hidden_header": True}},
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1152,7 +1177,12 @@ class ManualViewSelectedAccommodationsTable(dj_tables.Table, TableRendererMixin)
     postcode = Column(verbose_name="Postcode")
     ltla_name = Column(verbose_name="Lower tier LA")
     utla_name = Column(verbose_name="Upper tier LA")
-    remove = Column(accessor="pk", verbose_name="", orderable=False)
+    remove = Column(
+        accessor="pk",
+        verbose_name="Actions",
+        orderable=False,
+        attrs={"th": {"visually_hidden_header": True}},
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

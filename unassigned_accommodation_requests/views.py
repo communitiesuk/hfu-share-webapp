@@ -14,7 +14,6 @@ from django.middleware.csrf import get_token
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.html import format_html
-from django.utils.safestring import mark_safe
 from django.views import View
 from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.detail import SingleObjectMixin
@@ -74,9 +73,10 @@ class UnassignedAccommodationRequestsTable(tables.Table):
         order_by=("postcode_sort_value", "title"),
     )
     hide = Column(
-        verbose_name=mark_safe('<span class="govuk-visually-hidden">Actions</span>'),
+        verbose_name="Actions",
         accessor="id",
         orderable=False,
+        attrs={"th": {"visually_hidden_header": True}},
     )
 
     def render_address(self, record: MvAccommodationRequest):

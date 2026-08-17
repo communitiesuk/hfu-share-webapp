@@ -46,7 +46,9 @@
                                         <th class="{{ column.attrs.th.class }} govuk-table__header"
                                             style="vertical-align: top;
                                                    text-align: left">
-                                            {% if column.orderable %}
+                                            {% if column.attrs.th.visually_hidden_header %}
+                                                <span class="govuk-visually-hidden">{{ column.header }}</span>
+                                            {% elif column.orderable %}
                                                 <a class="govuk-link--no-visited-state govuk-body-s govuk-!-font-weight-bold govuk-!-margin-0"
                                                    href="{% querystring table.prefixed_order_by_field=column.order_by_alias.next %}">{{ column.header }}</a>
                                             {% else %}
