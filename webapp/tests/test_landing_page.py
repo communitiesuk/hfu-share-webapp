@@ -31,7 +31,7 @@ from user_management.tests.base import (
 
 
 def selectable_card_exists(text, html, body=""):
-    pattern = rf'<div[^>]*class="[^"]*govuk-card--selectable[^"]*"[^>]*>.*?{re.escape(text)}.*?{re.escape(body)}.*?</div>'  # noqa: E501
+    pattern = rf'<a[^>]*class="[^"]*moj-card--clickable[^"]*"[^>]*>.*?{re.escape(text)}.*?{re.escape(body)}.*?</a>'  # noqa: E501
     return re.search(pattern, html, re.DOTALL | re.IGNORECASE) is not None
 
 
@@ -637,7 +637,7 @@ class LandingPageFixDuplicateAccommodationTileTests(TestSessionTokenMixin, TestC
 
     def _count_fix_duplicate_tiles(self, html):
         pattern = (
-            r'<div[^>]*class="[^"]*govuk-card--selectable[^"]*"[^>]*>'
+            r'<a[^>]*class="[^"]*moj-card--clickable[^"]*"[^>]*>'
             r".*?Fix duplicate records.*?</div>"
         )
         return len(re.findall(pattern, html, re.DOTALL | re.IGNORECASE))
@@ -722,9 +722,9 @@ class UnassignedAccommodationRequestsBadgeTests(TestSessionTokenMixin, TestCase)
         response = self.client.get(reverse("webapp:landing-page"))
         soup = BeautifulSoup(response.content.decode(), "html.parser")
 
-        for card in soup.find_all("div", class_="govuk-card--selectable"):
+        for card in soup.find_all("a", class_="moj-card--clickable"):
             if card.find("h3").get_text(strip=True) == heading:
-                badge = card.find("span", class_="badge-value")
+                badge = card.find("span", class_="moj-card-badge-value")
                 return badge.get_text(strip=True) if badge else None
 
         return None
