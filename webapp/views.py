@@ -184,10 +184,13 @@ class RejectedAccessRequestsTable(tables.Table):
     )
     rejection_justification = Column(verbose_name="Reason")
     remove = Column(
-        verbose_name="",
+        verbose_name="Actions",
         orderable=False,
         empty_values=(),
-        attrs={"td": {"style": "text-align: right;"}},
+        attrs={
+            "th": {"visually_hidden_header": True},
+            "td": {"style": "text-align: right;"},
+        },
     )
 
     def render_group_info(self, value, record):
