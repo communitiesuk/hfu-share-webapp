@@ -7,16 +7,6 @@ on:
       - 'main'
       - 'release-please--branches--main'
   workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Deployment Environment'
-        required: true
-        default: 'aws-dev'
-        type: choice
-        options:
-          - aws-dev
-          - aws-staging
-          - aws-prod
   merge_group:
 
 defaults:
@@ -32,7 +22,6 @@ jobs:
   poetry-cache-setup:
     name: Poetry Cache Setup
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment || 'aws-dev' }}
 
     steps:
       - name: Check out code
@@ -42,8 +31,8 @@ jobs:
         uses: ./.github/actions/setup-python-poetry
         with:
           role-session-name: BuildAndTest-Lint-${{ github.run_id }}
-          aws-region: ${{ vars.AWS_REGION }}
-          aws-role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          aws-role-to-assume: ${{ secrets.AWS_TESTING_ROLE_TO_ASSUME }}
           aws-codeartifact-account-id: ${{ secrets.AWS_CODEARTIFACT_ACCOUNT_ID }}
           install-tooling: 'false'
 
@@ -51,7 +40,6 @@ jobs:
     name: Lint
     needs: poetry-cache-setup
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment || 'aws-dev' }}
 
     steps:
       - name: Check out code
@@ -61,8 +49,8 @@ jobs:
         uses: ./.github/actions/setup-python-poetry
         with:
           role-session-name: BuildAndTest-Lint-${{ github.run_id }}
-          aws-region: ${{ vars.AWS_REGION }}
-          aws-role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          aws-role-to-assume: ${{ secrets.AWS_TESTING_ROLE_TO_ASSUME }}
           aws-codeartifact-account-id: ${{ secrets.AWS_CODEARTIFACT_ACCOUNT_ID }}
 
       - name: Lint
@@ -75,7 +63,6 @@ jobs:
     name: Migration checks
     needs: poetry-cache-setup
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment || 'aws-dev' }}
     env:
       DB_HOST: 'localhost'
       DB_USERNAME: 'postgres'
@@ -104,8 +91,8 @@ jobs:
         uses: ./.github/actions/setup-python-poetry
         with:
           role-session-name: BuildAndTest-Migrations-${{ github.run_id }}
-          aws-region: ${{ vars.AWS_REGION }}
-          aws-role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          aws-role-to-assume: ${{ secrets.AWS_TESTING_ROLE_TO_ASSUME }}
           aws-codeartifact-account-id: ${{ secrets.AWS_CODEARTIFACT_ACCOUNT_ID }}
 
       - name: Check for un-made migrations
@@ -141,7 +128,6 @@ jobs:
     name: Tests
     needs: poetry-cache-setup
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment || 'aws-dev' }}
     env:
       DB_HOST: 'localhost'
       DB_USERNAME: 'postgres'
@@ -168,8 +154,8 @@ jobs:
         uses: ./.github/actions/setup-python-poetry
         with:
           role-session-name: BuildAndTest-Tests-${{ github.run_id }}
-          aws-region: ${{ vars.AWS_REGION }}
-          aws-role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          aws-role-to-assume: ${{ secrets.AWS_TESTING_ROLE_TO_ASSUME }}
           aws-codeartifact-account-id: ${{ secrets.AWS_CODEARTIFACT_ACCOUNT_ID }}
 
       - name: Test
@@ -183,7 +169,6 @@ jobs:
     name: Test image build
     needs: poetry-cache-setup
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment || 'aws-dev' }}
     steps:
       - name: Check out code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
@@ -191,8 +176,8 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
         with:
-          aws-region: ${{ vars.AWS_REGION }}
-          role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_TESTING_ROLE_TO_ASSUME }}
           role-session-name: TestImageBuild-${{ github.run_id }}
 
       - name: Get CodeArtifact Token
