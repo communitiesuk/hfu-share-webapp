@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.11.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.10.0...2.11.0) (2026-08-18)
+
+
+### Features
+
+* HFURB-3931 updates for GOV.UK Frontend from v5.12 to v6.4 ([#97](https://github.com/communitiesuk/hfu-share-webapp/issues/97)) ([1830632](https://github.com/communitiesuk/hfu-share-webapp/commit/183063214b0083d3e93ba779433c2ac54346983c))
+* update browser tests to allow for different users ([#105](https://github.com/communitiesuk/hfu-share-webapp/issues/105)) ([7cf6f21](https://github.com/communitiesuk/hfu-share-webapp/commit/7cf6f21714c366ed920b00c5f11cd7e649b3d814))
+
+
+### Bug Fixes
+
+* allow the browser test action to be callable ([#98](https://github.com/communitiesuk/hfu-share-webapp/issues/98)) ([4928f8a](https://github.com/communitiesuk/hfu-share-webapp/commit/4928f8ae0875e2842b5c36ba04dcf7fd41044f6b))
+* flaky test in  access requests ([#111](https://github.com/communitiesuk/hfu-share-webapp/issues/111)) ([1102134](https://github.com/communitiesuk/hfu-share-webapp/commit/110213408a9e7783f7b0f35c54cbc2df6e673d7e))
+* HFURB-3983 improve dev banner contrast ([#107](https://github.com/communitiesuk/hfu-share-webapp/issues/107)) ([a4d85a0](https://github.com/communitiesuk/hfu-share-webapp/commit/a4d85a0f215976b70e2704eab5edb4b4844cac10))
+* remove deployment environment inputs ([#112](https://github.com/communitiesuk/hfu-share-webapp/issues/112)) ([d213faa](https://github.com/communitiesuk/hfu-share-webapp/commit/d213faa2ea4be6e8ff5ebf627b06c277d0179830))
+* Remove old dedupe code ([#108](https://github.com/communitiesuk/hfu-share-webapp/issues/108)) ([120e42a](https://github.com/communitiesuk/hfu-share-webapp/commit/120e42a871937c2f8f34d1f84c24cd194791551b))
+* update table column headers to use visually hidden text for accessibility ([#100](https://github.com/communitiesuk/hfu-share-webapp/issues/100)) ([c420cfa](https://github.com/communitiesuk/hfu-share-webapp/commit/c420cfa9f380d98acdfafb67de22c90cd571513d))
+
 ## [2.10.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.9.0...2.10.0) (2026-08-13)
 
 
