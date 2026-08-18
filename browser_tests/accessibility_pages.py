@@ -19,15 +19,6 @@ STATIC_PAGES = [
     ("/deduplication/guests/", "guest deduplication wizard"),
     ("/deduplication/sponsors/", "sponsor deduplication wizard"),
     ("/deduplication/accommodations/", "accommodation deduplication wizard"),
-    ("/review-potential-duplicate-records", "review potential duplicates start page"),
-    (
-        "/review-potential-duplicate-records/guests/manual",
-        "manual guest duplicates page",
-    ),
-    (
-        "/review-potential-duplicate-records/guests/suggested",
-        "suggested guest duplicates page",
-    ),
     ("/user-management/users", "manage people"),
     ("/user-management/groups", "manage groups"),
     ("/user-management/access-requests", "manage access requests"),
