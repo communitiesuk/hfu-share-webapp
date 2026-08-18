@@ -1,6 +1,7 @@
 import re
 
 from bs4 import BeautifulSoup
+from django.contrib.staticfiles.storage import staticfiles_storage
 from django.test import TestCase
 from django.urls import reverse
 
@@ -733,7 +734,7 @@ class TestFaviconRedirect(TestSessionTokenMixin, TestCase):
         self.client.force_login(user)
         response = self.client.get(reverse("webapp:favicon_redirect"))
 
-        target_url = "/static/gds/assets/images/favicon.ico"
+        target_url = staticfiles_storage.url("gds/assets/images/favicon.ico")
 
         self.assertRedirects(
             response, target_url, status_code=302, fetch_redirect_response=False

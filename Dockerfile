@@ -66,6 +66,10 @@ RUN --mount=type=secret,id=codeartifact_token \
     poetry install --no-interaction --without dev; \
 '
 
+# Generate the static files manifest
+RUN python manage.py collectstatic --noinput && \
+    find staticfiles -mindepth 1 -maxdepth 1 ! -name staticfiles.json -exec rm -rf {} +
+
 ### Remove Poetry and its cache
 RUN pip uninstall --yes poetry && rm -rf /tmp/poetry_cache
 
