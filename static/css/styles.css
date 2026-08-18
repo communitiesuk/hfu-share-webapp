@@ -303,7 +303,7 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
 
 .moj-card--clickable {
   background-color: var(--govuk-surface-background-colour);
-  border-bottom-width: 5px
+  border-bottom-width: 6px
 }
 
 .moj-card--clickable:not(:focus) .moj-card__heading {
@@ -323,24 +323,31 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
 }
 
 .moj-card--clickable:hover,
-.moj-card--clickable:active {
+.moj-card--clickable:active,
+.moj-card--clickable:focus {
   background-color: var(--govuk-secondary-text-colour);
   border-bottom-color: var(--govuk-input-border-colour);
-  border-bottom-width: 5px;
+  border-bottom-width: 6px;
 }
 
 .moj-card--clickable:focus {
   outline: 3px solid transparent;
-  color: var(--govuk-focus-text-colour);
-  background-color: var(--govuk-focus-colour);
-  border-bottom-color: var(--govuk-input-border-colour);
+  border: 3px solid var(--govuk-focus-colour);
 }
 
-.moj-card--clickable:hover:not(:focus) .moj-card__heading,
-.moj-card--clickable:hover:not(:focus) .moj-card__description,
-.moj-card--clickable:active:not(:focus) .moj-card__heading,
-.moj-card--clickable:active:not(:focus) .moj-card__description {
+.moj-card--clickable:hover .moj-card__heading,
+.moj-card--clickable:hover .moj-card__description,
+.moj-card--clickable:active .moj-card__heading,
+.moj-card--clickable:active .moj-card__description,
+.moj-card--clickable:focus .moj-card__description {
   color: var(--govuk-inverse-text-colour);
+}
+
+.moj-card--clickable:focus .moj-card__heading {
+  outline: 3px solid transparent;
+  color: var(--govuk-focus-text-colour);
+  background-color: var(--govuk-focus-colour);
+  box-shadow: 0 -2px var(--govuk-focus-colour),0 4px var(--govuk-focus-text-colour);
 }
 
 .moj-card-group {
@@ -439,22 +446,22 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
   z-index: 2;
 }
 
-.moj-card--clickable:hover:not(:focus) .moj-card-badge-circle.moj-card-badge--inactive,
-.moj-card--clickable:active:not(:focus) .moj-card-badge-circle.moj-card-badge--inactive {
+.moj-card--clickable:hover .moj-card-badge-circle.moj-card-badge--inactive,
+.moj-card--clickable:active .moj-card-badge-circle.moj-card-badge--inactive {
   background-color: var(--govuk-body-background-colour);
 }
 
-.moj-card--clickable:hover:not(:focus) .moj-card-badge-circle.moj-card-badge--inactive .moj-card-badge-value,
-.moj-card--clickable:active:not(:focus) .moj-card-badge-circle.moj-card-badge--inactive .moj-card-badge-value {
+.moj-card--clickable:hover .moj-card-badge-circle.moj-card-badge--inactive .moj-card-badge-value,
+.moj-card--clickable:active .moj-card-badge-circle.moj-card-badge--inactive .moj-card-badge-value {
   color: var(--govuk-text-colour);
 }
 
-.moj-card--clickable:focus .moj-card-badge-circle {
-  background-color: var(--govuk-focus-text-colour);
+.moj-card--clickable:focus .moj-card-badge-circle.moj-card-badge--inactive {
+  background-color: var(--govuk-body-background-colour);
 }
 
-.moj-card--clickable:focus .moj-card-badge-circle .moj-card-badge-value {
-  color: var(--govuk-inverse-text-colour);
+.moj-card--clickable:focus .moj-card-badge-circle.moj-card-badge--inactive .moj-card-badge-value {
+  color: var(--govuk-text-colour);
 }
 
 .govuk-\!-secondary-text-colour {
