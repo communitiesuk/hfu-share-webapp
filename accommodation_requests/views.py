@@ -1676,7 +1676,12 @@ class AccommodationTable(tables.Table):
     postcode = Column(
         verbose_name="Postcode", attrs=SELECT_ACCOMMODATION_TABLE_COLUMN_ATTRS
     )
-    select = Column(accessor="pk", verbose_name="", orderable=False)
+    select = Column(
+        accessor="pk",
+        verbose_name="Actions",
+        orderable=False,
+        attrs={"th": {"visually_hidden_header": True}},
+    )
 
     def render_full_address(self, record: MvAccommodation, value):
         return format_html(
