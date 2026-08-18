@@ -8,8 +8,16 @@ from webapp.search import perform_search
 
 class SearchAccessRequestsTestCase(TestCase):
     def setUp(self):
-        self.access_request1 = AccessRequestFactory(requester__first_name="Jennifer")
-        self.access_request2 = AccessRequestFactory(requester__first_name="Emma")
+        self.access_request1 = AccessRequestFactory(
+            requester__first_name="Jennifer",
+            requester__last_name="Smith",
+            requester__email="jennifer.smith@example.com",
+        )
+        self.access_request2 = AccessRequestFactory(
+            requester__first_name="Emma",
+            requester__last_name="Brown",
+            requester__email="emma.brown@example.com",
+        )
 
     def _check_object_in_results(self, obj, results):
         return str(obj.pk) in [str(result.pk) for result in results]
