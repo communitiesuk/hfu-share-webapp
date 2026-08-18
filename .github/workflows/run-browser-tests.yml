@@ -12,9 +12,6 @@ on:
           - accessibility
           - browser and accessibility
   workflow_call:
-  push:
-    branches:
-      - test/axe-core-browser-tests
 
 defaults:
   run:
@@ -61,11 +58,11 @@ jobs:
           source-location-override: hfurb-data-deployments-source-code-bucket-dev/hfu-browser-tests.zip
 
   accessibility-tests:
-    name: Accessibility tests (axe-core)
+    name: Accessibility tests
     runs-on: ubuntu-latest
     environment: aws-dev
     needs: browser-tests
-    if: always() && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'accessibility' || inputs.suite == 'browser and accessibility')))
+    if: always() && github.event_name == 'workflow_dispatch' && (inputs.suite == 'accessibility' || inputs.suite == 'browser and accessibility')
     continue-on-error: true
 
     steps:
