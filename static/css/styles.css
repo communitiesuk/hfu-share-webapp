@@ -265,7 +265,7 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
   max-width: none;
 }
 
-.moj-card {
+.app-card {
   margin-bottom: 40px;
   background: var(--govuk-body-background-colour);
   border-bottom: 6px solid var(--app-brand-colour);
@@ -275,89 +275,89 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
   box-sizing: border-box;
 }
 
-.moj-card__flex-container {
+.app-card__flex-container {
   display: flex;
   flex-wrap: wrap;
   flex-direction: row;
 }
 
-.moj-card__flex-item {
+.app-card__flex-item {
   display: flex;
   overflow: hidden;
   min-width: 0;
 }
 
-.moj-card__heading,
-.moj-card__description {
+.app-card__heading,
+.app-card__description {
   overflow-wrap: break-word;
 }
 
-.moj-card__heading {
+.app-card__heading {
   margin-top: 0;
   margin-bottom: 15px
 }
 
-.moj-card__description {
+.app-card__description {
   margin-bottom: 0
 }
 
-.moj-card--clickable {
+.app-card--clickable {
   background-color: var(--govuk-surface-background-colour);
   border-bottom-width: 6px
 }
 
-.moj-card__link {
+.app-card__link {
   color: var(--govuk-link-colour);
   text-decoration: none;
 }
 
-.moj-card__link:hover,
-.moj-card__link:active {
+.app-card__link:hover,
+.app-card__link:active {
   text-decoration: none;
 }
 
-.moj-card__link::after {
+.app-card__link::after {
   content: "";
   position: absolute;
   inset: 0 0 -6px;
 }
 
-.moj-card--clickable:focus-within:not(:hover) {
+.app-card--clickable:focus-within:not(:hover) {
   background-color: var(--govuk-focus-colour);
   border-bottom-color: var(--govuk-focus-text-colour);
 }
 
-.moj-card--clickable:focus-within:not(:hover) .moj-card__heading,
-.moj-card--clickable:focus-within:not(:hover) .moj-card__description,
-.moj-card--clickable:focus-within:not(:hover) .moj-card__link {
+.app-card--clickable:focus-within:not(:hover) .app-card__heading,
+.app-card--clickable:focus-within:not(:hover) .app-card__description,
+.app-card--clickable:focus-within:not(:hover) .app-card__link {
   color: var(--govuk-focus-text-colour);
 }
 
-.moj-card--clickable:focus-within:not(:hover) .moj-card__link {
+.app-card--clickable:focus-within:not(:hover) .app-card__link {
   box-shadow: none;
 }
 
-.moj-card--clickable:hover,
-.moj-card--clickable:active {
+.app-card--clickable:hover,
+.app-card--clickable:active {
   cursor: pointer;
   background-color: var(--govuk-secondary-text-colour);
   border-bottom-color: var(--govuk-input-border-colour);
   border-bottom-width: 6px;
 }
 
-.moj-card--clickable:hover .moj-card__heading,
-.moj-card--clickable:hover .moj-card__description,
-.moj-card--clickable:active .moj-card__heading,
-.moj-card--clickable:active .moj-card__description {
+.app-card--clickable:hover .app-card__heading,
+.app-card--clickable:hover .app-card__description,
+.app-card--clickable:active .app-card__heading,
+.app-card--clickable:active .app-card__description {
   color: var(--govuk-inverse-text-colour);
 }
 
-.moj-card--clickable:hover .moj-card__link:not(:focus),
-.moj-card--clickable:active .moj-card__link:not(:focus) {
+.app-card--clickable:hover .app-card__link:not(:focus),
+.app-card--clickable:active .app-card__link:not(:focus) {
   color: var(--govuk-inverse-text-colour);
 }
 
-.moj-card-group {
+.app-card-group {
   display: flex;
   flex-wrap: wrap;
   margin-bottom: 15px;
@@ -365,12 +365,12 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
 }
 
 @media(max-width: 48.0525em) {
-  .moj-card-group {
+  .app-card-group {
     margin-bottom:30px
   }
 }
 
-.moj-card-group__item {
+.app-card-group__item {
   /* The min-height is our own style decision  */
   min-height: 220px;
   display: flex;
@@ -379,34 +379,34 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
 }
 
 @media(max-width: 48.0525em) {
-  .moj-card-group__item {
+  .app-card-group__item {
     flex:0 0 100%
   }
 }
 
-.moj-card-group__item .moj-card {
+.app-card-group__item .app-card {
   margin-bottom: 25px
 }
 
 @media(max-width: 48.0525em) {
-  .moj-card-group__item .moj-card {
+  .app-card-group__item .app-card {
     margin-bottom:15px
   }
 
-  .moj-card-group__item:last-child .moj-card {
+  .app-card-group__item:last-child .app-card {
     margin-bottom: 0
   }
 }
 
 /*Card badge*/
-.moj-card-badge-circle.moj-card-badge--active {
+.app-card-badge-circle.app-card-badge--active {
     background-color: var(--govuk-error-colour);
 }
-.moj-card-badge-circle.moj-card-badge--inactive {
+.app-card-badge-circle.app-card-badge--inactive {
     background-color: var(--govuk-secondary-text-colour);
 }
 
-.moj-card-badge-circle {
+.app-card-badge-circle {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -420,7 +420,7 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
   padding: 0;
 }
 
-.moj-card-badge-value {
+.app-card-badge-value {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -433,41 +433,41 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
   user-select: none;
 }
 
-.moj-card-badge-value[data-moj-card-badge-size="compact"] {
+.app-card-badge-value[data-app-card-badge-size="compact"] {
   font-size: 0.79rem;
 }
 
-.moj-card-badge-value[data-moj-card-badge-size="overflow"] {
+.app-card-badge-value[data-app-card-badge-size="overflow"] {
   font-size: 0.65rem;
 }
 
-.moj-card-header {
+.app-card-header {
   display: flex;
   justify-content: flex-start;
 }
 
-.moj-card-badge-container {
+.app-card-badge-container {
   position: absolute;
   top: 25px;
   right: 12px;
   z-index: 2;
 }
 
-.moj-card--clickable:hover .moj-card-badge-circle.moj-card-badge--inactive,
-.moj-card--clickable:active .moj-card-badge-circle.moj-card-badge--inactive {
+.app-card--clickable:hover .app-card-badge-circle.app-card-badge--inactive,
+.app-card--clickable:active .app-card-badge-circle.app-card-badge--inactive {
   background-color: var(--govuk-body-background-colour);
 }
 
-.moj-card--clickable:hover .moj-card-badge-circle.moj-card-badge--inactive .moj-card-badge-value,
-.moj-card--clickable:active .moj-card-badge-circle.moj-card-badge--inactive .moj-card-badge-value {
+.app-card--clickable:hover .app-card-badge-circle.app-card-badge--inactive .app-card-badge-value,
+.app-card--clickable:active .app-card-badge-circle.app-card-badge--inactive .app-card-badge-value {
   color: var(--govuk-text-colour);
 }
 
-.moj-card--clickable:focus .moj-card-badge-circle.moj-card-badge--inactive {
+.app-card--clickable:focus .app-card-badge-circle.app-card-badge--inactive {
   background-color: var(--govuk-body-background-colour);
 }
 
-.moj-card--clickable:focus .moj-card-badge-circle.moj-card-badge--inactive .moj-card-badge-value {
+.app-card--clickable:focus .app-card-badge-circle.app-card-badge--inactive .app-card-badge-value {
   color: var(--govuk-text-colour);
 }
 

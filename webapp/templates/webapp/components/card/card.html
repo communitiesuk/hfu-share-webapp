@@ -1,13 +1,13 @@
-<li class="govuk-grid-column-one-third moj-card-group__item">
-    <div class="moj-card">
-        <h3 class="govuk-heading-m moj-card__heading">{{ heading }}</h3>
-        <p class="govuk-body moj-card__description govuk-!-secondary-text-colour">{{ date }}</p>
+<li class="govuk-grid-column-one-third app-card-group__item">
+    <div class="app-card">
+        <h3 class="govuk-heading-m app-card__heading">{{ heading }}</h3>
+        <p class="govuk-body app-card__description govuk-!-secondary-text-colour">{{ date }}</p>
         {% if type != None %}
-            <p class="govuk-body moj-card__description govuk-!-secondary-text-colour">{{ type }}</p>
+            <p class="govuk-body app-card__description govuk-!-secondary-text-colour">{{ type }}</p>
         {% endif %}
-        <p class="govuk-body moj-card__description govuk-!-padding-top-4">{{ body }}</p>
+        <p class="govuk-body app-card__description govuk-!-padding-top-4">{{ body }}</p>
         {% if link_url != "None" %}
-            <p class="govuk-body moj-card__description govuk-!-padding-top-4">
+            <p class="govuk-body app-card__description govuk-!-padding-top-4">
                 <a class="govuk-body govuk-link" href="{{ link_url }}">{{ link_text|default_if_none:"Read more" }}</a>
             </p>
         {% endif %}

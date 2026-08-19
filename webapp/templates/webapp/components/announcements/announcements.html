@@ -1,6 +1,6 @@
 {% load filters %}
 <h2 class="govuk-heading-l govuk-!-padding-top-6">Announcements</h2>
-<ul class="govuk-grid-row moj-card-group">
+<ul class="govuk-grid-row app-card-group">
     {% for announcement in available_announcements %}
         {% include "webapp/components/card/card.html" with heading=announcement.title date=announcement.publish_at.date|format_date type=announcement.type body=announcement.body link_url=announcement.link|default_if_none:"None" link_text=announcement.link_text %}
     {% endfor %}

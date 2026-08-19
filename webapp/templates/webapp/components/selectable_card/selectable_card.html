@@ -1,17 +1,17 @@
-<li class="govuk-grid-column-one-third moj-card-group__item">
-    <div class="moj-card moj-card--clickable">
-        <div class="moj-card-header">
+<li class="govuk-grid-column-one-third app-card-group__item">
+    <div class="app-card app-card--clickable">
+        <div class="app-card-header">
             <div class="{% if badge_value is not None %} govuk-!-margin-right-4 {% endif %}">
-                <h3 class="govuk-heading-m moj-card__heading">
-                    <a class="govuk-link govuk-link--no-visited-state moj-card__link"
+                <h3 class="govuk-heading-m app-card__heading">
+                    <a class="govuk-link govuk-link--no-visited-state app-card__link"
                        href="{% if target|first in '/' %}{{ target }}{% elif target %}{% url target %}{% if 'deduplication' in target %}?reset=true{% endif %}{% else %}#{% endif %}">{{ heading }}</a>
                 </h3>
             </div>
-            <div class="moj-card-badge-container">
+            <div class="app-card-badge-container">
                 {% if badge_value is not None %}
-                    <div class="moj-card-badge-circle {% if badge_value > 0 %}moj-card-badge--active{% else %}moj-card-badge--inactive{% endif %}">
-                        <span class="moj-card-badge-value"
-                              {% if badge_value >= 1000 %} data-moj-card-badge-size="overflow" {% elif badge_value > 100 %} data-moj-card-badge-size="compact" {% endif %}>
+                    <div class="app-card-badge-circle {% if badge_value > 0 %}app-card-badge--active{% else %}app-card-badge--inactive{% endif %}">
+                        <span class="app-card-badge-value"
+                              {% if badge_value >= 1000 %} data-app-card-badge-size="overflow" {% elif badge_value > 100 %} data-app-card-badge-size="compact" {% endif %}>
                             {% if badge_value >= 1000 %}
                                 999+
                             {% else %}
@@ -22,6 +22,6 @@
                 {% endif %}
             </div>
         </div>
-        <p class="govuk-body moj-card__description">{{ body }}</p>
+        <p class="govuk-body app-card__description">{{ body }}</p>
     </div>
 </li>
