@@ -131,6 +131,11 @@ th.orderable.govuk-table__header:last-child {
     max-width: none;
 }
 
+.app-tag--nowrap {
+  white-space: nowrap;
+  max-width: 100%;
+}
+
 .govuk-notification-banner__heading-error {
   color: #d4351c;
 }

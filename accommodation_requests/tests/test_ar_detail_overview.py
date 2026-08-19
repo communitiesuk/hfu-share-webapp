@@ -204,6 +204,88 @@ class AccommodationRequestDetailOverviewTestCase(
         self.assertIn("Host", fields)
         self.assertIn(self.sponsor_2.get_full_name(), fields["Host"])
 
+    def test_overview_shows_current_host_tag_against_host(self):
+        ar = AccReqFactory(
+            title="Test Access Request",
+            checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
+            active_host=self.sponsor_1,
+        )
+
+        self.client.force_login(get_admin_user())
+        response = self.client.get(
+            reverse(
+                "accommodation-requests:detail-overview",
+                args=[ar.id],
+            )
+        )
+        fields = dict(response.context["fields"])
+
+        self.assertIn(self.sponsor_1.get_full_name(), fields["Host"])
+        self.assertIn("Current host", fields["Host"])
+        self.assertIn("govuk-tag--green", fields["Host"])
+
+    def test_overview_shows_current_host_tag_against_primary_sponsor_fallback(self):
+        ar = AccReqFactory(
+            title="Test Access Request",
+            checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
+            primary_sponsor=self.sponsor_2,
+        )
+
+        self.client.force_login(get_admin_user())
+        response = self.client.get(
+            reverse(
+                "accommodation-requests:detail-overview",
+                args=[ar.id],
+            )
+        )
+        fields = dict(response.context["fields"])
+
+        self.assertIn(self.sponsor_2.get_full_name(), fields["Host"])
+        self.assertIn("Current host", fields["Host"])
+
+    def test_overview_shows_current_accommodation_tag_against_primary_only(self):
+        ar = AccReqFactory(
+            title="Test Access Request",
+            checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
+            accommodation_id=[self.accommodation_one.id, self.accomodation_three.id],
+            primary_accommodation=self.accomodation_three,
+        )
+
+        self.client.force_login(get_admin_user())
+        response = self.client.get(
+            reverse(
+                "accommodation-requests:detail-overview",
+                args=[ar.id],
+            )
+        )
+        fields = dict(response.context["fields"])
+
+        tagged = [
+            value for value in fields["Address"] if "Current accommodation" in value
+        ]
+        self.assertEqual(1, len(tagged))
+        self.assertIn(self.accomodation_three.full_address, tagged[0])
+        self.assertIn("govuk-tag--green", tagged[0])
+        self.assertIn(self.accommodation_one.full_address, fields["Address"])
+
+    def test_overview_shows_no_current_accommodation_tag_without_primary(self):
+        ar = AccReqFactory(
+            title="Test Access Request",
+            checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
+            accommodation_id=[self.accommodation_one.id],
+        )
+
+        self.client.force_login(get_admin_user())
+        response = self.client.get(
+            reverse(
+                "accommodation-requests:detail-overview",
+                args=[ar.id],
+            )
+        )
+        fields = dict(response.context["fields"])
+
+        self.assertEqual([self.accommodation_one.full_address], fields["Address"])
+
     def get_lower_tier_local_authority_value(self, ar):
         response = self.client.get(
             reverse(

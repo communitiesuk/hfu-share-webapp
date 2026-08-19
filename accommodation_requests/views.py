@@ -467,7 +467,16 @@ class AccommodationRequestDetailOverviewView(
             ),
             (
                 "Host",
-                (host := ar.get_host_restrict_for_user(user)) and host.get_full_name(),
+                (host := ar.get_host_restrict_for_user(user))
+                and render_to_string(
+                    "webapp/components/record_tabs/value_with_tag.html",
+                    {
+                        "value": host.get_full_name(),
+                        "tag_text": "Current host",
+                        "tag_colour": "green",
+                        "tag_position": "below",
+                    },
+                ),
             ),
             (
                 (
@@ -495,7 +504,19 @@ class AccommodationRequestDetailOverviewView(
             (
                 "Address",
                 [
-                    accommodation.full_address
+                    (
+                        render_to_string(
+                            "webapp/components/record_tabs/value_with_tag.html",
+                            {
+                                "value": accommodation.full_address,
+                                "tag_text": "Current accommodation",
+                                "tag_colour": "green",
+                                "tag_position": "below",
+                            },
+                        )
+                        if accommodation.id == ar.primary_accommodation_id
+                        else accommodation.full_address
+                    )
                     for accommodation in ar.get_accommodations_restrict_for_user(user)
                 ],
             ),
