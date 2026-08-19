@@ -220,7 +220,7 @@ class DeduplicationSponsorListViewTestCase(TestSessionTokenMixin, TestCase):
             self.multi_la_sponsor.full_name,
         )
 
-    def test_renders_sponsor_with_non_principal_duplicate_accommodation_in_different_ltla(
+    def test_renders_sponsor_with_non_principal_dupe_accommodation_in_different_ltla(
         self,
     ):
         user = get_admin_user()
