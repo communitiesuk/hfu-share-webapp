@@ -483,7 +483,16 @@ class SelectAndReviewRecordsSponsorListStepView(
             super()
             .get_queryset()
             .only(*fields_needed)
-            .annotate(ltla_count=Count("accommodations__ltla_name", distinct=True))
+            .annotate(
+                ltla_count=Count(
+                    "accommodations__ltla_name",
+                    filter=Q(
+                        accommodations__is_principal=True,
+                        accommodations__is_archived=False,
+                    ),
+                    distinct=True,
+                )
+            )
             .filter(
                 ~Q(pk__in=self.selected_sponsor_ids),
                 ltla_count__lte=1,
