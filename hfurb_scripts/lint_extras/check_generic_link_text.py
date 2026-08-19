@@ -7,6 +7,15 @@ from pylint.checkers import BaseChecker
 # reader user browsing a list of links hears only this word, so it must be
 # accompanied by visually hidden text naming the target, e.g.
 #   Remove<span class="govuk-visually-hidden"> John Smith</span>
+#
+# This list also drives webapp/tests/test_link_text_accessibility.py, which
+# scans the templates. Maintaining it:
+#   - words should be lowercase; matching is case insensitive
+#   - multi-word phrases are fine ("download file", "show more", "click here")
+#   - it matches the element's entire text ("open" would not match
+#     "open the record")
+#   - do not add words that are only vague in some contexts, such as "Cancel"
+#     and "Continue": a single Cancel button on a form page is unambiguous
 GENERIC_WORDS = [
     "change",
     "select",
