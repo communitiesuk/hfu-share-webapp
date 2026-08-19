@@ -52,6 +52,7 @@ class DeduplicationSponsorListViewTestCase(TestSessionTokenMixin, TestCase):
         self.somerset_ltla_accommodation = MvAccommodationFactory(
             full_address="Somerset LTLA Address",
             ltla_name="ltla_somerset",
+            is_principal=True,
         )
         self.somerset_ltla_accommodation.hosts.set([self.sponsor.id])
         self.sponsor.accommodations.set([self.somerset_ltla_accommodation.id])
@@ -59,6 +60,7 @@ class DeduplicationSponsorListViewTestCase(TestSessionTokenMixin, TestCase):
         self.other_la_accommodation = MvAccommodationFactory(
             full_address="Other accommodation",
             ltla_name="Other LTLA",
+            is_principal=True,
         )
         self.other_la_accommodation.hosts.set([self.other_la_sponsor])
         self.other_la_sponsor.accommodations.set([self.other_la_accommodation])
@@ -66,11 +68,42 @@ class DeduplicationSponsorListViewTestCase(TestSessionTokenMixin, TestCase):
         self.multi_la_accommodation = MvAccommodationFactory(
             full_address="Multi accommodation",
             ltla_name="Multi LTLA",
+            is_principal=True,
         )
         self.somerset_ltla_accommodation.hosts.set([self.multi_la_sponsor.id])
         self.multi_la_accommodation.hosts.set([self.multi_la_sponsor])
         self.multi_la_sponsor.accommodations.set(
             [self.somerset_ltla_accommodation, self.multi_la_accommodation]
+        )
+
+        self.sponsor_with_duplicate_accommodation = MvVolunteerFactory(
+            first_name="test duplicate",
+            last_name="accommodation",
+            is_principal=True,
+            sponsor_type=MvVolunteer.SponsorType.INDIVIDUAL,
+        )
+
+        self.principal_maldon_accommodation = MvAccommodationFactory(
+            full_address="Maldon Address",
+            ltla_name="Maldon",
+            is_principal=True,
+        )
+        self.duplicate_chelmsford_accommodation = MvAccommodationFactory(
+            full_address="Chelmsford Address",
+            ltla_name="Chelmsford",
+            is_principal=False,
+        )
+        self.principal_maldon_accommodation.hosts.set(
+            [self.sponsor_with_duplicate_accommodation]
+        )
+        self.duplicate_chelmsford_accommodation.hosts.set(
+            [self.sponsor_with_duplicate_accommodation]
+        )
+        self.sponsor_with_duplicate_accommodation.accommodations.set(
+            [
+                self.principal_maldon_accommodation,
+                self.duplicate_chelmsford_accommodation,
+            ]
         )
 
     def test_redirects_to_list_view(self):
@@ -185,6 +218,24 @@ class DeduplicationSponsorListViewTestCase(TestSessionTokenMixin, TestCase):
         self.assertNotContains(
             response,
             self.multi_la_sponsor.full_name,
+        )
+
+    def test_renders_sponsor_with_non_principal_duplicate_accommodation_in_different_ltla(
+        self,
+    ):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse(
+                "deduplication:sponsors:select-and-review-records-manual",
+            ),
+            follow=True,
+        )
+
+        self.assertContains(
+            response,
+            self.sponsor_with_duplicate_accommodation.full_name,
         )
 
     def test_renders_only_ltla_records_matching_selected_sponsor(self):
