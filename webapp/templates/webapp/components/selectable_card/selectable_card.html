@@ -1,9 +1,11 @@
 <li class="govuk-grid-column-one-third moj-card-group__item">
-    <a class="moj-card moj-card--clickable govuk-link--no-underline"
-       href="{% if target|first in '/' %}{{ target }}{% elif target %}{% url target %}{% if 'deduplication' in target %}?reset=true{% endif %}{% else %}#{% endif %}">
+    <div class="moj-card moj-card--clickable">
         <div class="moj-card-header">
             <div class="{% if badge_value is not None %} govuk-!-margin-right-4 {% endif %}">
-                <h3 class="govuk-heading-m moj-card__heading">{{ heading }}</h3>
+                <h3 class="govuk-heading-m moj-card__heading">
+                    <a class="govuk-link govuk-link--no-visited-state moj-card__link"
+                       href="{% if target|first in '/' %}{{ target }}{% elif target %}{% url target %}{% if 'deduplication' in target %}?reset=true{% endif %}{% else %}#{% endif %}">{{ heading }}</a>
+                </h3>
             </div>
             <div class="moj-card-badge-container">
                 {% if badge_value is not None %}
@@ -21,5 +23,5 @@
             </div>
         </div>
         <p class="govuk-body moj-card__description">{{ body }}</p>
-    </a>
+    </div>
 </li>

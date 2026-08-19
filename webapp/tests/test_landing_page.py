@@ -32,7 +32,7 @@ from user_management.tests.base import (
 
 
 def selectable_card_exists(text, html, body=""):
-    pattern = rf'<a[^>]*class="[^"]*moj-card--clickable[^"]*"[^>]*>.*?{re.escape(text)}.*?{re.escape(body)}.*?</a>'  # noqa: E501
+    pattern = rf'<div[^>]*class="[^"]*moj-card--clickable[^"]*"[^>]*>.*?{re.escape(text)}.*?{re.escape(body)}.*?</div>'  # noqa: E501
     return re.search(pattern, html, re.DOTALL | re.IGNORECASE) is not None
 
 

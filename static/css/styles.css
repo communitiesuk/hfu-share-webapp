@@ -306,48 +306,45 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
   border-bottom-width: 6px
 }
 
-.moj-card--clickable:not(:focus) .moj-card__heading {
+.moj-card__link {
   color: var(--govuk-link-colour);
+  text-decoration: none;
+}
+
+.moj-card__link:hover,
+.moj-card__link:active {
+  text-decoration: none;
+}
+
+.moj-card__link::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 -6px;
+}
+
+.moj-card__link:focus::after {
+  outline: 3px solid var(--govuk-focus-colour);
+  outline-offset: -3px;
 }
 
 .moj-card--clickable:hover,
 .moj-card--clickable:active {
-  cursor: pointer
-}
-
-.moj-card--clickable:hover,
-.moj-card--clickable:active,
-.moj-card--clickable:hover:focus,
-.moj-card--clickable:active:focus {
-  text-decoration: none;
-}
-
-.moj-card--clickable:hover,
-.moj-card--clickable:active,
-.moj-card--clickable:focus {
+  cursor: pointer;
   background-color: var(--govuk-secondary-text-colour);
   border-bottom-color: var(--govuk-input-border-colour);
   border-bottom-width: 6px;
 }
 
-.moj-card--clickable:focus {
-  outline: 3px solid transparent;
-  border: 3px solid var(--govuk-focus-colour);
-}
-
 .moj-card--clickable:hover .moj-card__heading,
 .moj-card--clickable:hover .moj-card__description,
 .moj-card--clickable:active .moj-card__heading,
-.moj-card--clickable:active .moj-card__description,
-.moj-card--clickable:focus .moj-card__description {
+.moj-card--clickable:active .moj-card__description {
   color: var(--govuk-inverse-text-colour);
 }
 
-.moj-card--clickable:focus .moj-card__heading {
-  outline: 3px solid transparent;
-  color: var(--govuk-focus-text-colour);
-  background-color: var(--govuk-focus-colour);
-  box-shadow: 0 -2px var(--govuk-focus-colour),0 4px var(--govuk-focus-text-colour);
+.moj-card--clickable:hover .moj-card__link:not(:focus),
+.moj-card--clickable:active .moj-card__link:not(:focus) {
+  color: var(--govuk-inverse-text-colour);
 }
 
 .moj-card-group {
