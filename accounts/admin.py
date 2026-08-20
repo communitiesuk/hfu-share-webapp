@@ -6,7 +6,16 @@ from accounts.models import AccessRequest, GroupInfo, User
 
 
 class CustomUserAdmin(UserAdmin):
-    list_display = ["username", "email", "is_active", "is_staff", "last_login"]
+    list_display = [
+        "username",
+        "email",
+        "is_active",
+        "is_staff",
+        "last_login",
+        "entra_oid",
+        "entra_tid",
+    ]
+    readonly_fields = ["entra_oid", "entra_tid"]
     actions = ["clear_entra_identity"]
 
     @admin.action(description="⚠️ Clear Entra ID")
