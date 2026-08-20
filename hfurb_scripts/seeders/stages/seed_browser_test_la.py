@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from typing import cast
 
 from auditlog.models import LogEntry
+from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
@@ -697,7 +698,7 @@ def _get_browser_test_author() -> User:
     if browser_test_email:
         author = User.objects.filter(email=browser_test_email).first()
         if author:
-            author.groups.add(group)
+            author.groups.set([group])
             return author
 
     author = User.objects.filter(groups=group).order_by("email").first()
@@ -710,7 +711,16 @@ def _get_browser_test_author() -> User:
     return author
 
 
+def browser_test_seeding_allowed() -> bool:
+    return settings.ENVIRONMENT == "dev" or settings.DEBUG
+
+
 def seed_browser_test_la() -> None:
+    if not browser_test_seeding_allowed():
+        raise RuntimeError(
+            "seed_browser_test_la only runs in dev or local environments"
+        )
+
     ltla_name = BROWSER_TEST_LTLA_NAMES[0]
 
     with transaction.atomic():
