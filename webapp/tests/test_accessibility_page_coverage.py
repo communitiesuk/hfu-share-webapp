@@ -1,7 +1,11 @@
 from django.test import SimpleTestCase
 from django.urls import get_resolver
 
-from browser_tests.accessibility_pages import NOT_SCANNABLE, STATIC_PAGES
+from browser_tests.accessibility_pages import (
+    ELEVATED_ACCESS_PAGES,
+    NOT_SCANNABLE,
+    STATIC_PAGES,
+)
 
 SKIPPED_PREFIXES = ("/admin/", "/__debug__/", "/assets/")
 
@@ -26,7 +30,11 @@ def parameterless_paths():
 
 class AccessibilityPageCoverageTest(SimpleTestCase):
     def test_every_parameterless_page_is_axe_scanned_or_excluded(self):
-        covered = {path for path, _ in STATIC_PAGES} | NOT_SCANNABLE
+        covered = (
+            {path for path, _ in STATIC_PAGES}
+            | {path for path, _ in ELEVATED_ACCESS_PAGES}
+            | NOT_SCANNABLE
+        )
         missing = [path for path in parameterless_paths() if path not in covered]
 
         self.assertEqual(
@@ -34,14 +42,19 @@ class AccessibilityPageCoverageTest(SimpleTestCase):
             [],
             "\n\nThese pages are not covered by the axe accessibility browser "
             "tests. Add each one to STATIC_PAGES in "
-            "browser_tests/accessibility_pages.py so it gets scanned, or to "
+            "browser_tests/accessibility_pages.py so it gets scanned, to "
             "NOT_SCANNABLE if it is not a real page (an API endpoint, "
-            "redirect or file download):\n" + "\n".join(missing),
+            "redirect or file download), or to ELEVATED_ACCESS_PAGES "
+            "if only an admin user can access it:\n" + "\n".join(missing),
         )
 
     def test_page_lists_contain_no_stale_paths(self):
         known = set(parameterless_paths())
-        listed = {path for path, _ in STATIC_PAGES} | NOT_SCANNABLE
+        listed = (
+            {path for path, _ in STATIC_PAGES}
+            | {path for path, _ in ELEVATED_ACCESS_PAGES}
+            | NOT_SCANNABLE
+        )
         stale = sorted(listed - known)
 
         self.assertEqual(
