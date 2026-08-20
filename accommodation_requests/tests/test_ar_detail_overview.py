@@ -243,6 +243,25 @@ class AccommodationRequestDetailOverviewTestCase(
         self.assertIn(self.sponsor_2.get_full_name(), fields["Host"])
         self.assertIn("Current host", fields["Host"])
 
+    def test_overview_shows_no_current_host_tag_when_no_host_shown(self):
+        ar = AccReqFactory(
+            title="Test Access Request",
+            checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
+            sponsor_id=[self.sponsor_2.id, self.sponsor_3.id],
+        )
+
+        self.client.force_login(get_admin_user())
+        response = self.client.get(
+            reverse(
+                "accommodation-requests:detail-overview",
+                args=[ar.id],
+            )
+        )
+        fields = dict(response.context["fields"])
+
+        self.assertIsNone(fields["Host"])
+        self.assertNotContains(response, "Current host")
+
     def test_overview_shows_current_accommodation_tag_against_primary_only(self):
         ar = AccReqFactory(
             title="Test Access Request",
@@ -285,6 +304,7 @@ class AccommodationRequestDetailOverviewTestCase(
         fields = dict(response.context["fields"])
 
         self.assertEqual([self.accommodation_one.full_address], fields["Address"])
+        self.assertNotContains(response, "Current accommodation")
 
     def get_lower_tier_local_authority_value(self, ar):
         response = self.client.get(
