@@ -79,6 +79,3 @@ class SharePage:
 
     def assert_page_contains_text(self, text):
         expect(self.page.get_by_text(text).first).to_be_visible()
-
-    def assert_page_does_not_contain_text(self, text):
-        expect(self.page.get_by_text(text)).to_have_count(0)
