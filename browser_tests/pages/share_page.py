@@ -47,11 +47,8 @@ class SharePage:
     def enter_text_into_form_field(self, label: str, text: str):
         self.page.get_by_label(label).fill(text)
 
-    def fill_textarea(self, text):
+    def fill_textarea(self, text: str):
         self.page.locator("textarea").fill(text)
-
-    def select_radio_option(self, label):
-        self.page.get_by_label(label).check()
 
     def enter_text_into_date_field(self, label: str, date: datetime):
         self.page.get_by_label(label).fill(date.strftime("%d/%m/%Y"))
@@ -103,7 +100,7 @@ class SharePage:
     def find_secondary_page_heading(self, heading_text: str) -> Locator:
         return self.page.get_by_role("heading", level=2, name=heading_text)
 
-    def assert_page_contains_text(self, text):
+    def assert_page_contains_text(self, text: str):
         expect(self.page.get_by_text(text).first).to_be_visible()
 
     @property

@@ -9,7 +9,7 @@ class TestRequestAccessJourney(BrowserTest):
         home_page.click_button("Start")
         home_page.assert_has_heading("Select user group")
 
-        home_page.select_radio_option("Home Office operations team")
+        home_page.check_field("Home Office operations team")
         home_page.click_button("Next")
         home_page.assert_has_heading("Tell us why you need access")
 
