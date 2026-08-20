@@ -327,23 +327,19 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
   outline-offset: -3px;
 }
 
-.app-card--clickable:hover,
-.app-card--clickable:active {
+.app-card--clickable:is(:hover, :active) {
   cursor: pointer;
   background-color: var(--govuk-secondary-text-colour);
   border-bottom-color: var(--govuk-input-border-colour);
   border-bottom-width: 6px;
 }
 
-.app-card--clickable:hover .app-card__heading,
-.app-card--clickable:hover .app-card__description,
-.app-card--clickable:active .app-card__heading,
-.app-card--clickable:active .app-card__description {
+.app-card--clickable:is(:hover, :active) .app-card__heading,
+.app-card--clickable:is(:hover, :active) .app-card__description {
   color: var(--govuk-inverse-text-colour);
 }
 
-.app-card--clickable:hover .app-card__link:not(:focus),
-.app-card--clickable:active .app-card__link:not(:focus) {
+.app-card--clickable:is(:hover, :active) .app-card__link:not(:focus) {
   color: var(--govuk-inverse-text-colour);
 }
 
@@ -458,21 +454,11 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
   z-index: 2;
 }
 
-.app-card--clickable:hover .app-card-badge-circle.app-card-badge--inactive,
-.app-card--clickable:active .app-card-badge-circle.app-card-badge--inactive {
+.app-card--clickable:is(:hover, :active):not(:has(.app-card__link:focus-visible)) .app-card-badge-circle.app-card-badge--inactive {
   background-color: var(--govuk-body-background-colour);
 }
 
-.app-card--clickable:hover .app-card-badge-circle.app-card-badge--inactive .app-card-badge-value,
-.app-card--clickable:active .app-card-badge-circle.app-card-badge--inactive .app-card-badge-value {
-  color: var(--govuk-text-colour);
-}
-
-.app-card--clickable:focus .app-card-badge-circle.app-card-badge--inactive {
-  background-color: var(--govuk-body-background-colour);
-}
-
-.app-card--clickable:focus .app-card-badge-circle.app-card-badge--inactive .app-card-badge-value {
+.app-card--clickable:is(:hover, :active):not(:has(.app-card__link:focus-visible)) .app-card-badge-circle.app-card-badge--inactive .app-card-badge-value {
   color: var(--govuk-text-colour);
 }
 
