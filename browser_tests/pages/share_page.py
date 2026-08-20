@@ -14,6 +14,9 @@ class SharePage:
     def open(self):
         self.page.goto(self.base_url)
 
+    def goto_path(self, path):
+        self.page.goto(f"{self.base_url}{path}")
+
     def sign_in(self):
         self.page.goto(self.base_url)
 
@@ -38,6 +41,12 @@ class SharePage:
 
     def enter_text_into_form_field(self, label, text):
         self.page.get_by_label(label).fill(text)
+
+    def fill_textarea(self, text):
+        self.page.locator("textarea").fill(text)
+
+    def select_radio_option(self, label):
+        self.page.get_by_label(label).check()
 
     def click_button(self, button_text):
         self.page.get_by_role("button", name=button_text).click()
@@ -67,3 +76,9 @@ class SharePage:
 
     def find_secondary_page_heading(self, heading_text):
         return self.page.get_by_role("heading", level=2, name=heading_text)
+
+    def assert_page_contains_text(self, text):
+        expect(self.page.get_by_text(text).first).to_be_visible()
+
+    def assert_page_does_not_contain_text(self, text):
+        expect(self.page.get_by_text(text)).to_have_count(0)
