@@ -1,11 +1,32 @@
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
+from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
+from ontology.mixins import LocalAuthorityPermissionsManagerMixin
 from ontology.models.MvPerson import MvPerson
 
 
+class SafeguardingReferralManager(
+    LocalAuthorityPermissionsManagerMixin, models.Manager
+):
+    def _filter_by_ltla_name(self, ltla_names: list[str]) -> Q:
+        return Q(person__accommodation_request__ltla_name__overlap=ltla_names) & ~Q(
+            person__accommodation_request__ltla_name__contained_by=[]
+        )
+
+    def _filter_by_utla_name(self, utla_names: list[str]) -> Q:
+        return Q(person__accommodation_request__utla_name__overlap=utla_names) & ~Q(
+            person__accommodation_request__utla_name__contained_by=[]
+        )
+
+    def _filter_by_viewer_group_name(self, viewer_group_names: list[str]) -> Q:
+        return Q(viewer_group_names__overlap=viewer_group_names)
+
+
 class SafeguardingReferral(models.Model):
+    objects = SafeguardingReferralManager()
+
     class AlertedStatus(models.TextChoices):
         ALERTED = ("Alerted", _("Alerted"))
         NOT_ALERTED = ("Not Alerted", _("Not Alerted"))
