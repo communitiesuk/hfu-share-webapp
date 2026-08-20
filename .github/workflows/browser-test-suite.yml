@@ -1,0 +1,58 @@
+name: Browser Test Suite
+
+on:
+  workflow_call:
+    inputs:
+      build-artifact:
+        description: Flag to indicate if the artifact needs to be built
+        default: true
+        type: boolean
+      suite:
+        description: Which test suite to run (browser or accessibility)
+        required: true
+        type: string
+
+defaults:
+  run:
+    shell: bash
+
+# Required for OIDC with AWS
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: browser-tests-${{ inputs.suite }}
+  cancel-in-progress: false
+
+jobs:
+  upload-artifact:
+    name: Upload artifact to S3
+    if: inputs.build-artifact
+    uses: ./.github/workflows/upload-artifact-for-browser-test.yml
+
+  run-suite:
+    name: Run ${{ inputs.suite }} tests
+    runs-on: ubuntu-latest
+    environment: aws-dev
+
+    needs: upload-artifact
+    if: ${{ always() && (needs.upload-artifact.result == 'success' || needs.upload-artifact.result == 'skipped') }}
+
+    steps:
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
+        with:
+          aws-region: ${{ vars.AWS_REGION }}
+          role-to-assume: ${{ vars.AWS_CODEBUILD_ROLE_TO_ASSUME }}
+          role-session-name: BrowserTests-${{ github.run_id }}
+
+      - name: Run tests in CodeBuild
+        uses: aws-actions/aws-codebuild-run-build@7e46c3fa1c1f217e26a73712796b1f78938b534b # v1.0.19
+        env:
+          BROWSER_TEST_SUITE: ${{ inputs.suite }}
+        with:
+          project-name: hfu-browser-tests-codebuild-dev
+          source-type-override: S3
+          source-location-override: hfurb-data-deployments-source-code-bucket-dev/hfu-browser-tests.zip
+          env-vars-for-codebuild: BROWSER_TEST_SUITE

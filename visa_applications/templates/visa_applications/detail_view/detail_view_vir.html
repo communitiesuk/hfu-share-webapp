@@ -19,7 +19,7 @@
             {% endif %}
             {% if user_can_reopen_vir %}
                 <a href="{% url 'visa-applications:reopen-vir-confirm' latest_vir.visa_application.visa_application_id %}"
-                   class="govuk-button">Re-open</a>
+                   class="govuk-button">Re-open<span class="govuk-visually-hidden">visa information request</span></a>
             {% endif %}
             {% with latest_comments=conversations|get_item:latest_vir.visa_information_request_id %}
                 {% include "visa_applications/detail_view/vir/vir_comments_list.html" with comments=latest_comments %}

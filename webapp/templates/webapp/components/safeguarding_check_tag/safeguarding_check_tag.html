@@ -7,21 +7,17 @@
     <span>{{ associated_entity }}</span>
     {% if user_can_add_update and check and obj %}
         <a class="govuk-link govuk-link--no-visited-state govuk-!-margin-left-2"
-           href="{% url 'accommodation-requests:update-safeguarding-checks' obj %}?dev_check_v2_id={{ check }}">Edit</a>
+           href="{% url 'accommodation-requests:update-safeguarding-checks' obj %}?dev_check_v2_id={{ check }}">Edit<span class="govuk-visually-hidden"> {{ check_type_label|default:"safeguarding" }} check for {{ associated_entity }}</span></a>
     {% endif %}
 </div>
 {% if not safeguarding_check_status|safeguarding_check_status_is_not_started %}
-    <strong class="govuk-tag govuk-tag--{{ safeguarding_check_status|safeguarding_check_status_to_tag_colour }} govuk-!-margin-bottom-1"
-            style="white-space: nowrap;
-                   max-width: 100%">
+    <strong class="govuk-tag govuk-tag--{{ safeguarding_check_status|safeguarding_check_status_to_tag_colour }} govuk-!-margin-bottom-1 app-tag--nowrap">
     {% endif %}
     {{ safeguarding_check_status|safeguarding_check_status_to_tag_text }}
     {% if not safeguarding_check_status|safeguarding_check_status_is_not_started %}</strong>{% endif %}
 {% if check_subtype %}
     {% if display_check_subtype_as_tag %}
-        <strong class="govuk-tag govuk-tag--grey govuk-!-margin-bottom-1"
-                style="white-space: nowrap;
-                       max-width: 100%">{{ check_subtype }}</strong>
+        <strong class="govuk-tag govuk-tag--grey govuk-!-margin-bottom-1 app-tag--nowrap">{{ check_subtype }}</strong>
     {% else %}
         <div class="govuk-hint govuk-!-margin-top-3 govuk-!-margin-bottom-1">{{ check_subtype }}</div>
     {% endif %}

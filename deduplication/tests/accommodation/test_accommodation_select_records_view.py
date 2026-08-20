@@ -1,4 +1,4 @@
-from django.test import TestCase, override_settings
+from django.test import TestCase
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
@@ -131,38 +131,19 @@ class DeduplicationAccommodationWizardAccessTests(TestSessionTokenMixin, TestCas
         response = self._follow_wizard_entry(get_admin_user())
         self.assertEqual(response.status_code, 200)
 
-    @override_settings(FIX_DUPLICATE_RECORDS_ENABLED=False)
-    def test_flag_off_dev_user_can_still_access_accommodation_wizard(self):
-        response = self._follow_wizard_entry(get_admin_user())
-        self.assertEqual(response.status_code, 200)
-
-    @override_settings(FIX_DUPLICATE_RECORDS_ENABLED=True)
-    def test_flag_on_la_user_can_access_accommodation_wizard(self):
+    def test_la_user_can_access_accommodation_wizard(self):
         response = self._follow_wizard_entry(get_la_user())
         self.assertEqual(response.status_code, 200)
 
-    @override_settings(FIX_DUPLICATE_RECORDS_ENABLED=False)
-    def test_flag_off_la_user_cannot_access_accommodation_wizard(self):
-        response = self._get_wizard_entry(get_la_user())
-        self.assertEqual(response.status_code, 403)
-
-    @override_settings(FIX_DUPLICATE_RECORDS_ENABLED=True)
-    def test_flag_on_da_user_can_access_accommodation_wizard(self):
+    def test_da_user_can_access_accommodation_wizard(self):
         response = self._follow_wizard_entry(get_da_user())
         self.assertEqual(response.status_code, 200)
 
-    @override_settings(FIX_DUPLICATE_RECORDS_ENABLED=True)
-    def test_flag_on_mhclg_user_can_access_accommodation_wizard(self):
+    def test_mhclg_user_can_access_accommodation_wizard(self):
         response = self._follow_wizard_entry(get_mhclg_user())
         self.assertEqual(response.status_code, 200)
 
-    @override_settings(FIX_DUPLICATE_RECORDS_ENABLED=False)
-    def test_flag_off_mhclg_user_cannot_access_accommodation_wizard(self):
-        response = self._get_wizard_entry(get_mhclg_user())
-        self.assertEqual(response.status_code, 403)
-
-    @override_settings(FIX_DUPLICATE_RECORDS_ENABLED=True)
-    def test_flag_on_service_support_user_can_access_accommodation_wizard(self):
+    def test_service_support_user_can_access_accommodation_wizard(self):
         response = self._follow_wizard_entry(get_service_support_user())
         self.assertEqual(response.status_code, 200)
 

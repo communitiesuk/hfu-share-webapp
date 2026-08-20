@@ -80,6 +80,20 @@ def test_parallel():
 
 
 def test_browser():
+    suite = os.environ.get("BROWSER_TEST_SUITE", "default")
+    marker = (
+        "browser and accessibility"
+        if suite == "accessibility"
+        else "browser and not accessibility"
+    )
+    _run_browser_tests(marker)
+
+
+def test_browser_accessibility():
+    _run_browser_tests("browser and accessibility")
+
+
+def _run_browser_tests(marker: str):
     try:
         test_args = sys.argv[1:]
 
@@ -88,6 +102,8 @@ def test_browser():
                 "pytest",
                 "-c",
                 "browser_tests/pytest.ini",
+                "-m",
+                marker,
             ]
             + (test_args if test_args else ["browser_tests"]),
             check=True,

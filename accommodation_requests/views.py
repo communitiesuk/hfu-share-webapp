@@ -467,7 +467,16 @@ class AccommodationRequestDetailOverviewView(
             ),
             (
                 "Host",
-                (host := ar.get_host_restrict_for_user(user)) and host.get_full_name(),
+                (host := ar.get_host_restrict_for_user(user))
+                and render_to_string(
+                    "webapp/components/record_tabs/value_with_tag.html",
+                    {
+                        "value": host.get_full_name(),
+                        "tag_text": "Current host",
+                        "tag_colour": "green",
+                        "tag_position": "below",
+                    },
+                ),
             ),
             (
                 (
@@ -495,7 +504,19 @@ class AccommodationRequestDetailOverviewView(
             (
                 "Address",
                 [
-                    accommodation.full_address
+                    (
+                        render_to_string(
+                            "webapp/components/record_tabs/value_with_tag.html",
+                            {
+                                "value": accommodation.full_address,
+                                "tag_text": "Current accommodation",
+                                "tag_colour": "green",
+                                "tag_position": "below",
+                            },
+                        )
+                        if accommodation.id == ar.primary_accommodation_id
+                        else accommodation.full_address
+                    )
                     for accommodation in ar.get_accommodations_restrict_for_user(user)
                 ],
             ),
@@ -1685,23 +1706,27 @@ class AccommodationTable(tables.Table):
 
     def render_full_address(self, record: MvAccommodation, value):
         return format_html(
-            '<a class="govuk-body-s govuk-link" href="{}" target="_blank">{}</a>',
+            '<a class="govuk-body-s govuk-link" href="{}" '
+            'rel="noreferrer noopener" target="_blank">{} '
+            '<span class="govuk-visually-hidden">(opens in new tab)</span></a>',
             reverse("accommodations:detail-overview", args=[record.id]),
             value,
         )
 
-    def render_select(self, value):
+    def render_select(self, value, record):
         return format_html(
             '<form method="post">'
             "{management_form}"
             '<input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}"/>'
             '<input type="hidden" name="select_accommodation-accommodation" '
             'id="id_select_accommodation-accommodation" value="{value}"/>'
-            '<button type="submit" name="submit" class="govuk-link">Select</button>'
+            '<button type="submit" name="submit" class="govuk-link">Select'
+            '<span class="govuk-visually-hidden"> {record_name}</span></button>'
             "</form>",
             management_form=self.context["wizard"]["management_form"],
             value=value,
             csrf_token=get_token(self.request),
+            record_name=record.full_address,
         )
 
     class Meta:

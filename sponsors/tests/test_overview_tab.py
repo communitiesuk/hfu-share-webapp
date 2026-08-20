@@ -407,7 +407,11 @@ class SponsorsLinkedRecordsTestCase(
             )
         )
 
-        self.assertContains(response, "Change", html=True)
+        self.assertContains(
+            response,
+            'Change<span class="govuk-visually-hidden">record details</span>',
+            html=True,
+        )
 
         response = self.client.get(
             reverse(
@@ -416,7 +420,11 @@ class SponsorsLinkedRecordsTestCase(
             )
         )
 
-        self.assertNotContains(response, "Change", html=True)
+        self.assertNotContains(
+            response,
+            'Change<span class="govuk-visually-hidden">record details</span>',
+            html=True,
+        )
 
     def test_duplicate_label_renders_for_duplicate_sponsors_only(
         self,

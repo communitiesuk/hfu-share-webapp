@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.12.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.11.0...2.12.0) (2026-08-20)
+
+
+### Features
+
+* add accessibility tests and update browser test workflow ([#102](https://github.com/communitiesuk/hfu-share-webapp/issues/102)) ([eb4ef77](https://github.com/communitiesuk/hfu-share-webapp/commit/eb4ef771dc2ea2b52ceaa815b5d0c66f2e40048a))
+* HFURB-3410 enable guest deduplication for LA EAs ([#75](https://github.com/communitiesuk/hfu-share-webapp/issues/75)) ([ef2f550](https://github.com/communitiesuk/hfu-share-webapp/commit/ef2f550500f5c40cd78f2ddac8acab61baf9bdf6))
+
+
+### Bug Fixes
+
+* change Dockerfile.local to not install dev dependancies ([#113](https://github.com/communitiesuk/hfu-share-webapp/issues/113)) ([6a2968f](https://github.com/communitiesuk/hfu-share-webapp/commit/6a2968f1e7c3c0a63814c859a8f5193866f9c9c1))
+* ensure sponsor multi-la calculation excludes duplicate or archived records (HFURB-4062) ([#119](https://github.com/communitiesuk/hfu-share-webapp/issues/119)) ([7f9a92f](https://github.com/communitiesuk/hfu-share-webapp/commit/7f9a92f3a28947384b84e4c979180809e5774d96))
+
 ## [2.11.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.10.0...2.11.0) (2026-08-18)
 
 

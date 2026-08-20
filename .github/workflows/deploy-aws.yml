@@ -104,7 +104,7 @@ jobs:
 
       - name: Collect static files
         run: |
-          poetry run python manage.py collectstatic
+          poetry run python manage.py collectstatic --noinput
         continue-on-error: false
 
       - name: Get timestamp
@@ -114,6 +114,11 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@183a1442edf41672e66566b7fc560e297a290896  # v2.1.1
+
+      - name: Deploy static files
+        id: deploy-static-files
+        run: |
+          aws s3 sync ./staticfiles s3://${{ vars.STATIC_FILES_S3_BUCKET }}/static --cache-control "public,max-age=31536000,immutable"
 
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
@@ -169,11 +174,6 @@ jobs:
           aws ecs wait services-stable --cluster ${{ vars.ECS_CLUSTER }} \
           --services ${{ vars.ECS_SERVICE }}
 
-      - name: Deploy static files
-        id: deploy-static-files
-        run: |
-          aws s3 sync --delete ./staticfiles s3://${{ vars.STATIC_FILES_S3_BUCKET }}/static
-
   notify_slack_about_a_deployment:
     name: Notify Slack
     needs: [ deploy ]
@@ -195,4 +195,6 @@ jobs:
     if: |
       github.event_name == 'push' ||
       inputs.environment == 'aws-dev'
-    uses: ./.github/workflows/run-browser-tests.yml
+    uses: ./.github/workflows/browser-test-suite.yml
+    with:
+      suite: browser

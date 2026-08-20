@@ -64,11 +64,6 @@ ENHANCED_DEDUPLICATION_LOGGING = (
     os.environ.get("ENHANCED_DEDUPLICATION_LOGGING", "False") == "True"
 )
 
-# Feature flag to control visibility of fix duplicate records feature to non-admin users
-FIX_DUPLICATE_RECORDS_ENABLED = (
-    os.environ.get("FIX_DUPLICATE_RECORDS_ENABLED", "True") == "True"
-)
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -244,6 +239,13 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# Enable asset fingerprinting
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.ManifestStaticFilesStorage",
+    },
+}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

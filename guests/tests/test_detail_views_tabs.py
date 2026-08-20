@@ -9,6 +9,7 @@ from ontology.tests.factories import (
 from user_management.tests.base import (
     get_admin_user,
     get_da_user,
+    get_la_early_adopter_user,
     get_la_user,
     get_mhclg_user,
     get_service_support_user,
@@ -205,6 +206,28 @@ class GuestsDetailViewsTabsTestCase(TestSessionTokenMixin, TestCase):
             self.assertContains(response, "Linked records")
             self.assertContains(response, "Properties")
             self.assertNotContains(response, "Actions")
+
+    def test_on_each_view_actions_tab_does_render_for_la_ea_user(
+        self,
+    ):
+        user = get_la_early_adopter_user()
+        self.client.force_login(user)
+
+        for tab_url in self.guest_detail_views_tab_urls:
+            if tab_url == "guests:detail-actions" or tab_url == "guests:detail-history":
+                continue
+
+            response = self.client.get(
+                reverse(
+                    tab_url,
+                    args=[self.ltla_guest.pk],
+                )
+            )
+
+            self.assertContains(response, "Overview")
+            self.assertContains(response, "Linked records")
+            self.assertContains(response, "Properties")
+            self.assertContains(response, "Actions")
 
     def test_on_each_view_actions_tab_does_not_render_for_da_user(
         self,

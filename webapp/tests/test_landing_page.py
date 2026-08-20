@@ -1,7 +1,8 @@
 import re
 
 from bs4 import BeautifulSoup
-from django.test import TestCase, override_settings
+from django.contrib.staticfiles.storage import staticfiles_storage
+from django.test import TestCase
 from django.urls import reverse
 
 from accounts.enums import GroupType
@@ -642,8 +643,7 @@ class LandingPageFixDuplicateAccommodationTileTests(TestSessionTokenMixin, TestC
         )
         return len(re.findall(pattern, html, re.DOTALL | re.IGNORECASE))
 
-    @override_settings(FIX_DUPLICATE_RECORDS_ENABLED=True)
-    def test_flag_on_la_user_sees_tile(self):
+    def test_la_user_sees_tile(self):
         html = self._get_landing_html(get_la_user())
         self.assertEqual(self._count_fix_duplicate_tiles(html), 1)
         self.assertTrue(
@@ -652,8 +652,7 @@ class LandingPageFixDuplicateAccommodationTileTests(TestSessionTokenMixin, TestC
             )
         )
 
-    @override_settings(FIX_DUPLICATE_RECORDS_ENABLED=True)
-    def test_flag_on_da_user_sees_tile(self):
+    def test_da_user_sees_tile(self):
         html = self._get_landing_html(get_da_user())
         self.assertEqual(self._count_fix_duplicate_tiles(html), 1)
         self.assertTrue(
@@ -662,17 +661,14 @@ class LandingPageFixDuplicateAccommodationTileTests(TestSessionTokenMixin, TestC
             )
         )
 
-    @override_settings(FIX_DUPLICATE_RECORDS_ENABLED=True)
-    def test_flag_on_mhclg_user_sees_tile(self):
+    def test_mhclg_user_sees_tile(self):
         html = self._get_landing_html(get_mhclg_user())
         self.assertEqual(self._count_fix_duplicate_tiles(html), 1)
 
-    @override_settings(FIX_DUPLICATE_RECORDS_ENABLED=True)
-    def test_flag_on_service_support_user_sees_tile(self):
+    def test_service_support_user_sees_tile(self):
         html = self._get_landing_html(get_service_support_user())
         self.assertEqual(self._count_fix_duplicate_tiles(html), 1)
 
-    @override_settings(FIX_DUPLICATE_RECORDS_ENABLED=False)
     def test_dev_user_sees_tile_with_guests_body_text(self):
         html = self._get_landing_html(get_admin_user())
         self.assertEqual(self._count_fix_duplicate_tiles(html), 1)
@@ -680,39 +676,6 @@ class LandingPageFixDuplicateAccommodationTileTests(TestSessionTokenMixin, TestC
             selectable_card_exists(
                 "Fix duplicate records", html, self.TILE_BODY_WITH_GUESTS
             )
-        )
-
-
-@override_settings(FIX_DUPLICATE_RECORDS_ENABLED=False)
-class FixDuplicateRecordsFeatureDisabledTests(TestSessionTokenMixin, TestCase):
-    def get_landing_page_response(self, user):
-        self.client.force_login(user)
-        return self.client.get(reverse("webapp:landing-page"))
-
-    def test_la_user_cannot_see_fix_duplicate_records_tile(self):
-        self.assertNotContains(
-            self.get_landing_page_response(get_la_user()), "Fix duplicate records"
-        )
-
-    def test_da_user_cannot_see_fix_duplicate_records_tile(self):
-        self.assertNotContains(
-            self.get_landing_page_response(get_da_user()), "Fix duplicate records"
-        )
-
-    def test_mhclg_user_cannot_see_fix_duplicate_records_tile(self):
-        self.assertNotContains(
-            self.get_landing_page_response(get_mhclg_user()), "Fix duplicate records"
-        )
-
-    def test_service_support_user_cannot_see_fix_duplicate_records_tile(self):
-        self.assertNotContains(
-            self.get_landing_page_response(get_service_support_user()),
-            "Fix duplicate records",
-        )
-
-    def test_dev_user_can_always_see_fix_duplicate_records_tile(self):
-        self.assertContains(
-            self.get_landing_page_response(get_admin_user()), "Fix duplicate records"
         )
 
 
@@ -771,7 +734,7 @@ class TestFaviconRedirect(TestSessionTokenMixin, TestCase):
         self.client.force_login(user)
         response = self.client.get(reverse("webapp:favicon_redirect"))
 
-        target_url = "/static/gds/assets/images/favicon.ico"
+        target_url = staticfiles_storage.url("gds/assets/images/favicon.ico")
 
         self.assertRedirects(
             response, target_url, status_code=302, fetch_redirect_response=False

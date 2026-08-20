@@ -7,6 +7,7 @@ from typing import Any
 
 import django_filters
 from django.contrib.auth.decorators import login_not_required
+from django.contrib.staticfiles.storage import staticfiles_storage
 from django.db.models import ForeignKey, Manager, TextField
 from django.forms import TextInput
 from django.forms.widgets import CheckboxSelectMultiple
@@ -27,7 +28,6 @@ from django_tables2 import (
 
 from accounts.enums import GroupType
 from accounts.models import AccessRequest
-from case_management.settings import STATIC_URL
 from ontology.models import (
     MvAccommodationRequest,
     ReassignmentRequest,
@@ -58,7 +58,9 @@ logger = logging.getLogger(__name__)
 
 @login_not_required
 def favicon_redirect(request: HttpRequest):
-    return HttpResponseRedirect(STATIC_URL + "gds/assets/images/favicon.ico")
+    return HttpResponseRedirect(
+        staticfiles_storage.url("gds/assets/images/favicon.ico")
+    )
 
 
 def combine_visa_statuses(status_names: list[str]) -> VisaStatus:
@@ -195,10 +197,13 @@ class RejectedAccessRequestsTable(tables.Table):
             '<input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}">'
             '<button type="submit" class="govuk-link govuk-link--no-visited-state">'
             "Remove"
+            '<span class="govuk-visually-hidden"> rejected request '
+            "{request_name}</span>"
             "</button>"
             "</form>",
             action_url=action_url,
             csrf_token=csrf_token,
+            request_name=render_name_label_from_group_info(record.group_info),
         )
 
     class Meta:
@@ -594,9 +599,11 @@ class LinkAction(Action):
         super().__init__(
             label=label,
             value=format_html(
-                '<a href="{url}" class="govuk-link--no-visited-state">{url_text}</a>',
+                '<a href="{url}" class="govuk-link--no-visited-state">{url_text}'
+                '<span class="govuk-visually-hidden"> {label}</span></a>',
                 url=url,
                 url_text=url_text,
+                label=label,
             )
             if url
             else "",

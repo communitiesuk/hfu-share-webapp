@@ -1,6 +1,5 @@
+from django.contrib.staticfiles.storage import staticfiles_storage
 from django.test import TestCase
-
-from case_management.settings import STATIC_URL
 
 
 class FaviconAuthBypassTest(TestCase):
@@ -15,7 +14,7 @@ class FaviconAuthBypassTest(TestCase):
         self.assertEqual(response.status_code, 302)
 
         # redirect should be to static asset, not login endpoint or anywhere else
-        expected_static_url = STATIC_URL + "gds/assets/images/favicon.ico"
+        expected_static_url = staticfiles_storage.url("gds/assets/images/favicon.ico")
         self.assertEqual(response.url, expected_static_url)
 
         # auth flow puts some stuff into the session

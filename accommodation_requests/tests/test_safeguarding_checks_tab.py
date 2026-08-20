@@ -434,9 +434,10 @@ class TestAccommodationRequestsSafeguardChecksTab(
 
         self.assertContains(response, "Guests have arrived in their accommodation")
 
-        # assert title shows up twice, once for each check
+        # assert title shows up four times: once for each check, plus once in
+        # each check's visually hidden Edit link text
         self.assertContains(
-            response, self.safeguarding_checks_accomodation_request.group.title, count=2
+            response, self.safeguarding_checks_accomodation_request.group.title, count=4
         )
 
     def test_shows_guest_has_arrived_check_for_merged_groups(self):
@@ -467,7 +468,7 @@ class TestAccommodationRequestsSafeguardChecksTab(
         )
 
         self.assertContains(response, "Guests have arrived in their accommodation")
-        self.assertContains(response, child_group_1.title, count=2)
+        self.assertContains(response, child_group_1.title, count=4)
 
     def test_wont_show_audit_information_for_checks_no_user_or_date(self):
         self.client.force_login(get_admin_user())
