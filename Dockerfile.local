@@ -53,7 +53,7 @@ COPY --chown=appuser:appuser manage.py /usr/src/app/
 
 # Install dependencies
 RUN poetry lock
-RUN poetry install --no-interaction --no-ansi
+RUN poetry install --no-interaction --no-ansi --without dev
 
 ### Remove Poetry and its cache
 RUN pip uninstall --yes poetry && rm -rf /tmp/poetry_cache
