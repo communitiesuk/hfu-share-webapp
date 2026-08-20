@@ -3,7 +3,7 @@ from .base import BrowserTest
 
 class TestRequestAccessJourney(BrowserTest):
     def test_request_access_journey_and_pending_status(self, home_page):
-        home_page.goto_path("/request-access/intro")
+        home_page.click_link("Request access")
         home_page.assert_has_heading("Request access to data")
 
         home_page.click_button("Start")

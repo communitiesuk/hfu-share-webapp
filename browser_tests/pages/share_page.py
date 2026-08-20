@@ -14,9 +14,6 @@ class SharePage:
     def open(self):
         self.page.goto(self.base_url)
 
-    def goto_path(self, path):
-        self.page.goto(f"{self.base_url}{path}")
-
     def sign_in(self):
         self.page.goto(self.base_url)
 
