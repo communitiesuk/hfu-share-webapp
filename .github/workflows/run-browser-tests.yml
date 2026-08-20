@@ -25,9 +25,33 @@ jobs:
     name: Upload artifact for both tests to use
     uses: ./.github/workflows/upload-artifact-for-browser-test.yml
 
+  seed-browser-test-data:
+    name: Seed browser test data
+    runs-on: ubuntu-latest
+    environment: aws-dev
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
+        with:
+          aws-region: ${{ vars.AWS_REGION }}
+          role-to-assume: ${{ vars.AWS_TESTING_ROLE_TO_ASSUME }}
+          role-session-name: BrowserTestSeed-${{ github.run_id }}
+
+      - name: Run seed command in ECS
+        env:
+          ECS_CLUSTER: ${{ vars.ECS_CLUSTER }}
+          ECS_MIGRATION_TASK_DEFINITION: ${{ vars.ECS_MIGRATION_TASK_DEFINITION }}
+          ECS_MIGRATION_SUBNET_ID_LIST: ${{ vars.ECS_MIGRATION_SUBNET_ID_LIST }}
+          ECS_MIGRATION_SECURITY_GROUP_LIST: ${{ vars.ECS_MIGRATION_SECURITY_GROUP_LIST }}
+          AWS_REGION: ${{ vars.AWS_REGION }}
+        run: ./.github/workflows/scripts/run_ecs_task.sh "python manage.py seed_browser_test_la"
+
   browser-tests:
     name: Browser tests
-    needs: upload-artifact
+    needs: [upload-artifact, seed-browser-test-data]
     if: inputs.suite == 'browser' || inputs.suite == 'browser and accessibility'
     uses: ./.github/workflows/browser-test-suite.yml
     with:
@@ -36,7 +60,7 @@ jobs:
 
   accessibility-tests:
     name: Accessibility tests
-    needs: upload-artifact
+    needs: [upload-artifact, seed-browser-test-data]
     if: inputs.suite == 'accessibility' || inputs.suite == 'browser and accessibility'
     uses: ./.github/workflows/browser-test-suite.yml
     with:
