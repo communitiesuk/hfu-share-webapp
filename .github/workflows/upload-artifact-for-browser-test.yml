@@ -1,0 +1,40 @@
+name: Upload code artifact for Browser Tests
+
+on:
+  workflow_call:
+
+defaults:
+  run:
+    shell: bash
+
+# Required for OIDC with AWS
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: upload-browser-test-artifact
+  cancel-in-progress: false
+
+jobs:
+  upload-artifact:
+    name: Upload code artifact to S3
+    runs-on: ubuntu-latest
+    environment: aws-dev
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+      - name: Zip source repository
+        run: zip -r -q hfu-browser-tests.zip . -x '.git/*'
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
+        with:
+          aws-region: ${{ vars.AWS_REGION }}
+          role-to-assume: ${{ vars.AWS_CODEBUILD_ROLE_TO_ASSUME }}
+          role-session-name: BrowserTests-${{ github.run_id }}
+
+      - name: Upload zip to S3
+        run: aws s3 cp hfu-browser-tests.zip s3://hfurb-data-deployments-source-code-bucket-dev/hfu-browser-tests.zip
