@@ -160,6 +160,7 @@ jobs:
 
       - name: Test
         run: |
+          poetry run python manage.py collectstatic --noinput
           poetry run test-parallel
         env:
           SECRET_KEY: 'a_very_long_and_random_string_for_tests'

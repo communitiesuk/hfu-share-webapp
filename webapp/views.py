@@ -7,6 +7,7 @@ from typing import Any
 
 import django_filters
 from django.contrib.auth.decorators import login_not_required
+from django.contrib.staticfiles.storage import staticfiles_storage
 from django.db.models import ForeignKey, Manager, TextField
 from django.forms import TextInput
 from django.forms.widgets import CheckboxSelectMultiple
@@ -27,7 +28,6 @@ from django_tables2 import (
 
 from accounts.enums import GroupType
 from accounts.models import AccessRequest
-from case_management.settings import STATIC_URL
 from ontology.models import (
     MvAccommodationRequest,
     ReassignmentRequest,
@@ -58,7 +58,9 @@ logger = logging.getLogger(__name__)
 
 @login_not_required
 def favicon_redirect(request: HttpRequest):
-    return HttpResponseRedirect(STATIC_URL + "gds/assets/images/favicon.ico")
+    return HttpResponseRedirect(
+        staticfiles_storage.url("gds/assets/images/favicon.ico")
+    )
 
 
 def combine_visa_statuses(status_names: list[str]) -> VisaStatus:
