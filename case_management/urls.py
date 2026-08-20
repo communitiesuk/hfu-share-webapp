@@ -40,7 +40,10 @@ urlpatterns = (
         path("guests/", include("guests.urls", namespace="guests")),
         path("safeguarding/", include("safeguarding.urls", namespace="safeguarding")),
         path("sponsors/", include("sponsors.urls", namespace="sponsors")),
-        path("uams/", include("uams.urls", namespace="uams")),
+        path(
+            "applications-to-sponsor-a-child/",
+            include("uams.urls", namespace="uams"),
+        ),
         path(
             "visa-applications/",
             include("visa_applications.urls", namespace="visa_applications"),

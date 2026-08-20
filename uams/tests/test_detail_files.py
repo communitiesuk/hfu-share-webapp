@@ -506,11 +506,15 @@ class UamDetailFilesViewTests(TestSessionTokenMixin, UamsBaseTestCase, S3TestCas
 
         self.assertContains(response, "uk.pdf")
         self.assertContains(
-            response, "/uams/GOVUKFORMS-UAM12345/download-forms-attachment/uk"
+            response,
+            "/applications-to-sponsor-a-child"
+            "/GOVUKFORMS-UAM12345/download-forms-attachment/uk",
         )
         self.assertContains(response, "ukraine.jpg")
         self.assertContains(
-            response, "/uams/GOVUKFORMS-UAM12345/download-forms-attachment/ukraine"
+            response,
+            "/applications-to-sponsor-a-child"
+            "/GOVUKFORMS-UAM12345/download-forms-attachment/ukraine",
         )
 
     @mock.patch("uams.views.s3_file_exists")
@@ -537,9 +541,13 @@ class UamDetailFilesViewTests(TestSessionTokenMixin, UamsBaseTestCase, S3TestCas
 
         self.assertNotContains(response, "uk.pdf")
         self.assertNotContains(
-            response, "/uams/GOVUKFORMS-UAM12345/download-forms-attachment/uk"
+            response,
+            "/applications-to-sponsor-a-child"
+            "/GOVUKFORMS-UAM12345/download-forms-attachment/uk",
         )
         self.assertNotContains(response, "ukraine.jpg")
         self.assertNotContains(
-            response, "/uams/GOVUKFORMS-UAM12345/download-forms-attachment/ukraine"
+            response,
+            "/applications-to-sponsor-a-child"
+            "/GOVUKFORMS-UAM12345/download-forms-attachment/ukraine",
         )
