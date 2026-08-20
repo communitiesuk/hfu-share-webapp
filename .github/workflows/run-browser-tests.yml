@@ -36,8 +36,8 @@ jobs:
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
         with:
-          aws-region: ${{ vars.AWS_REGION }}
-          role-to-assume: ${{ vars.AWS_TESTING_ROLE_TO_ASSUME }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_TESTING_ROLE_TO_ASSUME }}
           role-session-name: BrowserTestSeed-${{ github.run_id }}
 
       - name: Run seed command in ECS
@@ -46,7 +46,7 @@ jobs:
           ECS_MIGRATION_TASK_DEFINITION: ${{ vars.ECS_MIGRATION_TASK_DEFINITION }}
           ECS_MIGRATION_SUBNET_ID_LIST: ${{ vars.ECS_MIGRATION_SUBNET_ID_LIST }}
           ECS_MIGRATION_SECURITY_GROUP_LIST: ${{ vars.ECS_MIGRATION_SECURITY_GROUP_LIST }}
-          AWS_REGION: ${{ vars.AWS_REGION }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
         run: ./.github/workflows/scripts/run_ecs_task.sh "python manage.py seed_browser_test_la"
 
   browser-tests:
