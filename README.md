@@ -142,6 +142,11 @@ poetry run format
 ### Tests
 > [!NOTE]
 > This requires the database container to be up and running
+
+> [!NOTE]
+> Static files are served via `ManifestStaticFilesStorage`, which requires a collected
+> static files manifest. If you see errors like `Missing staticfiles manifest entry for
+> '...'`, run `poetry run python manage.py collectstatic --noinput` first.
 ```shell
 poetry run test
 poetry run test-parallel
