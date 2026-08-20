@@ -12,8 +12,6 @@ class CustomUserAdmin(UserAdmin):
         "is_active",
         "is_staff",
         "last_login",
-        "entra_oid",
-        "entra_tid",
     ]
     readonly_fields = ["entra_oid", "entra_tid"]
     actions = ["clear_entra_identity"]
