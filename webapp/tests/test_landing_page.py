@@ -637,11 +637,14 @@ class LandingPageFixDuplicateAccommodationTileTests(TestSessionTokenMixin, TestC
         return self.client.get(reverse("webapp:landing-page")).content.decode()
 
     def _count_fix_duplicate_tiles(self, html):
-        pattern = (
-            r'<a[^>]*class="[^"]*app-card--clickable[^"]*"[^>]*>'
-            r".*?Fix duplicate records.*?</div>"
+        soup = BeautifulSoup(html, "html.parser")
+        return len(
+            [
+                card
+                for card in soup.find_all("div", class_="app-card--clickable")
+                if card.find("h3").get_text(strip=True) == "Fix duplicate records"
+            ]
         )
-        return len(re.findall(pattern, html, re.DOTALL | re.IGNORECASE))
 
     def test_la_user_sees_tile(self):
         html = self._get_landing_html(get_la_user())
@@ -685,7 +688,7 @@ class UnassignedAccommodationRequestsBadgeTests(TestSessionTokenMixin, TestCase)
         response = self.client.get(reverse("webapp:landing-page"))
         soup = BeautifulSoup(response.content.decode(), "html.parser")
 
-        for card in soup.find_all("a", class_="app-card--clickable"):
+        for card in soup.find_all("div", class_="app-card--clickable"):
             if card.find("h3").get_text(strip=True) == heading:
                 badge = card.find("span", class_="app-card-badge-value")
                 return badge.get_text(strip=True) if badge else None
