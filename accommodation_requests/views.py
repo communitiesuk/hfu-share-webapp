@@ -1690,18 +1690,20 @@ class AccommodationTable(tables.Table):
             value,
         )
 
-    def render_select(self, value):
+    def render_select(self, value, record):
         return format_html(
             '<form method="post">'
             "{management_form}"
             '<input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}"/>'
             '<input type="hidden" name="select_accommodation-accommodation" '
             'id="id_select_accommodation-accommodation" value="{value}"/>'
-            '<button type="submit" name="submit" class="govuk-link">Select</button>'
+            '<button type="submit" name="submit" class="govuk-link">Select'
+            '<span class="govuk-visually-hidden"> {record_name}</span></button>'
             "</form>",
             management_form=self.context["wizard"]["management_form"],
             value=value,
             csrf_token=get_token(self.request),
+            record_name=record.full_address,
         )
 
     class Meta:

@@ -841,6 +841,7 @@ def render_safeguarding_check_status(
                 "safeguarding_check_status": check.check_status
                 or DevCheckV2.CheckStatus.NOT_STARTED,
                 "check_subtype": check.get_check_subtype_label(),
+                "check_type_label": str(check.check_type) if check.check_type else "",
                 "display_check_subtype_as_tag": check.check_type.id
                 == CheckType.Id.SPONSOR_DBS
                 and check.check_status != DevCheckV2.CheckStatus.FAILED,

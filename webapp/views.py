@@ -195,10 +195,13 @@ class RejectedAccessRequestsTable(tables.Table):
             '<input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}">'
             '<button type="submit" class="govuk-link govuk-link--no-visited-state">'
             "Remove"
+            '<span class="govuk-visually-hidden"> rejected request '
+            "{request_name}</span>"
             "</button>"
             "</form>",
             action_url=action_url,
             csrf_token=csrf_token,
+            request_name=render_name_label_from_group_info(record.group_info),
         )
 
     class Meta:
@@ -594,9 +597,11 @@ class LinkAction(Action):
         super().__init__(
             label=label,
             value=format_html(
-                '<a href="{url}" class="govuk-link--no-visited-state">{url_text}</a>',
+                '<a href="{url}" class="govuk-link--no-visited-state">{url_text}'
+                '<span class="govuk-visually-hidden"> {label}</span></a>',
                 url=url,
                 url_text=url_text,
+                label=label,
             )
             if url
             else "",

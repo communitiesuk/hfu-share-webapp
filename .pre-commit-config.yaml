@@ -48,5 +48,5 @@ repos:
         types: [python]
         args:
           - "--disable=all"
-          - "--enable=W1350,W1351"
+          - "--enable=W1350,W1351,W1353"
         require_serial: true

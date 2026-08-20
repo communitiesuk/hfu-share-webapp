@@ -15,7 +15,7 @@
                                 <td class="govuk-table__cell">{{ attachment.name }}</td>
                                 <td class="govuk-table__cell">
                                     <a href="{{ attachment.url }}"
-                                       class="govuk-link govuk-link--no-visited-state">Download file</a>
+                                       class="govuk-link govuk-link--no-visited-state">Download file<span class="govuk-visually-hidden">{{ attachment.name }}</span></a>
                                 </td>
                             </tr>
                         {% endfor %}

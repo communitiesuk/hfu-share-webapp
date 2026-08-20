@@ -99,7 +99,8 @@ class UserDetailsView(
             "",
             '<div style="display: flex; justify-content: space-between;">'
             '<a href="{}" class="govuk-link govuk-link--no-underline">{}</a>'
-            '<a href="{}" class="govuk-link govuk-link--no-visited-state">Remove</a>'
+            '<a href="{}" class="govuk-link govuk-link--no-visited-state">Remove'
+            '<span class="govuk-visually-hidden"> from {}</span></a>'
             "</div>",
             (
                 (
@@ -109,6 +110,7 @@ class UserDetailsView(
                         "user-management:user-remove-from-group",
                         kwargs={"user_pk": self.object.pk, "group_pk": group.pk},
                     ),
+                    render_name_label_from_group(group),
                 )
                 for group in user_groups
             ),
