@@ -627,7 +627,7 @@ class VisaApplicationVIRView(
         comment.save()
 
         user = self.request.user
-        user_groups = set(user.groups.values_list("groupinfo__group_type", flat=True))
+        user_groups = user.get_group_types()
         if user_groups & {
             GroupType.LOCAL_AUTHORITY,
             GroupType.DEVOLVED_ADMINISTRATION,
@@ -643,12 +643,15 @@ class VisaApplicationVIRView(
         return redirect(reverse("visa-applications:detail-vir", args=[self.object.pk]))
 
     def _get_display_name(self, user, vir_ltla_name=None):
-        user_groups = set(user.groups.values_list("groupinfo__group_type", flat=True))
+        user_groups = user.get_group_types()
         if user_groups & {GroupType.HOME_OFFICE}:
             return "UKVI"
         if GroupType.LOCAL_AUTHORITY in user_groups:
             la_groups = user.groups.filter(
-                groupinfo__group_type=GroupType.LOCAL_AUTHORITY
+                groupinfo__group_type__in=[
+                    GroupType.LOCAL_AUTHORITY,
+                    GroupType.LOCAL_AUTHORITY_BROWSER_TEST,
+                ]
             )
             display_name = "Local Authority User"
             if vir_ltla_name:
