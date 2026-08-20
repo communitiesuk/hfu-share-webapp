@@ -7,23 +7,29 @@ STATIC_PAGES = [
     ("/sponsors/", "sponsors list"),
     ("/accommodations/", "accommodations list"),
     ("/accommodation-requests/", "accommodation requests list"),
-    ("/unassigned-accommodation-requests/", "unassigned accommodation requests list"),
     ("/uams/", "UAMs list"),
     ("/visa-applications/", "visa applications list"),
     ("/visa-applications/visa-information-requests", "visa information requests list"),
     ("/downloads/", "downloads page"),
     ("/reassignment-requests/made/", "reassignment requests made"),
     ("/reassignment-requests/received/", "reassignment requests received"),
-    ("/safeguarding/escalated_checks", "escalated checks"),
     ("/deduplication/", "deduplication start page"),
-    ("/deduplication/guests/", "guest deduplication wizard"),
     ("/deduplication/sponsors/", "sponsor deduplication wizard"),
     ("/deduplication/accommodations/", "accommodation deduplication wizard"),
+    ("/user-management/request-access/intro", "request access intro"),
+    ("/user-management/request-access", "request access form"),
+]
+
+# Pages a local authority user cannot access. Scanned only when
+# BROWSER_TEST_USER_TYPE=admin, for running locally against an admin user;
+# the shared dev browser test user is a local authority user.
+ELEVATED_ACCESS_PAGES = [
+    ("/unassigned-accommodation-requests/", "unassigned accommodation requests list"),
+    ("/safeguarding/escalated_checks", "escalated checks"),
+    ("/deduplication/guests/", "guest deduplication wizard"),
     ("/user-management/users", "manage people"),
     ("/user-management/groups", "manage groups"),
     ("/user-management/access-requests", "manage access requests"),
-    ("/user-management/request-access/intro", "request access intro"),
-    ("/user-management/request-access", "request access form"),
 ]
 
 RECORD_LIST_PAGES = [

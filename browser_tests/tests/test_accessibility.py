@@ -1,6 +1,12 @@
+import os
+
 import pytest
 
-from browser_tests.accessibility_pages import RECORD_LIST_PAGES, STATIC_PAGES
+from browser_tests.accessibility_pages import (
+    ELEVATED_ACCESS_PAGES,
+    RECORD_LIST_PAGES,
+    STATIC_PAGES,
+)
 from browser_tests.axe_checks import assert_no_axe_violations, collect_axe_violations
 
 from ..pages.share_page import SharePage
@@ -29,7 +35,15 @@ class TestAccessibility(BrowserTest):
     def test_sign_in_page_has_no_axe_violations(self, sign_in_page):
         assert_no_axe_violations(sign_in_page, "sign in page")
 
-    @pytest.mark.parametrize(("path", "page_name"), STATIC_PAGES)
+    @pytest.mark.parametrize(
+        ("path", "page_name"),
+        STATIC_PAGES
+        + (
+            ELEVATED_ACCESS_PAGES
+            if os.environ.get("BROWSER_TEST_USER_TYPE", "la") == "admin"
+            else []
+        ),
+    )
     def test_page_has_no_axe_violations(self, home_page, path, page_name):
         open_page(home_page, path, page_name)
         assert_no_axe_violations(home_page, page_name)
