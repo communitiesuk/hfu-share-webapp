@@ -279,13 +279,18 @@ class AccommodationRequestDetailOverviewTestCase(
         )
         fields = dict(response.context["fields"])
 
-        tagged = [
-            value for value in fields["Address"] if "Current accommodation" in value
+        addresses = fields["Address"]
+        tagged_addresses = [
+            address for address in addresses if "Current accommodation" in address
         ]
-        self.assertEqual(1, len(tagged))
-        self.assertIn(self.accomodation_three.full_address, tagged[0])
-        self.assertIn("govuk-tag--green", tagged[0])
-        self.assertIn(self.accommodation_one.full_address, fields["Address"])
+        untagged_addresses = [
+            address for address in addresses if "Current accommodation" not in address
+        ]
+
+        self.assertEqual(1, len(tagged_addresses))
+        self.assertIn(self.accomodation_three.full_address, tagged_addresses[0])
+        self.assertIn("govuk-tag--green", tagged_addresses[0])
+        self.assertEqual([self.accommodation_one.full_address], untagged_addresses)
 
     def test_overview_shows_no_current_accommodation_tag_without_primary(self):
         ar = AccReqFactory(
