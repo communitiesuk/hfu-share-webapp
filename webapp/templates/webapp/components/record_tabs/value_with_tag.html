@@ -1,0 +1,7 @@
+{% if tag_position == "below" %}
+    <div>{{ value }}</div>
+    <strong class="govuk-tag govuk-tag--{{ tag_colour }} govuk-!-margin-top-1 app-tag--nowrap">{{ tag_text }}</strong>
+{% else %}
+    {{ value }}
+    <strong class="govuk-tag govuk-tag--{{ tag_colour }} govuk-!-margin-left-1 app-tag--nowrap">{{ tag_text }}</strong>
+{% endif %}
