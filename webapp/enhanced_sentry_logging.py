@@ -2,6 +2,7 @@ from functools import wraps
 from typing import Any
 
 from django.db import models
+from sentry_sdk import logger as sentry_logger
 
 from case_management.settings import sentry_sdk
 
@@ -33,9 +34,9 @@ def log_event(message: str, *, level: str = "info", **attributes: Any) -> None:
         key: _as_sentry_log_value(value) for key, value in attributes.items()
     }
     if level == "warning":
-        sentry_sdk.logger.warning(message, **safe_attributes)
+        sentry_logger.warning(message, **safe_attributes)
     else:
-        sentry_sdk.logger.info(message, **safe_attributes)
+        sentry_logger.info(message, **safe_attributes)
 
 
 def log_persistence_check(
