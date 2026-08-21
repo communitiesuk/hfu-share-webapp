@@ -42,19 +42,19 @@ class SharePage:
         ).to_be_visible()
 
     def check_field(self, label: str):
-        self.page.get_by_label(label).check()
+        self.main_page.get_by_label(label).check()
 
     def enter_text_into_form_field(self, label: str, text: str):
-        self.page.get_by_label(label).fill(text)
+        self.main_page.get_by_label(label).fill(text)
 
     def enter_text_into_date_field(self, label: str, date: datetime):
-        self.page.get_by_label(label).fill(date.strftime("%d/%m/%Y"))
+        self.main_page.get_by_label(label).fill(date.strftime("%d/%m/%Y"))
 
     def click_button(self, button_text: str):
-        self.page.get_by_role("button", name=button_text).click()
+        self.main_page.get_by_role("button", name=button_text).click()
 
     def click_link(self, link_text: str, element: Optional[Locator] = None):
-        (self.page if element is None else element).get_by_role(
+        (self.main_page if element is None else element).get_by_role(
             "link", name=link_text
         ).click()
 
@@ -83,8 +83,12 @@ class SharePage:
         expect(self.find_error_message(label, element=element)).to_have_count(0)
 
     @property
+    def main_page(self) -> Locator:
+        return self.page.locator("main#main-content")
+
+    @property
     def page_heading(self) -> Locator:
-        return self.page.get_by_role("heading", level=1)
+        return self.main_page.get_by_role("heading", level=1)
 
     @property
     def page_heading_with_status_heading(self) -> Locator:
@@ -95,19 +99,19 @@ class SharePage:
         return self.page_heading.locator("span > strong")
 
     def find_secondary_page_heading(self, heading_text: str) -> Locator:
-        return self.page.get_by_role("heading", level=2, name=heading_text)
+        return self.main_page.get_by_role("heading", level=2, name=heading_text)
 
     @property
     def error_summary_title(self) -> Locator:
-        return self.page.locator(".govuk-error-summary__title")
+        return self.main_page.locator(".govuk-error-summary__title")
 
     @property
     def error_summary_items(self) -> Locator:
-        return self.page.locator("ul.govuk-error-summary__list > li")
+        return self.main_page.locator("ul.govuk-error-summary__list > li")
 
     def find_error_message(self, label: str, element: str = "label") -> Locator:
         return (
-            self.page.locator(element, has_text=label)
+            self.main_page.locator(element, has_text=label)
             .locator("xpath=ancestor::*[contains(@class, 'govuk-form-group--error')]")
             .locator(".govuk-error-message")
         )
