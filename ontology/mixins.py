@@ -3,7 +3,7 @@ from typing import Protocol
 
 from django.db.models import Exists, OuterRef, Q, QuerySet
 
-from accounts.enums import GroupType
+from accounts.enums import BROWSER_TEST_LTLA_NAMES, GroupType
 from accounts.models import GroupInfo, User
 
 
@@ -82,6 +82,9 @@ class LocalAuthorityPermissionsManagerMixinProtocol(Protocol):
     def _filter_by_viewer_group_name(self, viewer_group_names: list[str]) -> Q:
         return Q()
 
+    def exclude_browser_test_records(self, queryset: QuerySet) -> QuerySet:
+        return QuerySet()
+
 
 class LocalAuthorityPermissionsManagerMixin:
     def _filter_by_ltla_name(self, ltla_names: list[str]) -> Q:
@@ -104,6 +107,15 @@ class LocalAuthorityPermissionsManagerMixin:
             "and filter your queryset down to objects with that viewer group name"
         )
 
+    def exclude_browser_test_records(
+        self: LocalAuthorityPermissionsManagerMixinProtocol, queryset: QuerySet
+    ) -> QuerySet:
+        return queryset.exclude(
+            pk__in=self.get_queryset()
+            .filter(self._filter_by_ltla_name(BROWSER_TEST_LTLA_NAMES))
+            .values("pk")
+        )
+
     def get_all_annotate_with_user_can_view(
         self: LocalAuthorityPermissionsManagerMixinProtocol, user: User
     ):
@@ -117,14 +129,15 @@ class LocalAuthorityPermissionsManagerMixin:
         user_group_types = set(
             user.groups.values_list("groupinfo__group_type", flat=True)
         )
-        # if the user belongs to a group that is not a LA/DA, return the full queryset.
+        # if the user belongs to a group that is not a LA/DA, return the full
+        # queryset, minus records belonging to browser test local authorities.
         if user_group_types & {
             GroupType.DEV,
             GroupType.HOME_OFFICE,
             GroupType.MHCLG,
             GroupType.SERVICE_SUPPORT,
         }:
-            return self.get_queryset()
+            return self.exclude_browser_test_records(self.get_queryset())
 
         ltla_names, utla_names = get_las_for_user(user)
 
