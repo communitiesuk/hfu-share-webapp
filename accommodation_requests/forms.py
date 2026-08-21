@@ -1026,3 +1026,54 @@ class MoveGuestsFormReasonStep(forms.Form):
                 css_class="govuk-button-group",
             ),
         )
+
+
+class SelectPrimaryFormAccommodationStep(forms.Form):
+    accommodation = ChoiceField(
+        choices=(),
+        label="Select current accommodation",
+        widget=RadioSelect(),
+        error_messages={"required": "You must select the current accommodation."},
+    )
+
+    def __init__(self, *args, accommodation_requests=None, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["accommodation"].choices = (
+            (accommodation.id, accommodation.full_address)
+            for accommodation in accommodation_requests
+        )
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field.radios(
+                "accommodation",
+                legend_size=Size.MEDIUM,
+            ),
+            HTML('<button type="submit" class="govuk-button">Confirm</button>'),
+        )
+
+
+class SelectPrimaryFormHostStep(forms.Form):
+    host = ChoiceField(
+        choices=(),
+        label="Select current host",
+        widget=RadioSelect(),
+        error_messages={"required": "You must select the current host."},
+    )
+
+    def __init__(self, *args, hosts=None, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["host"].choices = (
+            (host.id, host.get_full_name()) for host in hosts
+        )
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field.radios(
+                "host",
+                legend_size=Size.MEDIUM,
+            ),
+            HTML('<button type="submit" class="govuk-button">Confirm</button>'),
+        )

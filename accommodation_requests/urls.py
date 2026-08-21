@@ -4,6 +4,7 @@ from .views import (
     MOVE_GUESTS_FORM_CONDITIONAL_DICT,
     REASSIGN_GUESTS_FORMS,
     REMATCH_GUESTS_FORMS,
+    SELECT_PRIMARY_ACCOMMODATION_AND_HOST_FORMS,
     AccommodationRequestCloseForGuests,
     AccommodationRequestCommentsDownloadAttachmentView,
     AccommodationRequestDetailActionsView,
@@ -21,6 +22,7 @@ from .views import (
     MoveGuestsIsStayingInLaFormView,
     ReassignGuestsFormWizard,
     RematchGuestsFormWizard,
+    SelectPrimaryAccommodationAndHostWizard,
 )
 
 rematch_guests_wizard = RematchGuestsFormWizard.as_view(
@@ -33,6 +35,13 @@ reassign_guests_wizard = ReassignGuestsFormWizard.as_view(
     REASSIGN_GUESTS_FORMS,
     url_name="accommodation-requests:reassign-guests-step",
     condition_dict=MOVE_GUESTS_FORM_CONDITIONAL_DICT,
+)
+
+select_primary_accommodation_and_host_wizard = (
+    SelectPrimaryAccommodationAndHostWizard.as_view(
+        SELECT_PRIMARY_ACCOMMODATION_AND_HOST_FORMS,
+        url_name="accommodation-requests:select-primary-step",
+    )
 )
 
 
@@ -132,5 +141,15 @@ urlpatterns = [
         "<str:pk>/comments/<str:comment_id>/downloadt/<str:attachment_id>",
         AccommodationRequestCommentsDownloadAttachmentView.as_view(),
         name="comments-download-attachment",
+    ),
+    path(
+        "<str:pk>/select-primary/<str:step>/",
+        select_primary_accommodation_and_host_wizard,
+        name="select-primary-step",
+    ),
+    path(
+        "<str:pk>/select-primary",
+        select_primary_accommodation_and_host_wizard,
+        name="select-primary",
     ),
 ]
