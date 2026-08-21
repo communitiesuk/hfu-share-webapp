@@ -1,5 +1,25 @@
 # Changelog
 
+## [2.13.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.12.0...2.13.0) (2026-08-21)
+
+
+### Features
+
+* add browser test for request access journey (HFURB-3970) ([#126](https://github.com/communitiesuk/hfu-share-webapp/issues/126)) ([893164c](https://github.com/communitiesuk/hfu-share-webapp/commit/893164ce285beed701584821da2991e9c3c64e0c))
+* HFURB-3036 AR overview current host accommodation tags ([#120](https://github.com/communitiesuk/hfu-share-webapp/issues/120)) ([21ffd31](https://github.com/communitiesuk/hfu-share-webapp/commit/21ffd317da737e488b4fd58c2554e218af9557a7))
+* HFURB-3941 use ManifestStaticFilesStorage to fingerprint asset files ([#117](https://github.com/communitiesuk/hfu-share-webapp/issues/117)) ([3eff882](https://github.com/communitiesuk/hfu-share-webapp/commit/3eff8823b7bebb8b962e03bd93fa1c0b420a0d1f))
+* HFURB-3979 update the cards to be more accessible ([#118](https://github.com/communitiesuk/hfu-share-webapp/issues/118)) ([77331df](https://github.com/communitiesuk/hfu-share-webapp/commit/77331df5a22662af3be78b441bdd9faea24f42de))
+* HFURB-4045 - add browser test for data downloads ([#121](https://github.com/communitiesuk/hfu-share-webapp/issues/121)) ([f874464](https://github.com/communitiesuk/hfu-share-webapp/commit/f8744649cd42e9c1a0ae309bed7ce054c7bfc56f))
+
+
+### Bug Fixes
+
+* add visually hidden text to enhance accessibility for various buttons and links ([#101](https://github.com/communitiesuk/hfu-share-webapp/issues/101)) ([b58d1e7](https://github.com/communitiesuk/hfu-share-webapp/commit/b58d1e716de43bd64d7520662a1e95e9fd11d6b8))
+* browser tests look within main by default ([#135](https://github.com/communitiesuk/hfu-share-webapp/issues/135)) ([95b1637](https://github.com/communitiesuk/hfu-share-webapp/commit/95b16377a4d7b60db7c2934e30fa4c3a526f66e4))
+* HFURB-3993 - add open in a new tab to external links ([#106](https://github.com/communitiesuk/hfu-share-webapp/issues/106)) ([ba8fb7f](https://github.com/communitiesuk/hfu-share-webapp/commit/ba8fb7ff46e99c759c98878c269b6c0c56e7f4b4))
+* limit accessibility scans to local authority users ([#127](https://github.com/communitiesuk/hfu-share-webapp/issues/127)) ([75c3aa7](https://github.com/communitiesuk/hfu-share-webapp/commit/75c3aa70b49824d92c7380c19d11478726c82962))
+* only use a single build for normal or a11y browser tests ([#123](https://github.com/communitiesuk/hfu-share-webapp/issues/123)) ([18d67e5](https://github.com/communitiesuk/hfu-share-webapp/commit/18d67e59b6cc02b7864a496903b8415c2b8dedef))
+
 ## [2.12.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.11.0...2.12.0) (2026-08-20)
 
 
