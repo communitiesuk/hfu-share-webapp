@@ -168,7 +168,7 @@ class AccessRequestFormLocalAuthorityStep(forms.Form):
 
 class AccessRequestFormJustificationStep(forms.Form):
     justification = forms.CharField(
-        label="",
+        label="Reason for requesting access",
         help_text="For example, I am working on the Homes for Ukraine scheme in (your "
         "local authority) and need access to the records.",
         widget=forms.Textarea(),
@@ -185,7 +185,11 @@ class AccessRequestFormJustificationStep(forms.Form):
                 "and why you need access to this data."
                 "</p>"
             ),
-            Field.textarea("justification", rows=5),
+            Field(
+                "justification",
+                context={"label_size": "govuk-visually-hidden"},
+                rows="5",
+            ),
             Button("button", "Next"),
         )
 

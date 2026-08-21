@@ -47,9 +47,6 @@ class SharePage:
     def enter_text_into_form_field(self, label: str, text: str):
         self.page.get_by_label(label).fill(text)
 
-    def fill_textarea(self, text: str):
-        self.page.locator("textarea").fill(text)
-
     def enter_text_into_date_field(self, label: str, date: datetime):
         self.page.get_by_label(label).fill(date.strftime("%d/%m/%Y"))
 
