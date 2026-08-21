@@ -1,5 +1,3 @@
-import re
-
 from bs4 import BeautifulSoup
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.test import TestCase
@@ -31,9 +29,21 @@ from user_management.tests.base import (
 )
 
 
-def selectable_card_exists(text, html, body=""):
-    pattern = rf'<div[^>]*class="[^"]*app-card--clickable[^"]*"[^>]*>.*?{re.escape(text)}.*?{re.escape(body)}.*?</div>'  # noqa: E501
-    return re.search(pattern, html, re.DOTALL | re.IGNORECASE) is not None
+def selectable_card_exists(soup: BeautifulSoup, heading_text: str, body_text: str = ""):
+    for card in soup.select(".app-card--clickable"):
+        link = card.select_one(".app-card__link")
+
+        if not link or link.get_text(strip=True) != heading_text:
+            continue
+
+        if not body_text:
+            return True
+
+        description = card.select_one(".app-card__description")
+
+        return description is not None and description.get_text(strip=True) == body_text
+
+    return False
 
 
 class LandingPageTests(TestSessionTokenMixin, TestCase):
@@ -226,11 +236,12 @@ class LandingPageTests(TestSessionTokenMixin, TestCase):
         self.client.force_login(user)
         response = self.client.get(reverse("webapp:landing-page"))
         html = response.content.decode()
+        soup = BeautifulSoup(html, "html.parser")
         # DEV users should see all cards
         self.assertTrue(
             selectable_card_exists(
+                soup,
                 "Accommodation requests",
-                html,
                 "Find accommodation requests and safeguarding checks."
                 "  You can also move guests (rematch and reassign), withdraw"
                 " sponsors or close and reopen accommodation requests.",
@@ -238,57 +249,62 @@ class LandingPageTests(TestSessionTokenMixin, TestCase):
         )
         self.assertTrue(
             selectable_card_exists(
-                "Accommodation", html, "Look at and update accommodation records."
+                soup, "Accommodation", "Look at and update accommodation records."
             )
         )
         self.assertTrue(
             selectable_card_exists(
+                soup,
                 "Guests",
-                html,
                 "Look at and update guest records.",
             )
         )
         self.assertTrue(
             selectable_card_exists(
+                soup,
                 "Sponsors and hosts",
-                html,
                 "Look at and update sponsor and host records.",
             )
         )
         self.assertTrue(
             selectable_card_exists(
+                soup,
                 "Visa applications",
-                html,
                 "Find visa applications for guests and check their status.",
             )
         )
         self.assertTrue(
             selectable_card_exists(
+                soup,
                 "Reassignment requests",
-                html,
                 "Review requests made to reassign guests to your local authority.",
             )
         )
         self.assertTrue(
             selectable_card_exists(
+                soup,
                 "Escalated checks",
-                html,
                 "Review failed safeguarding checks.",
             )
         )
-        self.assertTrue(selectable_card_exists("Manage user access", html))
         self.assertTrue(
             selectable_card_exists(
+                soup,
+                "Manage user access",
+            )
+        )
+        self.assertTrue(
+            selectable_card_exists(
+                soup,
                 "Download data",
-                html,
                 "Download data for sponsors and hosts, accommodation, guests, and"
                 " visa applications. You can also download all data.",
             )
         )
         self.assertTrue(
             selectable_card_exists(
+                soup,
                 "Applications to sponsor a child",
-                html,
                 "View requests to sponsor a Ukrainian child (eligible children or "
                 "minors) who will be living in the UK without a parent or guardian. "
                 "Checks must be completed offline before the guest applies for a visa.",
@@ -296,24 +312,24 @@ class LandingPageTests(TestSessionTokenMixin, TestCase):
         )
         self.assertTrue(
             selectable_card_exists(
+                soup,
                 "Visa Information Requests",
-                html,
                 "Check for current Visa Information Requests that you need to "
                 "respond to.",
             )
         )
         self.assertTrue(
             selectable_card_exists(
+                soup,
                 "Fix duplicate records",
-                html,
                 "Find and deduplicate 2 records that represent the same "
                 "accommodation, guest or sponsor and host.",
             )
         )
         self.assertTrue(
             selectable_card_exists(
+                soup,
                 "Manage unassigned accommodation requests",
-                html,
                 "View and manage records that are not assigned to a lower tier "
                 "local authority.",
             )
@@ -328,218 +344,187 @@ class LandingPageCardVisibilityTests(TestSessionTokenMixin, TestCase):
         self.client.force_login(user)
         response = self.client.get(reverse("webapp:landing-page"))
         html = response.content.decode()
+        soup = BeautifulSoup(html, "html.parser")
         # LA users should see these cards
-        self.assertTrue(selectable_card_exists("Accommodation requests", html))
-        self.assertTrue(selectable_card_exists("Accommodation", html))
-        self.assertTrue(selectable_card_exists("Guests", html))
-        self.assertTrue(selectable_card_exists("Sponsors and hosts", html))
-        self.assertTrue(selectable_card_exists("Visa applications", html))
-        self.assertTrue(selectable_card_exists("Reassignment requests", html))
-        self.assertTrue(selectable_card_exists("Download data", html))
-        self.assertTrue(selectable_card_exists("Applications to sponsor a child", html))
+        self.assertTrue(selectable_card_exists(soup, "Accommodation requests"))
+        self.assertTrue(selectable_card_exists(soup, "Accommodation"))
+        self.assertTrue(selectable_card_exists(soup, "Guests"))
+        self.assertTrue(selectable_card_exists(soup, "Sponsors and hosts"))
+        self.assertTrue(selectable_card_exists(soup, "Visa applications"))
+        self.assertTrue(selectable_card_exists(soup, "Reassignment requests"))
+        self.assertTrue(selectable_card_exists(soup, "Fix duplicate records"))
+        self.assertTrue(selectable_card_exists(soup, "Download data"))
+        self.assertTrue(selectable_card_exists(soup, "Applications to sponsor a child"))
         self.assertContains(response, "Request access to data")
 
         # LA users should not see these cards
         self.assertFalse(
-            selectable_card_exists("Manage unassigned accommodation requests", html)
+            selectable_card_exists(soup, "Manage unassigned accommodation requests")
         )
-        self.assertFalse(selectable_card_exists("Escalated checks", html))
-        self.assertFalse(selectable_card_exists("Manage user access", html))
-        self.assertFalse(
-            selectable_card_exists(
-                "Find and deduplicate 2 records that represent the same accommodation, "
-                "guest or sponsor and host.",
-                html,
-            )
-        )
+        self.assertFalse(selectable_card_exists(soup, "Escalated checks"))
+        self.assertFalse(selectable_card_exists(soup, "Manage user access"))
 
     def test_admin_user_sees_all_cards(self):
         user = get_admin_user()
         self.client.force_login(user)
         response = self.client.get(reverse("webapp:landing-page"))
         html = response.content.decode()
+        soup = BeautifulSoup(html, "html.parser")
         # DEV users should see all cards
-        self.assertTrue(selectable_card_exists("Accommodation requests", html))
-        self.assertTrue(selectable_card_exists("Accommodation", html))
-        self.assertTrue(selectable_card_exists("Guests", html))
-        self.assertTrue(selectable_card_exists("Sponsors and hosts", html))
-        self.assertTrue(selectable_card_exists("Visa applications", html))
-        self.assertTrue(selectable_card_exists("Reassignment requests", html))
-        self.assertTrue(selectable_card_exists("Escalated checks", html))
-        self.assertTrue(selectable_card_exists("Manage user access", html))
-        self.assertTrue(selectable_card_exists("Download data", html))
-        self.assertTrue(selectable_card_exists("Applications to sponsor a child", html))
-        self.assertTrue(selectable_card_exists("Visa Information Requests", html))
+        self.assertTrue(selectable_card_exists(soup, "Accommodation requests"))
+        self.assertTrue(selectable_card_exists(soup, "Accommodation"))
+        self.assertTrue(selectable_card_exists(soup, "Guests"))
+        self.assertTrue(selectable_card_exists(soup, "Sponsors and hosts"))
+        self.assertTrue(selectable_card_exists(soup, "Visa applications"))
+        self.assertTrue(selectable_card_exists(soup, "Reassignment requests"))
+        self.assertTrue(selectable_card_exists(soup, "Fix duplicate records"))
+        self.assertTrue(selectable_card_exists(soup, "Escalated checks"))
+        self.assertTrue(selectable_card_exists(soup, "Manage user access"))
+        self.assertTrue(selectable_card_exists(soup, "Download data"))
+        self.assertTrue(selectable_card_exists(soup, "Applications to sponsor a child"))
+        self.assertTrue(selectable_card_exists(soup, "Visa Information Requests"))
         self.assertTrue(
-            selectable_card_exists("Manage unassigned accommodation requests", html)
+            selectable_card_exists(soup, "Manage unassigned accommodation requests")
         )
         self.assertContains(response, "Request access to data")
-        self.assertTrue(
-            selectable_card_exists(
-                "Find and deduplicate 2 records that represent the same accommodation, "
-                "guest or sponsor and host.",
-                html,
-            )
-        )
 
     def test_early_adopter_sees_expected_cards(self):
         user = get_ea_user()
         self.client.force_login(user)
         response = self.client.get(reverse("webapp:landing-page"))
         html = response.content.decode()
+        soup = BeautifulSoup(html, "html.parser")
 
         # EA users should see these cards
-        self.assertTrue(selectable_card_exists("Accommodation requests", html))
-        self.assertTrue(selectable_card_exists("Accommodation", html))
-        self.assertTrue(selectable_card_exists("Guests", html))
-        self.assertTrue(selectable_card_exists("Sponsors and hosts", html))
-        self.assertTrue(selectable_card_exists("Visa applications", html))
-        self.assertTrue(selectable_card_exists("Reassignment requests", html))
-        self.assertTrue(selectable_card_exists("Download data", html))
-        self.assertTrue(selectable_card_exists("Applications to sponsor a child", html))
+        self.assertTrue(selectable_card_exists(soup, "Accommodation requests"))
+        self.assertTrue(selectable_card_exists(soup, "Accommodation"))
+        self.assertTrue(selectable_card_exists(soup, "Guests"))
+        self.assertTrue(selectable_card_exists(soup, "Sponsors and hosts"))
+        self.assertTrue(selectable_card_exists(soup, "Visa applications"))
+        self.assertTrue(selectable_card_exists(soup, "Reassignment requests"))
+        self.assertTrue(selectable_card_exists(soup, "Fix duplicate records"))
+        self.assertTrue(selectable_card_exists(soup, "Download data"))
+        self.assertTrue(selectable_card_exists(soup, "Applications to sponsor a child"))
         self.assertContains(response, "Request access to data")
-        self.assertTrue(
-            selectable_card_exists(
-                "Find and deduplicate 2 records that represent the same accommodation "
-                "or sponsor and host.",
-                html,
-            )
-        )
 
         # EA users should not see these cards
         self.assertFalse(
-            selectable_card_exists("Manage unassigned accommodation requests", html)
+            selectable_card_exists(soup, "Manage unassigned accommodation requests")
         )
-        self.assertFalse(selectable_card_exists("Escalated checks", html))
-        self.assertFalse(selectable_card_exists("Manage user access", html))
+        self.assertFalse(selectable_card_exists(soup, "Escalated checks"))
+        self.assertFalse(selectable_card_exists(soup, "Manage user access"))
 
     def test_ukvi_user_sees_expected_cards(self):
         user = get_ukvi_user()
         self.client.force_login(user)
         response = self.client.get(reverse("webapp:landing-page"))
         html = response.content.decode()
+        soup = BeautifulSoup(html, "html.parser")
+
         # UKVI users (HOME_OFFICE) should see these cards
-        self.assertTrue(selectable_card_exists("Accommodation requests", html))
-        self.assertTrue(selectable_card_exists("Accommodation", html))
-        self.assertTrue(selectable_card_exists("Guests", html))
-        self.assertTrue(selectable_card_exists("Sponsors and hosts", html))
-        self.assertFalse(selectable_card_exists("Reassignment requests", html))
-        self.assertTrue(selectable_card_exists("Visa applications", html))
-        self.assertTrue(selectable_card_exists("Escalated checks", html))
-        self.assertTrue(selectable_card_exists("Applications to sponsor a child", html))
-        self.assertTrue(selectable_card_exists("Visa Information Requests", html))
+        self.assertTrue(selectable_card_exists(soup, "Accommodation requests"))
+        self.assertTrue(selectable_card_exists(soup, "Accommodation"))
+        self.assertTrue(selectable_card_exists(soup, "Guests"))
+        self.assertTrue(selectable_card_exists(soup, "Sponsors and hosts"))
+        self.assertFalse(selectable_card_exists(soup, "Reassignment requests"))
+        self.assertTrue(selectable_card_exists(soup, "Visa applications"))
+        self.assertTrue(selectable_card_exists(soup, "Escalated checks"))
+        self.assertTrue(selectable_card_exists(soup, "Applications to sponsor a child"))
+        self.assertTrue(selectable_card_exists(soup, "Visa Information Requests"))
         self.assertContains(response, "Request access to data")
-        self.assertTrue(selectable_card_exists("Download data", html))
+        self.assertTrue(selectable_card_exists(soup, "Download data"))
 
         # Should not see these cards
         self.assertFalse(
-            selectable_card_exists("Manage unassigned accommodation requests", html)
+            selectable_card_exists(soup, "Manage unassigned accommodation requests")
         )
-        self.assertFalse(selectable_card_exists("Manage user access", html))
-        self.assertFalse(
-            selectable_card_exists(
-                "Find and deduplicate 2 records that represent the same accommodation, "
-                "guest or sponsor and host.",
-                html,
-            )
-        )
+        self.assertFalse(selectable_card_exists(soup, "Manage user access"))
+        self.assertFalse(selectable_card_exists(soup, "Fix duplicate records"))
 
     def test_devolved_admin_user_sees_expected_cards(self):
         user = get_da_user()
         self.client.force_login(user)
         response = self.client.get(reverse("webapp:landing-page"))
         html = response.content.decode()
+        soup = BeautifulSoup(html, "html.parser")
+
         # Should see these cards
-        self.assertTrue(selectable_card_exists("Accommodation requests", html))
-        self.assertTrue(selectable_card_exists("Accommodation", html))
-        self.assertTrue(selectable_card_exists("Guests", html))
-        self.assertTrue(selectable_card_exists("Sponsors and hosts", html))
-        self.assertTrue(selectable_card_exists("Visa applications", html))
-        self.assertTrue(selectable_card_exists("Reassignment requests", html))
-        self.assertTrue(selectable_card_exists("Download data", html))
-        self.assertTrue(selectable_card_exists("Visa Information Requests", html))
+        self.assertTrue(selectable_card_exists(soup, "Accommodation requests"))
+        self.assertTrue(selectable_card_exists(soup, "Accommodation"))
+        self.assertTrue(selectable_card_exists(soup, "Guests"))
+        self.assertTrue(selectable_card_exists(soup, "Sponsors and hosts"))
+        self.assertTrue(selectable_card_exists(soup, "Visa applications"))
+        self.assertTrue(selectable_card_exists(soup, "Fix duplicate records"))
+        self.assertTrue(selectable_card_exists(soup, "Reassignment requests"))
+        self.assertTrue(selectable_card_exists(soup, "Download data"))
+        self.assertTrue(selectable_card_exists(soup, "Visa Information Requests"))
         self.assertContains(response, "Request access to data")
 
         # Should not see these cards
         self.assertFalse(
-            selectable_card_exists("Applications to sponsor a child", html)
+            selectable_card_exists(soup, "Applications to sponsor a child")
         )
-        self.assertFalse(selectable_card_exists("Escalated checks", html))
+        self.assertFalse(selectable_card_exists(soup, "Escalated checks"))
         self.assertFalse(
-            selectable_card_exists("Manage unassigned accommodation requests", html)
+            selectable_card_exists(soup, "Manage unassigned accommodation requests")
         )
-        self.assertFalse(selectable_card_exists("Manage user access", html))
-        self.assertFalse(
-            selectable_card_exists(
-                "Find and deduplicate 2 records that represent the same accommodation, "
-                "guest or sponsor and host.",
-                html,
-            )
-        )
+        self.assertFalse(selectable_card_exists(soup, "Manage user access"))
 
     def test_mhclg_user_sees_expected_cards(self):
         user = get_mhclg_user()
         self.client.force_login(user)
         response = self.client.get(reverse("webapp:landing-page"))
         html = response.content.decode()
+        soup = BeautifulSoup(html, "html.parser")
+
         # Should see these cards
-        self.assertTrue(selectable_card_exists("Accommodation requests", html))
-        self.assertTrue(selectable_card_exists("Accommodation", html))
-        self.assertTrue(selectable_card_exists("Guests", html))
-        self.assertTrue(selectable_card_exists("Sponsors and hosts", html))
-        self.assertTrue(selectable_card_exists("Visa applications", html))
-        self.assertTrue(selectable_card_exists("Reassignment requests", html))
-        self.assertTrue(selectable_card_exists("Escalated checks", html))
-        self.assertTrue(selectable_card_exists("Applications to sponsor a child", html))
-        self.assertTrue(selectable_card_exists("Visa Information Requests", html))
+        self.assertTrue(selectable_card_exists(soup, "Accommodation requests"))
+        self.assertTrue(selectable_card_exists(soup, "Accommodation"))
+        self.assertTrue(selectable_card_exists(soup, "Guests"))
+        self.assertTrue(selectable_card_exists(soup, "Sponsors and hosts"))
+        self.assertTrue(selectable_card_exists(soup, "Visa applications"))
+        self.assertTrue(selectable_card_exists(soup, "Reassignment requests"))
+        self.assertTrue(selectable_card_exists(soup, "Fix duplicate records"))
+        self.assertTrue(selectable_card_exists(soup, "Escalated checks"))
+        self.assertTrue(selectable_card_exists(soup, "Applications to sponsor a child"))
+        self.assertTrue(selectable_card_exists(soup, "Visa Information Requests"))
         self.assertTrue(
-            selectable_card_exists("Manage unassigned accommodation requests", html)
+            selectable_card_exists(soup, "Manage unassigned accommodation requests")
         )
         self.assertContains(response, "Request access to data")
-        self.assertTrue(selectable_card_exists("Download data", html))
+        self.assertTrue(selectable_card_exists(soup, "Download data"))
 
         # Should not see these cards
-        self.assertFalse(selectable_card_exists("Manage user access", html))
-        self.assertFalse(
-            selectable_card_exists(
-                "Find and deduplicate 2 records that represent the same accommodation, "
-                "guest or sponsor and host.",
-                html,
-            )
-        )
+        self.assertFalse(selectable_card_exists(soup, "Manage user access"))
 
     def test_service_support_user_sees_expected_cards(self):
         user = get_service_support_user()
         self.client.force_login(user)
         response = self.client.get(reverse("webapp:landing-page"))
         html = response.content.decode()
+        soup = BeautifulSoup(html, "html.parser")
+
         # Should see these cards
-        self.assertTrue(selectable_card_exists("Accommodation requests", html))
-        self.assertTrue(selectable_card_exists("Accommodation", html))
-        self.assertTrue(selectable_card_exists("Guests", html))
-        self.assertTrue(selectable_card_exists("Sponsors and hosts", html))
-        self.assertTrue(selectable_card_exists("Visa applications", html))
-        self.assertTrue(selectable_card_exists("Reassignment requests", html))
-        self.assertTrue(selectable_card_exists("Download data", html))
-        self.assertTrue(selectable_card_exists("Visa Information Requests", html))
+        self.assertTrue(selectable_card_exists(soup, "Accommodation requests"))
+        self.assertTrue(selectable_card_exists(soup, "Accommodation"))
+        self.assertTrue(selectable_card_exists(soup, "Guests"))
+        self.assertTrue(selectable_card_exists(soup, "Sponsors and hosts"))
+        self.assertTrue(selectable_card_exists(soup, "Visa applications"))
+        self.assertTrue(selectable_card_exists(soup, "Reassignment requests"))
+        self.assertTrue(selectable_card_exists(soup, "Fix duplicate records"))
+        self.assertTrue(selectable_card_exists(soup, "Download data"))
+        self.assertTrue(selectable_card_exists(soup, "Visa Information Requests"))
         self.assertContains(response, "Request access to data")
 
         # Should not see these cards
         self.assertFalse(
-            selectable_card_exists("Applications to sponsor a child", html)
+            selectable_card_exists(soup, "Applications to sponsor a child")
         )
-        self.assertFalse(selectable_card_exists("Escalated checks", html))
+        self.assertFalse(selectable_card_exists(soup, "Escalated checks"))
         self.assertFalse(
-            selectable_card_exists("Manage unassigned accommodation requests", html)
+            selectable_card_exists(soup, "Manage unassigned accommodation requests")
         )
-        self.assertFalse(selectable_card_exists("Manage user access", html))
-        self.assertFalse(
-            selectable_card_exists(
-                "Find and deduplicate 2 records that represent the same accommodation, "
-                "guest or sponsor and host.",
-                html,
-            )
-        )
+        self.assertFalse(selectable_card_exists(soup, "Manage user access"))
 
     def test_multi_group_user_sees_expected_cards(self):
         user = get_user_with_groups(
@@ -551,31 +536,27 @@ class LandingPageCardVisibilityTests(TestSessionTokenMixin, TestCase):
         self.client.force_login(user)
         response = self.client.get(reverse("webapp:landing-page"))
         html = response.content.decode()
+        soup = BeautifulSoup(html, "html.parser")
+
         # Should see these cards
-        self.assertTrue(selectable_card_exists("Accommodation requests", html))
-        self.assertTrue(selectable_card_exists("Accommodation", html))
-        self.assertTrue(selectable_card_exists("Guests", html))
-        self.assertTrue(selectable_card_exists("Sponsors and hosts", html))
-        self.assertTrue(selectable_card_exists("Visa applications", html))
-        self.assertTrue(selectable_card_exists("Reassignment requests", html))
-        self.assertTrue(selectable_card_exists("Escalated checks", html))
-        self.assertTrue(selectable_card_exists("Download data", html))
-        self.assertTrue(selectable_card_exists("Applications to sponsor a child", html))
-        self.assertTrue(selectable_card_exists("Visa Information Requests", html))
+        self.assertTrue(selectable_card_exists(soup, "Accommodation requests"))
+        self.assertTrue(selectable_card_exists(soup, "Accommodation"))
+        self.assertTrue(selectable_card_exists(soup, "Guests"))
+        self.assertTrue(selectable_card_exists(soup, "Sponsors and hosts"))
+        self.assertTrue(selectable_card_exists(soup, "Visa applications"))
+        self.assertTrue(selectable_card_exists(soup, "Reassignment requests"))
+        self.assertTrue(selectable_card_exists(soup, "Fix duplicate records"))
+        self.assertTrue(selectable_card_exists(soup, "Escalated checks"))
+        self.assertTrue(selectable_card_exists(soup, "Download data"))
+        self.assertTrue(selectable_card_exists(soup, "Applications to sponsor a child"))
+        self.assertTrue(selectable_card_exists(soup, "Visa Information Requests"))
         self.assertTrue(
-            selectable_card_exists("Manage unassigned accommodation requests", html)
+            selectable_card_exists(soup, "Manage unassigned accommodation requests")
         )
         self.assertContains(response, "Request access to data")
 
         # Should not see these cards
-        self.assertFalse(selectable_card_exists("Manage user access", html))
-        self.assertFalse(
-            selectable_card_exists(
-                "Find and deduplicate 2 records that represent the same accommodation, "
-                "guest or sponsor and host.",
-                html,
-            )
-        )
+        self.assertFalse(selectable_card_exists(soup, "Manage user access"))
 
     def test_guidance_and_support_section_renders_correctly(self):
         user = get_admin_user()
@@ -648,19 +629,21 @@ class LandingPageFixDuplicateAccommodationTileTests(TestSessionTokenMixin, TestC
 
     def test_la_user_sees_tile(self):
         html = self._get_landing_html(get_la_user())
+        soup = BeautifulSoup(html, "html.parser")
         self.assertEqual(self._count_fix_duplicate_tiles(html), 1)
         self.assertTrue(
             selectable_card_exists(
-                "Fix duplicate records", html, self.TILE_BODY_WITHOUT_GUESTS
+                soup, "Fix duplicate records", self.TILE_BODY_WITHOUT_GUESTS
             )
         )
 
     def test_da_user_sees_tile(self):
         html = self._get_landing_html(get_da_user())
+        soup = BeautifulSoup(html, "html.parser")
         self.assertEqual(self._count_fix_duplicate_tiles(html), 1)
         self.assertTrue(
             selectable_card_exists(
-                "Fix duplicate records", html, self.TILE_BODY_WITHOUT_GUESTS
+                soup, "Fix duplicate records", self.TILE_BODY_WITHOUT_GUESTS
             )
         )
 
@@ -674,10 +657,11 @@ class LandingPageFixDuplicateAccommodationTileTests(TestSessionTokenMixin, TestC
 
     def test_dev_user_sees_tile_with_guests_body_text(self):
         html = self._get_landing_html(get_admin_user())
+        soup = BeautifulSoup(html, "html.parser")
         self.assertEqual(self._count_fix_duplicate_tiles(html), 1)
         self.assertTrue(
             selectable_card_exists(
-                "Fix duplicate records", html, self.TILE_BODY_WITH_GUESTS
+                soup, "Fix duplicate records", self.TILE_BODY_WITH_GUESTS
             )
         )
 
