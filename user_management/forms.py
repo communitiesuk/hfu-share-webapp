@@ -38,6 +38,7 @@ class AccessRequestFormGroupTypeStep(forms.Form):
                     lambda group: group[0]
                     not in [
                         GroupType.DEV,
+                        GroupType.LOCAL_AUTHORITY_BROWSER_TEST,
                         GroupType.MHCLG_EARLY_ADOPTERS,
                         GroupType.DEVOLVED_ADMINISTRATION_EARLY_ADOPTERS,
                         GroupType.HOME_OFFICE_EARLY_ADOPTERS,

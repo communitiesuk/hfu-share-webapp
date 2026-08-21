@@ -28,7 +28,12 @@ def user_in_any_group_names(user, group_names):
 def user_in_all_group_types(user, group_types):
     if not group_types:
         return True
-    user_group_types = set(user.groups.values_list("groupinfo__group_type", flat=True))
+    if hasattr(user, "get_group_types"):
+        user_group_types = user.get_group_types()
+    else:
+        user_group_types = set(
+            user.groups.values_list("groupinfo__group_type", flat=True)
+        )
     return all(gt in user_group_types for gt in group_types)
 
 
