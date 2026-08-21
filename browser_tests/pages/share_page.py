@@ -101,6 +101,9 @@ class SharePage:
     def find_secondary_page_heading(self, heading_text: str) -> Locator:
         return self.main_page.get_by_role("heading", level=2, name=heading_text)
 
+    def assert_page_contains_text(self, text: str):
+        expect(self.page.get_by_text(text).first).to_be_visible()
+
     @property
     def error_summary_title(self) -> Locator:
         return self.main_page.locator(".govuk-error-summary__title")
