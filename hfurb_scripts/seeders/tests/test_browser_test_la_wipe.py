@@ -76,7 +76,8 @@ class BrowserTestLaWipeCompletenessTestCase(TestCase):
         self.assertFalse(
             MvAccommodationRequest.objects.filter(
                 ltla_name__overlap=[ltla_name]
-            ).exists()
+            ).exists(),
+            "no accommodation request may remain in the browser test LA",
         )
         for model in [
             MvAccommodationRequest,
@@ -101,10 +102,14 @@ class BrowserTestLaWipeCompletenessTestCase(TestCase):
         self.assertFalse(
             LogEntry.objects.filter(
                 object_pk__startswith=f"{BROWSER_TEST_ID_PREFIX}-"
-            ).exists()
+            ).exists(),
+            "audit log entries for wiped records must be purged",
         )
 
-        self.assertTrue(MvAccommodationRequest.objects.filter(pk=other_ar.pk).exists())
+        self.assertTrue(
+            MvAccommodationRequest.objects.filter(pk=other_ar.pk).exists(),
+            "records in other local authorities must be untouched",
+        )
         self.assertTrue(
             MvPerson.objects.filter(accommodation_request=other_ar).exists()
         )
