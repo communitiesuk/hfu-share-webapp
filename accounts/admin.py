@@ -1,13 +1,33 @@
 from django.contrib import admin
 from django.contrib.auth.admin import GroupAdmin, UserAdmin
 from django.contrib.auth.models import Group
+from django.utils.translation import gettext_lazy as _
 
 from accounts.models import AccessRequest, GroupInfo, User
 
 
 class CustomUserAdmin(UserAdmin):
-    list_display = ["username", "email", "is_active", "is_staff", "last_login"]
+    list_display = [
+        "username",
+        "email",
+        "is_active",
+        "is_staff",
+        "last_login",
+    ]
+    readonly_fields = ["entra_oid", "entra_tid"]
     actions = ["clear_entra_identity"]
+
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = list(super().get_fieldsets(request, obj))
+
+        fieldsets.append(
+            (
+                _("Entra ID"),
+                {"fields": ("entra_oid", "entra_tid")},
+            )
+        )
+
+        return fieldsets
 
     @admin.action(description="⚠️ Clear Entra ID")
     def clear_entra_identity(self, request, queryset):
