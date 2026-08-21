@@ -1,13 +1,15 @@
-<div class="govuk-card govuk-card--contained govuk-card--contained--on-background govuk-!-margin-bottom-4 govuk-!-padding-bottom-5">
-    <div class="govuk-card__content govuk-!-padding-top-0 govuk-!-padding-left-0 govuk-!-padding-right-0">
-        <h3 class="govuk-heading-m govuk-!-margin-bottom-2">{{ heading }}</h3>
-        <p class="govuk-body" style="color: grey;">{{ date }}</p>
-        <p class="govuk-body" style="color:grey;">{{ type }}</p>
-        <p class="govuk-body govuk-!-padding-top-4">{{ body }}</p>
-        <div class="govuk-card__actions govuk-!-padding-top-4">
-            {% if link_url != "None" %}
+<li class="govuk-grid-column-one-third app-card-group__item">
+    <div class="app-card">
+        <h3 class="govuk-heading-m app-card__heading">{{ heading }}</h3>
+        <p class="govuk-body app-card__description govuk-!-secondary-text-colour">{{ date }}</p>
+        {% if type != None %}
+            <p class="govuk-body app-card__description govuk-!-secondary-text-colour">{{ type }}</p>
+        {% endif %}
+        <p class="govuk-body app-card__description govuk-!-padding-top-4">{{ body }}</p>
+        {% if link_url != "None" %}
+            <p class="govuk-body app-card__description govuk-!-padding-top-4">
                 <a class="govuk-body govuk-link" href="{{ link_url }}">{{ link_text|default_if_none:"Read more" }}</a>
-            {% endif %}
-        </div>
+            </p>
+        {% endif %}
     </div>
-</div>
+</li>

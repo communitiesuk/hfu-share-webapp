@@ -1,4 +1,4 @@
-<div class="govuk-grid-row govuk-card__flex-container">
+<ul class="govuk-grid-row app-card-group">
     {% if available_links.escalated_checks %}
         {% include "webapp/components/selectable_card/selectable_card.html" with heading="Escalated checks" target="safeguarding:escalated_checks" body="Review failed safeguarding checks." %}
     {% endif %}
@@ -42,4 +42,4 @@
     {% if available_links.unassigned_accommodation_requests %}
         {% include "webapp/components/selectable_card/selectable_card.html" with heading="Manage unassigned accommodation requests" target="unassigned-accommodation-requests:unassigned-accommodation-requests" body="View and manage records that are not assigned to a lower tier local authority." badge_value=unassigned_accommodation_requests_count %}
     {% endif %}
-</div>
+</ul>
