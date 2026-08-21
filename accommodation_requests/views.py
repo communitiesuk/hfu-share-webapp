@@ -44,6 +44,8 @@ from accommodation_requests.forms import (
     MoveGuestsFormSelectLocalAuthorityStep,
     MoveGuestsSelectAccommodationStep,
     ReopenAccommodationRequestForm,
+    SelectPrimaryFormAccommodationStep,
+    SelectPrimaryFormHostStep,
     WithdrawSponsorAccommodationRequestForm,
 )
 from accommodation_requests.safeguarding_utils import NotificationData, loop_and_raise
@@ -153,6 +155,20 @@ REASSIGN_GUESTS_FORMS = [
     (ReassignGuestsFormSteps.LOCAL_AUTHORITY, MoveGuestsFormSelectLocalAuthorityStep),
     (ReassignGuestsFormSteps.REASON, MoveGuestsFormReasonStep),
     (ReassignGuestsFormSteps.CONFIRMATION, MoveGuestsConfirmationStep),
+]
+
+
+class SelectPrimaryAccommodationAndHostSteps(StrEnum):
+    ACCOMMODATION = "accommodation"
+    HOST = "host"
+
+
+SELECT_PRIMARY_ACCOMMODATION_AND_HOST_FORMS = [
+    (
+        SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION,
+        SelectPrimaryFormAccommodationStep,
+    ),
+    (SelectPrimaryAccommodationAndHostSteps.HOST, SelectPrimaryFormHostStep),
 ]
 
 
@@ -1685,6 +1701,125 @@ class ReassignGuestsFormWizard(
 
     def get_cancel_url(self):
         return get_url_for_actions_tab(self.get_object())
+
+
+class SelectPrimaryAccommodationAndHostWizard(
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    SingleObjectMixin,
+    NamedUrlSessionWizardView,
+):
+    model = MvAccommodationRequest
+    group_type = [
+        GroupType.DEV,
+        GroupType.LOCAL_AUTHORITY,
+        GroupType.DEVOLVED_ADMINISTRATION,
+    ]
+    template_name = (
+        "accommodation_requests/"
+        "select_primary/"
+        "accommodation_requests_select_primary_page.html"
+    )
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.object = None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_step_url(self, step):
+        return reverse(self.url_name, kwargs={"step": step, "pk": self.object.pk})
+
+    # TODO: Impliment this from HFURB-4000
+    def check_ar_can_use_wizard_placeholder(self):
+        return True
+
+    def get(self, request, *args, **kwargs):
+        if not self.check_ar_can_use_wizard_placeholder():
+            return HttpResponse(status=409)
+
+        return super().get(request, *args, **kwargs)
+
+    def get_form_kwargs(self, step=None):
+        kwargs = super().get_form_kwargs(step)
+
+        match step:
+            case SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION:
+                kwargs["accommodation_requests"] = (
+                    self.object.get_accommodations_restrict_for_user(self.request.user)
+                )
+            case SelectPrimaryAccommodationAndHostSteps.HOST:
+                accommodation_step_data = self.get_cleaned_data_for_step(
+                    SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION
+                )
+                kwargs["hosts"] = MvAccommodation.objects.get(
+                    id=accommodation_step_data["accommodation"]
+                ).get_hosts_restrict_for_user(self.request.user)
+
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        kwargs = super().get_context_data(**kwargs)
+
+        kwargs["select_record_type"] = self.steps.current
+        kwargs["caption"] = f"Confirm primary {self.steps.current} for"
+
+        match self.steps.current:
+            case SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION:
+                kwargs["inset_text"] = [
+                    "This is the current address the guest is living in / "
+                    "going to be living in",
+                    "This may not be the same address as the sponsor "
+                    "or the address provided on the visa",
+                ]
+            case SelectPrimaryAccommodationAndHostSteps.HOST:
+                kwargs["inset_text"] = [
+                    "This is the current host the guest is living with / "
+                    "going to be living with",
+                    "This may not be the same person as the named sponsor",
+                ]
+
+        return kwargs
+
+    def done(self, form_list, **kwargs):
+        data = self.get_all_cleaned_data()
+        ar = self.object
+
+        primary_accommodation_id = data.get("accommodation")
+        active_host_id = data.get("host")
+        checks_status = MvAccommodationRequest.ChecksStatus.CHECKS_COMPLETED
+
+        try:
+            with transaction.atomic():
+                ar.primary_accommodation_id = primary_accommodation_id
+                ar.active_host_id = active_host_id
+                ar.checks_status = checks_status
+                ar.save()
+
+            # TODO: Add logging to sentry if there is success
+
+            messages.success(
+                self.request,
+                f"You confirmed the current accommodation and host for {ar.title}.",
+            )
+        except DatabaseError:
+            # TODO: Add logging to sentry if there is an error
+
+            messages.error(
+                self.request,
+                "The current accommodation and host was not confirmed. "
+                "If the problem continues raise a support ticket.",
+            )
+
+        return self.get_overview_url()
+
+    def get_prefix(self, request, *args, **kwargs):
+        return f"select_primary_accommodation_and_host_wizard_{self.object.pk}"
+
+    def get_overview_url(self):
+        return redirect("accommodation-requests:detail-overview", pk=self.object.pk)
 
 
 class AccommodationTable(tables.Table):
