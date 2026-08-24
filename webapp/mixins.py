@@ -271,6 +271,8 @@ class UserUtilitiesMixin:
             user = getattr(self, "request", None)
             if user is not None:
                 user = getattr(user, "user", user)
+        if hasattr(user, "get_group_types"):
+            return user.get_group_types()
         if hasattr(user, "groups"):
             return set(user.groups.values_list("groupinfo__group_type", flat=True))
         return set()

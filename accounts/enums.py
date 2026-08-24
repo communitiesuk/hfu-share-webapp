@@ -9,6 +9,10 @@ class GroupType(models.TextChoices):
         "LOCAL_AUTHORITY_EARLY_ADOPTERS",
         _("Early adopters - Local authority"),
     )
+    LOCAL_AUTHORITY_BROWSER_TEST = (
+        "LOCAL_AUTHORITY_BROWSER_TEST",
+        _("Browser test - Local authority"),
+    )
     DEVOLVED_ADMINISTRATION = "DEVOLVED_ADMINISTRATION", _("Devolved administration")
     DEVOLVED_ADMINISTRATION_EARLY_ADOPTERS = (
         "DEVOLVED_ADMINISTRATION_EARLY_ADOPTERS",
@@ -29,3 +33,9 @@ class GroupType(models.TextChoices):
         "SERVICE_SUPPORT_EARLY_ADOPTERS",
         _("Early adopters - Service support"),
     )
+
+
+BROWSER_TEST_LTLA_NAMES = ["Hobbiton (Browser test LTLA)"]
+BROWSER_TEST_UTLA_NAME = "Hobbiton (Browser test UTLA)"
+BROWSER_TEST_LA_GROUP_NAME = "ltla_hobbiton_browser_test"
+BROWSER_TEST_UTLA_GROUP_NAME = "utla_hobbiton_browser_test"
