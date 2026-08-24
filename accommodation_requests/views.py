@@ -1764,7 +1764,7 @@ class SelectPrimaryAccommodationAndHostWizard(
         kwargs = super().get_context_data(**kwargs)
 
         kwargs["select_record_type"] = self.steps.current
-        kwargs["caption"] = f"Confirm primary {self.steps.current} for"
+        kwargs["caption"] = f"Confirm current {self.steps.current} for"
 
         match self.steps.current:
             case SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION:

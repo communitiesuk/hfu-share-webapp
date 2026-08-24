@@ -197,7 +197,7 @@ class AccommodationRequestDetailViewsTabsTestCase(TestSessionTokenMixin, TestCas
             )
         )
 
-        self.assertContains(response, "Confirm primary accommodation for")
+        self.assertContains(response, "Confirm current accommodation for")
         self.assertContains(response, "Test Accommodation Request")
         self.assertContains(
             response,
@@ -238,7 +238,7 @@ class AccommodationRequestDetailViewsTabsTestCase(TestSessionTokenMixin, TestCas
 
         self.assertContains(response, "There is a problem")
         self.assertContains(response, "You must select the current accommodation.")
-        self.assertContains(response, "Confirm primary accommodation for")
+        self.assertContains(response, "Confirm current accommodation for")
         self.assertContains(response, "Test Accommodation Request")
         self.assertContains(response, "Confirm")
 
@@ -264,7 +264,7 @@ class AccommodationRequestDetailViewsTabsTestCase(TestSessionTokenMixin, TestCas
             follow=True,
         )
 
-        self.assertContains(response, "Confirm primary host for")
+        self.assertContains(response, "Confirm current host for")
         self.assertContains(response, "Test Accommodation Request")
         self.assertContains(
             response,
@@ -322,7 +322,7 @@ class AccommodationRequestDetailViewsTabsTestCase(TestSessionTokenMixin, TestCas
 
         self.assertContains(response, "There is a problem")
         self.assertContains(response, "You must select the current host.")
-        self.assertContains(response, "Confirm primary host for")
+        self.assertContains(response, "Confirm current host for")
         self.assertContains(response, "Test Accommodation Request")
         self.assertContains(response, "Confirm")
 
