@@ -447,8 +447,7 @@ class SummaryListTestCaseMixin:
 
 class MultiLABannerMixin:
     def add_multi_la_message(self):
-        ltla_name = self.object.ltla_name
-        if ltla_name and len(ltla_name) > 1:
+        if self.object.is_multi_la:
             linked_records_url = reverse(
                 "accommodation-requests:detail-linked-records",
                 kwargs={"pk": self.object.id},

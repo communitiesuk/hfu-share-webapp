@@ -687,6 +687,36 @@ class AccommodationRequestDetailActionsView(
                     )
                 )
 
+        # Confirm Current Accommodation
+        can_confirm_accommodation = self.user_can_edit(
+            group_types=[
+                GroupType.DEV,
+                # GroupType.LOCAL_AUTHORITY,
+                # GroupType.DEVOLVED_ADMINISTRATION,
+            ]
+        )
+
+        if can_confirm_accommodation:
+            if self.object.is_multi_la:
+                actions.append(
+                    TagAction(
+                        label="Confirm Current Accommodation",
+                        tag_text="Unavailable - this is a Multi LA case",
+                        tag_colour_class="govuk-tag--red",
+                    )
+                )
+            else:
+                actions.append(
+                    LinkAction(
+                        label="Confirm Current Accommodation",
+                        url_text="Start",
+                        url=reverse(
+                            "accommodation-requests:confirm-current-accommodation",
+                            kwargs={"pk": self.object.id},
+                        ),
+                    )
+                )
+
         return actions
 
     def get_context_data(self, **kwargs):
@@ -877,8 +907,7 @@ class AccommodationRequestDetailHistoryView(
         if user_has_group_with_type(
             user, GroupType.LOCAL_AUTHORITY
         ) or user_has_group_with_type(user, GroupType.DEVOLVED_ADMINISTRATION):
-            ltlas = self.object.get_all_ltla_names()
-            if ltlas and len(ltlas) > 1:
+            if self.object.is_multi_la:
                 return False
 
         return super()._show_events()
@@ -1236,6 +1265,32 @@ class AccommodationRequestWithdrawSponsorView(
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.object = None
+
+
+class AccommodationRequestConfirmCurrentAccommodationView(
+    PIISafeRecordNameMixin, PermissionsMixin, DetailView
+):
+    group_type = [
+        GroupType.DEV,
+        # GroupType.LOCAL_AUTHORITY,
+        # GroupType.DEVOLVED_ADMINISTRATION,
+    ]
+    template_name = "accommodation_requests/accommodation_requests_confirm_current_accommodation_page.html"  # noqa: E501
+    model = MvAccommodationRequest
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if self.object.is_multi_la:
+            return HttpResponse(status=409)
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["back_url"] = reverse(
+            "accommodation-requests:detail-actions",
+            kwargs={"pk": self.object.id},
+        )
+        return context
 
 
 class RematchGuestsFormWizard(
