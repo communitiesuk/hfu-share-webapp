@@ -465,3 +465,14 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
 .govuk-\!-secondary-text-colour {
   color: var(--govuk-secondary-text-colour)
 }
+
+/* Detail pages: side nav links target this container so focus lands on the
+   selected tab content after navigation. Container focus needs no visible ring.
+   scroll-margin keeps part of the record title visible above the landing spot. */
+#record-detail-content {
+    scroll-margin-top: 120px;
+}
+
+#record-detail-content:focus {
+    outline: none;
+}

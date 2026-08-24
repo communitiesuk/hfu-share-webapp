@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% block breadcrumb_content %}
     {% for breadcrumb in breadcrumbs %}
         <li class="govuk-breadcrumbs__list-item">
@@ -22,23 +23,35 @@
         </div>
     </div>
     <div class="govuk-grid-row">
-        <div class="{% if use_full_width %}govuk-grid-column-full{% else %}govuk-grid-column-two-thirds{% endif %}">
-            <div class="govuk-tabs tabs--tight">
-                <h3 class="govuk-tabs__title">Contents</h3>
-                <ul class="govuk-tabs__list">
+        <div class="govuk-grid-column-one-quarter">
+            <nav class="moj-side-navigation govuk-!-padding-top-0"
+                 aria-label="Record sections">
+                <ul class="moj-side-navigation__list">
                     {% for tab in tabs %}
-                        <li class="govuk-tabs__list-item {% if tab.current %}govuk-tabs__list-item--selected{% endif %}">
-                            <a class="govuk-tabs__tab" href="{{ tab.url }}">{{ tab.text }}</a>
+                        <li class="moj-side-navigation__item {% if tab.current %}moj-side-navigation__item--active{% endif %}">
+                            <a href="{{ tab.url }}"
+                               {% if tab.current %}aria-current="location"{% endif %}>{{ tab.text }}</a>
                         </li>
                     {% endfor %}
                 </ul>
-                <div class="govuk-tabs__panel">
+            </nav>
+        </div>
+        <div class="govuk-grid-column-three-quarters">
+            <div class="govuk-grid-row">
+                <div id="record-detail-content"
+                     tabindex="-1"
+                     class="{% if use_full_width %}govuk-grid-column-full{% else %}govuk-grid-column-three-quarters{% endif %}">
                     {% block selected_tab %}
                     {% endblock selected_tab %}
+                    {% block back_button %}
+                        <a href="{{ back_button.url }}"
+                           class="govuk-button govuk-button--secondary">{{ back_button.text }}</a>
+                    {% endblock back_button %}
                 </div>
             </div>
-            <a href="{{ back_button.url }}"
-               class="govuk-button govuk-button--secondary">{{ back_button.text }}</a>
         </div>
     </div>
 {% endblock content %}
+{% block extra_js %}
+    <script src="{% static 'js/detail-view-focus.js' %}"></script>
+{% endblock extra_js %}

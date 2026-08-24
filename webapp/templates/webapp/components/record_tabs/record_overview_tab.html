@@ -1,20 +1,22 @@
-<div class="govuk-grid-row">
-    <h4 class="govuk-heading-l govuk-grid-column-three-quarters {% if is_duplicate %}govuk-!-margin-bottom-0{% endif %}">
-        Overview
-    </h4>
-    {% if edit_url %}
-        {% if not is_duplicate %}
-            <div class="govuk-grid-column-one-quarter govuk-!-text-align-right">
-                <a class="govuk-link govuk-link--no-visited-state" href="{{ edit_url }}">Change<span class="govuk-visually-hidden">record details</span></a>
+<div class="govuk-summary-card">
+    <div class="govuk-summary-card__title-wrapper">
+        <h2 class="govuk-summary-card__title">Overview</h2>
+        {% if edit_url and not is_duplicate %}
+            <ul class="govuk-summary-card__actions">
+                <li class="govuk-summary-card__action">
+                    <a class="govuk-link" href="{{ edit_url }}">Change<span class="govuk-visually-hidden">record details</span></a>
+                </li>
+            </ul>
+        {% endif %}
+    </div>
+    <div class="govuk-summary-card__content">
+        {% if is_duplicate and available_links.fix_duplicate_records %}
+            <div class="govuk-inset-text">
+                This record is a duplicate and cannot be changed. It was combined with another duplicate to create a new principal
+                <a class="govuk-link" href={{ dedup_principal_url }}>{{ dedup_principal_url_text }}</a>.
+                If this was a mistake you can undo the deduplication from the actions tab.
             </div>
         {% endif %}
-    {% endif %}
-</div>
-{% if is_duplicate and available_links.fix_duplicate_records %}
-    <div class="govuk-inset-text">
-        This record is a duplicate and cannot be changed. It was combined with another duplicate to create a new principal
-        <a class="govuk-link" href={{ dedup_principal_url }}>{{ dedup_principal_url_text }}</a>.
-        If this was a mistake you can undo the deduplication from the actions tab.
+        {% include "webapp/components/record_tabs/record_summary_list.html" %}
     </div>
-{% endif %}
-{% include "webapp/components/record_tabs/record_summary_list.html" %}
+</div>
