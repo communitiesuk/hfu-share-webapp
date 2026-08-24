@@ -8,7 +8,6 @@ from botocore.exceptions import ClientError
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import Field, Fieldset, Layout
 from crispy_forms_gds.layout.constants import Size
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.paginator import Paginator
@@ -689,16 +688,14 @@ class AccommodationRequestDetailActionsView(
                 )
 
         # Confirm Current Accommodation
-        can_confirm_accommodation = (
-            settings.SET_CURRENT_ACCOM_HOST_ENABLED
-            and self.user_can_edit(
-                group_types=[
-                    GroupType.DEV,
-                    GroupType.LOCAL_AUTHORITY,
-                    GroupType.DEVOLVED_ADMINISTRATION,
-                ]
-            )
+        can_confirm_accommodation = self.user_can_edit(
+            group_types=[
+                GroupType.DEV,
+                # GroupType.LOCAL_AUTHORITY,
+                # GroupType.DEVOLVED_ADMINISTRATION,
+            ]
         )
+
         if can_confirm_accommodation:
             ltla_name = self.object.ltla_name
             is_multi_la = ltla_name is not None and len(ltla_name) > 1
@@ -1278,15 +1275,13 @@ class AccommodationRequestConfirmCurrentAccommodationView(
 ):
     group_type = [
         GroupType.DEV,
-        GroupType.LOCAL_AUTHORITY,
-        GroupType.DEVOLVED_ADMINISTRATION,
+        # GroupType.LOCAL_AUTHORITY,
+        # GroupType.DEVOLVED_ADMINISTRATION,
     ]
     template_name = "accommodation_requests/accommodation_requests_confirm_current_accommodation_page.html"  # noqa: E501
     model = MvAccommodationRequest
 
     def get(self, request, *args, **kwargs):
-        if not settings.SET_CURRENT_ACCOM_HOST_ENABLED:
-            return HttpResponse(status=404)
         self.object = self.get_object()
         ltla_name = self.object.ltla_name
         if ltla_name is not None and len(ltla_name) > 1:
