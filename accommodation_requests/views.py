@@ -1,3 +1,4 @@
+import logging
 import os
 import uuid
 from datetime import datetime, timedelta
@@ -51,7 +52,7 @@ from accommodation_requests.forms import (
 from accommodation_requests.safeguarding_utils import NotificationData, loop_and_raise
 from accounts.enums import GroupType
 from accounts.mixins import user_has_group_with_type
-from case_management.settings import FILE_DOWNLOAD_S3_BUCKET_NAME
+from case_management.settings import FILE_DOWNLOAD_S3_BUCKET_NAME, sentry_sdk
 from ontology.models import (
     Comment,
     CommentAttachment,
@@ -106,6 +107,8 @@ from webapp.widgets import (
 )
 
 from .enums import MoveGuestsTypes
+
+logger = logging.getLogger(__name__)
 
 
 class RematchGuestsFormSteps(StrEnum):
@@ -1821,14 +1824,22 @@ class SelectPrimaryAccommodationAndHostWizard(
                 )
                 ar.save()
 
-            # TODO: Add logging to sentry if there is success
+                sentry_sdk.metrics.count(
+                    "select_primary_accommodation_and_host",
+                    1,
+                    attributes={
+                        "user_id": self.request.user.id,
+                        "checks_status": new_checks_status,
+                    },
+                )
 
             messages.success(
                 self.request,
                 f"You confirmed the current accommodation and host for {ar.title}.",
             )
-        except DatabaseError:
-            # TODO: Add logging to sentry if there is an error
+        except DatabaseError as e:
+            logger.exception("Select Primary Accommodation And Host Error: %s", e)
+            sentry_sdk.capture_exception(e)
 
             messages.error(
                 self.request,

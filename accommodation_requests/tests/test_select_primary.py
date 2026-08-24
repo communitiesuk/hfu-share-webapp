@@ -1,5 +1,5 @@
 import http.client
-from unittest.mock import patch
+from unittest.mock import call, patch
 
 from django.db import DatabaseError
 from django.test import TestCase
@@ -332,7 +332,7 @@ class AccommodationRequestDetailViewsTabsTestCase(TestSessionTokenMixin, TestCas
         user = get_admin_user()
         self.client.force_login(user)
 
-        response = self.client.post(
+        self.client.post(
             reverse(
                 "accommodation-requests:select-primary-step",
                 kwargs={
@@ -386,6 +386,64 @@ class AccommodationRequestDetailViewsTabsTestCase(TestSessionTokenMixin, TestCas
         self.assertEqual(
             self.accommodation_request.checks_status,
             MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
+        )
+
+    @patch("accommodation_requests.views.sentry_sdk.metrics.count")
+    def test_select_primary_host_success_sends_sentry_metric(self, sentry_metrics):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        self.client.post(
+            reverse(
+                "accommodation-requests:select-primary-step",
+                kwargs={
+                    "pk": self.accommodation_request.pk,
+                    "step": SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION,
+                },
+            ),
+            {
+                "accommodation-accommodation": self.accommodation_2.id,
+                f"select_primary_accommodation_and_host_wizard_"
+                f"{self.accommodation_request.pk}-current_step": (
+                    SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION.value
+                ),
+            },
+            follow=True,
+        )
+
+        self.client.post(
+            reverse(
+                "accommodation-requests:select-primary-step",
+                kwargs={
+                    "pk": self.accommodation_request.pk,
+                    "step": SelectPrimaryAccommodationAndHostSteps.HOST,
+                },
+            ),
+            {
+                "host-host": self.host_2.id,
+                f"select_primary_accommodation_and_host_wizard_"
+                f"{self.accommodation_request.pk}-current_step": (
+                    SelectPrimaryAccommodationAndHostSteps.HOST.value
+                ),
+            },
+            follow=True,
+        )
+
+        self.assertEqual(sentry_metrics.call_count, 1)
+        self.assertEqual(
+            sentry_metrics.call_args_list,
+            [
+                call(
+                    "select_primary_accommodation_and_host",
+                    1,
+                    attributes={
+                        "user_id": user.id,
+                        "checks_status": (
+                            MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED
+                        ),
+                    },
+                )
+            ],
         )
 
     def test_select_primary_host_db_error(self):
