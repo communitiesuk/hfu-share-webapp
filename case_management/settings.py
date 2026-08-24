@@ -21,6 +21,10 @@ from csp.constants import NONCE, NONE, SELF, UNSAFE_INLINE
 # If disabled will fallback to regular django login
 ENTRA_ID_ENABLED = os.environ.get("ENTRA_ID_ENABLED", "True") == "True"
 
+SET_CURRENT_ACCOM_HOST_ENABLED = (
+    os.environ.get("SET_CURRENT_ACCOM_HOST_ENABLED", "False") == "True"
+)
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 

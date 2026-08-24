@@ -8,6 +8,7 @@ from botocore.exceptions import ClientError
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import Field, Fieldset, Layout
 from crispy_forms_gds.layout.constants import Size
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.paginator import Paginator
@@ -687,6 +688,40 @@ class AccommodationRequestDetailActionsView(
                     )
                 )
 
+        # Confirm Current Accommodation
+        can_confirm_accommodation = (
+            settings.SET_CURRENT_ACCOM_HOST_ENABLED
+            and self.user_can_edit(
+                group_types=[
+                    GroupType.DEV,
+                    GroupType.LOCAL_AUTHORITY,
+                    GroupType.DEVOLVED_ADMINISTRATION,
+                ]
+            )
+        )
+        if can_confirm_accommodation:
+            ltla_name = self.object.ltla_name
+            is_multi_la = ltla_name is not None and len(ltla_name) > 1
+            if is_multi_la:
+                actions.append(
+                    TagAction(
+                        label="Confirm Current Accommodation",
+                        tag_text="Unavailable - this is a Multi LA case",
+                        tag_colour_class="govuk-tag--red",
+                    )
+                )
+            else:
+                actions.append(
+                    LinkAction(
+                        label="Confirm Current Accommodation",
+                        url_text="Start",
+                        url=reverse(
+                            "accommodation-requests:confirm-current-accommodation",
+                            kwargs={"pk": self.object.id},
+                        ),
+                    )
+                )
+
         return actions
 
     def get_context_data(self, **kwargs):
@@ -1236,6 +1271,35 @@ class AccommodationRequestWithdrawSponsorView(
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.object = None
+
+
+class AccommodationRequestConfirmCurrentAccommodationView(
+    PIISafeRecordNameMixin, PermissionsMixin, DetailView
+):
+    group_type = [
+        GroupType.DEV,
+        GroupType.LOCAL_AUTHORITY,
+        GroupType.DEVOLVED_ADMINISTRATION,
+    ]
+    template_name = "accommodation_requests/accommodation_requests_confirm_current_accommodation_page.html"  # noqa: E501
+    model = MvAccommodationRequest
+
+    def get(self, request, *args, **kwargs):
+        if not settings.SET_CURRENT_ACCOM_HOST_ENABLED:
+            return HttpResponse(status=404)
+        self.object = self.get_object()
+        ltla_name = self.object.ltla_name
+        if ltla_name is not None and len(ltla_name) > 1:
+            return HttpResponse(status=409)
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["back_url"] = reverse(
+            "accommodation-requests:detail-actions",
+            kwargs={"pk": self.object.id},
+        )
+        return context
 
 
 class RematchGuestsFormWizard(
