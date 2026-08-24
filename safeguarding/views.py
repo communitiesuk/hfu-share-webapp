@@ -21,6 +21,7 @@ from django.db.models import (
 )
 from django.db.models.functions import Coalesce, Concat
 from django.http import HttpRequest, StreamingHttpResponse
+from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
@@ -112,7 +113,7 @@ class DownloadEscalatedChecksCSVView(PermissionsMixin, View):
             "UTLA",
         ]
 
-        qs = SafeguardingReferral.objects.all()
+        qs = SafeguardingReferral.objects.get_for_user(request.user)
         latest_alert_date_subquery = (
             SafeguardingNotification.objects.filter(
                 ar=OuterRef("person__accommodation_request")
@@ -573,8 +574,7 @@ class EscalatedChecksView(
 
     def get_queryset(self):
         qs = (
-            super()
-            .get_queryset()
+            SafeguardingReferral.objects.get_for_user(self.request.user)
             .select_related("person")
             .only(
                 "created_at",
@@ -1523,7 +1523,9 @@ class SafeguardingDetailCentralSafeguardingAlertDetailView(
         referral_id = self.kwargs.get("referral_id")
         ctx["referral_id"] = referral_id
         person_pk = self.kwargs.get("pk")
-        person = MvPerson.objects.get(pk=person_pk)
+        person = get_object_or_404(
+            MvPerson.objects.get_for_user(self.request.user), pk=person_pk
+        )
         notification = self.get_object()
         dev_check = notification.dev_check_v2
         ctx["person"] = person

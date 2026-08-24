@@ -252,20 +252,26 @@ class LandingPageView(UserActionsMixin, MultiTableMixin, TemplateView):
                 table.csrf_token = csrf_token
 
         context["tables"] = table_instances
-        user_groups = self.request.user.groups.values_list(
-            "groupinfo__group_type", flat=True
-        )
+        user_groups = self.request.user.get_group_types()
         if GroupType.MHCLG in user_groups:
-            context["pending_virs"] = VisaInformationRequest.objects.filter(
-                request_status__in=[
-                    VisaInformationRequest.RequestStatus.AWAITING_LA,
-                    VisaInformationRequest.RequestStatus.AWAITING_UKVI,
-                ]
-            ).count()
+            context["pending_virs"] = (
+                VisaInformationRequest.objects.get_for_user(self.request.user)
+                .filter(
+                    request_status__in=[
+                        VisaInformationRequest.RequestStatus.AWAITING_LA,
+                        VisaInformationRequest.RequestStatus.AWAITING_UKVI,
+                    ]
+                )
+                .count()
+            )
         elif GroupType.HOME_OFFICE in user_groups:
-            context["pending_virs"] = VisaInformationRequest.objects.filter(
-                request_status=VisaInformationRequest.RequestStatus.AWAITING_UKVI,
-            ).count()
+            context["pending_virs"] = (
+                VisaInformationRequest.objects.get_for_user(self.request.user)
+                .filter(
+                    request_status=VisaInformationRequest.RequestStatus.AWAITING_UKVI,
+                )
+                .count()
+            )
         elif GroupType.LOCAL_AUTHORITY in user_groups:
             context["pending_virs"] = (
                 VisaInformationRequest.objects.get_for_user(self.request.user)
