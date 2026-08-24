@@ -7,6 +7,7 @@ from .views import (
     SELECT_PRIMARY_ACCOMMODATION_AND_HOST_FORMS,
     AccommodationRequestCloseForGuests,
     AccommodationRequestCommentsDownloadAttachmentView,
+    AccommodationRequestConfirmCurrentAccommodationView,
     AccommodationRequestDetailActionsView,
     AccommodationRequestDetailCommentsView,
     AccommodationRequestDetailHistoryView,
@@ -101,6 +102,11 @@ urlpatterns = [
         "<str:pk>/withdraw-sponsor",
         AccommodationRequestWithdrawSponsorView.as_view(),
         name="withdraw-sponsor",
+    ),
+    path(
+        "<str:pk>/confirm-current-accommodation",
+        AccommodationRequestConfirmCurrentAccommodationView.as_view(),
+        name="confirm-current-accommodation",
     ),
     path(
         "<str:pk>/rematch-guests/<str:step>/",

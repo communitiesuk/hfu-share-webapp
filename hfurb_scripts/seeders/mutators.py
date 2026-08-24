@@ -7,7 +7,7 @@ from accommodation_requests.forms import (
     AccommodationRequestUpdateSafeguardingChecksForm,
 )
 from accounts.models import User
-from hfurb_scripts.seeders.helpers import get_group_info_from_ltla
+from hfurb_scripts.seeders.helpers import get_group_info_from_ltla, record_id
 from ontology.models import (
     DevCheckV2,
     MvAccommodationRequest,
@@ -34,20 +34,29 @@ def mutate_closed_left_programme(accommodation_request: MvAccommodationRequest) 
     )
 
 
-def mutate_rematch_required(accommodation_request: MvAccommodationRequest) -> None:
+def mutate_rematch_required(
+    accommodation_request: MvAccommodationRequest,
+    destination_ltla_name: str | None = None,
+    approve: bool | None = None,
+    author: User | None = None,
+    reason: str = "Reason for rematch required",
+) -> None:
     # Create RR
-    ltla_name = random.choice(["Lewisham", "Bromley", "Croydon"])
-    # Ensure ltla_name is different from the current one
-    if ltla_name == accommodation_request.ltla_name:
-        ltla_name = "Bromley" if ltla_name != "Bromley" else "Lewisham"
+    if destination_ltla_name is None:
+        destination_ltla_name = random.choice(["Lewisham", "Bromley", "Croydon"])
+        # Ensure ltla_name is different from the current one
+        if destination_ltla_name == accommodation_request.ltla_name:
+            destination_ltla_name = (
+                "Bromley" if destination_ltla_name != "Bromley" else "Lewisham"
+            )
 
-    destination = get_group_info_from_ltla(ltla_name)
+    destination = get_group_info_from_ltla(destination_ltla_name)
 
     reassignment_request = ReassignmentRequest(
         id=f"rr-{fake.uuid4()}",
         accommodation_request=accommodation_request,
         outcome=ReassignmentRequest.Outcome.PENDING,
-        reason="Reason for rematch required",
+        reason=reason,
         proposed_by_country="England",
         accommodation_request_title=accommodation_request.title,
         destination_country=destination.da_name,  # type: ignore[union-attr]
@@ -61,10 +70,10 @@ def mutate_rematch_required(accommodation_request: MvAccommodationRequest) -> No
 
     reassignment_request.guests.set(accommodation_request.get_people())
 
-    # randomise number from 0 to 2
-    random_number = random.randint(0, 2)
-    should_approve = random_number == 0
-    if not should_approve:
+    if approve is None:
+        # randomise number from 0 to 2
+        approve = random.randint(0, 2) == 0
+    if not approve:
         return  # Do not approve the request
 
     # Approve RR
@@ -88,8 +97,9 @@ def mutate_rematch_required(accommodation_request: MvAccommodationRequest) -> No
 
     accommodation_request.save()
 
-    email = os.environ.get("ADMIN_EMAIL")
-    author = User.objects.get(email=email)
+    if author is None:
+        email = os.environ.get("ADMIN_EMAIL")
+        author = User.objects.get(email=email)
 
     # Update AR accommodations
     accommodation_request.update_accommodation(new_accommodation=None, author=author)
@@ -100,6 +110,8 @@ def mutate_rematch_required(accommodation_request: MvAccommodationRequest) -> No
 
 def mutate_checks(  # noqa: C901
     accommodation_request: MvAccommodationRequest,
+    id_prefix: str = "",
+    author: User | None = None,
 ) -> None:
     checks = [
         (
@@ -128,6 +140,7 @@ def mutate_checks(  # noqa: C901
     def _create_check(type_id, link_attr, link_obj, check_status):
         check_type = CheckType.objects.get(id=type_id)
         devcheck = DevCheckV2Factory.build(
+            id=record_id("check", id_prefix),
             check_type=check_type,
             check_status=check_status,
         )
@@ -200,14 +213,19 @@ def mutate_checks(  # noqa: C901
                 form_data["sponsors"] = link_obj.pk
                 form_data["sponsor_dbs_failure"] = _get_reason(devcheck)
 
-            email = os.environ.get("ADMIN_EMAIL")
-            user = User.objects.get(email=email)
+            if author is None:
+                email = os.environ.get("ADMIN_EMAIL")
+                author = User.objects.get(email=email)
 
             form = AccommodationRequestUpdateSafeguardingChecksForm(
                 data=form_data,
                 instance=accommodation_request,
-                user=user,
+                user=author,
                 dev_check_v2_id=devcheck.id,
             )
-            form.is_valid()
+            if not form.is_valid():
+                raise ValueError(
+                    f"Safeguarding checks form invalid for "
+                    f"{accommodation_request.id}: {form.errors.as_data()}"
+                )
             form.save()

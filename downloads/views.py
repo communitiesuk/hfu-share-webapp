@@ -52,9 +52,7 @@ class DownloadsPage(PermissionsMixin, FormView):
     def form_valid(self, form):  # noqa: C901
         download_type = form.cleaned_data["download_type"]
 
-        user_group_types = set(
-            self.request.user.groups.values_list("groupinfo__group_type", flat=True)
-        )
+        user_group_types = self.request.user.get_group_types()
         unrestricted_user = bool(
             user_group_types.intersection(
                 {
@@ -104,7 +102,7 @@ class DownloadsPage(PermissionsMixin, FormView):
 
             if download_type == DownloadType.ALL:
                 if unrestricted_user:
-                    model_objects = (
+                    model_objects = export_model.objects.exclude_browser_test_records(
                         export_model.objects.get_queryset_without_annotations()
                     )
                 if form.cleaned_data["date_from"]:

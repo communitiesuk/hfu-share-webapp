@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block breadcrumb_content %}
+    <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link"
+           href="{% url 'accommodation-requests:accommodation-requests' %}">Accommodation requests</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link"
+           href="{% url 'accommodation-requests:detail-actions' object.id %}">Accommodation request record</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">Confirm Current Accommodation</li>
+{% endblock breadcrumb_content %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {% include "webapp/components/heading/heading.html" with caption="Confirm Current Accommodation for" page_heading=object.title %}
+            <p class="govuk-body">
+                Use this page to confirm the Primary Accommodation (Current Accommodation) and Primary Host (Current Host) for this accommodation request.
+            </p>
+            <a href="{{ back_url }}" class="govuk-link">Back to actions</a>
+        </div>
+    </div>
+{% endblock content %}

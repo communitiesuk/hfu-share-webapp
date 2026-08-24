@@ -48,9 +48,7 @@ class User(AbstractUser):
         return self.groups.filter(groupinfo__group_type=GroupType.DEV).exists()
 
     def is_la(self):
-        return self.groups.filter(
-            groupinfo__group_type=GroupType.LOCAL_AUTHORITY
-        ).exists()
+        return GroupType.LOCAL_AUTHORITY in self.get_group_types()
 
     def is_home_office(self):
         return self.groups.filter(groupinfo__group_type=GroupType.HOME_OFFICE).exists()
@@ -68,10 +66,16 @@ class User(AbstractUser):
             groupinfo__group_type=GroupType.DEVOLVED_ADMINISTRATION
         ).exists()
 
-    def is_in_group_types(self, group_types):
+    def get_group_types(self) -> set[str]:
+        group_types = set(self.groups.values_list("groupinfo__group_type", flat=True))
+        if GroupType.LOCAL_AUTHORITY_BROWSER_TEST in group_types:
+            group_types.add(GroupType.LOCAL_AUTHORITY)
+        return group_types
+
+    def is_in_group_types(self, group_types) -> bool:
         if not isinstance(group_types, (list, tuple, set)):
             group_types = [group_types]
-        return self.groups.filter(groupinfo__group_type__in=group_types).exists()
+        return bool(self.get_group_types() & set(group_types))
 
     def get_initials(self) -> str:
         initials = ""

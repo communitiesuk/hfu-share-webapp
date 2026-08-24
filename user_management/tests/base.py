@@ -59,6 +59,17 @@ def get_ea_user():
     )
 
 
+def get_browser_test_la_user():
+    return get_user_with_groups(
+        [
+            UserGroup(
+                name="ltla_hobbiton_browser_test",
+                type=GroupType.LOCAL_AUTHORITY_BROWSER_TEST,
+            ),
+        ]
+    )
+
+
 def get_user_with_no_access():
     return UserFactory()
 

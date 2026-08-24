@@ -271,6 +271,8 @@ class UserUtilitiesMixin:
             user = getattr(self, "request", None)
             if user is not None:
                 user = getattr(user, "user", user)
+        if hasattr(user, "get_group_types"):
+            return user.get_group_types()
         if hasattr(user, "groups"):
             return set(user.groups.values_list("groupinfo__group_type", flat=True))
         return set()
@@ -445,8 +447,7 @@ class SummaryListTestCaseMixin:
 
 class MultiLABannerMixin:
     def add_multi_la_message(self):
-        ltla_name = self.object.ltla_name
-        if ltla_name and len(ltla_name) > 1:
+        if self.object.is_multi_la:
             linked_records_url = reverse(
                 "accommodation-requests:detail-linked-records",
                 kwargs={"pk": self.object.id},
