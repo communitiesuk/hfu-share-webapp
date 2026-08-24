@@ -199,3 +199,19 @@ jobs:
     secrets: inherit
     with:
       suite: browser
+
+  notify_slack_about_a_browser_test:
+    name: Notify Slack
+    needs: [ deploy, run_browser_tests ]
+    if: ${{ always() }}  # Run even if the browser tests job fails
+    uses: ./.github/workflows/notify-slack.yml
+    with:
+      environment: ${{ needs.deploy.outputs.deploy_env }}
+      success_or_failure: ${{ needs.run_browser_tests.result }}
+      job_type: 'Browser tests'
+      github_actor: Triggered by ${{ github.actor }}.
+      workflow_run: See workflow run at https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      release_notes: ""
+    secrets:
+      SLACK_SUCCESS_WEBHOOK_URL: ${{ secrets.SLACK_BROWSER_TEST_SUCCESS_WEBHOOK_URL }}
+      SLACK_FAILURE_WEBHOOK_URL: ${{ secrets.SLACK_BROWSER_TEST_FAILURE_WEBHOOK_URL }}
