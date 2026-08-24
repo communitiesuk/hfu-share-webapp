@@ -697,9 +697,7 @@ class AccommodationRequestDetailActionsView(
         )
 
         if can_confirm_accommodation:
-            ltla_name = self.object.ltla_name
-            is_multi_la = ltla_name is not None and len(ltla_name) > 1
-            if is_multi_la:
+            if self.object.is_multi_la:
                 actions.append(
                     TagAction(
                         label="Confirm Current Accommodation",
@@ -909,8 +907,7 @@ class AccommodationRequestDetailHistoryView(
         if user_has_group_with_type(
             user, GroupType.LOCAL_AUTHORITY
         ) or user_has_group_with_type(user, GroupType.DEVOLVED_ADMINISTRATION):
-            ltlas = self.object.get_all_ltla_names()
-            if ltlas and len(ltlas) > 1:
+            if self.object.is_multi_la:
                 return False
 
         return super()._show_events()
@@ -1278,15 +1275,12 @@ class AccommodationRequestConfirmCurrentAccommodationView(
         # GroupType.LOCAL_AUTHORITY,
         # GroupType.DEVOLVED_ADMINISTRATION,
     ]
-    template_name = (
-    "accommodation_requests/accommodation_requests_confirm_current_accommodation_page.html"
-    ) 
+    template_name = "accommodation_requests/accommodation_requests_confirm_current_accommodation_page.html"  # noqa: E501
     model = MvAccommodationRequest
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
-        ltla_name = self.object.ltla_name
-        if ltla_name is not None and len(ltla_name) > 1:
+        if self.object.is_multi_la:
             return HttpResponse(status=409)
         return super().get(request, *args, **kwargs)
 

@@ -689,6 +689,10 @@ class MvAccommodationRequest(models.Model):
             return list(self.ltla_name)
         return None
 
+    @property
+    def is_multi_la(self) -> bool:
+        return self.ltla_name is not None and len(self.ltla_name) > 1
+
     def get_all_utla_names(self) -> list[str] | None:
         if self.utla_name:
             return list(self.utla_name)
