@@ -195,6 +195,6 @@ jobs:
     if: |
       github.event_name == 'push' ||
       inputs.environment == 'aws-dev'
-    uses: ./.github/workflows/browser-test-suite.yml
+    uses: ./.github/workflows/run-browser-tests.yml
     with:
       suite: browser

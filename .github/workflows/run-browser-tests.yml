@@ -11,6 +11,12 @@ on:
           - browser
           - accessibility
           - browser and accessibility
+  workflow_call:
+    inputs:
+      suite:
+        description: Which test suites to run
+        default: browser
+        type: string
 
 permissions:
   id-token: write
