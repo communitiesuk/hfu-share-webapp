@@ -3,10 +3,6 @@ name: Browser Test Suite
 on:
   workflow_call:
     inputs:
-      build-artifact:
-        description: Flag to indicate if the artifact needs to be built
-        default: true
-        type: boolean
       suite:
         description: Which test suite to run (browser or accessibility)
         required: true
@@ -26,18 +22,10 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  upload-artifact:
-    name: Upload artifact to S3
-    if: inputs.build-artifact
-    uses: ./.github/workflows/upload-artifact-for-browser-test.yml
-
   run-suite:
     name: Run ${{ inputs.suite }} tests
     runs-on: ubuntu-latest
     environment: aws-dev
-
-    needs: upload-artifact
-    if: ${{ always() && (needs.upload-artifact.result == 'success' || needs.upload-artifact.result == 'skipped') }}
 
     steps:
       - name: Configure AWS credentials (OIDC)
