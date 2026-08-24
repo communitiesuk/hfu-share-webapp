@@ -1278,7 +1278,9 @@ class AccommodationRequestConfirmCurrentAccommodationView(
         # GroupType.LOCAL_AUTHORITY,
         # GroupType.DEVOLVED_ADMINISTRATION,
     ]
-    template_name = "accommodation_requests/accommodation_requests_confirm_current_accommodation_page.html"  # noqa: E501
+    template_name = (
+    "accommodation_requests/accommodation_requests_confirm_current_accommodation_page.html"
+    ) 
     model = MvAccommodationRequest
 
     def get(self, request, *args, **kwargs):
