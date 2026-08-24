@@ -61,6 +61,7 @@ from ontology.models import (
     MvInteraction,
     MvInteractionAttachmentMetadata,
     MvPerson,
+    MvVolunteer,
     ReassignmentRequest,
     SafeguardingNotification,
 )
@@ -1740,6 +1741,16 @@ class SelectPrimaryAccommodationAndHostWizard(
         if not self.check_ar_can_use_wizard_placeholder():
             return HttpResponse(status=409)
 
+        step_url = kwargs.get("step")
+        if step_url == SelectPrimaryAccommodationAndHostSteps.HOST and not (
+            self.get_cleaned_data_for_step(
+                SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION
+            )
+        ):
+            return self.render_goto_step(
+                SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION
+            )
+
         return super().get(request, *args, **kwargs)
 
     def get_form_kwargs(self, step=None):
@@ -1751,12 +1762,20 @@ class SelectPrimaryAccommodationAndHostWizard(
                     self.object.get_accommodations_restrict_for_user(self.request.user)
                 )
             case SelectPrimaryAccommodationAndHostSteps.HOST:
-                accommodation_step_data = self.get_cleaned_data_for_step(
-                    SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION
+                accommodation_step_data = (
+                    self.get_cleaned_data_for_step(
+                        SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION
+                    )
+                    or {}
                 )
-                kwargs["hosts"] = MvAccommodation.objects.get(
-                    id=accommodation_step_data["accommodation"]
-                ).get_hosts_restrict_for_user(self.request.user)
+                accommodation_id = accommodation_step_data.get("accommodation")
+                kwargs["hosts"] = (
+                    MvAccommodation.objects.get(
+                        id=accommodation_id
+                    ).get_hosts_restrict_for_user(self.request.user)
+                    if accommodation_id
+                    else MvVolunteer.objects.none()
+                )
 
         return kwargs
 

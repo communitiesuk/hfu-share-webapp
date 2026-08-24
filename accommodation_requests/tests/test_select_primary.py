@@ -448,4 +448,28 @@ class AccommodationRequestDetailViewsTabsTestCase(TestSessionTokenMixin, TestCas
         )
 
     # TODO: Add tests for logging
-    # TODO: Add test for trying to go to the host page too early
+
+    def test_going_to_host_step_too_early_redirects_to_accommodation_step(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse(
+                "accommodation-requests:select-primary-step",
+                kwargs={
+                    "pk": self.accommodation_request.pk,
+                    "step": SelectPrimaryAccommodationAndHostSteps.HOST,
+                },
+            )
+        )
+
+        self.assertRedirects(
+            response,
+            reverse(
+                "accommodation-requests:select-primary-step",
+                kwargs={
+                    "pk": self.accommodation_request.pk,
+                    "step": SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION,
+                },
+            ),
+        )
