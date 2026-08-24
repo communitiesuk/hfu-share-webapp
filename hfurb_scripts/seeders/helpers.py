@@ -6,9 +6,11 @@ from typing import List, Optional
 from django.utils import timezone
 from faker import Faker
 
+from accounts.enums import BROWSER_TEST_LTLA_NAMES
 from accounts.models import GroupInfo
 from ontology.models import (
     CheckType,
+    ExportToolObject,
     MvAccommodation,
     MvAccommodationRequest,
     MvGroup,
@@ -20,6 +22,7 @@ from ontology.models import (
 from ontology.models.MvUkPostcode import MvUkPostcode
 from ontology.tests.factories import (
     DevCheckV2Factory,
+    ExportToolObjectFactory,
     MvAccommodationFactory,
     MvAccommodationRequestFactory,
     MvGroupFactory,
@@ -38,11 +41,31 @@ def get_group_info_from_ltla(ltla_name: str) -> Optional[GroupInfo]:
     return GroupInfo.objects.filter(ltla_name=ltla_name).first()
 
 
-def create_mv_uk_postcode(ltla_name: str | None = None) -> MvUkPostcode:
+_id_counters: dict[str, int] = {}
+
+
+def next_serial(key: str) -> int:
+    _id_counters[key] = _id_counters.get(key, 0) + 1
+    return _id_counters[key]
+
+
+def reset_record_id_counters() -> None:
+    _id_counters.clear()
+
+
+def record_id(kind: str, id_prefix: str = "") -> str:
+    if id_prefix:
+        return f"{id_prefix}-{kind}-{next_serial(f'{id_prefix}-{kind}'):05d}"
+    return f"{kind}-{uuid.uuid4()}"
+
+
+def create_mv_uk_postcode(
+    ltla_name: str | None = None, id_prefix: str = ""
+) -> MvUkPostcode:
     postcode_str = fake.postcode()
 
     return MvUkPostcodeFactory(  # type: ignore[return-value]
-        id=f"postcode-{uuid.uuid4()}",
+        id=record_id("postcode", id_prefix),
         postcode=postcode_str.replace(" ", ""),
         postcode_formatted=postcode_str,
         title=postcode_str,
@@ -50,22 +73,27 @@ def create_mv_uk_postcode(ltla_name: str | None = None) -> MvUkPostcode:
     )
 
 
+ADDRESS_TOWN_OVERRIDES = {BROWSER_TEST_LTLA_NAMES[0]: "Hobbiton"}
+
+
 def create_mv_accommodation(
     ltla_name: str,
     accommodation_type: MvAccommodation.AccommodationType | None = None,
+    id_prefix: str = "",
 ) -> MvAccommodation:
     group_info = get_group_info_from_ltla(ltla_name)
+    address_town = ADDRESS_TOWN_OVERRIDES.get(ltla_name, ltla_name)
 
     if accommodation_type is None:
         accommodation_type = MvAccommodation.AccommodationType.SPONSOR_ACCOMMODATION
 
     return MvAccommodationFactory(  # type: ignore[return-value]
-        id=f"accommodation-{uuid.uuid4()}",
+        id=record_id("accommodation", id_prefix),
         accommodation_type=accommodation_type,
-        full_address=f"{fake.street_address()}, {ltla_name}",
+        full_address=f"{fake.street_address()}, {address_town}",
         ltla_name=ltla_name,
         utla_name=group_info.utla_name if group_info else ltla_name,
-        postcode=create_mv_uk_postcode(ltla_name),
+        postcode=create_mv_uk_postcode(ltla_name, id_prefix),
         is_accommodation=True,
         is_available_for_rematch=True,
         is_eoi=False,
@@ -75,6 +103,7 @@ def create_mv_accommodation(
 
 def create_mv_sponsor(
     sponsor_type: MvVolunteer.SponsorType | None = None,
+    id_prefix: str = "",
 ) -> MvVolunteer:
     first_name = fake.first_name()
     last_name = fake.last_name()
@@ -87,7 +116,7 @@ def create_mv_sponsor(
     date_of_birth = fake.date_of_birth(minimum_age=age, maximum_age=age)
 
     return MvVolunteerFactory(  # type: ignore[return-value]
-        id=f"sponsor-{uuid.uuid4()}",
+        id=record_id("sponsor", id_prefix),
         first_name=first_name,
         last_name=last_name,
         full_name=f"{first_name} {last_name}",
@@ -146,6 +175,7 @@ def add_visa_application_to_sponsor(
 def create_mv_person(
     upe_visa_status: MvPerson.UPEVisaStatus | None = None,
     visa_status: str | None = None,
+    id_prefix: str = "",
 ) -> MvPerson:
     first_name = fake.first_name()
     last_name = fake.last_name()
@@ -162,7 +192,7 @@ def create_mv_person(
 
     return MvPersonFactory(  # type: ignore[return-value]
         accommodation_request=None,
-        id=f"person-{uuid.uuid4()}",
+        id=record_id("person", id_prefix),
         first_name=first_name,
         last_name=last_name,
         email=[fake.email()],
@@ -199,7 +229,7 @@ def add_visa_application_to_person(
     person.save()
 
 
-def create_mv_group(people: List[MvPerson]) -> MvGroup:
+def create_mv_group(people: List[MvPerson], id_prefix: str = "") -> MvGroup:
     # Find the oldest person as primary contact
     primary_contact = max(people, key=lambda p: p.age)
 
@@ -212,7 +242,7 @@ def create_mv_group(people: List[MvPerson]) -> MvGroup:
     email = fake.email()
 
     return MvGroupFactory(  # type: ignore[return-value]
-        id=f"group-{uuid.uuid4()}",
+        id=record_id("group", id_prefix),
         title=title,
         number_of_people_in_group=num_people,
         primary_contact_first_name=primary_contact.first_name,
@@ -235,6 +265,7 @@ def create_mv_accommodation_request(
     sponsor: MvVolunteer,
     status: MvAccommodationRequest.Status | None = None,
     checks_status: MvAccommodationRequest.ChecksStatus | None = None,
+    id_prefix: str = "",
 ) -> MvAccommodationRequest:
     if status is None:
         status = MvAccommodationRequest.Status.ACCOMMODATION_ASSIGNED
@@ -242,8 +273,14 @@ def create_mv_accommodation_request(
     if checks_status is None:
         checks_status = MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED
     latest_application_date = timezone.now() - timedelta(days=random.randint(30, 365))
+
+    if id_prefix:
+        unique_application_number = f"1313-0000-{next_serial(f'{id_prefix}-uan'):08d}"
+    else:
+        unique_application_number = f"1313-0000-{str(uuid.uuid4()).upper()}"
+
     return MvAccommodationRequestFactory(  # type: ignore[return-value]
-        id=str(uuid.uuid4()),
+        id=record_id("ar", id_prefix) if id_prefix else str(uuid.uuid4()),
         title=group.title + f" to {accommodation.full_address}",
         person_id=[person.id for person in people],
         accommodation_id=[accommodation.id],
@@ -254,7 +291,7 @@ def create_mv_accommodation_request(
         ltla_name=[accommodation.ltla_name],
         utla_name=[accommodation.utla_name],
         primary_accommodation=accommodation,
-        unique_application_number=[f"1313-0000-{str(uuid.uuid4()).upper()}"],
+        unique_application_number=[unique_application_number],
         number_of_people=group.number_of_people_in_group,
         status=status,
         is_principal=True,
@@ -275,23 +312,39 @@ def create_visa_application(
     accommodation: MvAccommodation,
     accommodation_request: MvAccommodationRequest | None,
     visa_status: str | None = None,
+    id_prefix: str = "",
+    application_unique_application_number: str | None = None,
 ) -> VisaApplication:
     group_info = get_group_info_from_ltla(accommodation.ltla_name)
 
     if visa_status is None:
         visa_status = "Confirmed"
 
-    # Generate random visa decision date (between 30 and 180 days ago)
-    visa_decision_date = timezone.now() - timedelta(days=random.randint(30, 180))
-
-    return VisaApplicationFactory(  # type: ignore[return-value]
-        visa_application_id=str(uuid.uuid4()),
-        gwf=f"GWF{uuid.uuid4().hex[:8].upper()}",
-        application_unique_application_number=(
+    if application_unique_application_number is None:
+        application_unique_application_number = (
             accommodation_request.unique_application_number[0]
             if accommodation_request and accommodation_request.unique_application_number
             else None
-        ),
+        )
+
+    title_town = ADDRESS_TOWN_OVERRIDES.get(
+        accommodation.ltla_name, accommodation.ltla_name
+    )
+
+    # Generate random visa decision date (between 30 and 180 days ago)
+    visa_decision_date = timezone.now() - timedelta(days=random.randint(30, 180))
+
+    if id_prefix:
+        visa_application_id = record_id("visa", id_prefix)
+        gwf = f"GWF{next_serial(f'{id_prefix}-gwf'):08d}"
+    else:
+        visa_application_id = str(uuid.uuid4())
+        gwf = f"GWF{uuid.uuid4().hex[:8].upper()}"
+
+    return VisaApplicationFactory(  # type: ignore[return-value]
+        visa_application_id=visa_application_id,
+        gwf=gwf,
+        application_unique_application_number=application_unique_application_number,
         Q44b_given_name=person.first_name,
         Q44c_family_name=person.last_name,
         Q44g_full_name=f"{person.first_name} {person.last_name}",
@@ -311,7 +364,7 @@ def create_visa_application(
         title=(
             f"{person.first_name} {person.last_name} "
             f"sponsored by {sponsor.first_name} "
-            f"{sponsor.last_name} to {accommodation.ltla_name}"
+            f"{sponsor.last_name} to {title_town}"
         ),
         visa_status=visa_status,
         application_event_datetime=timezone.now()
@@ -320,10 +373,18 @@ def create_visa_application(
 
 
 def create_uam(
-    person: MvPerson, sponsor: MvVolunteer, accommodation: MvAccommodation
+    person: MvPerson,
+    sponsor: MvVolunteer,
+    accommodation: MvAccommodation,
+    id_prefix: str = "",
 ) -> SponsorshipCertificationForm:
+    if id_prefix:
+        reference = f"{id_prefix}-uam-{next_serial(f'{id_prefix}-uam'):05d}"
+    else:
+        reference = f"UAM-{str(uuid.uuid4())[:8].upper()}"
+
     return SponsorshipCertificationFormFactory(  # type: ignore[return-value]
-        reference=f"UAM-{str(uuid.uuid4())[:8].upper()}",
+        reference=reference,
         certificate_reference=f"CERT-{fake.random_number(digits=8)}",
         given_name=sponsor.first_name,
         family_name=sponsor.last_name,
@@ -349,19 +410,56 @@ def create_uam(
     )
 
 
+def create_export_tool_object(
+    person: MvPerson,
+    sponsor: MvVolunteer,
+    accommodation: MvAccommodation,
+    accommodation_request: MvAccommodationRequest,
+    id_prefix: str = "",
+) -> ExportToolObject:
+    return ExportToolObjectFactory(  # type: ignore[return-value]
+        id=record_id("export", id_prefix),
+        export_tool_id=record_id("export-tool", id_prefix),
+        ltla_name=[accommodation.ltla_name],
+        utla_name=[accommodation.utla_name] if accommodation.utla_name else None,
+        person_id=person.id,
+        person_full_name=f"{person.first_name} {person.last_name}",
+        person_date_of_birth=person.date_of_birth,
+        person_age=person.age,
+        person_gender=person.gender,
+        person_email=person.email,
+        person_phone=person.phone,
+        person_visa_status=person.visa_status,
+        person_upe_visa_status=person.upe_visa_status,
+        person_application_number=person.application_number,
+        sponsor_id=sponsor.id,
+        sponsor_full_name=sponsor.full_name,
+        accommodation_id=accommodation.id,
+        accommodation_full_address=accommodation.full_address,
+        group_id=accommodation_request.group.pk
+        if accommodation_request.group
+        else None,
+        unique_application_number=accommodation_request.unique_application_number,
+        title=accommodation_request.title,
+    )
+
+
 def add_uam_and_docs_to_person(
     person: MvPerson,
     uam: SponsorshipCertificationForm,
+    id_prefix: str = "",
 ) -> None:
     person.sponsorship_certification_number_id = [uam.reference]
     person.save()
 
     DevCheckV2Factory(
+        id=record_id("check", id_prefix),
         check_type=CheckType.objects.get(id=CheckType.Id.UK_FORM_UPLOADED),
         document=uam.reference + "-uk",
         person=[person],
     )
     DevCheckV2Factory(
+        id=record_id("check", id_prefix),
         check_type=CheckType.objects.get(id=CheckType.Id.UKR_FORM_UPLOADED),
         document=uam.reference + "-ukr",
         person=[person],
@@ -386,28 +484,33 @@ def add_uam_to_accommodation_request(
 
 def add_attachments_to_uam(
     uam: SponsorshipCertificationForm,
+    id_prefix: str = "",
 ) -> None:
     uk_path = "uk-form-id/uk_parental_consent.txt"
     ukr_path = "ukr-form-id/ukraine_parental_consent.txt"
 
     if random.choice([True, False]):
         SponsorshipCertificationAttachmentMetadataFactory(
+            id=record_id("attachment", id_prefix),
             sponsorship_certification_form=uam,
             filename="consent-form-uk.txt",
             file_path=uk_path,
         )
         SponsorshipCertificationAttachmentMetadataFactory(
+            id=record_id("attachment", id_prefix),
             sponsorship_certification_form=uam,
             filename="consent-form-ukr.txt",
             file_path=ukr_path,
         )
     else:
         SponsorshipCertificationAttachmentMetadataFactory(
+            id=record_id("attachment", id_prefix),
             rid=uam.reference + "-uk",
             filename="consent-form-uk.txt",
             file_path=uk_path,
         )
         SponsorshipCertificationAttachmentMetadataFactory(
+            id=record_id("attachment", id_prefix),
             rid=uam.reference + "-ukr",
             filename="consent-form-ukr.txt",
             file_path=ukr_path,
@@ -422,18 +525,22 @@ def build_complete_accommodation_scenario(
     upe_visa_status: MvPerson.UPEVisaStatus | None = None,
     checks_status: MvAccommodationRequest.ChecksStatus | None = None,
     visa_statuses: List[str] | None = None,
+    id_prefix: str = "",
+    status: MvAccommodationRequest.Status | None = None,
+    make_uam: bool | None = None,
 ) -> MvAccommodationRequest:
-    accommodation = create_mv_accommodation(ltla_name, accommodation_type)
-    sponsor = create_mv_sponsor(sponsor_type)
+    accommodation = create_mv_accommodation(ltla_name, accommodation_type, id_prefix)
+    sponsor = create_mv_sponsor(sponsor_type, id_prefix)
 
     if visa_statuses is None:
         visa_statuses = ["Confirmed"] * num_guests
 
     people = [
-        create_mv_person(upe_visa_status, visa_statuses[i]) for i in range(num_guests)
+        create_mv_person(upe_visa_status, visa_statuses[i], id_prefix)
+        for i in range(num_guests)
     ]
 
-    group = create_mv_group(people)
+    group = create_mv_group(people, id_prefix)
 
     add_people_to_group(group, people)
     add_accommodation_to_sponsor(sponsor, accommodation)
@@ -443,12 +550,15 @@ def build_complete_accommodation_scenario(
         group=group,
         people=people,
         sponsor=sponsor,
+        status=status,
         checks_status=checks_status,
+        id_prefix=id_prefix,
     )
 
-    # randomize a number from 0 to 4
-    one_in_five = random.randint(0, 4)
-    make_uam = (one_in_five == 0) and (num_guests == 1)
+    if make_uam is None:
+        # randomize a number from 0 to 4
+        one_in_five = random.randint(0, 4)
+        make_uam = (one_in_five == 0) and (num_guests == 1)
     if not make_uam:
         for i, person in enumerate(people):
             add_accommodation_request_to_person(person, accommodation_request)
@@ -458,16 +568,19 @@ def build_complete_accommodation_scenario(
                 accommodation,
                 accommodation_request,
                 visa_statuses[i],
+                id_prefix,
             )
             add_visa_application_to_person(person, visa_application)
             add_visa_application_to_sponsor(sponsor, visa_application)
     else:
         person = people[0]
+        person.visa_status = "Flow Visa Pending"
+        person.save()
         add_accommodation_request_to_person(person, accommodation_request)
-        uam = create_uam(person, sponsor, accommodation)
-        add_uam_and_docs_to_person(person, uam)
+        uam = create_uam(person, sponsor, accommodation, id_prefix)
+        add_uam_and_docs_to_person(person, uam, id_prefix)
         add_uam_to_sponsor(sponsor, uam)
-        add_attachments_to_uam(uam)
+        add_attachments_to_uam(uam, id_prefix)
         add_uam_to_accommodation_request(accommodation_request, uam)
 
     return accommodation_request

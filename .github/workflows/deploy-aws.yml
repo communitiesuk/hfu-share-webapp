@@ -159,7 +159,7 @@ jobs:
           ECS_MIGRATION_SUBNET_ID_LIST: ${{ vars.ECS_MIGRATION_SUBNET_ID_LIST }}
           ECS_MIGRATION_SECURITY_GROUP_LIST: ${{ vars.ECS_MIGRATION_SECURITY_GROUP_LIST }}
           AWS_REGION: ${{ vars.AWS_REGION }}
-        run: ./.github/workflows/scripts/run_db_migrations.sh
+        run: ./.github/workflows/scripts/run_ecs_task.sh
 
       - name: Force deployment
         id: force-deploy

@@ -32,7 +32,7 @@ def get_available_links(request):
 
 
 def _compute_available_links(user) -> dict:
-    user_group_types = set(user.groups.values_list("groupinfo__group_type", flat=True))
+    user_group_types = user.get_group_types()
 
     links = {
         "accommodation": bool(user_group_types & ACCOMMODATION_ALLOWED_GROUP_TYPES),

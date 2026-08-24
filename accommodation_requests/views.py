@@ -1664,6 +1664,7 @@ class ReassignGuestsFormWizard(
         if step == ReassignGuestsFormSteps.LOCAL_AUTHORITY:
             country_data = self.get_cleaned_data_for_step("country") or {}
             kwargs["country"] = country_data.get("country")
+            kwargs["user"] = self.request.user
 
         if step in [
             ReassignGuestsFormSteps.COUNTRY,
