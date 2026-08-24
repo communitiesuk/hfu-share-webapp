@@ -185,6 +185,53 @@ class AccommodationRequestDetailViewsTabsTestCase(TestSessionTokenMixin, TestCas
         )
         self.assertEqual(response.status_code, http.client.NOT_FOUND)
 
+    def test_multi_la_ar_get_returns_409(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        multi_la_accommodation_request = MvAccommodationRequestFactory(
+            title="Multi LA Accommodation Request",
+            checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
+            ltla_name=["ltla_somerset", "ltla_bristol"],
+        )
+
+        response = self.client.get(
+            reverse(
+                "accommodation-requests:select-primary",
+                args=[multi_la_accommodation_request.pk],
+            )
+        )
+        self.assertEqual(response.status_code, http.client.CONFLICT)
+
+    def test_multi_la_ar_post_returns_409(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        multi_la_accommodation_request = MvAccommodationRequestFactory(
+            title="Multi LA Accommodation Request",
+            checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
+            accommodation_id=[self.accommodation_1.id],
+            ltla_name=["ltla_somerset", "ltla_bristol"],
+        )
+
+        response = self.client.post(
+            reverse(
+                "accommodation-requests:select-primary-step",
+                kwargs={
+                    "pk": multi_la_accommodation_request.pk,
+                    "step": SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION,
+                },
+            ),
+            {
+                "accommodation-accommodation": self.accommodation_1.id,
+                f"select_primary_accommodation_and_host_wizard_"
+                f"{multi_la_accommodation_request.pk}-current_step": (
+                    SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION.value
+                ),
+            },
+        )
+        self.assertEqual(response.status_code, http.client.CONFLICT)
+
     def test_confirm_primary_accomodation_page(self):
         user = get_admin_user()
         self.client.force_login(user)
@@ -504,8 +551,6 @@ class AccommodationRequestDetailViewsTabsTestCase(TestSessionTokenMixin, TestCas
             self.accommodation_request.checks_status,
             MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
         )
-
-    # TODO: Add tests for logging
 
     def test_going_to_host_step_too_early_redirects_to_accommodation_step(self):
         user = get_admin_user()

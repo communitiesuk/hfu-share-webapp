@@ -731,7 +731,7 @@ class AccommodationRequestDetailActionsView(
                         label="Confirm Current Accommodation",
                         url_text="Start",
                         url=reverse(
-                            "accommodation-requests:confirm-current-accommodation",
+                            "accommodation-requests:select-primary",
                             kwargs={"pk": self.object.id},
                         ),
                     )
@@ -1287,32 +1287,6 @@ class AccommodationRequestWithdrawSponsorView(
         self.object = None
 
 
-class AccommodationRequestConfirmCurrentAccommodationView(
-    PIISafeRecordNameMixin, PermissionsMixin, DetailView
-):
-    group_type = [
-        GroupType.DEV,
-        # GroupType.LOCAL_AUTHORITY,
-        # GroupType.DEVOLVED_ADMINISTRATION,
-    ]
-    template_name = "accommodation_requests/accommodation_requests_confirm_current_accommodation_page.html"  # noqa: E501
-    model = MvAccommodationRequest
-
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        if self.object.is_multi_la:
-            return HttpResponse(status=409)
-        return super().get(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["back_url"] = reverse(
-            "accommodation-requests:detail-actions",
-            kwargs={"pk": self.object.id},
-        )
-        return context
-
-
 class RematchGuestsFormWizard(
     PIISafeRecordNameMixin,
     PermissionsMixin,
@@ -1792,12 +1766,8 @@ class SelectPrimaryAccommodationAndHostWizard(
     def get_step_url(self, step):
         return reverse(self.url_name, kwargs={"step": step, "pk": self.object.pk})
 
-    # TODO: Impliment this from HFURB-4000
-    def check_ar_can_use_wizard_placeholder(self):
-        return True
-
     def get(self, request, *args, **kwargs):
-        if not self.check_ar_can_use_wizard_placeholder():
+        if self.object.is_multi_la:
             return HttpResponse(status=409)
 
         step_url = kwargs.get("step")
@@ -1811,6 +1781,12 @@ class SelectPrimaryAccommodationAndHostWizard(
             )
 
         return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if self.object.is_multi_la:
+            return HttpResponse(status=409)
+
+        return super().post(request, *args, **kwargs)
 
     def get_form_kwargs(self, step=None):
         kwargs = super().get_form_kwargs(step)
