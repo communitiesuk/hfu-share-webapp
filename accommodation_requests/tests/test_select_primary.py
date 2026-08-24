@@ -383,7 +383,7 @@ class AccommodationRequestDetailViewsTabsTestCase(TestSessionTokenMixin, TestCas
         self.assertEqual(self.accommodation_request.active_host_id, self.host_2.id)
         self.assertEqual(
             self.accommodation_request.checks_status,
-            MvAccommodationRequest.ChecksStatus.CHECKS_COMPLETED,
+            MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
         )
 
     # TODO: Add tests for if there is an error

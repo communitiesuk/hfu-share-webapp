@@ -1789,13 +1789,17 @@ class SelectPrimaryAccommodationAndHostWizard(
 
         primary_accommodation_id = data.get("accommodation")
         active_host_id = data.get("host")
-        checks_status = MvAccommodationRequest.ChecksStatus.CHECKS_COMPLETED
 
         try:
             with transaction.atomic():
                 ar.primary_accommodation_id = primary_accommodation_id
                 ar.active_host_id = active_host_id
-                ar.checks_status = checks_status
+
+                new_checks_status = ar.determine_checks_status_from_linked_objects()
+                ar.update_checks_status(
+                    new_checks_status,
+                    author=self.request.user,
+                )
                 ar.save()
 
             # TODO: Add logging to sentry if there is success
