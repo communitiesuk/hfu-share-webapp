@@ -958,7 +958,7 @@ class MoveGuestsFormSelectLocalAuthorityStep(forms.Form):
         },
     )
 
-    def __init__(self, *args, number_of_people=0, country=None, **kwargs):
+    def __init__(self, *args, number_of_people=0, country=None, user=None, **kwargs):
         super().__init__(*args, **kwargs)
 
         heading = (
@@ -968,8 +968,15 @@ class MoveGuestsFormSelectLocalAuthorityStep(forms.Form):
         )
 
         if country is not None:
+            la_group_types = [GroupType.LOCAL_AUTHORITY]
+            if (
+                user is not None
+                and GroupType.LOCAL_AUTHORITY_BROWSER_TEST in user.get_group_types()
+            ):
+                la_group_types.append(GroupType.LOCAL_AUTHORITY_BROWSER_TEST)
+
             self.fields["local_authority"].queryset = GroupInfo.objects.filter(
-                group_type=GroupType.LOCAL_AUTHORITY,
+                group_type__in=la_group_types,
                 is_utla=False,
                 da_name=country,
             ).order_by("group__name")
