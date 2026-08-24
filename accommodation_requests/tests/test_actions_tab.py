@@ -325,7 +325,7 @@ class ConfirmCurrentAccommodationActionTestCase(
         self.client.force_login(get_admin_user())
         response = self.client.get(self._get_actions_url(self.single_la_ar))
 
-        self.assertContains(response, "Confirm Current Accommodation")
+        self.assertContains(response, "Confirm current accommodation")
         self.assertContains(response, "Start")
         self.assertContains(
             response,
@@ -339,7 +339,7 @@ class ConfirmCurrentAccommodationActionTestCase(
         self.client.force_login(get_admin_user())
         response = self.client.get(self._get_actions_url(self.multi_la_ar))
 
-        self.assertContains(response, "Confirm Current Accommodation")
+        self.assertContains(response, "Confirm current accommodation")
         self.assertContains(response, "Unavailable - this is a Multi LA case")
         self.assertNotContains(
             response,

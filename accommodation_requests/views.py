@@ -720,7 +720,7 @@ class AccommodationRequestDetailActionsView(
             if self.object.is_multi_la:
                 actions.append(
                     TagAction(
-                        label="Confirm Current Accommodation",
+                        label="Confirm current accommodation",
                         tag_text="Unavailable - this is a Multi LA case",
                         tag_colour_class="govuk-tag--red",
                     )
@@ -728,7 +728,7 @@ class AccommodationRequestDetailActionsView(
             else:
                 actions.append(
                     LinkAction(
-                        label="Confirm Current Accommodation",
+                        label="Confirm current accommodation",
                         url_text="Start",
                         url=reverse(
                             "accommodation-requests:select-primary",
