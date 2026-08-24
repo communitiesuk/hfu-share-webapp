@@ -69,53 +69,179 @@ from ontology.tests.factories import CommentFactory
 
 BROWSER_TEST_ID_PREFIX = "browser-test"
 BROWSER_TEST_SEED = int(os.environ.get("BROWSER_TEST_SEED", 1313))
-BROWSER_TEST_SEEDING_COUNT = int(os.environ.get("BROWSER_TEST_SEEDING_COUNT", 40))
 MULTI_LA_SECOND_LTLA = "Isles of Scilly"
 
-PENDING_REASSIGNMENT_INDEX = 15
-CLOSED_EMPTY_RECEIVING_INDEX = 20
-CLOSED_EMPTY_INDEX = 21
-MULTI_LA_SPONSOR_INDEX = -3
-REJECTED_REASSIGNMENT_INDEX = -2
-MULTI_LA_AR_INDEX = -1
 
-# every checks status and AR status appears at least once; indexes with
-# make_uam must land on a single-guest AR (index % 3 == 0)
-AR_SCENARIO_OVERRIDES: dict[int, dict] = {
-    6: {"checks_status": MvAccommodationRequest.ChecksStatus.SOME_CHECKS_FAILED},
-    9: {"checks_status": MvAccommodationRequest.ChecksStatus.CLOSED_LEFT_PROGRAMME},
-    12: {"make_uam": True},
-    PENDING_REASSIGNMENT_INDEX: {"pending_reassignment": True},
-    18: {"checks_status": MvAccommodationRequest.ChecksStatus.CLOSED_DUPLICATE},
-    CLOSED_EMPTY_INDEX: {
-        "checks_status": MvAccommodationRequest.ChecksStatus.CLOSED_EMPTY
+ChecksStatus = MvAccommodationRequest.ChecksStatus
+Status = MvAccommodationRequest.Status
+AccommodationType = MvAccommodation.AccommodationType
+
+# one entry per seeded accommodation request; every checks status and AR
+# status must appear at least once
+AR_SCENARIOS: list[dict] = [
+    {
+        "checks_status": ChecksStatus.CHECKS_REQUIRED,
+        "visa_statuses": ["Arrived"],
+        "case_comments": True,
     },
-    24: {"checks_status": MvAccommodationRequest.ChecksStatus.CANCELLED},
-    27: {
-        "checks_status": (
-            MvAccommodationRequest.ChecksStatus.IN_TEMPORARY_ACCOMMODATION
-        ),
-        "accommodation_type": (
-            MvAccommodation.AccommodationType.TEMPORARY_ACCOMMODATION
-        ),
+    {
+        "checks_status": ChecksStatus.CHECKS_REQUIRED,
+        "visa_statuses": ["Arrived", "Issued"],
     },
-    30: {
-        "checks_status": (
-            MvAccommodationRequest.ChecksStatus.PRE_ARRIVAL_CHECKS_COMPLETE
-        )
+    {
+        "checks_status": ChecksStatus.CHECKS_PARTIALLY_COMPLETED,
+        "visa_statuses": ["Confirmed", "Arrived", "Pending"],
     },
-    33: {"status": MvAccommodationRequest.Status.MISSING_ACCOMMODATION},
-    36: {
-        "status": MvAccommodationRequest.Status.ARRIVAL_CONFIRMED,
+    {
+        "checks_status": ChecksStatus.CHECKS_COMPLETED,
+        "visa_statuses": ["Arrived"],
+        "case_comments": True,
+    },
+    {
+        "checks_status": ChecksStatus.CHECKS_REQUIRED,
+        "visa_statuses": ["Issued", "Refused"],
+    },
+    {
+        "checks_status": ChecksStatus.CHECKS_REQUIRED,
+        "visa_statuses": ["Arrived", "Confirmed", "Withdrawn"],
+    },
+    {"checks_status": ChecksStatus.SOME_CHECKS_FAILED, "visa_statuses": ["Arrived"]},
+    {
+        "checks_status": ChecksStatus.CHECKS_COMPLETED,
+        "visa_statuses": ["Pending", "Lapsed"],
+    },
+    {
+        "checks_status": ChecksStatus.CHECKS_REQUIRED,
+        "visa_statuses": ["Arrived", "Arrived", "Arrived"],
+    },
+    {"checks_status": ChecksStatus.CLOSED_LEFT_PROGRAMME, "visa_statuses": ["Issued"]},
+    {
+        "checks_status": ChecksStatus.CHECKS_PARTIALLY_COMPLETED,
+        "visa_statuses": ["Confirmed", "Arrived"],
+        "case_comments": True,
+    },
+    {
+        "checks_status": ChecksStatus.CHECKS_COMPLETED,
+        "visa_statuses": ["Pending", "Arrived", "Issued"],
+    },
+    {
+        "checks_status": ChecksStatus.CHECKS_REQUIRED,
+        "visa_statuses": ["Refused"],
         "make_uam": True,
     },
-}
-
-CHECKS_STATUS_CYCLE = [
-    MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
-    MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
-    MvAccommodationRequest.ChecksStatus.CHECKS_PARTIALLY_COMPLETED,
-    MvAccommodationRequest.ChecksStatus.CHECKS_COMPLETED,
+    {
+        "checks_status": ChecksStatus.CHECKS_REQUIRED,
+        "visa_statuses": ["Arrived", "Confirmed"],
+    },
+    {
+        "checks_status": ChecksStatus.CHECKS_PARTIALLY_COMPLETED,
+        "visa_statuses": ["Withdrawn", "Arrived", "Pending"],
+    },
+    {
+        "checks_status": ChecksStatus.CHECKS_COMPLETED,
+        "visa_statuses": ["Lapsed"],
+        "pending_reassignment": True,
+        "label": "pending outbound reassignment",
+    },
+    {
+        "checks_status": ChecksStatus.CHECKS_REQUIRED,
+        "visa_statuses": ["Arrived", "Arrived"],
+    },
+    {
+        "checks_status": ChecksStatus.CHECKS_REQUIRED,
+        "visa_statuses": ["Arrived", "Issued", "Confirmed"],
+    },
+    {"checks_status": ChecksStatus.CLOSED_DUPLICATE, "visa_statuses": ["Arrived"]},
+    {
+        "checks_status": ChecksStatus.CHECKS_COMPLETED,
+        "visa_statuses": ["Pending", "Arrived"],
+    },
+    {
+        "checks_status": ChecksStatus.CHECKS_REQUIRED,
+        "visa_statuses": ["Issued", "Refused", "Arrived"],
+        "label": "receives guests from closed empty",
+    },
+    {
+        "checks_status": ChecksStatus.CLOSED_EMPTY,
+        "visa_statuses": ["Confirmed"],
+        "label": "closed empty",
+    },
+    {
+        "checks_status": ChecksStatus.CHECKS_PARTIALLY_COMPLETED,
+        "visa_statuses": ["Withdrawn", "Arrived"],
+    },
+    {
+        "checks_status": ChecksStatus.CHECKS_COMPLETED,
+        "visa_statuses": ["Pending", "Lapsed", "Arrived"],
+    },
+    {"checks_status": ChecksStatus.CANCELLED, "visa_statuses": ["Arrived"]},
+    {
+        "checks_status": ChecksStatus.CHECKS_REQUIRED,
+        "visa_statuses": ["Arrived", "Issued"],
+    },
+    {
+        "checks_status": ChecksStatus.CHECKS_PARTIALLY_COMPLETED,
+        "visa_statuses": ["Confirmed", "Arrived", "Pending"],
+    },
+    {
+        "checks_status": ChecksStatus.IN_TEMPORARY_ACCOMMODATION,
+        "visa_statuses": ["Arrived"],
+        "accommodation_type": AccommodationType.TEMPORARY_ACCOMMODATION,
+    },
+    {
+        "checks_status": ChecksStatus.CHECKS_REQUIRED,
+        "visa_statuses": ["Issued", "Refused"],
+    },
+    {
+        "checks_status": ChecksStatus.CHECKS_REQUIRED,
+        "visa_statuses": ["Arrived", "Confirmed", "Withdrawn"],
+    },
+    {
+        "checks_status": ChecksStatus.PRE_ARRIVAL_CHECKS_COMPLETE,
+        "visa_statuses": ["Arrived"],
+    },
+    {
+        "checks_status": ChecksStatus.CHECKS_COMPLETED,
+        "visa_statuses": ["Pending", "Lapsed"],
+    },
+    {
+        "checks_status": ChecksStatus.CHECKS_REQUIRED,
+        "visa_statuses": ["Arrived", "Arrived", "Arrived"],
+    },
+    {
+        "checks_status": ChecksStatus.CHECKS_REQUIRED,
+        "visa_statuses": ["Issued"],
+        "ar_status": Status.MISSING_ACCOMMODATION,
+    },
+    {
+        "checks_status": ChecksStatus.CHECKS_PARTIALLY_COMPLETED,
+        "visa_statuses": ["Confirmed", "Arrived"],
+    },
+    {
+        "checks_status": ChecksStatus.CHECKS_COMPLETED,
+        "visa_statuses": ["Pending", "Arrived", "Issued"],
+    },
+    {
+        "checks_status": ChecksStatus.CHECKS_REQUIRED,
+        "visa_statuses": ["Refused"],
+        "ar_status": Status.ARRIVAL_CONFIRMED,
+        "make_uam": True,
+    },
+    {
+        "checks_status": ChecksStatus.CHECKS_REQUIRED,
+        "visa_statuses": ["Arrived", "Confirmed"],
+        "label": "multi-LA sponsor",
+    },
+    {
+        "checks_status": ChecksStatus.CHECKS_PARTIALLY_COMPLETED,
+        "visa_statuses": ["Withdrawn", "Arrived", "Pending"],
+        "label": "rejected outbound reassignment",
+    },
+    {
+        "checks_status": ChecksStatus.CHECKS_COMPLETED,
+        "visa_statuses": ["Lapsed"],
+        "label": "multi-LA AR",
+    },
 ]
 
 CASE_COMMENTS = [
@@ -137,27 +263,14 @@ CASE_COMMENT_DATES = [
     datetime(2025, 9, 19, 15, 55),
 ]
 
-# weighted towards Arrived like the real caseload; terminal statuses each
-# appear at least once; Missing Application deliberately absent (it means no
-# application exists) and Flow Visa Pending comes from the UAM branch instead
-GUEST_VISA_STATUS_CYCLE = [
-    "Arrived",
-    "Arrived",
-    "Issued",
-    "Confirmed",
-    "Arrived",
-    "Pending",
-    "Arrived",
-    "Issued",
-    "Refused",
-    "Arrived",
-    "Confirmed",
-    "Withdrawn",
-    "Arrived",
-    "Pending",
-    "Lapsed",
-    "Arrived",
-]
+
+def _labelled_ar(
+    ars: list[MvAccommodationRequest], label: str
+) -> MvAccommodationRequest:
+    for index, scenario in enumerate(AR_SCENARIOS):
+        if scenario.get("label") == label:
+            return ars[index]
+    raise ValueError(f"no scenario labelled {label!r}")
 
 
 def _delete_with_audit_logs(label: str, queryset: QuerySet) -> None:
@@ -650,7 +763,11 @@ def _make_visa_information_requests(author: User) -> dict[str, str]:
 
 
 def _add_case_comments(ars: list[MvAccommodationRequest], author: User) -> None:
-    commented_ars = [ars[0], ars[3], ars[10]]
+    commented_ars = [
+        ars[index]
+        for index, scenario in enumerate(AR_SCENARIOS)
+        if scenario.get("case_comments")
+    ]
     comment_index = 0
     for ar in commented_ars:
         for _ in range(2):
@@ -733,44 +850,30 @@ def seed_browser_test_la() -> None:
 
         ars = []
         examples: dict[str, str] = {}
-        guest_counter = 0
-        for i in range(BROWSER_TEST_SEEDING_COUNT):
-            overrides = AR_SCENARIO_OVERRIDES.get(i, {})
-            num_guests = (i % 3) + 1
-            checks_status = overrides.get(
-                "checks_status", CHECKS_STATUS_CYCLE[i % len(CHECKS_STATUS_CYCLE)]
-            )
-            visa_statuses = [
-                GUEST_VISA_STATUS_CYCLE[
-                    (guest_counter + j) % len(GUEST_VISA_STATUS_CYCLE)
-                ]
-                for j in range(num_guests)
-            ]
-            guest_counter += num_guests
-
+        for index, scenario in enumerate(AR_SCENARIOS):
             ar = build_complete_accommodation_scenario(
-                num_guests=num_guests,
+                num_guests=len(scenario["visa_statuses"]),
                 ltla_name=ltla_name,
-                accommodation_type=overrides.get("accommodation_type"),
-                checks_status=checks_status,
-                visa_statuses=visa_statuses,
+                accommodation_type=scenario.get("accommodation_type"),
+                checks_status=scenario["checks_status"],
+                visa_statuses=scenario["visa_statuses"],
                 id_prefix=BROWSER_TEST_ID_PREFIX,
-                status=overrides.get("status"),
-                make_uam=overrides.get("make_uam"),
+                status=scenario.get("ar_status"),
+                make_uam=scenario.get("make_uam"),
             )
             ars.append(ar)
 
             match ar.checks_status:
-                case MvAccommodationRequest.ChecksStatus.CLOSED_LEFT_PROGRAMME:
+                case ChecksStatus.CLOSED_LEFT_PROGRAMME:
                     mutate_closed_left_programme(ar)
                 case (
-                    MvAccommodationRequest.ChecksStatus.CHECKS_PARTIALLY_COMPLETED
-                    | MvAccommodationRequest.ChecksStatus.CHECKS_COMPLETED
-                    | MvAccommodationRequest.ChecksStatus.SOME_CHECKS_FAILED
+                    ChecksStatus.CHECKS_PARTIALLY_COMPLETED
+                    | ChecksStatus.CHECKS_COMPLETED
+                    | ChecksStatus.SOME_CHECKS_FAILED
                 ):
                     mutate_checks(ar, BROWSER_TEST_ID_PREFIX, author=author)
 
-            if overrides.get("pending_reassignment"):
+            if scenario.get("pending_reassignment"):
                 mutate_rematch_required(
                     ar,
                     destination_ltla_name=MULTI_LA_SECOND_LTLA,
@@ -789,36 +892,45 @@ def seed_browser_test_la() -> None:
                 )
 
             examples.setdefault(f"checks status: {ar.checks_status}", ar.id)
-            if overrides.get("status"):
+            if scenario.get("ar_status"):
                 examples.setdefault(f"AR status: {ar.status}", ar.id)
-            if overrides.get("make_uam"):
+            if scenario.get("make_uam"):
                 examples.setdefault("UAM (Flow Visa Pending)", ar.id)
 
-            print(f"{i}: BrowserTest AccommodationRequests[{ar.checks_status}]")
+            print(f"{index}: BrowserTest AccommodationRequests[{ar.checks_status}]")
 
         _move_guests_off_closed_empty_ar(
-            ars[CLOSED_EMPTY_INDEX], ars[CLOSED_EMPTY_RECEIVING_INDEX]
+            _labelled_ar(ars, "closed empty"),
+            _labelled_ar(ars, "receives guests from closed empty"),
         )
         _add_case_comments(ars, author)
-        examples["case comments"] = ars[0].id
+        examples["case comments"] = next(
+            ars[index].id
+            for index, scenario in enumerate(AR_SCENARIOS)
+            if scenario.get("case_comments")
+        )
         examples.update(_make_visa_information_requests(author))
 
         examples["multi-LA AR"] = _make_multi_la_accommodation_request(
-            ars[MULTI_LA_AR_INDEX]
+            _labelled_ar(ars, "multi-LA AR")
         )
         examples["multi-LA sponsor"] = _make_multi_la_sponsor(
-            ars[MULTI_LA_SPONSOR_INDEX]
+            _labelled_ar(ars, "multi-LA sponsor")
         )
         examples["inbound accepted reassignment"] = _make_inbound_reassignment(author)
         examples["rejected outbound reassignment"] = (
-            _make_rejected_outbound_reassignment(ars[REJECTED_REASSIGNMENT_INDEX])
+            _make_rejected_outbound_reassignment(
+                _labelled_ar(ars, "rejected outbound reassignment")
+            )
         )
         examples["deduplicated guest pair"] = _make_deduplicated_guest_pair(author)
         examples["deduplicated sponsor pair"] = _make_deduplicated_sponsor_pair(author)
-        examples["pending outbound reassignment"] = ars[PENDING_REASSIGNMENT_INDEX].id
+        examples["pending outbound reassignment"] = _labelled_ar(
+            ars, "pending outbound reassignment"
+        ).id
 
     print(
-        f"\nSuccessfully reset {BROWSER_TEST_SEEDING_COUNT} browser test "
+        f"\nSuccessfully reset {len(AR_SCENARIOS)} browser test "
         f"AccommodationRequest objects in {ltla_name}.\n"
     )
     print("Example records per scenario:")
