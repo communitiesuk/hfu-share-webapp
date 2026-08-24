@@ -1813,7 +1813,7 @@ class SelectPrimaryAccommodationAndHostWizard(
 
             messages.error(
                 self.request,
-                "The current accommodation and host was not confirmed. "
+                "The current accommodation and host were not confirmed. "
                 "If the problem continues raise a support ticket.",
             )
 

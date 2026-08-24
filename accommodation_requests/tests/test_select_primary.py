@@ -1,5 +1,7 @@
 import http.client
+from unittest.mock import patch
 
+from django.db import DatabaseError
 from django.test import TestCase
 from django.urls import reverse
 
@@ -386,6 +388,64 @@ class AccommodationRequestDetailViewsTabsTestCase(TestSessionTokenMixin, TestCas
             MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
         )
 
-    # TODO: Add tests for if there is an error
+    def test_select_primary_host_db_error(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        response = self.client.post(
+            reverse(
+                "accommodation-requests:select-primary-step",
+                kwargs={
+                    "pk": self.accommodation_request.pk,
+                    "step": SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION,
+                },
+            ),
+            {
+                "accommodation-accommodation": self.accommodation_2.id,
+                f"select_primary_accommodation_and_host_wizard_"
+                f"{self.accommodation_request.pk}-current_step": (
+                    SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION.value
+                ),
+            },
+            follow=True,
+        )
+
+        with patch(
+            "ontology.models.MvAccommodationRequest.MvAccommodationRequest.save",
+            side_effect=DatabaseError,
+        ):
+            response = self.client.post(
+                reverse(
+                    "accommodation-requests:select-primary-step",
+                    kwargs={
+                        "pk": self.accommodation_request.pk,
+                        "step": SelectPrimaryAccommodationAndHostSteps.HOST,
+                    },
+                ),
+                {
+                    "host-host": self.host_2.id,
+                    f"select_primary_accommodation_and_host_wizard_"
+                    f"{self.accommodation_request.pk}-current_step": (
+                        SelectPrimaryAccommodationAndHostSteps.HOST.value
+                    ),
+                },
+                follow=True,
+            )
+
+        self.assertContains(
+            response,
+            "The current accommodation and host were not confirmed. "
+            "If the problem continues raise a support ticket.",
+        )
+
+        self.accommodation_request.refresh_from_db()
+
+        self.assertIsNone(self.accommodation_request.primary_accommodation_id)
+        self.assertIsNone(self.accommodation_request.active_host_id)
+        self.assertEqual(
+            self.accommodation_request.checks_status,
+            MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
+        )
+
     # TODO: Add tests for logging
     # TODO: Add test for trying to go to the host page too early
