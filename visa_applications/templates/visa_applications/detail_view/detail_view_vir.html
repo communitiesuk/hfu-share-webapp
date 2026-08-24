@@ -42,7 +42,6 @@
         <a href="{% url 'visa-applications:visa-information-requests' %}"
            class="govuk-button govuk-button--secondary">Back to visa information request list</a>
     {% else %}
-        <a href="{{ back_button.url }}"
-           class="govuk-button govuk-button--secondary">{{ back_button.text }}</a>
+        {{ block.super }}
     {% endif %}
 {% endblock back_button %}

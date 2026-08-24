@@ -24,11 +24,10 @@
     </div>
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-one-quarter">
-            <nav class="moj-side-navigation govuk-!-padding-top-0"
-                 aria-label="Record sections">
-                <ul class="moj-side-navigation__list">
+            <nav class="app-side-navigation" aria-label="Record sections">
+                <ul class="app-side-navigation__list">
                     {% for tab in tabs %}
-                        <li class="moj-side-navigation__item {% if tab.current %}moj-side-navigation__item--active{% endif %}">
+                        <li class="app-side-navigation__item {% if tab.current %}app-side-navigation__item--active{% endif %}">
                             <a href="{{ tab.url }}"
                                {% if tab.current %}aria-current="location"{% endif %}>{{ tab.text }}</a>
                         </li>
@@ -40,7 +39,7 @@
             <div class="govuk-grid-row">
                 <div id="record-detail-content"
                      tabindex="-1"
-                     class="{% if use_full_width %}govuk-grid-column-full{% else %}govuk-grid-column-three-quarters{% endif %}">
+                     class="app-record-detail-content {% if use_full_width %}govuk-grid-column-full{% else %}govuk-grid-column-three-quarters{% endif %}">
                     {% block selected_tab %}
                     {% endblock selected_tab %}
                     {% block back_button %}
