@@ -1817,7 +1817,6 @@ class SelectPrimaryAccommodationAndHostWizard(
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         kwargs = super().get_context_data(**kwargs)
 
-        kwargs["select_record_type"] = self.steps.current
         kwargs["caption"] = f"Confirm current {self.steps.current} for"
 
         match self.steps.current:
