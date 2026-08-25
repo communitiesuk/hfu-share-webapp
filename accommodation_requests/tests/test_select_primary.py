@@ -13,6 +13,7 @@ from ontology.models import MvAccommodationRequest
 from ontology.tests.factories import (
     MvAccommodationFactory,
     MvAccommodationRequestFactory,
+    MvUkPostcodeFactory,
     MvVolunteerFactory,
 )
 from user_management.tests.base import (
@@ -415,16 +416,16 @@ class SelectPrimaryAccommodationAndHostWizardTestCase(TestSessionTokenMixin, Tes
             follow=True,
         )
 
+        self.accommodation_request.refresh_from_db()
+
         self.assertContains(response, "Success")
         self.assertContains(
             response,
             "You confirmed the current accommodation and host for "
-            "Test Accommodation Request",
+            f"{self.accommodation_request.title}.",
         )
         self.assertContains(response, "Accommodation request record for")
-        self.assertContains(response, "Test Accommodation Request")
-
-        self.accommodation_request.refresh_from_db()
+        self.assertContains(response, self.accommodation_request.title)
 
         self.assertEqual(
             self.accommodation_request.primary_accommodation_id, self.accommodation_2.id
@@ -487,6 +488,56 @@ class SelectPrimaryAccommodationAndHostWizardTestCase(TestSessionTokenMixin, Tes
             self.accommodation_request.checks_status,
             MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
         )
+
+    def test_select_primary_host_success_updates_postcode_and_title(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        self.accommodation_2.postcode = MvUkPostcodeFactory(
+            postcode="AB1 2CD", postcode_formatted="AB1 2CD"
+        )
+        self.accommodation_2.save()
+
+        self.client.post(
+            reverse(
+                "accommodation-requests:select-primary-step",
+                kwargs={
+                    "pk": self.accommodation_request.pk,
+                    "step": SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION,
+                },
+            ),
+            {
+                "accommodation-accommodation": self.accommodation_2.id,
+                f"select_primary_accommodation_and_host_wizard_"
+                f"{self.accommodation_request.pk}-current_step": (
+                    SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION.value
+                ),
+            },
+            follow=True,
+        )
+
+        self.client.post(
+            reverse(
+                "accommodation-requests:select-primary-step",
+                kwargs={
+                    "pk": self.accommodation_request.pk,
+                    "step": SelectPrimaryAccommodationAndHostSteps.HOST,
+                },
+            ),
+            {
+                "host-host": self.host_2.id,
+                f"select_primary_accommodation_and_host_wizard_"
+                f"{self.accommodation_request.pk}-current_step": (
+                    SelectPrimaryAccommodationAndHostSteps.HOST.value
+                ),
+            },
+            follow=True,
+        )
+
+        self.accommodation_request.refresh_from_db()
+
+        self.assertEqual(self.accommodation_request.postcode, ["AB1 2CD"])
+        self.assertIn("AB1 2CD", self.accommodation_request.title)
 
     @patch("sentry_sdk.metrics.count")
     def test_select_primary_host_success_sends_sentry_metric(self, sentry_metrics):
