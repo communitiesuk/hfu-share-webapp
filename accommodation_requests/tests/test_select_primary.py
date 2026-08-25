@@ -430,6 +430,59 @@ class AccommodationRequestDetailViewsTabsTestCase(TestSessionTokenMixin, TestCas
             self.accommodation_request.primary_accommodation_id, self.accommodation_2.id
         )
         self.assertEqual(self.accommodation_request.active_host_id, self.host_2.id)
+
+    def test_select_primary_host_success_updates_last_modified_fields(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        self.assertIsNone(self.accommodation_request.last_modified_at)
+
+        self.client.post(
+            reverse(
+                "accommodation-requests:select-primary-step",
+                kwargs={
+                    "pk": self.accommodation_request.pk,
+                    "step": SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION,
+                },
+            ),
+            {
+                "accommodation-accommodation": self.accommodation_2.id,
+                f"select_primary_accommodation_and_host_wizard_"
+                f"{self.accommodation_request.pk}-current_step": (
+                    SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION.value
+                ),
+            },
+            follow=True,
+        )
+
+        self.client.post(
+            reverse(
+                "accommodation-requests:select-primary-step",
+                kwargs={
+                    "pk": self.accommodation_request.pk,
+                    "step": SelectPrimaryAccommodationAndHostSteps.HOST,
+                },
+            ),
+            {
+                "host-host": self.host_2.id,
+                f"select_primary_accommodation_and_host_wizard_"
+                f"{self.accommodation_request.pk}-current_step": (
+                    SelectPrimaryAccommodationAndHostSteps.HOST.value
+                ),
+            },
+            follow=True,
+        )
+
+        self.accommodation_request.refresh_from_db()
+
+        self.assertEqual(
+            self.accommodation_request.checks_status,
+            MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
+        )
+        self.assertIsNotNone(self.accommodation_request.last_modified_at)
+        self.assertEqual(
+            self.accommodation_request.last_modified_by, user.get_full_name()
+        )
         self.assertEqual(
             self.accommodation_request.checks_status,
             MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,

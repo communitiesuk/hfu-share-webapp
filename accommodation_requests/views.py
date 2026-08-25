@@ -20,6 +20,7 @@ from django.middleware.csrf import get_token
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
+from django.utils import timezone
 from django.utils.html import escape, format_html
 from django.views.generic import DetailView, FormView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
@@ -1848,6 +1849,8 @@ class SelectPrimaryAccommodationAndHostWizard(
             with transaction.atomic():
                 ar.primary_accommodation_id = primary_accommodation_id
                 ar.active_host_id = active_host_id
+                ar.last_modified_at = timezone.now()
+                ar.last_modified_by = self.request.user.get_full_name()
 
                 new_checks_status = ar.determine_checks_status_from_linked_objects()
                 ar.update_checks_status(
