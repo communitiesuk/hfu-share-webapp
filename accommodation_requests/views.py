@@ -1882,13 +1882,15 @@ class SelectPrimaryAccommodationAndHostWizard(
                 "If the problem continues raise a support ticket.",
             )
 
-        return self.get_overview_url()
+        return redirect(self.get_success_url())
 
     def get_prefix(self, request, *args, **kwargs):
         return f"select_primary_accommodation_and_host_wizard_{self.object.pk}"
 
-    def get_overview_url(self):
-        return redirect("accommodation-requests:detail-overview", pk=self.object.pk)
+    def get_success_url(self):
+        return reverse(
+            "accommodation-requests:detail-overview", kwargs={"pk": self.object.pk}
+        )
 
 
 class AccommodationTable(tables.Table):
