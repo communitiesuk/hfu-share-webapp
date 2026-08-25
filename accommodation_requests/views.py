@@ -20,7 +20,6 @@ from django.middleware.csrf import get_token
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
-from django.utils import timezone
 from django.utils.html import escape, format_html
 from django.views.generic import DetailView, FormView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
@@ -1846,27 +1845,11 @@ class SelectPrimaryAccommodationAndHostWizard(
         active_host_id = data.get("host")
 
         try:
-            with transaction.atomic():
-                ar.primary_accommodation_id = primary_accommodation_id
-                ar.active_host_id = active_host_id
-                ar.last_modified_at = timezone.now()
-                ar.last_modified_by = self.request.user.get_full_name()
-
-                new_checks_status = ar.determine_checks_status_from_linked_objects()
-                ar.update_checks_status(
-                    new_checks_status,
-                    author=self.request.user,
-                )
-                ar.save()
-
-                sentry_sdk.metrics.count(
-                    "select_primary_accommodation_and_host",
-                    1,
-                    attributes={
-                        "user_id": self.request.user.id,
-                        "checks_status": new_checks_status,
-                    },
-                )
+            ar.confirm_current_accommodation_and_host(
+                primary_accommodation_id,
+                active_host_id,
+                author=self.request.user,
+            )
 
             messages.success(
                 self.request,

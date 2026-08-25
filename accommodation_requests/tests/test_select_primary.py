@@ -488,7 +488,7 @@ class AccommodationRequestDetailViewsTabsTestCase(TestSessionTokenMixin, TestCas
             MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
         )
 
-    @patch("accommodation_requests.views.sentry_sdk.metrics.count")
+    @patch("sentry_sdk.metrics.count")
     def test_select_primary_host_success_sends_sentry_metric(self, sentry_metrics):
         user = get_admin_user()
         self.client.force_login(user)
@@ -534,14 +534,9 @@ class AccommodationRequestDetailViewsTabsTestCase(TestSessionTokenMixin, TestCas
             sentry_metrics.call_args_list,
             [
                 call(
-                    "select_primary_accommodation_and_host",
+                    "confirm_current_accommodation_and_host.completed",
                     1,
-                    attributes={
-                        "user_id": user.id,
-                        "checks_status": (
-                            MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED
-                        ),
-                    },
+                    attributes={"record_type": "accommodation_request"},
                 )
             ],
         )
@@ -603,6 +598,59 @@ class AccommodationRequestDetailViewsTabsTestCase(TestSessionTokenMixin, TestCas
         self.assertEqual(
             self.accommodation_request.checks_status,
             MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
+        )
+
+    @patch("sentry_sdk.metrics.count")
+    def test_select_primary_host_db_error_sends_failed_sentry_metric(
+        self, sentry_metrics
+    ):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        self.client.post(
+            reverse(
+                "accommodation-requests:select-primary-step",
+                kwargs={
+                    "pk": self.accommodation_request.pk,
+                    "step": SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION,
+                },
+            ),
+            {
+                "accommodation-accommodation": self.accommodation_2.id,
+                f"select_primary_accommodation_and_host_wizard_"
+                f"{self.accommodation_request.pk}-current_step": (
+                    SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION.value
+                ),
+            },
+            follow=True,
+        )
+
+        with patch(
+            "ontology.models.MvAccommodationRequest.MvAccommodationRequest.save",
+            side_effect=DatabaseError,
+        ):
+            self.client.post(
+                reverse(
+                    "accommodation-requests:select-primary-step",
+                    kwargs={
+                        "pk": self.accommodation_request.pk,
+                        "step": SelectPrimaryAccommodationAndHostSteps.HOST,
+                    },
+                ),
+                {
+                    "host-host": self.host_2.id,
+                    f"select_primary_accommodation_and_host_wizard_"
+                    f"{self.accommodation_request.pk}-current_step": (
+                        SelectPrimaryAccommodationAndHostSteps.HOST.value
+                    ),
+                },
+                follow=True,
+            )
+
+        sentry_metrics.assert_called_once_with(
+            "confirm_current_accommodation_and_host.failed",
+            1,
+            attributes={"record_type": "accommodation_request"},
         )
 
     def test_going_to_host_step_too_early_redirects_to_accommodation_step(self):
