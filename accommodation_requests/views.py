@@ -15,7 +15,7 @@ from django.core.paginator import Paginator
 from django.db import DatabaseError, transaction
 from django.db.models import OuterRef, Q, Subquery
 from django.forms import TextInput, widgets
-from django.http import Http404, HttpRequest, HttpResponse
+from django.http import Http404, HttpRequest, HttpResponse, HttpResponseRedirect
 from django.middleware.csrf import get_token
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
@@ -1755,18 +1755,18 @@ class SelectPrimaryAccommodationAndHostWizard(
         "accommodation_requests_select_primary_page.html"
     )
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self.object = None
 
-    def dispatch(self, request, *args, **kwargs):
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         self.object = self.get_object()
         return super().dispatch(request, *args, **kwargs)
 
-    def get_step_url(self, step):
+    def get_step_url(self, step: str) -> str:
         return reverse(self.url_name, kwargs={"step": step, "pk": self.object.pk})
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         if self.object.is_multi_la:
             return HttpResponse(status=409)
 
@@ -1782,13 +1782,13 @@ class SelectPrimaryAccommodationAndHostWizard(
 
         return super().get(request, *args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         if self.object.is_multi_la:
             return HttpResponse(status=409)
 
         return super().post(request, *args, **kwargs)
 
-    def get_form_kwargs(self, step=None):
+    def get_form_kwargs(self, step: str | None = None) -> dict[str, Any]:
         kwargs = super().get_form_kwargs(step)
 
         match step:
@@ -1814,7 +1814,7 @@ class SelectPrimaryAccommodationAndHostWizard(
 
         return kwargs
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         kwargs = super().get_context_data(**kwargs)
 
         kwargs["select_record_type"] = self.steps.current
@@ -1837,7 +1837,7 @@ class SelectPrimaryAccommodationAndHostWizard(
 
         return kwargs
 
-    def done(self, form_list, **kwargs):
+    def done(self, form_list, **kwargs) -> HttpResponseRedirect:
         data = self.get_all_cleaned_data()
         ar = self.object
 
@@ -1867,10 +1867,10 @@ class SelectPrimaryAccommodationAndHostWizard(
 
         return redirect(self.get_success_url())
 
-    def get_prefix(self, request, *args, **kwargs):
+    def get_prefix(self, request: HttpRequest, *args, **kwargs) -> str:
         return f"select_primary_accommodation_and_host_wizard_{self.object.pk}"
 
-    def get_success_url(self):
+    def get_success_url(self) -> str:
         return reverse(
             "accommodation-requests:detail-overview", kwargs={"pk": self.object.pk}
         )
