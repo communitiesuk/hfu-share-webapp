@@ -61,7 +61,6 @@ jobs:
     if: inputs.suite == 'browser' || inputs.suite == 'browser and accessibility'
     uses: ./.github/workflows/browser-test-suite.yml
     with:
-      build-artifact: false
       suite: browser
 
   accessibility-tests:
@@ -70,5 +69,4 @@ jobs:
     if: inputs.suite == 'accessibility' || inputs.suite == 'browser and accessibility'
     uses: ./.github/workflows/browser-test-suite.yml
     with:
-      build-artifact: false
       suite: accessibility

@@ -196,5 +196,6 @@ jobs:
       github.event_name == 'push' ||
       inputs.environment == 'aws-dev'
     uses: ./.github/workflows/run-browser-tests.yml
+    secrets: inherit
     with:
       suite: browser
