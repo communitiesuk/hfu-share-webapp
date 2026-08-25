@@ -47,6 +47,7 @@ jobs:
           payload: |
             {
               "deployment": "${{ inputs.job_type }} to ${{ inputs.environment }}",
+              "browser_test": "${{ inputs.job_type }} on ${{ inputs.environment }}",
               "status": ":green-tick: ${{ inputs.success_or_failure }}",
               "text": "${{ inputs.github_actor }}\n\n${{ inputs.workflow_run }}\n\n${{ inputs.release_notes }}"
             }
@@ -59,6 +60,7 @@ jobs:
           payload: |
             {
               "deployment": "${{ inputs.job_type }} to ${{ inputs.environment }}",
+              "browser_test": "${{ inputs.job_type }} on ${{ inputs.environment }}",
               "status": ":x: ${{ inputs.success_or_failure }}",
               "text": "${{ inputs.github_actor }}\n\n${{ inputs.workflow_run }}\n\n${{ inputs.release_notes }}"
             }
