@@ -1,5 +1,35 @@
 # Changelog
 
+## [2.13.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.12.0...2.13.0) (2026-08-25)
+
+
+### Features
+
+* add browser test for request access journey (HFURB-3970) ([#126](https://github.com/communitiesuk/hfu-share-webapp/issues/126)) ([893164c](https://github.com/communitiesuk/hfu-share-webapp/commit/893164ce285beed701584821da2991e9c3c64e0c))
+* add browser test local authority group type ([#129](https://github.com/communitiesuk/hfu-share-webapp/issues/129)) ([158e3e1](https://github.com/communitiesuk/hfu-share-webapp/commit/158e3e1f326242bfbd2e4c5f4d662eb07ce0fbea))
+* add deterministic browser test local authority seeder ([#132](https://github.com/communitiesuk/hfu-share-webapp/issues/132)) ([40049dc](https://github.com/communitiesuk/hfu-share-webapp/commit/40049dca9b820ab5627d332c0ba11bdbfed455ff))
+* HFURB-3036 AR overview current host accommodation tags ([#120](https://github.com/communitiesuk/hfu-share-webapp/issues/120)) ([21ffd31](https://github.com/communitiesuk/hfu-share-webapp/commit/21ffd317da737e488b4fd58c2554e218af9557a7))
+* HFURB-3941 use ManifestStaticFilesStorage to fingerprint asset files ([#117](https://github.com/communitiesuk/hfu-share-webapp/issues/117)) ([3eff882](https://github.com/communitiesuk/hfu-share-webapp/commit/3eff8823b7bebb8b962e03bd93fa1c0b420a0d1f))
+* HFURB-3979 update the cards to be more accessible ([#118](https://github.com/communitiesuk/hfu-share-webapp/issues/118)) ([77331df](https://github.com/communitiesuk/hfu-share-webapp/commit/77331df5a22662af3be78b441bdd9faea24f42de))
+* HFURB-4045 - add browser test for data downloads ([#121](https://github.com/communitiesuk/hfu-share-webapp/issues/121)) ([f874464](https://github.com/communitiesuk/hfu-share-webapp/commit/f8744649cd42e9c1a0ae309bed7ce054c7bfc56f))
+* hide browser test local authority records from other users ([#130](https://github.com/communitiesuk/hfu-share-webapp/issues/130)) ([cae211f](https://github.com/communitiesuk/hfu-share-webapp/commit/cae211f9e87ca3aa2305b2b52a21ace05db7db82))
+* Primary accomodation/host action ([#138](https://github.com/communitiesuk/hfu-share-webapp/issues/138)) ([2b697c8](https://github.com/communitiesuk/hfu-share-webapp/commit/2b697c8b931a6f5d439d1ebac85357b955e1f4df))
+* seed browser test data before CI browser test runs ([#134](https://github.com/communitiesuk/hfu-share-webapp/issues/134)) ([0e9ead3](https://github.com/communitiesuk/hfu-share-webapp/commit/0e9ead385bba060c6150ef4eaf49e7ba8fa125ba))
+* show real local authorities to browser test users in reassignment ([#131](https://github.com/communitiesuk/hfu-share-webapp/issues/131)) ([7ed4582](https://github.com/communitiesuk/hfu-share-webapp/commit/7ed458293ae35f92518b3e9a9b5e33553cfd4d8a))
+
+
+### Bug Fixes
+
+* add visually hidden text to enhance accessibility for various buttons and links ([#101](https://github.com/communitiesuk/hfu-share-webapp/issues/101)) ([b58d1e7](https://github.com/communitiesuk/hfu-share-webapp/commit/b58d1e716de43bd64d7520662a1e95e9fd11d6b8))
+* browser test workflow secrets and cleanup ([#142](https://github.com/communitiesuk/hfu-share-webapp/issues/142)) ([0b94d69](https://github.com/communitiesuk/hfu-share-webapp/commit/0b94d6982272dc21eb3d75dbaf4e50df20265961))
+* browser tests look within main by default ([#135](https://github.com/communitiesuk/hfu-share-webapp/issues/135)) ([95b1637](https://github.com/communitiesuk/hfu-share-webapp/commit/95b16377a4d7b60db7c2934e30fa4c3a526f66e4))
+* HFURB-3279 Add readonly fields to the user admin detail view ([#125](https://github.com/communitiesuk/hfu-share-webapp/issues/125)) ([796e73f](https://github.com/communitiesuk/hfu-share-webapp/commit/796e73f6ea461be1cb9c39639ebf9a49a47e0513))
+* HFURB-3993 - add open in a new tab to external links ([#106](https://github.com/communitiesuk/hfu-share-webapp/issues/106)) ([ba8fb7f](https://github.com/communitiesuk/hfu-share-webapp/commit/ba8fb7ff46e99c759c98878c269b6c0c56e7f4b4))
+* limit accessibility scans to local authority users ([#127](https://github.com/communitiesuk/hfu-share-webapp/issues/127)) ([75c3aa7](https://github.com/communitiesuk/hfu-share-webapp/commit/75c3aa70b49824d92c7380c19d11478726c82962))
+* move factory-boy to main dependencies ([#140](https://github.com/communitiesuk/hfu-share-webapp/issues/140)) ([72f1f55](https://github.com/communitiesuk/hfu-share-webapp/commit/72f1f55ff2df559e907e32bc9d2ca22fd6eb3906))
+* only use a single build for normal or a11y browser tests ([#123](https://github.com/communitiesuk/hfu-share-webapp/issues/123)) ([18d67e5](https://github.com/communitiesuk/hfu-share-webapp/commit/18d67e59b6cc02b7864a496903b8415c2b8dedef))
+* seed browser test data on deploy-triggered browser test runs ([#141](https://github.com/communitiesuk/hfu-share-webapp/issues/141)) ([c7a1c07](https://github.com/communitiesuk/hfu-share-webapp/commit/c7a1c07c9c0517efee4bc97af4c1a7e9ff71aa4e))
+
 ## [2.12.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.11.0...2.12.0) (2026-08-20)
 
 
