@@ -1146,7 +1146,13 @@ class MvAccommodationRequest(models.Model):
                 author.get_full_name() if hasattr(author, "get_full_name") else author
             )
 
-            self.postcode = self.get_primary_accommodation().get_postcode().postcode
+            new_primary_accommodation = self.get_primary_accommodation()
+            self.postcode = (
+                [new_primary_accommodation.get_postcode().postcode]
+                if new_primary_accommodation
+                and new_primary_accommodation.get_postcode()
+                else []
+            )
             self.update_title()
 
             new_checks_status = self.determine_checks_status_from_linked_objects()

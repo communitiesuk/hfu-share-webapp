@@ -1755,12 +1755,12 @@ class SelectPrimaryAccommodationAndHostWizard(
         "accommodation_requests_select_primary_page.html"
     )
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.object = None
 
-    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
-        self.object = self.get_object()
+    def dispatch(self, request, *args, **kwargs):
+        self.object: MvAccommodationRequest = self.get_object()
         return super().dispatch(request, *args, **kwargs)
 
     def get_step_url(self, step: str) -> str:
