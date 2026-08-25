@@ -25,7 +25,7 @@ from user_management.tests.base import (
 )
 
 
-class AccommodationRequestDetailViewsTabsTestCase(TestSessionTokenMixin, TestCase):
+class SelectPrimaryAccommodationAndHostWizardTestCase(TestSessionTokenMixin, TestCase):
     def setUp(self):
         super().setUp()
 
