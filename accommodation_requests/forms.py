@@ -1043,12 +1043,12 @@ class SelectPrimaryFormAccommodationStep(forms.Form):
         error_messages={"required": "You must select the current accommodation."},
     )
 
-    def __init__(self, *args, accommodation_requests=None, **kwargs):
+    def __init__(self, *args, accommodations=None, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.fields["accommodation"].choices = (
             (accommodation.id, accommodation.full_address)
-            for accommodation in accommodation_requests
+            for accommodation in accommodations
         )
 
         self.helper = FormHelper()

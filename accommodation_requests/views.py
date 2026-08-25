@@ -1793,7 +1793,7 @@ class SelectPrimaryAccommodationAndHostWizard(
 
         match step:
             case SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION:
-                kwargs["accommodation_requests"] = (
+                kwargs["accommodations"] = (
                     self.object.get_accommodations_restrict_for_user(self.request.user)
                 )
             case SelectPrimaryAccommodationAndHostSteps.HOST:
