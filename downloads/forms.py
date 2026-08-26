@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from enum import StrEnum
 
 from crispy_forms_gds.choices import Choice
@@ -31,6 +32,8 @@ class DownloadsTypeForm(forms.Form):
         widget=DatePicker(
             attrs={
                 "required": False,
+                "hint": f"For example "
+                f"{(datetime.today() - timedelta(days=20)).strftime('%d/%m/%Y')}",
             }
         ),
     )
@@ -41,6 +44,8 @@ class DownloadsTypeForm(forms.Form):
         widget=DatePicker(
             attrs={
                 "required": False,
+                "hint": f"For example "
+                f"{(datetime.today() - timedelta(days=600)).strftime('%d/%m/%Y')}",
             }
         ),
     )
