@@ -111,7 +111,7 @@ class DownloadsTypeForm(forms.Form):
                             ),
                             css_class="govuk-form-group govuk-!-display-inline-block",
                         ),
-                        css_class="govuk-grid-row govuk-!-padding-top-2",
+                        css_class="govuk-grid-row govuk-!-padding-top-4",
                     ),
                 ),
                 "Visa applications",
