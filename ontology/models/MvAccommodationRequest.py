@@ -22,6 +22,7 @@ from ontology.models.DevCheckV2 import validate_sponsor_dbs_passed_subtype
 from ontology.models.EoiHost import EoiHost
 from ontology.models.MvAccommodation import MvAccommodation
 from ontology.models.MvGroup import MvGroup
+from ontology.models.MvInteraction import MvInteraction
 from ontology.models.MvPerson import MvPerson, get_person_age_sort_key
 from ontology.models.MvVolunteer import MvVolunteer
 from ontology.models.SponsorshipCertificationForm import SponsorshipCertificationForm
@@ -1158,6 +1159,22 @@ class MvAccommodationRequest(models.Model):
             new_checks_status = self.determine_checks_status_from_linked_objects()
             self.update_checks_status(new_checks_status, author=author)
             self.save()
+
+            MvInteraction.create_interaction(
+                interaction_contact=(
+                    MvInteraction.InteractionContact.CURRENT_ACCOMMODATION_AND_HOST_CONFIRMED
+                ),
+                interaction_type=(
+                    MvInteraction.InteractionContact.CURRENT_ACCOMMODATION_AND_HOST_CONFIRMED
+                ),
+                linked_accommodation_request=self,
+                # TODO: PLACEHOLDER TEXT - wording still to be confirmed
+                interaction_notes="PLACEHOLDER TEXT",
+                created_by=author,
+                title=(
+                    MvInteraction.InteractionContact.CURRENT_ACCOMMODATION_AND_HOST_CONFIRMED
+                ),
+            )
 
     def update_number_of_people(self):
         self.number_of_people = len(self.person_id)
