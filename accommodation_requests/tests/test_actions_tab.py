@@ -332,7 +332,8 @@ class ConfirmCurrentAccommodationActionTestCase(
             reverse(
                 "accommodation-requests:select-primary",
                 args=[self.single_la_ar.pk],
-            ),
+            )
+            + "?reset=true",
         )
 
     def test_action_shows_unavailable_tag_for_multi_la_ar(self):

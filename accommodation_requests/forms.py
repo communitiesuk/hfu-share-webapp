@@ -1057,7 +1057,16 @@ class SelectPrimaryFormAccommodationStep(forms.Form):
                 "accommodation",
                 legend_size=Size.MEDIUM,
             ),
-            HTML('<button type="submit" class="govuk-button">Confirm</button>'),
+            Div(
+                Button.primary("submit", "Confirm"),
+                HTML(
+                    '<a href="{{ cancel_url }}"'
+                    'class="govuk-link govuk-link--no-visited-state govuk-body">'
+                    "Cancel"
+                    "</a>"
+                ),
+                css_class="govuk-button-group",
+            ),
         )
 
 
@@ -1082,5 +1091,14 @@ class SelectPrimaryFormHostStep(forms.Form):
                 "host",
                 legend_size=Size.MEDIUM,
             ),
-            HTML('<button type="submit" class="govuk-button">Confirm</button>'),
+            Div(
+                Button.primary("submit", "Confirm"),
+                HTML(
+                    '<a href="{{ cancel_url }}"'
+                    'class="govuk-link govuk-link--no-visited-state govuk-body">'
+                    "Cancel"
+                    "</a>"
+                ),
+                css_class="govuk-button-group",
+            ),
         )

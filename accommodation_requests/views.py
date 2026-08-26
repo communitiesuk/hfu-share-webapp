@@ -733,7 +733,8 @@ class AccommodationRequestDetailActionsView(
                         url=reverse(
                             "accommodation-requests:select-primary",
                             kwargs={"pk": self.object.id},
-                        ),
+                        )
+                        + "?reset=true",
                     )
                 )
 
@@ -1770,6 +1771,9 @@ class SelectPrimaryAccommodationAndHostWizard(
         if self.object.is_multi_la:
             return HttpResponse(status=409)
 
+        if "reset" in self.request.GET:
+            self.storage.reset()
+
         step_url = kwargs.get("step")
         if step_url == SelectPrimaryAccommodationAndHostSteps.HOST and not (
             self.get_cleaned_data_for_step(
@@ -1818,6 +1822,7 @@ class SelectPrimaryAccommodationAndHostWizard(
         kwargs = super().get_context_data(**kwargs)
 
         kwargs["caption"] = f"Confirm current {self.steps.current} for"
+        kwargs["cancel_url"] = self.get_cancel_url()
 
         match self.steps.current:
             case SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION:
@@ -1873,6 +1878,9 @@ class SelectPrimaryAccommodationAndHostWizard(
         return reverse(
             "accommodation-requests:detail-overview", kwargs={"pk": self.object.pk}
         )
+
+    def get_cancel_url(self) -> str:
+        return get_url_for_actions_tab(self.object)
 
 
 class AccommodationTable(tables.Table):

@@ -291,6 +291,7 @@ class SelectPrimaryAccommodationAndHostWizardTestCase(TestSessionTokenMixin, Tes
         self.assertContains(response, "Confirm current accommodation for")
         self.assertContains(response, "Test Accommodation Request")
         self.assertContains(response, "Confirm")
+        self.assertContains(response, "Cancel")
 
     def test_confirm_primary_host_page(self):
         user = get_admin_user()
@@ -330,6 +331,7 @@ class SelectPrimaryAccommodationAndHostWizardTestCase(TestSessionTokenMixin, Tes
         self.assertContains(response, "Host 2")
         self.assertContains(response, "Host 3")
         self.assertContains(response, "Confirm")
+        self.assertContains(response, "Cancel")
 
     def test_confirm_primary_host_page_errors(self):
         user = get_admin_user()
@@ -375,6 +377,7 @@ class SelectPrimaryAccommodationAndHostWizardTestCase(TestSessionTokenMixin, Tes
         self.assertContains(response, "Confirm current host for")
         self.assertContains(response, "Test Accommodation Request")
         self.assertContains(response, "Confirm")
+        self.assertContains(response, "Cancel")
 
     def test_select_primary_host_success(self):
         user = get_admin_user()
@@ -728,3 +731,50 @@ class SelectPrimaryAccommodationAndHostWizardTestCase(TestSessionTokenMixin, Tes
                 },
             ),
         )
+
+    def test_re_entering_the_wizard_with_reset_starts_from_the_accommodation_step(
+        self,
+    ):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        self.client.post(
+            reverse(
+                "accommodation-requests:select-primary-step",
+                kwargs={
+                    "pk": self.accommodation_request.pk,
+                    "step": SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION,
+                },
+            ),
+            {
+                "accommodation-accommodation": self.accommodation_2.id,
+                f"select_primary_accommodation_and_host_wizard_"
+                f"{self.accommodation_request.pk}-current_step": (
+                    SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION.value
+                ),
+            },
+            follow=True,
+        )
+
+        response = self.client.get(
+            reverse(
+                "accommodation-requests:select-primary",
+                args=[self.accommodation_request.pk],
+            )
+            + "?reset=true",
+        )
+
+        self.assertRedirects(
+            response,
+            reverse(
+                "accommodation-requests:select-primary-step",
+                kwargs={
+                    "pk": self.accommodation_request.pk,
+                    "step": SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION,
+                },
+            )
+            + "?reset=true",
+        )
+
+        final_response = self.client.get(response.url)
+        self.assertContains(final_response, "Select current accommodation")
