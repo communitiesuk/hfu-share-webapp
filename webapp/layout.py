@@ -1,10 +1,18 @@
 from crispy_forms.utils import TEMPLATE_PACK
-from crispy_forms_gds.layout import ConditionalRadios, Size
+from crispy_forms_gds.layout import ConditionalQuestion, ConditionalRadios, Size
+
+
+class PlainRadioChoice(ConditionalQuestion):
+    template = "%s/layout/radio_item.html"
 
 
 class ConditionalRadiosWithLegend(ConditionalRadios):
     def __init__(self, field: str, *choices, legend_size: str | None = None):
-        super().__init__(field, *choices)
+        wrapped = [
+            PlainRadioChoice(choice) if isinstance(choice, str) else choice
+            for choice in choices
+        ]
+        super().__init__(field, *wrapped)
         self.legend_size = legend_size
 
     def render(self, form, context, template_pack=TEMPLATE_PACK, **kwargs) -> str:
