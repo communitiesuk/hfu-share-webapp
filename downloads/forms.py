@@ -6,13 +6,14 @@ from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import (
     HTML,
     ConditionalQuestion,
-    ConditionalRadios,
     Div,
     Field,
     Layout,
+    Size,
 )
 from django import forms
 
+from webapp.layout import ConditionalRadiosWithLegend
 from webapp.widgets import DatePicker
 
 
@@ -91,17 +92,23 @@ class DownloadsTypeForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            ConditionalRadios(
+            ConditionalRadiosWithLegend(
                 "download_type",
                 ConditionalQuestion(
                     "All data",
                     Div(
                         Div(
-                            Field("date_from"),
+                            Field(
+                                "date_from",
+                                context={"label_size": Size.for_label(Size.SMALL)},
+                            ),
                             css_class="govuk-form-group govuk-!-display-inline-block govuk-!-margin-right-2",  # noqa: E501
                         ),
                         Div(
-                            Field("date_to"),
+                            Field(
+                                "date_to",
+                                context={"label_size": Size.for_label(Size.SMALL)},
+                            ),
                             css_class="govuk-form-group govuk-!-display-inline-block",
                         ),
                         css_class="govuk-grid-row",
@@ -112,6 +119,7 @@ class DownloadsTypeForm(forms.Form):
                 "Sponsors and hosts",
                 "Accommodation",
                 "Applications to sponsor a child",
+                legend_size=Size.MEDIUM,
             ),
             Div(
                 HTML(
