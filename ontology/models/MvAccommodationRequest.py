@@ -27,7 +27,7 @@ from ontology.models.MvVolunteer import MvVolunteer
 from ontology.models.SponsorshipCertificationForm import SponsorshipCertificationForm
 from ontology.models.VisaApplication import VisaApplication
 from ontology.utils import LinkedRecordData
-from webapp.enhanced_sentry_logging import log_event
+from webapp.enhanced_sentry_logging import log_event, record_operation_outcome
 
 logger = logging.getLogger(__name__)
 
@@ -1130,6 +1130,34 @@ class MvAccommodationRequest(models.Model):
             author.get_full_name() if hasattr(author, "get_full_name") else author
         )
         self.save()
+
+    @record_operation_outcome("accommodation_request")
+    def confirm_current_accommodation_and_host(
+        self,
+        primary_accommodation_id: str | None,
+        active_host_id: str | None,
+        author: User | str,
+    ):
+        with transaction.atomic():
+            self.primary_accommodation_id = primary_accommodation_id
+            self.active_host_id = active_host_id
+            self.last_modified_at = timezone.now()
+            self.last_modified_by = (
+                author.get_full_name() if hasattr(author, "get_full_name") else author
+            )
+
+            new_primary_accommodation = self.get_primary_accommodation()
+            self.postcode = (
+                [new_primary_accommodation.get_postcode().postcode]
+                if new_primary_accommodation
+                and new_primary_accommodation.get_postcode()
+                else []
+            )
+            self.update_title()
+
+            new_checks_status = self.determine_checks_status_from_linked_objects()
+            self.update_checks_status(new_checks_status, author=author)
+            self.save()
 
     def update_number_of_people(self):
         self.number_of_people = len(self.person_id)

@@ -321,40 +321,31 @@ class ConfirmCurrentAccommodationActionTestCase(
     def _get_actions_url(self, ar):
         return reverse("accommodation-requests:detail-actions", args=[ar.pk])
 
-    def _get_confirm_url(self, ar):
-        return reverse(
-            "accommodation-requests:confirm-current-accommodation", args=[ar.pk]
-        )
-
-    def test_action_shows_start_link_for_admin_user_on_single_la_ar(self):
+    def test_action_shows_start_link_to_wizard_for_admin_user_on_single_la_ar(self):
         self.client.force_login(get_admin_user())
         response = self.client.get(self._get_actions_url(self.single_la_ar))
 
-        self.assertContains(response, "Confirm Current Accommodation")
+        self.assertContains(response, "Confirm current accommodation")
         self.assertContains(response, "Start")
+        self.assertContains(
+            response,
+            reverse(
+                "accommodation-requests:select-primary",
+                args=[self.single_la_ar.pk],
+            )
+            + "?reset=true",
+        )
 
     def test_action_shows_unavailable_tag_for_multi_la_ar(self):
         self.client.force_login(get_admin_user())
         response = self.client.get(self._get_actions_url(self.multi_la_ar))
 
-        self.assertContains(response, "Confirm Current Accommodation")
+        self.assertContains(response, "Confirm current accommodation")
         self.assertContains(response, "Unavailable - this is a Multi LA case")
         self.assertNotContains(
             response,
             reverse(
-                "accommodation-requests:confirm-current-accommodation",
+                "accommodation-requests:select-primary",
                 args=[self.multi_la_ar.pk],
             ),
         )
-
-    def test_confirm_view_returns_200_for_single_la_ar(self):
-        self.client.force_login(get_admin_user())
-        response = self.client.get(self._get_confirm_url(self.single_la_ar))
-
-        self.assertEqual(response.status_code, 200)
-
-    def test_confirm_view_returns_409_for_multi_la_ar(self):
-        self.client.force_login(get_admin_user())
-        response = self.client.get(self._get_confirm_url(self.multi_la_ar))
-
-        self.assertEqual(response.status_code, 409)
