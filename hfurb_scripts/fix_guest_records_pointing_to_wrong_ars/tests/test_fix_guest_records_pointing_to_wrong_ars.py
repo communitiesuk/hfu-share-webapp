@@ -5,7 +5,7 @@ from django.test import TestCase
 
 from accounts.tests.base import TestSessionTokenMixin
 from hfurb_scripts.fix_guest_records_pointing_to_wrong_ars import run
-from ontology.models import MvAccommodationRequest
+from ontology.models import MvAccommodationRequest, MvPerson
 from ontology.tests.factories import MvAccommodationRequestFactory, MvPersonFactory
 
 
@@ -64,7 +64,7 @@ class TestFixGuestRecordsPointingToWrongARs(TestSessionTokenMixin, TestCase):
             status=MvAccommodationRequest.ChecksStatus.CHECKS_PARTIALLY_COMPLETED
         )
         self.ar_scenario_3_closed_ar = MvAccommodationRequestFactory(
-            status=MvAccommodationRequest.ChecksStatus.CLOSED_LEFT_PROGRAMME
+            status=MvAccommodationRequest.ChecksStatus.CANCELLED
         )
         self.ar_scenario_3_other_ar = MvAccommodationRequestFactory(
             status=MvAccommodationRequest.ChecksStatus.CHECKS_PARTIALLY_COMPLETED
@@ -179,7 +179,9 @@ class TestFixGuestRecordsPointingToWrongARs(TestSessionTokenMixin, TestCase):
         self.assertEqual(
             self.ar_scenario_2_open_ar.person_id, [self.guest_scenario_2.id]
         )
-        self.assertEqual(self.ar_scenario_2_closed_ar.person_id, [])
+        self.assertEqual(
+            self.ar_scenario_2_closed_ar.person_id, [self.guest_scenario_2.id]
+        )
 
     def assert_no_change_for_scenario_3(self):
         self.guest_scenario_3.refresh_from_db()
@@ -212,7 +214,9 @@ class TestFixGuestRecordsPointingToWrongARs(TestSessionTokenMixin, TestCase):
         self.assertEqual(
             self.ar_scenario_3_open_ar.person_id, [self.guest_scenario_3.id]
         )
-        self.assertEqual(self.ar_scenario_3_closed_ar.person_id, [])
+        self.assertEqual(
+            self.ar_scenario_3_closed_ar.person_id, [self.guest_scenario_3.id]
+        )
         self.assertIsNone(self.ar_scenario_3_other_ar.person_id)
 
     def assert_no_change_for_scenario_4(self):
@@ -257,7 +261,7 @@ class TestFixGuestRecordsPointingToWrongARs(TestSessionTokenMixin, TestCase):
         self.assert_no_change_for_scenario_4()
         self.assert_no_change_for_scenario_5()
 
-        self.assertEqual(
+        self.assertCountEqual(
             mock_logger.info.call_args_list,
             [
                 mock.call(
@@ -265,77 +269,54 @@ class TestFixGuestRecordsPointingToWrongARs(TestSessionTokenMixin, TestCase):
                     True,
                 ),
                 mock.call(
-                    "AR: %s meets conditions for scenario 1",
+                    "Processed AR: %s and Guest: %s for scenario %s",
                     self.ar_scenario_1_correct_ar.id,
-                ),
-                mock.call(
-                    "Started processing %s for scenario %s",
-                    f"AR: {self.ar_scenario_1_correct_ar.id}; "
-                    f"Guest: {self.guest_scenario_1.id};",
+                    self.guest_scenario_1.id,
                     1,
                 ),
                 mock.call(
-                    "Finished processing %s for scenario %s",
-                    f"AR: {self.ar_scenario_1_correct_ar.id}; "
-                    f"Guest: {self.guest_scenario_1.id};",
-                    1,
-                ),
-                mock.call(
-                    "AR: %s meets conditions for scenario 2",
+                    "Processed AR: %s and Guest: %s for scenario %s",
                     self.ar_scenario_2_open_ar.id,
-                ),
-                mock.call(
-                    "Started processing %s for scenario %s",
-                    f"AR: {self.ar_scenario_2_open_ar.id}; "
-                    f"Guest: {self.guest_scenario_2.id}; "
-                    f"Closed AR: {self.ar_scenario_2_closed_ar.id};",
+                    self.guest_scenario_2.id,
                     2,
                 ),
                 mock.call(
-                    "Finished processing %s for scenario %s",
-                    f"AR: {self.ar_scenario_2_open_ar.id}; "
-                    f"Guest: {self.guest_scenario_2.id}; "
-                    f"Closed AR: {self.ar_scenario_2_closed_ar.id};",
-                    2,
-                ),
-                mock.call(
-                    "AR: %s meets conditions for scenario 2",
+                    "Processed AR: %s and Guest: %s for scenario %s",
                     self.ar_scenario_3_open_ar.id,
-                ),
-                mock.call(
-                    "Started processing %s for scenario %s",
-                    f"AR: {self.ar_scenario_3_open_ar.id}; "
-                    f"Guest: {self.guest_scenario_3.id}; "
-                    f"Closed AR: {self.ar_scenario_3_closed_ar.id};",
+                    self.guest_scenario_3.id,
                     2,
                 ),
                 mock.call(
-                    "Finished processing %s for scenario %s",
-                    f"AR: {self.ar_scenario_3_open_ar.id}; "
-                    f"Guest: {self.guest_scenario_3.id}; "
-                    f"Closed AR: {self.ar_scenario_3_closed_ar.id};",
-                    2,
-                ),
-                mock.call(
-                    "AR: %s does not meet the conditions for a fixable scenario",
-                    self.ar_scenario_4_open_ar_1.id,
-                ),
-                mock.call(
-                    "Skipping processing AR: %s; Guest: %s; for unfixable scenario",
+                    "Skipping processing AR: %s and Guest: %s for unfixable scenario",
                     self.ar_scenario_4_open_ar_1.id,
                     self.guest_scenario_4.id,
                 ),
                 mock.call(
                     "End fix_guest_records_pointing_to_wrong_ars with dry_run=%s", True
                 ),
-                mock.call("Scenario 1: %s succeeded, %s failed", 1, 0),
-                mock.call("Scenario 2: %s succeeded, %s failed", 2, 0),
+                mock.call("Inspected %s records", 4),
+                mock.call(
+                    "Scenario %s: %s succeeded (%.1f%%), %s failed (%.1f%%)",
+                    1,
+                    1,
+                    100.0,
+                    0,
+                    0.0,
+                ),
+                mock.call(
+                    "Scenario %s: %s succeeded (%.1f%%), %s failed (%.1f%%)",
+                    2,
+                    2,
+                    100.0,
+                    0,
+                    0.0,
+                ),
                 mock.call("Other scenarios: %s skipped", 1),
             ],
         )
-        self.assertEqual(mock_logger.exception.call_args_list, [])
+        self.assertCountEqual(mock_logger.exception.call_args_list, [])
 
-    def test_runing_function_updateds_for_scenario_1_2_and_3(self, mock_logger):
+    def test_runing_function_updates_for_scenario_1_2_and_3(self, mock_logger):
         run(dry_run=False)
 
         self.assert_no_change_for_correct_guest()
@@ -345,7 +326,7 @@ class TestFixGuestRecordsPointingToWrongARs(TestSessionTokenMixin, TestCase):
         self.assert_no_change_for_scenario_4()
         self.assert_no_change_for_scenario_5()
 
-        self.assertEqual(
+        self.assertCountEqual(
             mock_logger.info.call_args_list,
             [
                 mock.call(
@@ -353,77 +334,54 @@ class TestFixGuestRecordsPointingToWrongARs(TestSessionTokenMixin, TestCase):
                     False,
                 ),
                 mock.call(
-                    "AR: %s meets conditions for scenario 1",
+                    "Processed AR: %s and Guest: %s for scenario %s",
                     self.ar_scenario_1_correct_ar.id,
-                ),
-                mock.call(
-                    "Started processing %s for scenario %s",
-                    f"AR: {self.ar_scenario_1_correct_ar.id}; "
-                    f"Guest: {self.guest_scenario_1.id};",
+                    self.guest_scenario_1.id,
                     1,
                 ),
                 mock.call(
-                    "Finished processing %s for scenario %s",
-                    f"AR: {self.ar_scenario_1_correct_ar.id}; "
-                    f"Guest: {self.guest_scenario_1.id};",
-                    1,
-                ),
-                mock.call(
-                    "AR: %s meets conditions for scenario 2",
+                    "Processed AR: %s and Guest: %s for scenario %s",
                     self.ar_scenario_2_open_ar.id,
-                ),
-                mock.call(
-                    "Started processing %s for scenario %s",
-                    f"AR: {self.ar_scenario_2_open_ar.id}; "
-                    f"Guest: {self.guest_scenario_2.id}; "
-                    f"Closed AR: {self.ar_scenario_2_closed_ar.id};",
+                    self.guest_scenario_2.id,
                     2,
                 ),
                 mock.call(
-                    "Finished processing %s for scenario %s",
-                    f"AR: {self.ar_scenario_2_open_ar.id}; "
-                    f"Guest: {self.guest_scenario_2.id}; "
-                    f"Closed AR: {self.ar_scenario_2_closed_ar.id};",
-                    2,
-                ),
-                mock.call(
-                    "AR: %s meets conditions for scenario 2",
+                    "Processed AR: %s and Guest: %s for scenario %s",
                     self.ar_scenario_3_open_ar.id,
-                ),
-                mock.call(
-                    "Started processing %s for scenario %s",
-                    f"AR: {self.ar_scenario_3_open_ar.id}; "
-                    f"Guest: {self.guest_scenario_3.id}; "
-                    f"Closed AR: {self.ar_scenario_3_closed_ar.id};",
+                    self.guest_scenario_3.id,
                     2,
                 ),
                 mock.call(
-                    "Finished processing %s for scenario %s",
-                    f"AR: {self.ar_scenario_3_open_ar.id}; "
-                    f"Guest: {self.guest_scenario_3.id}; "
-                    f"Closed AR: {self.ar_scenario_3_closed_ar.id};",
-                    2,
-                ),
-                mock.call(
-                    "AR: %s does not meet the conditions for a fixable scenario",
-                    self.ar_scenario_4_open_ar_1.id,
-                ),
-                mock.call(
-                    "Skipping processing AR: %s; Guest: %s; for unfixable scenario",
+                    "Skipping processing AR: %s and Guest: %s for unfixable scenario",
                     self.ar_scenario_4_open_ar_1.id,
                     self.guest_scenario_4.id,
                 ),
                 mock.call(
                     "End fix_guest_records_pointing_to_wrong_ars with dry_run=%s", False
                 ),
-                mock.call("Scenario 1: %s succeeded, %s failed", 1, 0),
-                mock.call("Scenario 2: %s succeeded, %s failed", 2, 0),
+                mock.call("Inspected %s records", 4),
+                mock.call(
+                    "Scenario %s: %s succeeded (%.1f%%), %s failed (%.1f%%)",
+                    1,
+                    1,
+                    100.0,
+                    0,
+                    0.0,
+                ),
+                mock.call(
+                    "Scenario %s: %s succeeded (%.1f%%), %s failed (%.1f%%)",
+                    2,
+                    2,
+                    100.0,
+                    0,
+                    0.0,
+                ),
                 mock.call("Other scenarios: %s skipped", 1),
             ],
         )
-        self.assertEqual(mock_logger.exception.call_args_list, [])
+        self.assertCountEqual(mock_logger.exception.call_args_list, [])
 
-    @mock.patch.object(MvAccommodationRequest, "save")
+    @mock.patch.object(MvPerson, "save")
     def test_runing_function_handles_exception(self, mock_save, mock_logger):
         database_error = DatabaseError("Database down")
         mock_save.side_effect = database_error
@@ -431,13 +389,13 @@ class TestFixGuestRecordsPointingToWrongARs(TestSessionTokenMixin, TestCase):
         run(dry_run=False)
 
         self.assert_no_change_for_correct_guest()
-        self.assert_changes_for_scenario_1()
+        self.assert_no_change_for_scenario_1()
         self.assert_no_change_for_scenario_2()
         self.assert_no_change_for_scenario_3()
         self.assert_no_change_for_scenario_4()
         self.assert_no_change_for_scenario_5()
 
-        self.assertEqual(
+        self.assertCountEqual(
             mock_logger.info.call_args_list,
             [
                 mock.call(
@@ -445,77 +403,58 @@ class TestFixGuestRecordsPointingToWrongARs(TestSessionTokenMixin, TestCase):
                     False,
                 ),
                 mock.call(
-                    "AR: %s meets conditions for scenario 1",
-                    self.ar_scenario_1_correct_ar.id,
-                ),
-                mock.call(
-                    "Started processing %s for scenario %s",
-                    f"AR: {self.ar_scenario_1_correct_ar.id}; "
-                    f"Guest: {self.guest_scenario_1.id};",
-                    1,
-                ),
-                mock.call(
-                    "Finished processing %s for scenario %s",
-                    f"AR: {self.ar_scenario_1_correct_ar.id}; "
-                    f"Guest: {self.guest_scenario_1.id};",
-                    1,
-                ),
-                mock.call(
-                    "AR: %s meets conditions for scenario 2",
-                    self.ar_scenario_2_open_ar.id,
-                ),
-                mock.call(
-                    "Started processing %s for scenario %s",
-                    f"AR: {self.ar_scenario_2_open_ar.id}; "
-                    f"Guest: {self.guest_scenario_2.id}; "
-                    f"Closed AR: {self.ar_scenario_2_closed_ar.id};",
-                    2,
-                ),
-                mock.call(
-                    "AR: %s meets conditions for scenario 2",
-                    self.ar_scenario_3_open_ar.id,
-                ),
-                mock.call(
-                    "Started processing %s for scenario %s",
-                    f"AR: {self.ar_scenario_3_open_ar.id}; "
-                    f"Guest: {self.guest_scenario_3.id}; "
-                    f"Closed AR: {self.ar_scenario_3_closed_ar.id};",
-                    2,
-                ),
-                mock.call(
-                    "AR: %s does not meet the conditions for a fixable scenario",
-                    self.ar_scenario_4_open_ar_1.id,
-                ),
-                mock.call(
-                    "Skipping processing AR: %s; Guest: %s; for unfixable scenario",
+                    "Skipping processing AR: %s and Guest: %s for unfixable scenario",
                     self.ar_scenario_4_open_ar_1.id,
                     self.guest_scenario_4.id,
                 ),
                 mock.call(
                     "End fix_guest_records_pointing_to_wrong_ars with dry_run=%s", False
                 ),
-                mock.call("Scenario 1: %s succeeded, %s failed", 1, 0),
-                mock.call("Scenario 2: %s succeeded, %s failed", 0, 2),
+                mock.call("Inspected %s records", 4),
+                mock.call(
+                    "Scenario %s: %s succeeded (%.1f%%), %s failed (%.1f%%)",
+                    1,
+                    0,
+                    0.0,
+                    1,
+                    100.0,
+                ),
+                mock.call(
+                    "Scenario %s: %s succeeded (%.1f%%), %s failed (%.1f%%)",
+                    2,
+                    0,
+                    0.0,
+                    2,
+                    100.0,
+                ),
                 mock.call("Other scenarios: %s skipped", 1),
             ],
         )
 
-        self.assertEqual(
+        self.assertCountEqual(
             mock_logger.exception.call_args_list,
             [
                 mock.call(
-                    "Exception processing %s for scenario %s; error: %s",
-                    f"AR: {self.ar_scenario_2_open_ar.id}; "
-                    f"Guest: {self.guest_scenario_2.id}; "
-                    f"Closed AR: {self.ar_scenario_2_closed_ar.id};",
+                    "Exception processing AR: %s and Guest: %s for scenario %s; "
+                    "error: %s",
+                    self.ar_scenario_1_correct_ar.id,
+                    self.guest_scenario_1.id,
+                    1,
+                    database_error,
+                ),
+                mock.call(
+                    "Exception processing AR: %s and Guest: %s for scenario %s; "
+                    "error: %s",
+                    self.ar_scenario_2_open_ar.id,
+                    self.guest_scenario_2.id,
                     2,
                     database_error,
                 ),
                 mock.call(
-                    "Exception processing %s for scenario %s; error: %s",
-                    f"AR: {self.ar_scenario_3_open_ar.id}; "
-                    f"Guest: {self.guest_scenario_3.id}; "
-                    f"Closed AR: {self.ar_scenario_3_closed_ar.id};",
+                    "Exception processing AR: %s and Guest: %s for scenario %s; "
+                    "error: %s",
+                    self.ar_scenario_3_open_ar.id,
+                    self.guest_scenario_3.id,
                     2,
                     database_error,
                 ),
