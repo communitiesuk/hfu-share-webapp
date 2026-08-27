@@ -1105,11 +1105,18 @@ class MvAccommodationRequest(models.Model):
         self.update_title()
         self.save()
 
-    def update_host(self, new_accommodation: MvAccommodation, author: User | str):
-        new_host = new_accommodation.get_volunteer()
-        if new_host is None:
-            # Fallback to the first host if no volunteer is set
-            new_host = new_accommodation.hosts.filter(is_principal=True).first()
+    def update_host(
+        self,
+        new_accommodation: MvAccommodation | None,
+        new_host: MvVolunteer | None = None,
+        *,
+        author: User | str,
+    ):
+        if new_host is None and new_accommodation is not None:
+            new_host = new_accommodation.get_volunteer()
+            if new_host is None:
+                # Fallback to the first host if no volunteer is set
+                new_host = new_accommodation.hosts.filter(is_principal=True).first()
 
         if new_host is None:
             # If no host is set, we cannot update the host
@@ -1121,7 +1128,7 @@ class MvAccommodationRequest(models.Model):
         if new_host.is_sponsor:
             if not self.sponsor_id:
                 self.sponsor_id = [new_host.id]
-            else:
+            elif new_host.id not in self.sponsor_id:
                 self.sponsor_id.append(new_host.id)
 
         self.primary_sponsor = new_host
@@ -1144,7 +1151,8 @@ class MvAccommodationRequest(models.Model):
 
         with transaction.atomic():
             self.primary_accommodation_id = primary_accommodation_id
-            self.active_host_id = active_host_id
+            new_host = MvVolunteer.objects.filter(id=active_host_id).first()
+            self.update_host(None, new_host, author=author)
             self.last_modified_at = timezone.now()
             self.last_modified_by = (
                 author.get_full_name() if hasattr(author, "get_full_name") else author
