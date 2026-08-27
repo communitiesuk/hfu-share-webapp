@@ -1039,8 +1039,9 @@ class SelectPrimaryFormAccommodationStep(forms.Form):
     accommodation = ChoiceField(
         choices=(),
         label="Select current accommodation",
+        help_text="This is where guests are staying, or will be staying.",
         widget=RadioSelect(),
-        error_messages={"required": "You must select the current accommodation."},
+        error_messages={"required": "Select the current accommodation."},
     )
 
     def __init__(self, *args, accommodations=None, **kwargs):
@@ -1058,7 +1059,7 @@ class SelectPrimaryFormAccommodationStep(forms.Form):
                 legend_size=Size.MEDIUM,
             ),
             Div(
-                Button.primary("submit", "Confirm"),
+                Button.primary("submit", "Confirm and continue"),
                 HTML(
                     '<a href="{{ cancel_url }}"'
                     'class="govuk-link govuk-link--no-visited-state govuk-body">'
@@ -1074,8 +1075,9 @@ class SelectPrimaryFormHostStep(forms.Form):
     host = ChoiceField(
         choices=(),
         label="Select current host",
+        help_text="This is who guests are staying, or will be staying with.",
         widget=RadioSelect(),
-        error_messages={"required": "You must select the current host."},
+        error_messages={"required": "Select the current host."},
     )
 
     def __init__(self, *args, hosts=None, **kwargs):

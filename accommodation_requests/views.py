@@ -720,15 +720,15 @@ class AccommodationRequestDetailActionsView(
             if self.object.is_multi_la:
                 actions.append(
                     TagAction(
-                        label="Confirm current accommodation",
-                        tag_text="Unavailable - this is a Multi LA case",
+                        label="Confirm current accommodation and host",
+                        tag_text="Unavailable - this is a multi LA case",
                         tag_colour_class="govuk-tag--red",
                     )
                 )
             else:
                 actions.append(
                     LinkAction(
-                        label="Confirm current accommodation",
+                        label="Confirm current accommodation and host",
                         url_text="Start",
                         url=reverse(
                             "accommodation-requests:select-primary",
@@ -1821,23 +1821,8 @@ class SelectPrimaryAccommodationAndHostWizard(
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         kwargs = super().get_context_data(**kwargs)
 
-        kwargs["caption"] = f"Confirm current {self.steps.current} for"
+        kwargs["caption"] = "Confirm current accommodation and host for"
         kwargs["cancel_url"] = self.get_cancel_url()
-
-        match self.steps.current:
-            case SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION:
-                kwargs["inset_text"] = [
-                    "This is the current address the guest is living in / "
-                    "going to be living in",
-                    "This may not be the same address as the sponsor "
-                    "or the address provided on the visa",
-                ]
-            case SelectPrimaryAccommodationAndHostSteps.HOST:
-                kwargs["inset_text"] = [
-                    "This is the current host the guest is living with / "
-                    "going to be living with",
-                    "This may not be the same person as the named sponsor",
-                ]
 
         return kwargs
 
