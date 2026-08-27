@@ -7,8 +7,8 @@ class MvPersonPermissionsTest(MvPersonBaseTestCase):
     def assert_get_for_user_returns(self, user: User, persons: list[MvPerson]):
         return self.assertQuerySetEqual(
             MvPerson.objects.get_for_user(user).order_by("id"),
-            sorted(list({str(obj) for obj in persons})),
-            transform=str,
+            sorted(person.pk for person in persons),
+            transform=lambda person: person.pk,
         )
 
     # Minimal tests because this is covered by the LocalAuthorityPermissionsManager test

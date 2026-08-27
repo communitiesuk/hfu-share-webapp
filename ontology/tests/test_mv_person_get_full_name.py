@@ -22,8 +22,8 @@ class MvPersonGetFullNameTestCase(TestCase):
         full_name = person.get_full_name()
         self.assertEqual(full_name, "Last")
 
-    def test_get_full_name_handles_both_nonexistant_first_and_last_names(self):
+    def test_get_full_name_falls_back_when_no_first_or_last_name(self):
         person = MvPersonFactory(first_name=None, last_name=None)
 
         full_name = person.get_full_name()
-        self.assertEqual(full_name, None)
+        self.assertEqual(full_name, "Unknown")
