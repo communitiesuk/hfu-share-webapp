@@ -1139,6 +1139,9 @@ class MvAccommodationRequest(models.Model):
         active_host_id: str | None,
         author: User | str,
     ):
+        old_primary_accommodation = self.get_primary_accommodation()
+        old_active_host = self.get_active_host()
+
         with transaction.atomic():
             self.primary_accommodation_id = primary_accommodation_id
             self.active_host_id = active_host_id
@@ -1160,6 +1163,39 @@ class MvAccommodationRequest(models.Model):
             self.update_checks_status(new_checks_status, author=author)
             self.save()
 
+            new_active_host = self.get_active_host()
+
+            if (
+                old_primary_accommodation
+                and new_primary_accommodation
+                and old_primary_accommodation.id != new_primary_accommodation.id
+            ):
+                accommodation_notes = (
+                    f"Current accommodation confirmed: was "
+                    f"{old_primary_accommodation.full_address} now "
+                    f"{new_primary_accommodation.full_address}."
+                )
+            else:
+                accommodation_notes = (
+                    f"Current accommodation confirmed as "
+                    f"{new_primary_accommodation.full_address if new_primary_accommodation else 'none'}."  # noqa: E501
+                )
+
+            if (
+                old_active_host
+                and new_active_host
+                and old_active_host.id != new_active_host.id
+            ):
+                host_notes = (
+                    f"Current host confirmed: was {old_active_host.get_full_name()} "
+                    f"now {new_active_host.get_full_name()}."
+                )
+            else:
+                host_notes = (
+                    f"Current host confirmed as "
+                    f"{new_active_host.get_full_name() if new_active_host else 'none'}."
+                )
+
             MvInteraction.create_interaction(
                 interaction_contact=(
                     MvInteraction.InteractionContact.CURRENT_ACCOMMODATION_AND_HOST_CONFIRMED
@@ -1168,8 +1204,7 @@ class MvAccommodationRequest(models.Model):
                     MvInteraction.InteractionContact.CURRENT_ACCOMMODATION_AND_HOST_CONFIRMED
                 ),
                 linked_accommodation_request=self,
-                # TODO: PLACEHOLDER TEXT - wording still to be confirmed
-                interaction_notes="PLACEHOLDER TEXT",
+                interaction_notes=f"{accommodation_notes}\n{host_notes}",
                 created_by=author,
                 title=(
                     MvInteraction.InteractionContact.CURRENT_ACCOMMODATION_AND_HOST_CONFIRMED
