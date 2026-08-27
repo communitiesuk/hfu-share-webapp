@@ -29,8 +29,8 @@ class SponsorEditForm(ReadOnlyFieldsMixin, forms.ModelForm):
         label="Date of Birth",
         widget=DatePicker(
             attrs={
-                "hint": f"For example "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%d/%m/%Y')}",
+                "hint": f"For example, "
+                f"{(datetime.today() - timedelta(days=11000)).strftime('%d/%m/%Y')}.",
             }
         ),
         required=True,

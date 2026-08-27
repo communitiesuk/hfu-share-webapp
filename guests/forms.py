@@ -72,8 +72,8 @@ class GuestEditForm(GuestBaseForm):
         widget=DatePicker(
             attrs={
                 "required": True,
-                "hint": f"For example "
-                f"{(datetime.today() - timedelta(days=4000)).strftime('%d/%m/%Y')}",
+                "hint": f"For example, "
+                f"{(datetime.today() - timedelta(days=4000)).strftime('%d/%m/%Y')}.",
             }
         ),
         error_messages={"required": "Please enter a valid date of birth"},
