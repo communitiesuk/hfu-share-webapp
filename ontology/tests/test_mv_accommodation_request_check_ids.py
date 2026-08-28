@@ -1,5 +1,3 @@
-from django.test import TestCase
-
 from ontology.models import CheckType, DevCheckV2, MvAccommodationRequest
 from ontology.tests.factories import (
     DevCheckV2Factory,
@@ -8,9 +6,10 @@ from ontology.tests.factories import (
     MvGroupFactory,
     MvVolunteerFactory,
 )
+from test_utils.base import BaseTestCase
 
 
-class MvAccommodationRequestWithChecksTest(TestCase):
+class MvAccommodationRequestWithChecksTest(BaseTestCase):
     """Test the with_checks method from MvAccommodationQueryset."""
 
     def setUp(self):

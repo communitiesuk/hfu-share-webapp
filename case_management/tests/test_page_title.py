@@ -1,4 +1,4 @@
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory
 from django.urls import ResolverMatch
 
 from accommodation_requests.views import (
@@ -18,9 +18,10 @@ from case_management.page_title import (
     is_home_page,
     slug_to_title,
 )
+from test_utils.base import BaseTestCase
 
 
-class SlugToTitleTestCase(TestCase):
+class SlugToTitleTestCase(BaseTestCase):
     def test_slug_to_title(self):
         test_cases = {
             "accessibility-statement": "Accessibility statement",
@@ -36,7 +37,7 @@ class SlugToTitleTestCase(TestCase):
                 self.assertEqual(expected_title, slug_to_title(slug))
 
 
-class IsHomePageTestCase(TestCase):
+class IsHomePageTestCase(BaseTestCase):
     def test_is_home_page_with_landing_page_route(self):
         resolver_match = ResolverMatch(
             route="landing-page",
@@ -58,7 +59,7 @@ class IsHomePageTestCase(TestCase):
         self.assertFalse(is_home_page(resolver_match))
 
 
-class GetShortRecordNameTestCase(TestCase):
+class GetShortRecordNameTestCase(BaseTestCase):
     def test_get_short_record_name_within_limit(self):
         record_name = "Short Name"
         max_length = 20
@@ -75,7 +76,7 @@ class GetShortRecordNameTestCase(TestCase):
         )
 
 
-class GetSectionTitleTestCase(TestCase):
+class GetSectionTitleTestCase(BaseTestCase):
     def test_get_section_title_with_webapp_route(self):
         resolver_match = ResolverMatch(
             route="accessibility-statement",
@@ -110,7 +111,7 @@ class GetSectionTitleTestCase(TestCase):
         self.assertEqual("Sponsors and hosts", get_section_title(resolver_match))
 
 
-class ApplySectionTitleTestCase(TestCase):
+class ApplySectionTitleTestCase(BaseTestCase):
     def test_apply_section_title_adds_section_title(self):
         resolver_match = ResolverMatch(
             route="accessibility-statement",
@@ -140,7 +141,7 @@ class ApplySectionTitleTestCase(TestCase):
         self.assertEqual(updated_title, "Initial Title")
 
 
-class ApplyTabTitleTestCase(TestCase):
+class ApplyTabTitleTestCase(BaseTestCase):
     def test_apply_tab_title_adds_tab_title(self):
         resolver_match = ResolverMatch(
             route="",
@@ -169,7 +170,7 @@ class ApplyTabTitleTestCase(TestCase):
         self.assertEqual("Accommodation request", title)
 
 
-class GetTabTitleTestCase(TestCase):
+class GetTabTitleTestCase(BaseTestCase):
     def test_get_tab_title_with_list_view(self):
         resolver_match = ResolverMatch(
             route="",
@@ -204,7 +205,7 @@ class GetTabTitleTestCase(TestCase):
         self.assertEqual("", get_tab_title(resolver_match))
 
 
-class ApplyServiceNameTestCase(TestCase):
+class ApplyServiceNameTestCase(BaseTestCase):
     def test_apply_service_name_with_title(self):
         title = "Section Title"
         service_name = "Share Homes for Ukraine data"
@@ -226,7 +227,7 @@ class ApplyServiceNameTestCase(TestCase):
         )
 
 
-class ApplyRecordNameTestCase(TestCase):
+class ApplyRecordNameTestCase(BaseTestCase):
     def test_apply_record_name_with_record_name(self):
         request = RequestFactory()
         request.record_name = "Lorem ipsum dolor sit amet"
@@ -263,7 +264,7 @@ class ApplyRecordNameTestCase(TestCase):
         self.assertEqual(updated_title, "Accommodation request")
 
 
-class GetTitleTestCase(TestCase):
+class GetTitleTestCase(BaseTestCase):
     def test_get_title_without_resolve_match(self):
         request = RequestFactory()
         request.resolver_match = None

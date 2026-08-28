@@ -1,9 +1,8 @@
-from django.test import TestCase
-
 from ontology.tests.factories import MvAccommodationRequestFactory
+from test_utils.base import BaseTestCase
 
 
-class MvAccommodationRequestIsEmptyGroup(TestCase):
+class MvAccommodationRequestIsEmptyGroup(BaseTestCase):
     def test_ar_with_null_person_id_is_not_empty_group(self):
         accommodation_request = MvAccommodationRequestFactory(
             person_id=None,

@@ -1,7 +1,6 @@
 from collections import deque
 from unittest.mock import call, patch
 
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.enums import GroupType
@@ -9,6 +8,7 @@ from accounts.tests.base import TestSessionTokenMixin
 from downloads.forms import DownloadType
 from ontology.models import MvAccommodation
 from ontology.tests.factories import MvAccommodationFactory
+from test_utils.base import BaseTestCase
 from user_management.tests.base import (
     UserGroup,
     get_admin_user,
@@ -17,7 +17,7 @@ from user_management.tests.base import (
 )
 
 
-class DownloadsViewAccommodationTestCase(TestSessionTokenMixin, TestCase):
+class DownloadsViewAccommodationTestCase(TestSessionTokenMixin, BaseTestCase):
     def test_da_download_view_accommodation_csv(self):
         user = get_da_user()
         self.client.force_login(user)

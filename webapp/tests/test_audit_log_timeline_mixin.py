@@ -2,12 +2,12 @@ from datetime import timedelta
 
 from auditlog.models import LogEntry
 from django.contrib.contenttypes.models import ContentType
-from django.test import TestCase
 from django.utils import timezone
 from django.views.generic import DetailView
 
 from ontology.models import MvAccommodationRequest
 from ontology.tests.factories import AuditLogEntryFactory, MvAccommodationRequestFactory
+from test_utils.base import BaseTestCase
 from user_management.tests.base import get_admin_user
 from webapp.mixins import AuditLogTimelineEventsMixin
 
@@ -33,7 +33,7 @@ class TestTimelineView(AuditLogTimelineEventsMixin, DetailView):
     model = MvAccommodationRequest
 
 
-class AuditLogTimelineMixinTest(TestCase):
+class AuditLogTimelineMixinTest(BaseTestCase):
     def setUp(self):
         self.view = TestTimelineView()
 

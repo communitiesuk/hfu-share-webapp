@@ -1,12 +1,11 @@
-from django.test import TestCase
-
 from deduplication.constants import DEDUP_SPONSORS_SEARCH_FIELDS
 from ontology.models import MvVolunteer as Sponsor
 from ontology.tests.factories import MvVolunteerFactory as SponsorFactory
+from test_utils.base import BaseTestCase
 from webapp.search import perform_search
 
 
-class SearchSponsorsTestCase(TestCase):
+class SearchSponsorsTestCase(BaseTestCase):
     def setUp(self):
         self.sponsor1 = SponsorFactory(
             first_name="John",

@@ -1,12 +1,11 @@
-from django.test import TestCase
-
 from ontology.models import MvAccommodationRequest as AccReq
 from ontology.tests.factories import MvAccommodationRequestFactory as AccReqFactory
+from test_utils.base import BaseTestCase
 from webapp.constants import ACCOMMODATION_REQUEST_SEARCH_FIELDS
 from webapp.search import perform_search
 
 
-class AccommodationRequestSearchTestCase(TestCase):
+class AccommodationRequestSearchTestCase(BaseTestCase):
     def setUp(self):
         self.acc_req1 = AccReqFactory(
             title="John Doe acc req",

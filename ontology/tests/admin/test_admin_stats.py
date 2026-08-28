@@ -1,6 +1,5 @@
 from datetime import datetime, timezone
 
-from django.test import TestCase
 from freezegun import freeze_time
 
 from accounts.tests.factories import UserFactory
@@ -18,9 +17,10 @@ from ontology.tests.factories import (
     MvUkPostcodeFactory,
     MvVolunteerFactory,
 )
+from test_utils.base import BaseTestCase
 
 
-class MonthlyAuditStatsTest(TestCase):
+class MonthlyAuditStatsTest(BaseTestCase):
     def test_generate_monthly_audit_stats(self):
         # Create some objects at various times, to show up in the monthly stats
 
@@ -136,7 +136,7 @@ class MonthlyAuditStatsTest(TestCase):
         }
 
 
-class MonthlyUserStatsTest(TestCase):
+class MonthlyUserStatsTest(BaseTestCase):
     def test_get_user_stats_returns_correct_info(self):
         # User 1 joined 91 days ago
         user1 = UserFactory()

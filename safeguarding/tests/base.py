@@ -1,14 +1,13 @@
-from django.test import TestCase
-
 from ontology.models import CheckType
 from ontology.tests.factories import (
     DevCheckV2Factory,
     MvAccommodationFactory,
     MvPersonFactory,
 )
+from test_utils.base import BaseTestCase
 
 
-class SafeguardingBaseTestCase(TestCase):
+class SafeguardingBaseTestCase(BaseTestCase):
     def setUp(self):
         super().setUp()
 

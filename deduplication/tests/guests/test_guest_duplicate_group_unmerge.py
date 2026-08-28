@@ -1,7 +1,7 @@
 from datetime import date
 from unittest.mock import patch
 
-from django.test import TestCase, override_settings
+from django.test import override_settings
 from django.utils import timezone
 from freezegun import freeze_time
 
@@ -19,10 +19,11 @@ from ontology.tests.factories import (
     MvPersonFactory,
     MvVolunteerFactory,
 )
+from test_utils.base import BaseTestCase
 from user_management.tests.base import get_admin_user
 
 
-class GuestDuplicateGroupUndoDeduplicationTestCase(TestCase):
+class GuestDuplicateGroupUndoDeduplicationTestCase(BaseTestCase):
     def test_should_set_is_principal_true_to_all_undo_deduplicated_guests(self):
         self.guest_one = MvPersonFactory(is_principal=True)
         self.guest_two = MvPersonFactory(is_principal=True)

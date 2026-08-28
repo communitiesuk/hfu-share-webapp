@@ -1,12 +1,11 @@
-from django.test import TestCase
-
 from ontology.models import SponsorshipCertificationForm
 from ontology.tests.factories import SponsorshipCertificationFormFactory
+from test_utils.base import BaseTestCase
 from webapp.constants import UAMS_SEARCH_FIELDS
 from webapp.search import perform_search
 
 
-class SearchUamsTestCase(TestCase):
+class SearchUamsTestCase(BaseTestCase):
     def setUp(self):
         self.app1 = SponsorshipCertificationFormFactory(
             given_name="John",

@@ -1,17 +1,17 @@
 import http.client
 
 from django.conf import settings
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
 from accounts.tests.factories import AccessRequestFactory, GroupFactory, UserFactory
+from test_utils.base import BaseTestCase
 from user_management.tests.base import (
     get_admin_user,
 )
 
 
-class AccessRequestsDetailPageTestCase(TestSessionTokenMixin, TestCase):
+class AccessRequestsDetailPageTestCase(TestSessionTokenMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
 
@@ -79,7 +79,7 @@ class AccessRequestsDetailPageTestCase(TestSessionTokenMixin, TestCase):
         )
 
 
-class UserDetailPageTitleTestCase(TestSessionTokenMixin, TestCase):
+class UserDetailPageTitleTestCase(TestSessionTokenMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
 
@@ -147,7 +147,7 @@ class UserDetailPageTitleTestCase(TestSessionTokenMixin, TestCase):
         )
 
 
-class GroupDetailPageTitleTestCase(TestSessionTokenMixin, TestCase):
+class GroupDetailPageTitleTestCase(TestSessionTokenMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
 

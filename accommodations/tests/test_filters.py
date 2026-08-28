@@ -1,11 +1,10 @@
-from django.test import TestCase
-
 from accommodations.views import AccommodationFilter
 from ontology.models import MvAccommodation
 from ontology.tests.factories import MvAccommodationFactory
+from test_utils.base import BaseTestCase
 
 
-class AccommodationFilterIncludeDuplicatesTestCase(TestCase):
+class AccommodationFilterIncludeDuplicatesTestCase(BaseTestCase):
     def setUp(self):
         self.records = [
             MvAccommodationFactory(

@@ -1,6 +1,5 @@
 from datetime import datetime, timezone
 
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
@@ -8,10 +7,11 @@ from deduplication.tests.factories import (
     GuestDuplicateGroupFactory,
 )
 from ontology.tests.factories import MvPersonFactory
+from test_utils.base import BaseTestCase
 from user_management.tests.base import get_admin_user
 
 
-class GuestDeduplicationHistoryViewTest(TestSessionTokenMixin, TestCase):
+class GuestDeduplicationHistoryViewTest(TestSessionTokenMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
         self.first_guest = MvPersonFactory(

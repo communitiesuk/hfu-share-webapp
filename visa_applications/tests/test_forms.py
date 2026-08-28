@@ -1,11 +1,11 @@
 from django.forms import CheckboxSelectMultiple, RadioSelect, Textarea
-from django.test import TestCase
 
 from ontology.models.VisaInformationRequest import VisaInformationRequest
+from test_utils.base import BaseTestCase
 from visa_applications.forms import StartVIRForm
 
 
-class StartVIRFormTest(TestCase):
+class StartVIRFormTest(BaseTestCase):
     def test_required_fields(self):
         form = StartVIRForm(data={})
         self.assertFalse(form.is_valid())

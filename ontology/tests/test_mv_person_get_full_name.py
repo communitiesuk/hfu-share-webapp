@@ -1,9 +1,8 @@
-from django.test import TestCase
-
 from ontology.tests.factories import MvPersonFactory
+from test_utils.base import BaseTestCase
 
 
-class MvPersonGetFullNameTestCase(TestCase):
+class MvPersonGetFullNameTestCase(BaseTestCase):
     def test_get_full_name_concats_first_and_last_name_if_both_exist(self):
         person = MvPersonFactory(first_name="First", last_name="Last")
 

@@ -1,11 +1,10 @@
 from datetime import date, datetime, timezone
 
-from django.test import TestCase
-
+from test_utils.base import BaseTestCase
 from webapp.utils import CustomDateColumn, CustomDateTimeColumn
 
 
-class CustomDateColumnTests(TestCase):
+class CustomDateColumnTests(BaseTestCase):
     def setUp(self):
         self.column = CustomDateColumn()
 
@@ -54,7 +53,7 @@ class CustomDateColumnTests(TestCase):
                 self.assertEqual(self.column.render(value=value), expected_output)
 
 
-class CustomDateTimeColumnTests(TestCase):
+class CustomDateTimeColumnTests(BaseTestCase):
     def setUp(self):
         self.column = CustomDateTimeColumn()
 

@@ -1,10 +1,9 @@
-from django.test import TestCase
-
+from test_utils.base import BaseTestCase
 from webapp.constants import visa_status_list_ordered
 from webapp.views import combine_visa_statuses
 
 
-class VisaStatusTest(TestCase):
+class VisaStatusTest(BaseTestCase):
     def assert_combine_visa_statuses(self, statuses: list[str], expected: str | None):
         self.assertEqual(combine_visa_statuses(statuses).name, expected)
 

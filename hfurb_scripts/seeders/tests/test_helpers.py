@@ -1,5 +1,3 @@
-from django.test import TestCase
-
 from accounts.enums import GroupType
 from accounts.tests.factories import GroupInfoFactory
 from hfurb_scripts.seeders.helpers import (
@@ -12,9 +10,10 @@ from ontology.models import (
     MvVolunteer,
     VisaApplication,
 )
+from test_utils.base import BaseTestCase
 
 
-class TestBuildCompleteAccommodationScenario(TestCase):
+class TestBuildCompleteAccommodationScenario(BaseTestCase):
     def setUp(self):
         self.group_info = GroupInfoFactory(
             ltla_name="Test LTLA",

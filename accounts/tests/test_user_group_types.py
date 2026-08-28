@@ -1,14 +1,14 @@
 from typing import cast
 
 from django.contrib.auth.models import Group
-from django.test import TestCase
 
 from accounts.enums import GroupType
 from accounts.models import User
 from accounts.tests.factories import GroupFactory, UserFactory
+from test_utils.base import BaseTestCase
 
 
-class UserGroupTypesTestCase(TestCase):
+class UserGroupTypesTestCase(BaseTestCase):
     def _user_with_type(self, group_type: GroupType) -> User:
         user = cast(User, UserFactory())
         group = cast(Group, GroupFactory(groupinfo__group_type=group_type))

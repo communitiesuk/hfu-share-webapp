@@ -1,4 +1,3 @@
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
@@ -6,6 +5,7 @@ from ontology.tests.factories import (
     MvAccommodationFactory,
     MvVolunteerFactory,
 )
+from test_utils.base import BaseTestCase
 from user_management.tests.base import (
     get_admin_user,
     get_da_user,
@@ -16,7 +16,7 @@ from user_management.tests.base import (
 )
 
 
-class SponsorsDetailViewsTabsTestCase(TestSessionTokenMixin, TestCase):
+class SponsorsDetailViewsTabsTestCase(TestSessionTokenMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
         self.sponsor = MvVolunteerFactory(

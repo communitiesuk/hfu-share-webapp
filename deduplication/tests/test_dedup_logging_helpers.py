@@ -1,4 +1,4 @@
-from django.test import TestCase, override_settings
+from django.test import override_settings
 
 from deduplication.models import (
     _db_values,
@@ -7,13 +7,14 @@ from deduplication.models import (
     log_dedup_persistence_check,
 )
 from ontology.tests.factories import MvAccommodationRequestFactory
+from test_utils.base import BaseTestCase
 from webapp.enhanced_sentry_logging import (
     _as_sentry_log_value,
     _values_match_or_both_empty,
 )
 
 
-class ValuesMatchOrBothEmptyTestCase(TestCase):
+class ValuesMatchOrBothEmptyTestCase(BaseTestCase):
     def test_equal_values_match(self):
         self.assertTrue(_values_match_or_both_empty("x", "x"))
         self.assertTrue(_values_match_or_both_empty([1, 2], [1, 2]))
@@ -40,7 +41,7 @@ class ValuesMatchOrBothEmptyTestCase(TestCase):
         self.assertFalse(_values_match_or_both_empty(0, []))
 
 
-class AsSentryLogValueTestCase(TestCase):
+class AsSentryLogValueTestCase(BaseTestCase):
     def test_primitives_pass_through(self):
         self.assertEqual(_as_sentry_log_value(True), True)
         self.assertEqual(_as_sentry_log_value(42), 42)
@@ -54,7 +55,7 @@ class AsSentryLogValueTestCase(TestCase):
 
 
 @override_settings(ENHANCED_DEDUPLICATION_LOGGING=True)
-class InMemoryValuesTestCase(TestCase):
+class InMemoryValuesTestCase(BaseTestCase):
     def test_copies_list_so_later_in_place_mutation_does_not_alter_it(
         self,
     ):
@@ -72,7 +73,7 @@ class InMemoryValuesTestCase(TestCase):
 
 
 @override_settings(ENHANCED_DEDUPLICATION_LOGGING=False)
-class HelpersAreNoOpWhenFlagIsOffTestCase(TestCase):
+class HelpersAreNoOpWhenFlagIsOffTestCase(BaseTestCase):
     # With ENHANCED_DEDUPLICATION_LOGGING=False
     # the helpers must not run any DB query or coercion.
 

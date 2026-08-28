@@ -1,9 +1,9 @@
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
 from deduplication.views import SelectAndReviewRecordsStep
 from ontology.tests.factories import MvAccommodationFactory, MvUkPostcodeFactory
+from test_utils.base import BaseTestCase
 from user_management.tests.base import (
     get_admin_user,
     get_da_user,
@@ -14,7 +14,7 @@ from user_management.tests.base import (
 )
 
 
-class DeduplicationAccommodationListViewTestCase(TestSessionTokenMixin, TestCase):
+class DeduplicationAccommodationListViewTestCase(TestSessionTokenMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
 
@@ -113,7 +113,7 @@ class DeduplicationAccommodationListViewTestCase(TestSessionTokenMixin, TestCase
         self.assertNotContains(response, self.non_principal_accommodation.full_address)
 
 
-class DeduplicationAccommodationWizardAccessTests(TestSessionTokenMixin, TestCase):
+class DeduplicationAccommodationWizardAccessTests(TestSessionTokenMixin, BaseTestCase):
     def _follow_wizard_entry(self, user):
         self.client.force_login(user)
         return self.client.get(

@@ -3,7 +3,6 @@ import http.client
 
 from auditlog.models import LogEntry
 from django.contrib.contenttypes.models import ContentType
-from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
@@ -13,6 +12,7 @@ from ontology.tests.factories import (
     MvAccommodationFactory,
     MvVolunteerFactory,
 )
+from test_utils.base import BaseTestCase
 from user_management.tests.base import (
     get_admin_user,
     get_da_user,
@@ -23,7 +23,7 @@ from user_management.tests.base import (
 )
 
 
-class SponsorsHistoryTestCase(TestSessionTokenMixin, TestCase):
+class SponsorsHistoryTestCase(TestSessionTokenMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
         self.sponsor = MvVolunteerFactory(

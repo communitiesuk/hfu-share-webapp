@@ -1,12 +1,11 @@
-from django.test import TestCase
-
 from accounts.models import AccessRequest
 from accounts.tests.factories import AccessRequestFactory
+from test_utils.base import BaseTestCase
 from webapp.constants import ACCESS_REQUEST_SEARCH_FIELDS
 from webapp.search import perform_search
 
 
-class SearchAccessRequestsTestCase(TestCase):
+class SearchAccessRequestsTestCase(BaseTestCase):
     def setUp(self):
         self.access_request1 = AccessRequestFactory(
             requester__first_name="Jennifer",

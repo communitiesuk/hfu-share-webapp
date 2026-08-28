@@ -1,14 +1,13 @@
-from django.test import TestCase
-
 from ontology.models import MvAccommodationRequest
 from ontology.tests.factories import (
     HiddenUnassignedAccommodationRequestFactory as HiddenUnassignedAccReqFactory,
 )
 from ontology.tests.factories import MvAccommodationRequestFactory as AccReqFactory
 from ontology.tests.factories import MvVolunteerFactory
+from test_utils.base import BaseTestCase
 
 
-class MvAccommodationRequestUnassignedTest(TestCase):
+class MvAccommodationRequestUnassignedTest(BaseTestCase):
     def titles(self, queryset):
         return sorted(queryset.values_list("title", flat=True))
 

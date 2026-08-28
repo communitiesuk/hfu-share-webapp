@@ -3,18 +3,18 @@ from unittest.mock import ANY, patch
 from django.conf import settings
 from django.contrib.auth import SESSION_KEY
 from django.http import HttpResponseForbidden
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.exceptions import FlowError
 from accounts.tests.base import TestSessionTokenMixin
 from accounts.views import LOGIN_REDIRECT_SESSION_KEY
+from test_utils.base import BaseTestCase
 from user_management.tests.base import get_admin_user
 
 ENTRA_DOMAIN = "login.microsoftonline.com"
 
 
-class EntraIdMissingSessionTokenTestCase(TestCase):
+class EntraIdMissingSessionTokenTestCase(BaseTestCase):
     def test_redirect_if_not_logged_in_with_any_user(self):
         with self.settings(ENTRA_ID_ENABLED=True):
             response = self.client.get("/", follow=True)
@@ -72,7 +72,7 @@ class EntraIdMissingSessionTokenTestCase(TestCase):
         self.assertContains(response, "Access Denied", status_code=403)
 
 
-class EntraIdRedirectsUserToPageTheyWantedToVisitTestCase(TestCase):
+class EntraIdRedirectsUserToPageTheyWantedToVisitTestCase(BaseTestCase):
     @patch("accounts.views.Authentication.get_auth_uri")
     @patch("accounts.views.Authentication.get_token_from_flow")
     @patch("accounts.views.authenticate")
@@ -153,7 +153,7 @@ class EntraIdRedirectsUserToPageTheyWantedToVisitTestCase(TestCase):
             )
 
 
-class EntraIdSessionTokenTestCase(TestSessionTokenMixin, TestCase):
+class EntraIdSessionTokenTestCase(TestSessionTokenMixin, BaseTestCase):
     def test_redirects_to_landing_page_if_logged_in_with_entra_id(self):
         with self.settings(ENTRA_ID_ENABLED=True):
             self.client.force_login(get_admin_user())

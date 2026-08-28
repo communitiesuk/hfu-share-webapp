@@ -1,13 +1,12 @@
 from datetime import datetime, timezone
 
-from django.test import TestCase
-
 from deduplication.models import GuestDuplicateGroup
 from deduplication.tests.factories import GuestDuplicateGroupFactory
 from ontology.tests.factories import MvPersonFactory
+from test_utils.base import BaseTestCase
 
 
-class GuestDuplicateGroupTestCase(TestCase):
+class GuestDuplicateGroupTestCase(BaseTestCase):
     def setUp(self):
         self.guest_one = MvPersonFactory()
         self.guest_two = MvPersonFactory()

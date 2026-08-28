@@ -1,7 +1,5 @@
 from datetime import datetime, timezone
 
-from django.test import TestCase
-
 from ontology.admin_filters import (
     ARsCreatedOrModifiedSinceShareGoLiveFilter,
     ChecksSinceShareGoLiveFilter,
@@ -14,9 +12,10 @@ from ontology.tests.factories import (
     MvAccommodationRequestFactory,
     MvVolunteerFactory,
 )
+from test_utils.base import BaseTestCase
 
 
-class ChecksSinceShareGoLiveFilterTest(TestCase):
+class ChecksSinceShareGoLiveFilterTest(BaseTestCase):
     def setUp(self):
         self.sponsor_1 = MvVolunteerFactory(is_principal=False)
         self.sponsor_2 = MvVolunteerFactory(is_principal=False)
@@ -125,7 +124,7 @@ class ChecksSinceShareGoLiveFilterTest(TestCase):
         self.assertIn(str(self.devcheck_7.id), ids)
 
 
-class ARsCreatedOrModifiedSinceShareGoLiveFilterTest(TestCase):
+class ARsCreatedOrModifiedSinceShareGoLiveFilterTest(BaseTestCase):
     def setUp(self):
         self.ar_created_before_go_live = MvAccommodationRequestFactory(
             created_at=datetime(2025, 9, 14, 23, 59, 59, tzinfo=timezone.utc)

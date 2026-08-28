@@ -1,15 +1,15 @@
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
 from deduplication.views import SelectAndReviewRecordsStep
 from ontology.models import MvAccommodation
 from ontology.tests.factories import MvAccommodationFactory, MvUkPostcodeFactory
+from test_utils.base import BaseTestCase
 from user_management.tests.base import get_admin_user
 
 
 class DeduplicationAccommodationCheckAndCompleteViewTestCase(
-    TestSessionTokenMixin, TestCase
+    TestSessionTokenMixin, BaseTestCase
 ):
     def setUp(self):
         super().setUp()

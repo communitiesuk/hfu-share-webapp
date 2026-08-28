@@ -2,14 +2,14 @@ from datetime import date, datetime, timezone
 
 from django.template import Context, Template
 from django.template.loader import render_to_string
-from django.test import TestCase
 from django.utils.safestring import mark_safe
 
+from test_utils.base import BaseTestCase
 from webapp.formatting import format_date_value
 from webapp.templatetags.filters import is_date_or_datetime
 
 
-class FormatDateValueTests(TestCase):
+class FormatDateValueTests(BaseTestCase):
     def test_date_uses_detail_format_by_default(self):
         self.assertEqual(format_date_value(date(2026, 9, 1)), "1 September 2026")
 
@@ -52,7 +52,7 @@ class FormatDateValueTests(TestCase):
         self.assertEqual(format_date_value("Not a date"), "Not a date")
 
 
-class FormatDateFilterTests(TestCase):
+class FormatDateFilterTests(BaseTestCase):
     def render(self, template, value):
         return (
             Template("{% load filters %}" + template)
@@ -83,7 +83,7 @@ class FormatDateFilterTests(TestCase):
         self.assertEqual(rendered, "Not a date")
 
 
-class AccessRequestSummaryListTests(TestCase):
+class AccessRequestSummaryListTests(BaseTestCase):
     def render_answer(self, answer):
         return render_to_string(
             "webapp/components/access_request/access_request_summary_list.html",
@@ -112,7 +112,7 @@ class AccessRequestSummaryListTests(TestCase):
         self.assertIn("<strong>Approved</strong>", rendered)
 
 
-class IsDateOrDatetimeFilterTests(TestCase):
+class IsDateOrDatetimeFilterTests(BaseTestCase):
     def test_date_is_recognised(self):
         self.assertTrue(is_date_or_datetime(date(2026, 9, 1)))
 

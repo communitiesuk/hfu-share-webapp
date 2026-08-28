@@ -1,4 +1,3 @@
-from django.test import TestCase
 from django.utils import timezone
 from django_tables2 import Column
 
@@ -24,6 +23,7 @@ from ontology.tests.factories import (
     SafeguardingReferralFactory,
     VisaApplicationFactory,
 )
+from test_utils.base import BaseTestCase
 from webapp.views import SummaryListView, TwoColumnSummaryListView
 
 
@@ -263,7 +263,7 @@ class ReassignmentRequestTwoColumnSummaryListView(TwoColumnSummaryListView):  # 
         right_fields = ["comments"]
 
 
-class OntologyModelSummaryListViewTestCase(TestCase):
+class OntologyModelSummaryListViewTestCase(BaseTestCase):
     def setUp(self):
         host = MvVolunteerFactory(
             first_name="John",

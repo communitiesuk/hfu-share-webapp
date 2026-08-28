@@ -1,6 +1,5 @@
 from bs4 import BeautifulSoup
 from django.contrib.staticfiles.storage import staticfiles_storage
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.enums import GroupType
@@ -12,6 +11,7 @@ from ontology.tests.factories import (
     HiddenUnassignedAccommodationRequestFactory as HiddenUnassignedAccReqFactory,
 )
 from ontology.tests.factories import MvAccommodationRequestFactory as AccReqFactory
+from test_utils.base import BaseTestCase
 from user_management.templatetags.access_request_extras import (
     render_name_label_from_group_info,
 )
@@ -46,7 +46,7 @@ def selectable_card_exists(soup: BeautifulSoup, heading_text: str, body_text: st
     return False
 
 
-class LandingPageTests(TestSessionTokenMixin, TestCase):
+class LandingPageTests(TestSessionTokenMixin, BaseTestCase):
     def test_should_not_show_task_list_if_no_access(self):
         user = get_user_with_no_access()
         self.client.force_login(user)
@@ -338,7 +338,7 @@ class LandingPageTests(TestSessionTokenMixin, TestCase):
         self.assertContains(response, "Request access to data")
 
 
-class LandingPageCardVisibilityTests(TestSessionTokenMixin, TestCase):
+class LandingPageCardVisibilityTests(TestSessionTokenMixin, BaseTestCase):
     def test_la_user_sees_expected_cards(self):
         user = get_la_user()
         self.client.force_login(user)
@@ -603,7 +603,9 @@ class LandingPageCardVisibilityTests(TestSessionTokenMixin, TestCase):
         self.assertNotContains(response, announcement_hidden.body)
 
 
-class LandingPageFixDuplicateAccommodationTileTests(TestSessionTokenMixin, TestCase):
+class LandingPageFixDuplicateAccommodationTileTests(
+    TestSessionTokenMixin, BaseTestCase
+):
     TILE_BODY_WITH_GUESTS = (
         "Find and deduplicate 2 records that represent the same accommodation, "
         "guest or sponsor and host."
@@ -666,7 +668,7 @@ class LandingPageFixDuplicateAccommodationTileTests(TestSessionTokenMixin, TestC
         )
 
 
-class UnassignedAccommodationRequestsBadgeTests(TestSessionTokenMixin, TestCase):
+class UnassignedAccommodationRequestsBadgeTests(TestSessionTokenMixin, BaseTestCase):
     def get_badge_value(self, user, heading):
         self.client.force_login(user)
         response = self.client.get(reverse("webapp:landing-page"))
@@ -715,7 +717,7 @@ class UnassignedAccommodationRequestsBadgeTests(TestSessionTokenMixin, TestCase)
         self.assertIsNone(self.get_unassigned_badge_value(get_la_user()))
 
 
-class TestFaviconRedirect(TestSessionTokenMixin, TestCase):
+class TestFaviconRedirect(TestSessionTokenMixin, BaseTestCase):
     def test_favicon_redirect(self):
         user = get_la_user()
         self.client.force_login(user)

@@ -1,7 +1,6 @@
 import http.client
 from datetime import date, datetime, timezone
 
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
@@ -11,10 +10,11 @@ from ontology.tests.factories import (
     MvPersonFactory,
 )
 from ontology.tests.factories import MvVolunteerFactory as SponsorFactory
+from test_utils.base import BaseTestCase
 from user_management.tests.base import get_admin_user, get_da_user
 
 
-class SponsorEditViewTests(TestSessionTokenMixin, TestCase):
+class SponsorEditViewTests(TestSessionTokenMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
         self.sponsor = SponsorFactory(

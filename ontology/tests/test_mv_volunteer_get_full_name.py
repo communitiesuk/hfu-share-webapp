@@ -1,9 +1,8 @@
-from django.test import TestCase
-
 from ontology.tests.factories import MvVolunteerFactory
+from test_utils.base import BaseTestCase
 
 
-class MvVolunteerGetFullNameTestCase(TestCase):
+class MvVolunteerGetFullNameTestCase(BaseTestCase):
     def test_get_full_name_returns_full_name_if_exists(self):
         volunteer = MvVolunteerFactory(
             full_name="Full Name", first_name="Full", last_name="Name"
@@ -21,7 +20,7 @@ class MvVolunteerGetFullNameTestCase(TestCase):
         self.assertEqual(full_name, volunteer.build_full_name())
 
 
-class MvVolunteerBuildFullNameTestCase(TestCase):
+class MvVolunteerBuildFullNameTestCase(BaseTestCase):
     def test_get_full_name_concats_first_and_last_name_both_exist(self):
         volunteer = MvVolunteerFactory(first_name="First", last_name="Last")
 
