@@ -22,6 +22,7 @@ from ontology.models.DevCheckV2 import validate_sponsor_dbs_passed_subtype
 from ontology.models.EoiHost import EoiHost
 from ontology.models.MvAccommodation import MvAccommodation
 from ontology.models.MvGroup import MvGroup
+from ontology.models.MvInteraction import MvInteraction
 from ontology.models.MvPerson import MvPerson, get_person_age_sort_key
 from ontology.models.MvVolunteer import MvVolunteer
 from ontology.models.SponsorshipCertificationForm import SponsorshipCertificationForm
@@ -1104,11 +1105,18 @@ class MvAccommodationRequest(models.Model):
         self.update_title()
         self.save()
 
-    def update_host(self, new_accommodation: MvAccommodation, author: User | str):
-        new_host = new_accommodation.get_volunteer()
-        if new_host is None:
-            # Fallback to the first host if no volunteer is set
-            new_host = new_accommodation.hosts.filter(is_principal=True).first()
+    def update_host(
+        self,
+        new_accommodation: MvAccommodation | None,
+        new_host: MvVolunteer | None = None,
+        *,
+        author: User | str,
+    ):
+        if new_host is None and new_accommodation is not None:
+            new_host = new_accommodation.get_volunteer()
+            if new_host is None:
+                # Fallback to the first host if no volunteer is set
+                new_host = new_accommodation.hosts.filter(is_principal=True).first()
 
         if new_host is None:
             # If no host is set, we cannot update the host
@@ -1120,7 +1128,7 @@ class MvAccommodationRequest(models.Model):
         if new_host.is_sponsor:
             if not self.sponsor_id:
                 self.sponsor_id = [new_host.id]
-            else:
+            elif new_host.id not in self.sponsor_id:
                 self.sponsor_id.append(new_host.id)
 
         self.primary_sponsor = new_host
@@ -1138,9 +1146,13 @@ class MvAccommodationRequest(models.Model):
         active_host_id: str | None,
         author: User | str,
     ):
+        old_primary_accommodation = self.get_primary_accommodation()
+        old_active_host = self.get_active_host()
+
         with transaction.atomic():
             self.primary_accommodation_id = primary_accommodation_id
-            self.active_host_id = active_host_id
+            new_host = MvVolunteer.objects.filter(id=active_host_id).first()
+            self.update_host(None, new_host, author=author)
             self.last_modified_at = timezone.now()
             self.last_modified_by = (
                 author.get_full_name() if hasattr(author, "get_full_name") else author
@@ -1158,6 +1170,54 @@ class MvAccommodationRequest(models.Model):
             new_checks_status = self.determine_checks_status_from_linked_objects()
             self.update_checks_status(new_checks_status, author=author)
             self.save()
+
+            new_active_host = self.get_active_host()
+
+            if (
+                old_primary_accommodation
+                and new_primary_accommodation
+                and old_primary_accommodation.id != new_primary_accommodation.id
+            ):
+                accommodation_notes = (
+                    f"Current accommodation confirmed: was "
+                    f"{old_primary_accommodation.full_address} now "
+                    f"{new_primary_accommodation.full_address}."
+                )
+            else:
+                accommodation_notes = (
+                    f"Current accommodation confirmed as "
+                    f"{new_primary_accommodation.full_address if new_primary_accommodation else 'none'}."  # noqa: E501
+                )
+
+            if (
+                old_active_host
+                and new_active_host
+                and old_active_host.id != new_active_host.id
+            ):
+                host_notes = (
+                    f"Current host confirmed: was {old_active_host.get_full_name()} "
+                    f"now {new_active_host.get_full_name()}."
+                )
+            else:
+                host_notes = (
+                    f"Current host confirmed as "
+                    f"{new_active_host.get_full_name() if new_active_host else 'none'}."
+                )
+
+            MvInteraction.create_interaction(
+                interaction_contact=(
+                    MvInteraction.InteractionContact.CURRENT_ACCOMMODATION_AND_HOST_CONFIRMED
+                ),
+                interaction_type=(
+                    MvInteraction.InteractionContact.CURRENT_ACCOMMODATION_AND_HOST_CONFIRMED
+                ),
+                linked_accommodation_request=self,
+                interaction_notes=f"{accommodation_notes}\n{host_notes}",
+                created_by=author,
+                title=(
+                    MvInteraction.InteractionContact.CURRENT_ACCOMMODATION_AND_HOST_CONFIRMED
+                ),
+            )
 
     def update_number_of_people(self):
         self.number_of_people = len(self.person_id)

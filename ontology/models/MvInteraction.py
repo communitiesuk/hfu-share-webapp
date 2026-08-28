@@ -42,6 +42,9 @@ class MvInteraction(models.Model):
         RECORD_DEDUPLICATED = "Record deduplicated"
         RECORD_DEDUPLICATION_UNDONE = "Deduplication undone"
         WALES_MIGRATION = "Wales migration"
+        CURRENT_ACCOMMODATION_AND_HOST_CONFIRMED = (
+            "Current accommodation and host confirmed"
+        )
 
     attachment = models.TextField(null=True, blank=True, db_column="attachment")
     created_at = models.DateTimeField(
