@@ -638,23 +638,6 @@ class TagAction(Action):
         )
 
 
-@dataclass
-class TextAction(Action):
-    """
-    For use with ActionsListView, represents a disabled action with plain,
-    non-wrapping text - no tag styling.
-    """
-
-    def __init__(self, label: str, text: str):
-        super().__init__(
-            label=label,
-            value=format_html(
-                '<span style="white-space: nowrap;">{text}</span>',
-                text=text,
-            ),
-        )
-
-
 class ActionsListView(DetailView):
     # pylint: disable=view-missing-access-control
     """
