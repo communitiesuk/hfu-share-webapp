@@ -1075,7 +1075,7 @@ class SelectPrimaryFormHostStep(forms.Form):
     host = ChoiceField(
         choices=(),
         label="Select current host",
-        help_text="This is who guests are staying, or will be staying with.",
+        help_text="This is who guests are staying with, or will be staying with.",
         widget=RadioSelect(),
         error_messages={"required": "Select the current host."},
     )
