@@ -314,7 +314,7 @@ class SelectPrimaryAccommodationAndHostWizardTestCase(TestSessionTokenMixin, Tes
         self.assertContains(response, "Test Accommodation Request")
         self.assertContains(
             response,
-            "This is who guests are staying, or will be staying with.",
+            "This is who guests are staying with, or will be staying with.",
         )
         self.assertContains(response, "Select current host")
         self.assertContains(response, "Host 1")

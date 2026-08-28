@@ -719,10 +719,9 @@ class AccommodationRequestDetailActionsView(
         if can_confirm_accommodation:
             if self.object.is_multi_la:
                 actions.append(
-                    TagAction(
+                    Action(
                         label="Confirm current accommodation and host",
-                        tag_text="Unavailable - this is a multi LA case",
-                        tag_colour_class="govuk-tag--red",
+                        value="Unavailable - this is a multi LA case",
                     )
                 )
             else:
