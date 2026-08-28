@@ -97,6 +97,7 @@ from webapp.views import (
     LinkAction,
     SummaryListView,
     TagAction,
+    TextAction,
     TwoColumnSummaryListView,
 )
 from webapp.widgets import (
@@ -719,10 +720,9 @@ class AccommodationRequestDetailActionsView(
         if can_confirm_accommodation:
             if self.object.is_multi_la:
                 actions.append(
-                    TagAction(
+                    TextAction(
                         label="Confirm current accommodation and host",
-                        tag_text="Unavailable - this is a multi LA case",
-                        tag_colour_class="govuk-tag--red",
+                        text="Unavailable - this is a multi LA case",
                     )
                 )
             else:
