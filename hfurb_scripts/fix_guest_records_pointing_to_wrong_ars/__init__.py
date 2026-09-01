@@ -83,7 +83,7 @@ def remove_guest_from_ar(
 # the guest they are linked to but the guest is not linked to them
 def find_records_for_each_scenario():
     openable_ars = MvAccommodationRequest.objects.exclude(
-        status__in=CLOSED_STATUSES,
+        checks_status__in=CLOSED_STATUSES,
     )
 
     for ar in openable_ars.iterator():
@@ -113,7 +113,7 @@ def determine_scenario(
     if ars_with_guest.count() == 1:
         return 1
 
-    closed_ars_with_guest = ars_with_guest.filter(status__in=CLOSED_STATUSES)
+    closed_ars_with_guest = ars_with_guest.filter(checks_status__in=CLOSED_STATUSES)
 
     # If they are attached to other ARs but they're only attached one open then
     # this is scenario 2/3 and they can be attached to the correct AR
