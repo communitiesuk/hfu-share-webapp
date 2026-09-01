@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.15.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.14.0...2.15.0) (2026-09-01)
+
+
+### Features
+
+* add interaction to confirm accommodation flow (HFURB-3034) ([#147](https://github.com/communitiesuk/hfu-share-webapp/issues/147)) ([6832699](https://github.com/communitiesuk/hfu-share-webapp/commit/6832699a4a5747d3754f637d6483752d979e2c98))
+* update content for confirm primary accommodation flow (HFURB-4002) ([#149](https://github.com/communitiesuk/hfu-share-webapp/issues/149)) ([0ff0702](https://github.com/communitiesuk/hfu-share-webapp/commit/0ff0702c9e20db752dbebddbe84c1c63848d952c))
+
+
+### Bug Fixes
+
+* HFURB-3959 - use the right status attribute to check for closure ([#153](https://github.com/communitiesuk/hfu-share-webapp/issues/153)) ([6b62d24](https://github.com/communitiesuk/hfu-share-webapp/commit/6b62d24e6252ae7db0d4045d7f6d09c072b01104))
+
 ## [2.14.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.13.0...2.14.0) (2026-08-27)
 
 
