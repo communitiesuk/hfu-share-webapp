@@ -17,7 +17,7 @@ class TestFixGuestRecordsPointingToWrongARs(TestSessionTokenMixin, TestCase):
         # Scenario 0 - Records are linked correctly
         self.guest_correct = MvPersonFactory()
         self.ar_correct = MvAccommodationRequestFactory(
-            status=MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED
+            checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED
         )
         self.guest_correct.accommodation_request_id = self.ar_correct.id
         self.ar_correct.person_id = [self.guest_correct.id]
@@ -29,10 +29,10 @@ class TestFixGuestRecordsPointingToWrongARs(TestSessionTokenMixin, TestCase):
         # which is not linked to the guest
         self.guest_scenario_1 = MvPersonFactory()
         self.ar_scenario_1_correct_ar = MvAccommodationRequestFactory(
-            status=MvAccommodationRequest.ChecksStatus.CHECKS_PARTIALLY_COMPLETED
+            checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_PARTIALLY_COMPLETED
         )
         self.ar_scenario_1_wrong_ar = MvAccommodationRequestFactory(
-            status=MvAccommodationRequest.ChecksStatus.CHECKS_COMPLETED
+            checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_COMPLETED
         )
         self.guest_scenario_1.accommodation_request_id = self.ar_scenario_1_wrong_ar.id
         self.ar_scenario_1_correct_ar.person_id = [self.guest_scenario_1.id]
@@ -43,10 +43,10 @@ class TestFixGuestRecordsPointingToWrongARs(TestSessionTokenMixin, TestCase):
         # Scenario 2 - AR is linked to guest and guest is linked to closed AR
         self.guest_scenario_2 = MvPersonFactory()
         self.ar_scenario_2_open_ar = MvAccommodationRequestFactory(
-            status=MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED
+            checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED
         )
         self.ar_scenario_2_closed_ar = MvAccommodationRequestFactory(
-            status=MvAccommodationRequest.ChecksStatus.CANCELLED
+            checks_status=MvAccommodationRequest.ChecksStatus.CANCELLED
         )
 
         self.guest_scenario_2.accommodation_request_id = self.ar_scenario_2_closed_ar.id
@@ -61,13 +61,13 @@ class TestFixGuestRecordsPointingToWrongARs(TestSessionTokenMixin, TestCase):
         # guest is linked to some other AR
         self.guest_scenario_3 = MvPersonFactory()
         self.ar_scenario_3_open_ar = MvAccommodationRequestFactory(
-            status=MvAccommodationRequest.ChecksStatus.CHECKS_PARTIALLY_COMPLETED
+            checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_PARTIALLY_COMPLETED
         )
         self.ar_scenario_3_closed_ar = MvAccommodationRequestFactory(
-            status=MvAccommodationRequest.ChecksStatus.CANCELLED
+            checks_status=MvAccommodationRequest.ChecksStatus.CANCELLED
         )
         self.ar_scenario_3_other_ar = MvAccommodationRequestFactory(
-            status=MvAccommodationRequest.ChecksStatus.CHECKS_PARTIALLY_COMPLETED
+            checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_PARTIALLY_COMPLETED
         )
 
         self.guest_scenario_3.accommodation_request_id = self.ar_scenario_3_other_ar.id
@@ -81,10 +81,10 @@ class TestFixGuestRecordsPointingToWrongARs(TestSessionTokenMixin, TestCase):
         # Scenario 4 - 2 open ARs are linked to guest and guest is linked to one AR
         self.guest_scenario_4 = MvPersonFactory()
         self.ar_scenario_4_open_ar_1 = MvAccommodationRequestFactory(
-            status=MvAccommodationRequest.ChecksStatus.CHECKS_COMPLETED
+            checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_COMPLETED
         )
         self.ar_scenario_4_open_ar_2 = MvAccommodationRequestFactory(
-            status=MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED
+            checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED
         )
 
         self.guest_scenario_4.accommodation_request_id = self.ar_scenario_4_open_ar_2.id
@@ -98,10 +98,10 @@ class TestFixGuestRecordsPointingToWrongARs(TestSessionTokenMixin, TestCase):
         # Scenario 5 - 2 closed ARs are linked to guest and guest is linked to one AR
         self.guest_scenario_5 = MvPersonFactory()
         self.ar_scenario_5_closed_ar_1 = MvAccommodationRequestFactory(
-            status=MvAccommodationRequest.ChecksStatus.CLOSED_DUPLICATE
+            checks_status=MvAccommodationRequest.ChecksStatus.CLOSED_DUPLICATE
         )
         self.ar_scenario_5_closed_ar_2 = MvAccommodationRequestFactory(
-            status=MvAccommodationRequest.ChecksStatus.CLOSED_EMPTY
+            checks_status=MvAccommodationRequest.ChecksStatus.CLOSED_EMPTY
         )
 
         self.guest_scenario_5.accommodation_request_id = (
