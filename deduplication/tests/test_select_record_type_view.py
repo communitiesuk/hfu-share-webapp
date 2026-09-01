@@ -116,44 +116,19 @@ class DeduplicationSponsorSelectedViewTests(TestSessionTokenMixin, TestCase):
             html=True,
         )
 
-    def test_dev_user_can_see_all_options(self):
-        self.client.force_login(get_admin_user())
-        response = self.client.get(reverse("deduplication:select-record-type"))
-        self.assertContains(response, 'value="Accommodation"')
-        self.assertContains(response, 'value="Guests"')
-        self.assertContains(response, 'value="Sponsors and hosts"')
-
-    def test_la_user_can_see_accomidations_and_sponsor_option(self):
-        self.client.force_login(get_la_user())
-        response = self.client.get(reverse("deduplication:select-record-type"))
-        self.assertContains(response, 'value="Accommodation"')
-        self.assertNotContains(response, 'value="Guests"')
-        self.assertContains(response, 'value="Sponsors and hosts"')
-
-    def test_la_ea_user_can_see_all_options(self):
-        self.client.force_login(get_la_early_adopter_user())
-        response = self.client.get(reverse("deduplication:select-record-type"))
-        self.assertContains(response, 'value="Accommodation"')
-        self.assertContains(response, 'value="Guests"')
-        self.assertContains(response, 'value="Sponsors and hosts"')
-
-    def test_da_user_can_see_accommodation_and_sponsors_options(self):
-        self.client.force_login(get_da_user())
-        response = self.client.get(reverse("deduplication:select-record-type"))
-        self.assertContains(response, 'value="Accommodation"')
-        self.assertNotContains(response, 'value="Guests"')
-        self.assertContains(response, 'value="Sponsors and hosts"')
-
-    def test_mhclg_user_can_see_accommodation_and_sponsors_options(self):
-        self.client.force_login(get_mhclg_user())
-        response = self.client.get(reverse("deduplication:select-record-type"))
-        self.assertContains(response, 'value="Accommodation"')
-        self.assertNotContains(response, 'value="Guests"')
-        self.assertContains(response, 'value="Sponsors and hosts"')
-
-    def test_service_support_user_can_see_accommodation_and_sponsors_options(self):
-        self.client.force_login(get_service_support_user())
-        response = self.client.get(reverse("deduplication:select-record-type"))
-        self.assertContains(response, 'value="Accommodation"')
-        self.assertNotContains(response, 'value="Guests"')
-        self.assertContains(response, 'value="Sponsors and hosts"')
+    def test_all_allowed_users_can_see_all_options(self):
+        users = [
+            get_admin_user(),
+            get_la_user(),
+            get_la_early_adopter_user(),
+            get_da_user(),
+            get_mhclg_user(),
+            get_service_support_user(),
+        ]
+        for user in users:
+            with self.subTest(user=user):
+                self.client.force_login(user)
+                response = self.client.get(reverse("deduplication:select-record-type"))
+                self.assertContains(response, 'value="Accommodation"')
+                self.assertContains(response, 'value="Guests"')
+                self.assertContains(response, 'value="Sponsors and hosts"')

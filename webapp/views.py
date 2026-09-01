@@ -299,11 +299,6 @@ class LandingPageView(UserActionsMixin, MultiTableMixin, TemplateView):
             else None
         )
 
-        # TEMP: Set show_guests_option for use in fix deduplication title
-        context["show_guests_option"] = self.request.user.groups.filter(
-            name="dev"
-        ).exists()
-
         return context
 
     def get_tables(self):
