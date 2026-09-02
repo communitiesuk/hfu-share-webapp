@@ -1,4 +1,3 @@
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
@@ -7,10 +6,11 @@ from ontology.tests.factories import (
     MvAccommodationFactory,
     MvUkPostcodeFactory,
 )
+from test_utils.base import BaseTestCase
 from user_management.tests.base import get_admin_user
 
 
-class DeduplicationAccommodationSelectedViewTests(TestSessionTokenMixin, TestCase):
+class DeduplicationAccommodationSelectedViewTests(TestSessionTokenMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
 

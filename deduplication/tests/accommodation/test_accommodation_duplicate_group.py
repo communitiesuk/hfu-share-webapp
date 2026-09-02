@@ -1,13 +1,12 @@
 from datetime import datetime, timezone
 
-from django.test import TestCase
-
 from deduplication.models import AccommodationDuplicateGroup
 from deduplication.tests.factories import AccommodationDuplicateGroupFactory
 from ontology.tests.factories import MvAccommodationFactory
+from test_utils.base import BaseTestCase
 
 
-class AccommodationDuplicateGroupTestCase(TestCase):
+class AccommodationDuplicateGroupTestCase(BaseTestCase):
     def setUp(self):
         self.accommodation_one = MvAccommodationFactory()
         self.accommodation_two = MvAccommodationFactory()

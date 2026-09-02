@@ -1,6 +1,5 @@
-from django.test import TestCase
-
 from ontology.models import MvAccommodationRequest
+from test_utils.base import BaseTestCase
 from webapp.constants import (
     BLUE,
     GREEN,
@@ -19,7 +18,7 @@ from webapp.templatetags.safeguarding_checks_extras import (
 )
 
 
-class StatusToTagColourTest(TestCase):
+class StatusToTagColourTest(BaseTestCase):
     def assert_status_to_tag_colour(self, status_type: str, value: str, expected: str):
         self.assertEqual(status_to_tag_colour(status_type, value), expected)
 
@@ -115,7 +114,7 @@ class StatusToTagColourTest(TestCase):
         )
 
 
-class SafeguardingTemplateTagTest(TestCase):
+class SafeguardingTemplateTagTest(BaseTestCase):
     def test_safeguarding_check_templatetag_colour_handles_sentence_case_value(self):
         self.assertEqual(safeguarding_check_status_to_tag_colour("Passed"), GREEN)
 

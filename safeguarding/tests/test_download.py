@@ -1,7 +1,6 @@
 import csv
 from datetime import datetime
 
-from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
@@ -18,6 +17,7 @@ from ontology.tests.factories import (
     SafeguardingReferralFactory,
     VisaApplicationFactory,
 )
+from test_utils.base import BaseTestCase
 from user_management.tests.base import (
     get_admin_user,
     get_da_user,
@@ -27,7 +27,7 @@ from user_management.tests.base import (
 )
 
 
-class EscalatedChecksCSVDownloadViewTestCase(TestSessionTokenMixin, TestCase):
+class EscalatedChecksCSVDownloadViewTestCase(TestSessionTokenMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
         self.client.force_login(get_ukvi_user())
@@ -219,7 +219,7 @@ class EscalatedChecksCSVDownloadViewTestCase(TestSessionTokenMixin, TestCase):
         self.assertTrue(any("Charlie Brown" in line for line in content))
 
 
-class EscalatedChecksCSVDownloadViewTwoTestCase(TestSessionTokenMixin, TestCase):
+class EscalatedChecksCSVDownloadViewTwoTestCase(TestSessionTokenMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
         self.client.force_login(get_ukvi_user())
@@ -266,7 +266,7 @@ class EscalatedChecksCSVDownloadViewTwoTestCase(TestSessionTokenMixin, TestCase)
         self.assertEqual(len(content), 3)  # header + sgr row + newline
 
 
-class EscalatedChecksCSVDownloadWithNoARTestCase(TestSessionTokenMixin, TestCase):
+class EscalatedChecksCSVDownloadWithNoARTestCase(TestSessionTokenMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
 
@@ -307,7 +307,9 @@ class EscalatedChecksCSVDownloadWithNoARTestCase(TestSessionTokenMixin, TestCase
         self.assertEqual(response.status_code, 200)
 
 
-class EscalatedChecksCSVDownloadPermissionsTestCase(TestSessionTokenMixin, TestCase):
+class EscalatedChecksCSVDownloadPermissionsTestCase(
+    TestSessionTokenMixin, BaseTestCase
+):
     def setUp(self):
         super().setUp()
         self.url = reverse("safeguarding:escalated_checks_download_csv")

@@ -3,16 +3,17 @@ from unittest.mock import call, patch
 
 from django.contrib.auth.models import AnonymousUser
 from django.http import HttpResponse, HttpResponseRedirect
-from django.test import Client, RequestFactory, TestCase
+from django.test import Client, RequestFactory
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
 from accounts.tests.factories import UserFactory
+from test_utils.base import BaseTestCase
 from user_management.tests.base import get_la_user
 from webapp.middleware import LandingPageRedirectMiddleware, RequestTimeMiddleware
 
 
-class HealthCheckMiddlewareTests(TestCase):
+class HealthCheckMiddlewareTests(BaseTestCase):
     def setUp(self):
         self.client = Client()
 
@@ -44,7 +45,7 @@ class HealthCheckMiddlewareTests(TestCase):
         self.assertEqual(response.status_code, http.client.INTERNAL_SERVER_ERROR)
 
 
-class LandingPageRedirectMiddlewareTests(TestCase):
+class LandingPageRedirectMiddlewareTests(BaseTestCase):
     EXPECTED_URL = "/landing-page"
 
     def setUp(self):
@@ -107,7 +108,7 @@ class LandingPageRedirectMiddlewareTests(TestCase):
         self.assert_request_not_redirected(request)
 
 
-class CSPMiddlewareTests(TestSessionTokenMixin, TestCase):
+class CSPMiddlewareTests(TestSessionTokenMixin, BaseTestCase):
     def test_header_is_set(self):
         self.client.force_login(get_la_user())
         response = self.client.get("/")
@@ -133,7 +134,7 @@ class CSPMiddlewareTests(TestSessionTokenMixin, TestCase):
         self.assertEqual(response.status_code, 405)
 
 
-class PermissionsPolicyMiddlewareTests(TestSessionTokenMixin, TestCase):
+class PermissionsPolicyMiddlewareTests(TestSessionTokenMixin, BaseTestCase):
     def test_header_is_set(self):
         self.client.force_login(get_la_user())
         response = self.client.get("/")
@@ -149,7 +150,7 @@ class PermissionsPolicyMiddlewareTests(TestSessionTokenMixin, TestCase):
         )
 
 
-class GoogleAnalyticsMiddlewareTests(TestSessionTokenMixin, TestCase):
+class GoogleAnalyticsMiddlewareTests(TestSessionTokenMixin, BaseTestCase):
     GOOGLE_ANALYTICS_SCRIPT_URL = "https://www.googletagmanager.com/gtag/js?id=G-1234"
 
     @patch("case_management.settings.GOOGLE_ANALYTICS_ENABLED", "AnyOtherValue")
@@ -224,7 +225,7 @@ class GoogleAnalyticsMiddlewareTests(TestSessionTokenMixin, TestCase):
         self.assertContains(response, "Welcome")
 
 
-class RequestTimeMiddlewareTests(TestCase):
+class RequestTimeMiddlewareTests(BaseTestCase):
     def setUp(self):
         self.Middleware = RequestTimeMiddleware
         self.rf = RequestFactory()

@@ -2,16 +2,16 @@ from unittest.mock import patch
 
 from django.core.exceptions import PermissionDenied
 from django.template.loader import render_to_string
-from django.test import TestCase
 
 from accounts.tests.base import TestSessionTokenMixin
+from test_utils.base import BaseTestCase
 from user_management.tests.base import (
     get_admin_user,
     get_user_with_no_access,
 )
 
 
-class ErrorPageTests(TestSessionTokenMixin, TestCase):
+class ErrorPageTests(TestSessionTokenMixin, BaseTestCase):
     def test_should_render_custom_404_template_if_url_not_found(self):
         user = get_user_with_no_access()
         self.client.force_login(user)

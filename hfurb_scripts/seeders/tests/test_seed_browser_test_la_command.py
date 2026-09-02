@@ -1,6 +1,6 @@
 from django.core.management import call_command
 from django.core.management.base import CommandError
-from django.test import TestCase, override_settings
+from django.test import override_settings
 
 from accounts.enums import (
     BROWSER_TEST_LA_GROUP_NAME,
@@ -18,9 +18,10 @@ from ontology.models import (
     VisaApplication,
 )
 from ontology.tests.factories import MvAccommodationRequestFactory
+from test_utils.base import BaseTestCase
 
 
-class SeedBrowserTestLaCommandTestCase(TestCase):
+class SeedBrowserTestLaCommandTestCase(BaseTestCase):
     def setUp(self):
         GroupFactory(
             name=BROWSER_TEST_LA_GROUP_NAME,

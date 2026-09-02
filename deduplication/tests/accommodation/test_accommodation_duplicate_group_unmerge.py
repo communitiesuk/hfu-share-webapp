@@ -1,4 +1,3 @@
-from django.test import TestCase
 from django.utils import timezone
 from freezegun import freeze_time
 
@@ -7,10 +6,11 @@ from ontology.tests.factories import (
     MvAccommodationFactory,
     MvVolunteerFactory,
 )
+from test_utils.base import BaseTestCase
 from user_management.tests.base import get_admin_user
 
 
-class AccommodationDuplicateGroupUndoDeduplicationTestCase(TestCase):
+class AccommodationDuplicateGroupUndoDeduplicationTestCase(BaseTestCase):
     def test_should_remove_hosts_from_principal_on_undo(self):
         sponsor_one = MvVolunteerFactory(is_principal=True)
         accommodation_one = MvAccommodationFactory(is_principal=True)

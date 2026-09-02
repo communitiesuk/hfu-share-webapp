@@ -1,11 +1,10 @@
-from django.test import TestCase
-
 from ontology.models import SponsorshipCertificationForm
 from ontology.tests.factories import SponsorshipCertificationFormFactory
+from test_utils.base import BaseTestCase
 from uams.views import UamsFilter
 
 
-class FilterUamsTestCase(TestCase):
+class FilterUamsTestCase(BaseTestCase):
     def setUp(self):
         self.app1 = SponsorshipCertificationFormFactory(
             given_name="John",

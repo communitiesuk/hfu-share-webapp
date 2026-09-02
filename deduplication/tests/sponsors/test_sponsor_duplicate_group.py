@@ -1,13 +1,12 @@
 from datetime import datetime, timezone
 
-from django.test import TestCase
-
 from deduplication.models import SponsorDuplicateGroup
 from deduplication.tests.factories import SponsorDuplicateGroupFactory
 from ontology.tests.factories import MvVolunteerFactory
+from test_utils.base import BaseTestCase
 
 
-class SponsorDuplicateGroupTestCase(TestCase):
+class SponsorDuplicateGroupTestCase(BaseTestCase):
     def setUp(self):
         self.sponsor_one = MvVolunteerFactory()
         self.sponsor_two = MvVolunteerFactory()

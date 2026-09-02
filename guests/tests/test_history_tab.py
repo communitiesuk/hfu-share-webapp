@@ -4,7 +4,6 @@ from datetime import date
 
 from auditlog.models import LogEntry
 from django.contrib.contenttypes.models import ContentType
-from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
@@ -17,6 +16,7 @@ from ontology.tests.factories import (
     MvAccommodationRequestFactory,
     MvPersonFactory,
 )
+from test_utils.base import BaseTestCase
 from user_management.tests.base import (
     get_admin_user,
     get_da_user,
@@ -28,7 +28,7 @@ from user_management.tests.base import (
 )
 
 
-class GuestDetailHistoryViewTests(TestSessionTokenMixin, TestCase):
+class GuestDetailHistoryViewTests(TestSessionTokenMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
         self.accommodation_request = MvAccommodationRequestFactory(

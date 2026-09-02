@@ -1,12 +1,11 @@
-from django.test import TestCase
-
 from accounts.models import User
 from accounts.tests.factories import UserFactory
+from test_utils.base import BaseTestCase
 from webapp.constants import USERS_SEARCH_FIELDS
 from webapp.search import perform_search
 
 
-class SearchUsersTestCase(TestCase):
+class SearchUsersTestCase(BaseTestCase):
     def setUp(self):
         self.user1 = UserFactory(
             username="user1",

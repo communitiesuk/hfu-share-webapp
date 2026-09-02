@@ -1,6 +1,5 @@
 from datetime import datetime
 
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
@@ -10,13 +9,14 @@ from ontology.tests.factories import (
     CommentFactory,
     MvAccommodationRequestFactory,
 )
+from test_utils.base import BaseTestCase
 from user_management.tests.base import get_admin_user
 from webapp.mixins import SummaryListTestCaseMixin
 from webapp.tests.test_s3 import S3TestCaseMixin
 
 
 class AccommodationRequestCommentsTestCase(
-    TestSessionTokenMixin, SummaryListTestCaseMixin, S3TestCaseMixin, TestCase
+    TestSessionTokenMixin, SummaryListTestCaseMixin, S3TestCaseMixin, BaseTestCase
 ):
     def test_comment_will_only_show_file_table_for_the_right_comment(self):
         user = get_admin_user()

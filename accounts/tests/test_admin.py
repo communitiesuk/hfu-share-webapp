@@ -1,13 +1,14 @@
 from django.contrib.admin.sites import AdminSite
 from django.contrib.messages.storage.fallback import FallbackStorage
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory
 
 from accounts.admin import CustomUserAdmin
 from accounts.models import User
 from accounts.tests.factories import UserFactory
+from test_utils.base import BaseTestCase
 
 
-class ClearEntraIdentityActionTest(TestCase):
+class ClearEntraIdentityActionTest(BaseTestCase):
     def setUp(self):
         self.admin = CustomUserAdmin(User, AdminSite())
         self.request = RequestFactory().get("/admin/accounts/user/")

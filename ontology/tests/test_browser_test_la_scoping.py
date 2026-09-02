@@ -1,5 +1,4 @@
 from django.db.models import QuerySet
-from django.test import TestCase
 
 from accounts.enums import BROWSER_TEST_LTLA_NAMES, GroupType
 from accounts.models import User
@@ -18,6 +17,7 @@ from ontology.tests.factories import (
     VIRFactory,
     VisaApplicationFactory,
 )
+from test_utils.base import BaseTestCase
 from user_management.tests.base import (
     get_admin_user,
     get_mhclg_user,
@@ -76,7 +76,7 @@ class BrowserTestLaScopingTestCase(LocalAuthorityPermissionsManagerBaseTestCase)
         )
 
 
-class BrowserTestLaGuardsTestCase(TestCase):
+class BrowserTestLaGuardsTestCase(BaseTestCase):
     def setUp(self):
         GroupFactory(
             name="ltla_hobbiton_browser_test",

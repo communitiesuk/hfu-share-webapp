@@ -1,13 +1,13 @@
-from django.test import TestCase
 from django.urls import reverse
 from freezegun import freeze_time
 
 from accounts.tests.base import TestSessionTokenMixin
 from downloads.forms import DownloadType
+from test_utils.base import BaseTestCase
 from user_management.tests.base import get_admin_user, get_da_user, get_la_user
 
 
-class DownloadsViewGeneralTestCase(TestSessionTokenMixin, TestCase):
+class DownloadsViewGeneralTestCase(TestSessionTokenMixin, BaseTestCase):
     def test_page_title(self):
         user = get_la_user()
         self.client.force_login(user)

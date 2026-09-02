@@ -1,12 +1,12 @@
 import datetime
 
 from django.forms import ValidationError
-from django.test import TestCase
 
+from test_utils.base import BaseTestCase
 from webapp.validators import validate_range
 
 
-class ValidateDateRangeTests(TestCase):
+class ValidateDateRangeTests(BaseTestCase):
     def test_valid_numberic_range(self):
         class NumbericRange:
             start = 1

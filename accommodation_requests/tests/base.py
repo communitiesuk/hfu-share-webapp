@@ -1,5 +1,3 @@
-from django.test import TestCase
-
 from accounts.enums import GroupType
 from accounts.tests.factories import GroupInfoFactory
 from ontology.models import CheckType, MvAccommodationRequest
@@ -13,9 +11,10 @@ from ontology.tests.factories import (
     UKLocalAuthorityFactory,
 )
 from ontology.tests.factories import MvAccommodationRequestFactory as AccReqFactory
+from test_utils.base import BaseTestCase
 
 
-class AccommodationRequestsBaseTestCase(TestCase):
+class AccommodationRequestsBaseTestCase(BaseTestCase):
     def setUp(self):
         super().setUp()
 
@@ -367,7 +366,7 @@ class AccommodationRequestsBaseTestCase(TestCase):
         ]
 
 
-class SafeguardingChecksBaseTestCase(TestCase):
+class SafeguardingChecksBaseTestCase(BaseTestCase):
     def setUp(self):
         super().setUp()
 

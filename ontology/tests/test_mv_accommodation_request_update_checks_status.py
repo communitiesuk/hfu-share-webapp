@@ -1,11 +1,10 @@
-from django.test import TestCase
-
 from accounts.tests.factories import UserFactory
 from ontology.models import MvAccommodationRequest
 from ontology.tests.factories import MvAccommodationRequestFactory
+from test_utils.base import BaseTestCase
 
 
-class MvAccommodationRequestUpdateChecksStatusTest(TestCase):
+class MvAccommodationRequestUpdateChecksStatusTest(BaseTestCase):
     def setUp(self):
         self.user = UserFactory(first_name="John", last_name="Doe")
 

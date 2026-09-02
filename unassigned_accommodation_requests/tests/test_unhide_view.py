@@ -2,7 +2,6 @@ import http.client
 from unittest.mock import patch
 
 from django.db import DatabaseError
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
@@ -11,6 +10,7 @@ from ontology.tests.factories import (
     HiddenUnassignedAccommodationRequestFactory as HiddenUnassignedAccReqFactory,
 )
 from ontology.tests.factories import MvAccommodationRequestFactory as AccReqFactory
+from test_utils.base import BaseTestCase
 from user_management.tests.base import (
     get_admin_user,
     get_la_user,
@@ -23,7 +23,7 @@ LIST_URL_NAME = "unassigned-accommodation-requests:unassigned-accommodation-requ
 HIDE_URL_NAME = "unassigned-accommodation-requests:unhide"
 
 
-class HideUnassignedAccommodationRequestTests(TestSessionTokenMixin, TestCase):
+class HideUnassignedAccommodationRequestTests(TestSessionTokenMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
         self.hidden_ar = AccReqFactory(

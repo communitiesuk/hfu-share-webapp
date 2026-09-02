@@ -4,7 +4,6 @@ from collections import deque
 from datetime import datetime
 from unittest.mock import call, patch
 
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.enums import GroupType
@@ -17,6 +16,7 @@ from ontology.tests.factories import (
     MvAccommodationFactory,
     MvVolunteerFactory,
 )
+from test_utils.base import BaseTestCase
 from user_management.tests.base import (
     UserGroup,
     get_admin_user,
@@ -26,7 +26,7 @@ from user_management.tests.base import (
 )
 
 
-class DownloadsViewAllDataTestCase(TestSessionTokenMixin, TestCase):
+class DownloadsViewAllDataTestCase(TestSessionTokenMixin, BaseTestCase):
     def test_da_download_view_all_data_csv(self):
         user = get_da_user()
         self.client.force_login(user)

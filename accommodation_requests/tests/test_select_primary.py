@@ -2,7 +2,6 @@ import http.client
 from unittest.mock import call, patch
 
 from django.db import DatabaseError
-from django.test import TestCase
 from django.urls import reverse
 
 from accommodation_requests.views import (
@@ -16,6 +15,7 @@ from ontology.tests.factories import (
     MvUkPostcodeFactory,
     MvVolunteerFactory,
 )
+from test_utils.base import BaseTestCase
 from user_management.tests.base import (
     get_admin_user,
     get_da_user,
@@ -26,7 +26,9 @@ from user_management.tests.base import (
 )
 
 
-class SelectPrimaryAccommodationAndHostWizardTestCase(TestSessionTokenMixin, TestCase):
+class SelectPrimaryAccommodationAndHostWizardTestCase(
+    TestSessionTokenMixin, BaseTestCase
+):
     def setUp(self):
         super().setUp()
 

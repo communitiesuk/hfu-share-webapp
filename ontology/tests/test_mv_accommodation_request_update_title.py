@@ -1,16 +1,15 @@
 from datetime import date
 
-from django.test import TestCase
-
 from ontology.tests.factories import (
     MvAccommodationFactory,
     MvAccommodationRequestFactory,
     MvPersonFactory,
     MvUkPostcodeFactory,
 )
+from test_utils.base import BaseTestCase
 
 
-class MvAccommodationRequestUpdateTitleTest(TestCase):
+class MvAccommodationRequestUpdateTitleTest(BaseTestCase):
     def setUp(self):
         self.postcode = MvUkPostcodeFactory(
             postcode="SW1A2AA", postcode_formatted="SW1A 2AA"

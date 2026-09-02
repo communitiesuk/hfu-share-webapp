@@ -1,11 +1,10 @@
-from django.test import TestCase
-
 from guests.views import GuestsFilter
 from ontology.models import MvPerson
 from ontology.tests.factories import MvPersonFactory
+from test_utils.base import BaseTestCase
 
 
-class GuestFilterSexTestCase(TestCase):
+class GuestFilterSexTestCase(BaseTestCase):
     def setUp(self):
         self.male_guest = MvPersonFactory(
             gender="Male",
@@ -70,7 +69,7 @@ class GuestFilterSexTestCase(TestCase):
         self.assertIn(self.unspecified_sex_guest.id, guest_ids)
 
 
-class GuestFilterFirstArrivalDateTestCase(TestCase):
+class GuestFilterFirstArrivalDateTestCase(BaseTestCase):
     def setUp(self):
         self.person1 = MvPersonFactory(
             arrival_date="2025-10-01",
@@ -116,7 +115,7 @@ class GuestFilterFirstArrivalDateTestCase(TestCase):
         self.assertEqual(len(results), 0)
 
 
-class GuestFilterIncludeDuplicatesTestCase(TestCase):
+class GuestFilterIncludeDuplicatesTestCase(BaseTestCase):
     def setUp(self):
         self.record_1 = MvPersonFactory(is_principal=True)
         self.record_2 = MvPersonFactory(is_principal=False)

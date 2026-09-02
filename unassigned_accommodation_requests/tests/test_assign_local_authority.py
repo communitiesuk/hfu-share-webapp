@@ -5,7 +5,6 @@ from unittest import mock
 from unittest.mock import patch
 
 from django.db import DatabaseError
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.enums import GroupType
@@ -20,6 +19,7 @@ from ontology.tests.factories import (
     VisaApplicationFactory,
 )
 from ontology.tests.factories import MvAccommodationRequestFactory as AccReqFactory
+from test_utils.base import BaseTestCase
 from unassigned_accommodation_requests.views import AssignLocalAuthorityFormSteps
 from user_management.tests.base import (
     get_admin_user,
@@ -31,7 +31,7 @@ from user_management.tests.base import (
 )
 
 
-class AssignLocalAuthorityFormTestCase(TestSessionTokenMixin, TestCase):
+class AssignLocalAuthorityFormTestCase(TestSessionTokenMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
 

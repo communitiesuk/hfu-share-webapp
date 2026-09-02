@@ -1,12 +1,12 @@
 import http.client
 
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.enums import GroupType
 from accounts.models import AccessRequest
 from accounts.tests.base import TestSessionTokenMixin
 from accounts.tests.factories import AccessRequestFactory, GroupInfoFactory
+from test_utils.base import BaseTestCase
 from user_management.tests.base import (
     get_admin_user,
     get_la_user,
@@ -16,7 +16,7 @@ from user_management.tests.base import (
 WIZARD_STEP_FIELD = "access_request_form_wizard-current_step"
 
 
-class AccessRequestsListViewTestCase(TestSessionTokenMixin, TestCase):
+class AccessRequestsListViewTestCase(TestSessionTokenMixin, BaseTestCase):
     def test_access_denied_to_non_admin_users(self):
         url = reverse("user_management:access-requests")
         self.client.force_login(get_la_user())
@@ -30,7 +30,7 @@ class AccessRequestsListViewTestCase(TestSessionTokenMixin, TestCase):
         self.assertEqual(response.status_code, http.client.OK)
 
 
-class AccessRequestsDetailPageTestCase(TestSessionTokenMixin, TestCase):
+class AccessRequestsDetailPageTestCase(TestSessionTokenMixin, BaseTestCase):
     def test_access_denied_to_non_admin_users(self):
         access_request = AccessRequestFactory()
         url = reverse(
@@ -50,7 +50,7 @@ class AccessRequestsDetailPageTestCase(TestSessionTokenMixin, TestCase):
         self.assertEqual(response.status_code, http.client.OK)
 
 
-class AccessRequestsFormTestCase(TestSessionTokenMixin, TestCase):
+class AccessRequestsFormTestCase(TestSessionTokenMixin, BaseTestCase):
     def test_access_allowed_to_non_admin_users(self):
         url = reverse("user-management:access-request-form")
         self.client.force_login(get_la_user())
@@ -71,7 +71,7 @@ class AccessRequestsFormTestCase(TestSessionTokenMixin, TestCase):
 
 
 class AccessRequestFormWizardDevolvedAdministrationContentTestCase(
-    TestSessionTokenMixin, TestCase
+    TestSessionTokenMixin, BaseTestCase
 ):
     def setUp(self):
         super().setUp()
@@ -283,7 +283,7 @@ class AccessRequestFormWizardDevolvedAdministrationContentTestCase(
         )
 
 
-class AccessRequestIntroViewTestCase(TestSessionTokenMixin, TestCase):
+class AccessRequestIntroViewTestCase(TestSessionTokenMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
         self.url = reverse("user-management:access-request-intro")

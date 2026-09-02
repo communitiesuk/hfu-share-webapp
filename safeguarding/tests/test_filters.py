@@ -1,5 +1,4 @@
 from django.db.models import DateTimeField, Max, OuterRef, Subquery
-from django.test import TestCase
 
 from ontology.models import SafeguardingNotification, SafeguardingReferral
 from ontology.tests.factories import (
@@ -9,9 +8,10 @@ from ontology.tests.factories import (
     SafeguardingReferralFactory,
 )
 from safeguarding.views import EscalatedChecksTableFilter
+from test_utils.base import BaseTestCase
 
 
-class EscalatedChecksFilterTestCase(TestCase):
+class EscalatedChecksFilterTestCase(BaseTestCase):
     def setUp(self):
         # Create a person with an escalated safeguarding notification
         self.escalated_person = MvPersonFactory(
