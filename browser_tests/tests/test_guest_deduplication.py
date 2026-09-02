@@ -44,6 +44,7 @@ SEARCH_TERM = "yates field"
 
 @pytest.fixture
 def guest_deduplication_page(home_page: HomePage) -> HomePage:
+    home_page.sign_in()
     home_page.click_on_card("Fix duplicate records")
     home_page.assert_has_heading("Fix duplicate records")
 

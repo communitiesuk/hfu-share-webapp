@@ -5,12 +5,14 @@ from typing import Optional
 
 import pytest
 
-from ..pages.home_page import HomePage
+from ..pages import HomePage
 from .base import BrowserTest
 
 
 @pytest.fixture
 def download_page(home_page: HomePage):
+    home_page.sign_in()
+
     home_page.click_on_card("Download data")
 
     home_page.assert_has_heading("Download data")
