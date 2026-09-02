@@ -1,10 +1,13 @@
 from datetime import datetime
 
+from ..pages import HomePage
 from .base import BrowserTest
 
 
 class TestRequestAccessJourney(BrowserTest):
-    def test_request_access_journey_and_pending_status(self, home_page):
+    def test_request_access_journey_and_pending_status(self, home_page: HomePage):
+        home_page.sign_in()
+
         reason_for_access = f"Browser testing {datetime.now()}"
 
         home_page.click_link("Request access")
