@@ -11,3 +11,6 @@ class LinkedRecordData:
     title: str
     status_type: str | None = None
     status: str | None = None
+
+    def __post_init__(self) -> None:
+        self.title = self.title or "Unknown"

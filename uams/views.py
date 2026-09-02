@@ -207,7 +207,7 @@ class UamsDetailViewMixin(DetailViewMixin):
 
     @property
     def page_heading(self):
-        return f"{self.object.given_name} {self.object.family_name}"
+        return self.object.get_full_name()
 
 
 class UamsDetailOverviewView(

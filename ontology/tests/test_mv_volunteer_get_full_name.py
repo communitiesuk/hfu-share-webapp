@@ -19,6 +19,12 @@ class MvVolunteerGetFullNameTestCase(BaseTestCase):
         full_name = volunteer.get_full_name()
         self.assertEqual(full_name, volunteer.build_full_name())
 
+    def test_get_full_name_falls_back_when_no_name_at_all(self):
+        volunteer = MvVolunteerFactory(full_name=None, first_name=None, last_name=None)
+
+        full_name = volunteer.get_full_name()
+        self.assertEqual(full_name, "Unknown")
+
 
 class MvVolunteerBuildFullNameTestCase(BaseTestCase):
     def test_get_full_name_concats_first_and_last_name_both_exist(self):
