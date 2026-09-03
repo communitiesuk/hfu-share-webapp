@@ -1102,7 +1102,10 @@ class DetailViewMixin(ABC):
 
     @property
     def detail_layout(self) -> str:
-        return self.request.session.get("detail_layout", "new")
+        session = getattr(self.request, "session", None)
+        if session is None:
+            return "new"
+        return session.get("detail_layout", "new")
 
     def dispatch(self, request, *args, **kwargs):
         requested = request.GET.get("detail_layout")
