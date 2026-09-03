@@ -109,6 +109,7 @@ class TestGuestDeduplicationJourney(BrowserTest):
         guest_deduplication_page.assert_page_contains_text(GUEST_TWO.full_name)
         guest_deduplication_page.click_button("Continue")
 
+        # Select accommodation request
         guest_deduplication_page.assert_has_heading("Select accommodation request")
         guest_deduplication_page.check_field(GUEST_ONE.accommodation_request_title)
         guest_deduplication_page.click_button("Continue deduplication")
@@ -118,10 +119,13 @@ class TestGuestDeduplicationJourney(BrowserTest):
         _choose_correct_details(guest_deduplication_page)
         guest_deduplication_page.click_button("Continue deduplication")
 
+        # Final confirmation page
         guest_deduplication_page.assert_has_heading(
             "Check details and complete deduplication"
         )
         guest_deduplication_page.click_button("Yes, confirm and deduplicate")
+
+        # Confirm success page
         guest_deduplication_page.assert_page_contains_text(
             "You have deduplicated 2 guest records"
         )
