@@ -1098,6 +1098,26 @@ class DetailViewMixin(ABC):
         context["page_caption"] = self.page_caption
         context["page_heading_tag"] = self.page_heading_tag
 
+    detail_layouts = ("classic", "new")
+
+    @property
+    def detail_layout(self) -> str:
+        requested = self.request.GET.get("detail_layout")
+        if requested in self.detail_layouts:
+            self.request.session["detail_layout"] = requested
+        return self.request.session.get("detail_layout", "new")
+
+    def add_detail_layout(self, context: Context) -> None:
+        layout = self.detail_layout
+        other = "classic" if layout == "new" else "new"
+        context["detail_layout"] = layout
+        context["detail_layout_base"] = (
+            f"webapp/components/record_tabs/record_overview_base_{layout}.html"
+        )
+        context["detail_layout_toggle_url"] = (
+            f"{self.request.path}?detail_layout={other}"
+        )
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -1105,6 +1125,7 @@ class DetailViewMixin(ABC):
         self.add_back_button(context)
         self.add_tabs_navigation(context)
         self.add_page_headings(context)
+        self.add_detail_layout(context)
         context["use_full_width"] = (
             self.view_name in self.views_with_full_width_tab_content
         )

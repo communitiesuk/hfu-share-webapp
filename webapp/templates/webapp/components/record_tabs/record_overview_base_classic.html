@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+    {% include "webapp/components/notification_banner/notification_banner_from_messages.html" %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-half">
+            {% if form %}
+                {% load crispy_forms_gds %}
+                {% error_summary form %}
+            {% endif %}
+            {% include "webapp/components/heading/heading.html" with caption=page_caption page_heading=page_heading tag=page_heading_tag %}
+        </div>
+    </div>
+    <div class="govuk-grid-row">
+        <div class="{% if use_full_width %}govuk-grid-column-full{% else %}govuk-grid-column-two-thirds{% endif %}">
+            <div class="govuk-tabs tabs--tight">
+                <h3 class="govuk-tabs__title">Contents</h3>
+                <ul class="govuk-tabs__list">
+                    {% for tab in tabs %}
+                        <li class="govuk-tabs__list-item {% if tab.current %}govuk-tabs__list-item--selected{% endif %}">
+                            <a class="govuk-tabs__tab" href="{{ tab.url }}">{{ tab.text }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <div class="govuk-tabs__panel">
+                    {% block selected_tab %}
+                    {% endblock selected_tab %}
+                </div>
+            </div>
+            {% block back_button %}
+                <a href="{{ back_button.url }}"
+                   class="govuk-button govuk-button--secondary">{{ back_button.text }}</a>
+            {% endblock back_button %}
+        </div>
+    </div>
+{% endblock content %}

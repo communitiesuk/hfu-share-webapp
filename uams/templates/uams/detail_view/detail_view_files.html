@@ -1,31 +1,28 @@
 {% extends "webapp/components/record_tabs/record_overview_base.html" %}
 {% block selected_tab %}
-    <div class="govuk-summary-card">
-        <div class="govuk-summary-card__title-wrapper">
-            <h2 class="govuk-summary-card__title">Files</h2>
+    {% if detail_layout == "classic" %}
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <h1 class="govuk-heading-l">Files</h1>
+                <p class="govuk-body">
+                    Each application to sponsor a child includes a 'Ukraine certified consent form' and a 'UK sponsorship arrangement consent form'.
+                </p>
+                <h2 class="govuk-heading-m">Existing files</h2>
+                {% include "uams/detail_view/files/files_table.html" %}
+            </div>
         </div>
-        <div class="govuk-summary-card__content">
-            <p class="govuk-body">
-                Each application to sponsor a child includes a 'Ukraine certified consent form' and a 'UK sponsorship arrangement consent form'.
-            </p>
-            <h3 class="govuk-heading-m">Existing files</h3>
-            {% if attachments and attachments|length > 0 %}
-                <table class="govuk-table">
-                    <tbody class="govuk-table__body" style="border-top: 1px solid #b1b4b6">
-                        {% for attachment in attachments %}
-                            <tr class="govuk-table__row">
-                                <td class="govuk-table__cell">{{ attachment.name }}</td>
-                                <td class="govuk-table__cell">
-                                    <a href="{{ attachment.url }}"
-                                       class="govuk-link govuk-link--no-visited-state">Download file<span class="govuk-visually-hidden">{{ attachment.name }}</span></a>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% else %}
-                <p class="govuk-body">No files uploaded.</p>
-            {% endif %}
+    {% else %}
+        <div class="govuk-summary-card">
+            <div class="govuk-summary-card__title-wrapper">
+                <h2 class="govuk-summary-card__title">Files</h2>
+            </div>
+            <div class="govuk-summary-card__content">
+                <p class="govuk-body">
+                    Each application to sponsor a child includes a 'Ukraine certified consent form' and a 'UK sponsorship arrangement consent form'.
+                </p>
+                <h3 class="govuk-heading-m">Existing files</h3>
+                {% include "uams/detail_view/files/files_table.html" %}
+            </div>
         </div>
-    </div>
+    {% endif %}
 {% endblock selected_tab %}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+    {% include "webapp/components/notification_banner/notification_banner_from_messages.html" %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-half">
+            {% if form %}
+                {% load crispy_forms_gds %}
+                {% error_summary form %}
+            {% endif %}
+            {% include "webapp/components/heading/heading.html" with caption=page_caption page_heading=page_heading tag=page_heading_tag %}
+        </div>
+    </div>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-quarter">
+            <nav class="app-side-navigation" aria-label="Record sections">
+                <ul class="app-side-navigation__list">
+                    {% for tab in tabs %}
+                        <li class="app-side-navigation__item {% if tab.current %}app-side-navigation__item--active{% endif %}">
+                            <a href="{{ tab.url }}"
+                               {% if tab.current %}aria-current="location"{% endif %}>{{ tab.text }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </nav>
+        </div>
+        <div class="govuk-grid-column-three-quarters">
+            <div class="govuk-grid-row">
+                <div id="record-detail-content"
+                     tabindex="-1"
+                     class="app-record-detail-content {% if use_full_width %}govuk-grid-column-full{% else %}govuk-grid-column-three-quarters{% endif %}">
+                    {% block selected_tab %}
+                    {% endblock selected_tab %}
+                    {% block back_button %}
+                        <a href="{{ back_button.url }}"
+                           class="govuk-button govuk-button--secondary">{{ back_button.text }}</a>
+                    {% endblock back_button %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

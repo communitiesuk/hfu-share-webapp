@@ -1,8 +1,13 @@
-<div class="govuk-summary-card">
-    <div class="govuk-summary-card__title-wrapper">
-        <h2 class="govuk-summary-card__title">Properties</h2>
+{% if detail_layout == "classic" %}
+    <h4 class="govuk-heading-l">Properties</h4>
+    {% include "webapp/components/record_tabs/record_summary_list_two_columns.html" %}
+{% else %}
+    <div class="govuk-summary-card">
+        <div class="govuk-summary-card__title-wrapper">
+            <h2 class="govuk-summary-card__title">Properties</h2>
+        </div>
+        <div class="govuk-summary-card__content">
+            {% include "webapp/components/record_tabs/record_summary_list_two_columns.html" %}
+        </div>
     </div>
-    <div class="govuk-summary-card__content">
-        {% include "webapp/components/record_tabs/record_summary_list_two_columns.html" %}
-    </div>
-</div>
+{% endif %}

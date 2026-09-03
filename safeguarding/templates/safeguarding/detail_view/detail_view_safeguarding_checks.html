@@ -1,11 +1,16 @@
 {% extends "webapp/components/record_tabs/record_overview_base.html" %}
 {% block selected_tab %}
-    <div class="govuk-summary-card">
-        <div class="govuk-summary-card__title-wrapper">
-            <h2 class="govuk-summary-card__title">Safeguarding checks</h2>
+    {% if detail_layout == "classic" %}
+        <h4 class="govuk-heading-l">Safeguarding checks</h4>
+        {% include "webapp/components/record_tabs/record_summary_list.html" with fields=fields %}
+    {% else %}
+        <div class="govuk-summary-card">
+            <div class="govuk-summary-card__title-wrapper">
+                <h2 class="govuk-summary-card__title">Safeguarding checks</h2>
+            </div>
+            <div class="govuk-summary-card__content">
+                {% include "webapp/components/record_tabs/record_summary_list.html" with fields=fields %}
+            </div>
         </div>
-        <div class="govuk-summary-card__content">
-            {% include "webapp/components/record_tabs/record_summary_list.html" with fields=fields %}
-        </div>
-    </div>
+    {% endif %}
 {% endblock selected_tab %}

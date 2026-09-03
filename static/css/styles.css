@@ -468,6 +468,21 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
   color: var(--govuk-secondary-text-colour)
 }
 
+/* Breadcrumb row on record detail pages: breadcrumbs left, view switch right. */
+.app-breadcrumbs-row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  margin-top: 15px;
+}
+
+.app-breadcrumbs-row .govuk-breadcrumbs {
+  margin-bottom: 0;
+  margin-top: 0;
+}
+
 /* Tab content column, focused by detail-view-focus.js after side navigation. */
 .app-record-detail-content {
   scroll-margin-top: 120px;
