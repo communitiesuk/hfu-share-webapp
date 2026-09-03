@@ -19,6 +19,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.datastructures import MultiValueDict
 from django.utils.html import format_html, format_html_join
+from django.utils.http import url_has_allowed_host_and_scheme
 from django_filters import MultipleChoiceFilter
 
 from accounts.enums import GroupType
@@ -1116,6 +1117,10 @@ class DetailViewMixin(ABC):
             url = request.path
             if params:
                 url = f"{url}?{params.urlencode()}"
+            if not url_has_allowed_host_and_scheme(
+                url, allowed_hosts={request.get_host()}
+            ):
+                url = request.path
             return HttpResponseRedirect(url)
         return super().dispatch(request, *args, **kwargs)
 
