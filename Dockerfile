@@ -1,7 +1,7 @@
 FROM python:3.13.15-alpine3.24@sha256:62e80a1ff2a4af41c6fe72a629e5729463a4fd05ae89ecc9c812a6c1457f2cc7
 
 # Add curl for healthchecks
-RUN apk add --update --no-cache curl=8.21.0-r0
+RUN apk add --update --no-cache curl=8.22.0-r0
 
 WORKDIR /usr/src/app
 

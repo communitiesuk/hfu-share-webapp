@@ -41,7 +41,7 @@ from visa_applications.templatetags.visa_application_extras import (
     visa_status_to_tag_colour,
 )
 from webapp.constants import (
-    FIX_GUEST_DUPLICATE_RECORDS_ALLOWED_GROUP_TYPES,
+    FIX_DUPLICATE_RECORDS_ALLOWED_GROUP_TYPES,
     GUEST_SEARCH_FIELDS,
     visa_status_list,
 )
@@ -465,7 +465,7 @@ class GuestDetailActionsView(
     GuestDetailViewMixin,
     ActionsListView,
 ):
-    group_type = list(FIX_GUEST_DUPLICATE_RECORDS_ALLOWED_GROUP_TYPES)
+    group_type = list(FIX_DUPLICATE_RECORDS_ALLOWED_GROUP_TYPES)
     view_name = "actions"
     model = MvPerson
 
