@@ -12,7 +12,7 @@ from django.contrib import messages
 from django.core.exceptions import ImproperlyConfigured
 from django.core.paginator import Paginator
 from django.db.models import Field, Model, OuterRef, QuerySet, Subquery
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.http.request import QueryDict
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -1102,10 +1102,19 @@ class DetailViewMixin(ABC):
 
     @property
     def detail_layout(self) -> str:
-        requested = self.request.GET.get("detail_layout")
-        if requested in self.detail_layouts:
-            self.request.session["detail_layout"] = requested
         return self.request.session.get("detail_layout", "new")
+
+    def dispatch(self, request, *args, **kwargs):
+        requested = request.GET.get("detail_layout")
+        if request.method == "GET" and requested in self.detail_layouts:
+            request.session["detail_layout"] = requested
+            params = request.GET.copy()
+            del params["detail_layout"]
+            url = request.path
+            if params:
+                url = f"{url}?{params.urlencode()}"
+            return HttpResponseRedirect(url)
+        return super().dispatch(request, *args, **kwargs)
 
     def add_detail_layout(self, context: Context) -> None:
         layout = self.detail_layout
