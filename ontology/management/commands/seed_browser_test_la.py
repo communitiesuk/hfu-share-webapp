@@ -17,6 +17,11 @@ class Command(BaseCommand):
             action="store_true",
             help="Report what the wipe would delete, then roll back",
         )
+        parser.add_argument(
+            "--wipe-only",
+            action="store_true",
+            help="Delete browser test local authority records without reseeding",
+        )
 
     def handle(self, *args, **options):
         if not browser_test_seeding_allowed():
@@ -29,6 +34,12 @@ class Command(BaseCommand):
                 wipe_browser_test_la_data()
                 transaction.set_rollback(True)
             self.stdout.write("Dry run complete, nothing was deleted.")
+            return
+
+        if options["wipe_only"]:
+            with transaction.atomic():
+                wipe_browser_test_la_data()
+            self.stdout.write("Browser test LA wiped.")
             return
 
         seed_browser_test_la()
