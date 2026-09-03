@@ -468,7 +468,8 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
   color: var(--govuk-secondary-text-colour)
 }
 
-/* Breadcrumb row on record detail pages: breadcrumbs left, view switch right. */
+/* Trial: detail layout switch. Breadcrumb row on record detail pages,
+   breadcrumbs left, view switch right. Remove with the layout trial. */
 .app-breadcrumbs-row {
   align-items: center;
   display: flex;
@@ -483,6 +484,7 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
   margin-top: 0;
 }
 
+/* Trial: detail layout switch. Remove with the layout trial. */
 .app-breadcrumbs-row .govuk-tag {
   font-size: 0.875rem;
   line-height: 1.25;

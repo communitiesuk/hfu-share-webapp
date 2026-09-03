@@ -1,15 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-    {% include "webapp/components/notification_banner/notification_banner_from_messages.html" %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-one-half">
-            {% if form %}
-                {% load crispy_forms_gds %}
-                {% error_summary form %}
-            {% endif %}
-            {% include "webapp/components/heading/heading.html" with caption=page_caption page_heading=page_heading tag=page_heading_tag %}
-        </div>
-    </div>
+    {% include "webapp/components/record_tabs/record_detail_header.html" %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-one-quarter">
             <nav class="app-side-navigation" aria-label="Record sections">

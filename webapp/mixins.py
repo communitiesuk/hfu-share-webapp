@@ -1002,7 +1002,54 @@ class Tab(TypedDict):
     current: bool
 
 
-class DetailViewMixin(ABC):
+class DetailLayoutMixin:
+    """
+    Temporary, for the new record layout trial: session flag choosing the
+    classic or new detail layout, and the switch redirect. Delete this class,
+    its entry in DetailViewMixin's bases and the classic templates when the
+    trial ends.
+    """
+
+    request: HttpRequest
+
+    detail_layouts = ("classic", "new")
+
+    @property
+    def detail_layout(self) -> str:
+        session = getattr(self.request, "session", None)
+        if session is None:
+            return "new"
+        return session.get("detail_layout", "new")
+
+    def dispatch(self, request, *args, **kwargs):
+        requested = request.GET.get("detail_layout")
+        if request.method == "GET" and requested in self.detail_layouts:
+            request.session["detail_layout"] = requested
+            params = request.GET.copy()
+            del params["detail_layout"]
+            url = request.path
+            if params:
+                url = f"{url}?{params.urlencode()}"
+            if not url_has_allowed_host_and_scheme(
+                url, allowed_hosts={request.get_host()}
+            ):
+                url = request.path
+            return HttpResponseRedirect(url)
+        return super().dispatch(request, *args, **kwargs)
+
+    def add_detail_layout(self, context: Context) -> None:
+        layout = self.detail_layout
+        other = "classic" if layout == "new" else "new"
+        context["detail_layout"] = layout
+        context["detail_layout_base"] = (
+            f"webapp/components/record_tabs/record_overview_base_{layout}.html"
+        )
+        context["detail_layout_toggle_url"] = (
+            f"{self.request.path}?detail_layout={other}"
+        )
+
+
+class DetailViewMixin(DetailLayoutMixin, ABC):
     request: HttpRequest
     object: Any
     view_name: ClassVar[str]
@@ -1098,42 +1145,6 @@ class DetailViewMixin(ABC):
         context["page_heading"] = self.page_heading
         context["page_caption"] = self.page_caption
         context["page_heading_tag"] = self.page_heading_tag
-
-    detail_layouts = ("classic", "new")
-
-    @property
-    def detail_layout(self) -> str:
-        session = getattr(self.request, "session", None)
-        if session is None:
-            return "new"
-        return session.get("detail_layout", "new")
-
-    def dispatch(self, request, *args, **kwargs):
-        requested = request.GET.get("detail_layout")
-        if request.method == "GET" and requested in self.detail_layouts:
-            request.session["detail_layout"] = requested
-            params = request.GET.copy()
-            del params["detail_layout"]
-            url = request.path
-            if params:
-                url = f"{url}?{params.urlencode()}"
-            if not url_has_allowed_host_and_scheme(
-                url, allowed_hosts={request.get_host()}
-            ):
-                url = request.path
-            return HttpResponseRedirect(url)
-        return super().dispatch(request, *args, **kwargs)
-
-    def add_detail_layout(self, context: Context) -> None:
-        layout = self.detail_layout
-        other = "classic" if layout == "new" else "new"
-        context["detail_layout"] = layout
-        context["detail_layout_base"] = (
-            f"webapp/components/record_tabs/record_overview_base_{layout}.html"
-        )
-        context["detail_layout_toggle_url"] = (
-            f"{self.request.path}?detail_layout={other}"
-        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
