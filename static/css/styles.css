@@ -483,6 +483,21 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
   margin-top: 0;
 }
 
+/* Alerted status card: the summary card header already shows the title, so
+   the form's fieldset legend is hidden visually but kept for screen readers. */
+.app-alerted-status-card .govuk-fieldset__legend {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  clip-path: inset(50%) !important;
+  border: 0 !important;
+  white-space: nowrap !important;
+}
+
 /* Tab content column, focused by detail-view-focus.js after side navigation. */
 .app-record-detail-content {
   scroll-margin-top: 120px;
