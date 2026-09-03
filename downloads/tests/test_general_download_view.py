@@ -61,6 +61,19 @@ class DownloadsViewGeneralTestCase(TestSessionTokenMixin, BaseTestCase):
         self.assertContains(response, "Accommodation")
         self.assertContains(response, "Applications to sponsor a child")
 
+    def test_only_conditional_radios_have_aria_controls(self):
+        user = get_la_user()
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("downloads:download-page"))
+
+        self.assertContains(response, 'aria-controls="conditional_download_type_0"')
+        self.assertContains(response, 'id="conditional_download_type_0"')
+        for position in range(1, 6):
+            self.assertNotContains(
+                response, f'aria-controls="conditional_download_type_{position}"'
+            )
+
     def test_download_view_post_invalid_data(self):
         user = get_admin_user()
         self.client.force_login(user)
