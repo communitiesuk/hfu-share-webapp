@@ -36,18 +36,13 @@ def _select_guest_record(guest_deduplication_page: HomePage, full_name: str):
     ).click()
 
 
-def _choose_first_option(guest_deduplication_page: HomePage):
-    inputs = guest_deduplication_page.main_page.locator(
-        'input[type="radio"], input[type="checkbox"]'
-    )
-    seen_field_names = set()
-    for index in range(inputs.count()):
-        field_input = inputs.nth(index)
-        field_name = field_input.get_attribute("name")
-        if field_name in seen_field_names:
-            continue
-        seen_field_names.add(field_name)
-        field_input.check()
+def _choose_correct_details(guest_deduplication_page: HomePage):
+    guest_deduplication_page.check_field("Valerie")
+    guest_deduplication_page.check_field("Poole")
+    guest_deduplication_page.check_field("31 May 1965")
+    guest_deduplication_page.check_field("joycejackson@example.org")
+    guest_deduplication_page.check_field("0808 157 0233")
+    guest_deduplication_page.check_field("9T8NIK1PW")
 
 
 class TestGuestDeduplicationJourney(BrowserTest):
@@ -83,7 +78,7 @@ class TestGuestDeduplicationJourney(BrowserTest):
 
         guest_deduplication_page.click_button("Continue")
         guest_deduplication_page.assert_has_heading("Select correct details")
-        _choose_first_option(guest_deduplication_page)
+        _choose_correct_details(guest_deduplication_page)
 
         guest_deduplication_page.click_button("Continue deduplication")
         guest_deduplication_page.assert_has_heading(
