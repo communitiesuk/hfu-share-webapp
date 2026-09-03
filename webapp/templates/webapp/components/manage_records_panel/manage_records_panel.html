@@ -21,11 +21,7 @@
         {% include "webapp/components/selectable_card/selectable_card.html" with heading="Reassignment requests" target="reassignment-requests:received" body="Review requests made to reassign guests to your local authority." badge_value=pending_reassignments %}
     {% endif %}
     {% if available_links.fix_duplicate_records %}
-        {% if show_guests_option %}
-            {% include "webapp/components/selectable_card/selectable_card.html" with heading="Fix duplicate records" target="deduplication:select-record-type" body="Find and deduplicate 2 records that represent the same accommodation, guest or sponsor and host." %}
-        {% else %}
-            {% include "webapp/components/selectable_card/selectable_card.html" with heading="Fix duplicate records" target="deduplication:select-record-type" body="Find and deduplicate 2 records that represent the same accommodation or sponsor and host." %}
-        {% endif %}
+        {% include "webapp/components/selectable_card/selectable_card.html" with heading="Fix duplicate records" target="deduplication:select-record-type" body="Find and deduplicate 2 records that represent the same accommodation, guest or sponsor and host." %}
     {% endif %}
     {% if available_links.download_data %}
         {% include "webapp/components/selectable_card/selectable_card.html" with heading="Download data" target="downloads:download-page" body="Download data for sponsors and hosts, accommodation, guests, and visa applications. You can also download all data." %}

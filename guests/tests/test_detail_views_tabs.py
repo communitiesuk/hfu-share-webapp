@@ -93,6 +93,7 @@ class GuestsDetailViewsTabsTestCase(TestSessionTokenMixin, BaseTestCase):
             )
 
             self.assertContains(response, "Overview")
+            self.assertContains(response, "Actions")
             self.assertContains(response, "Linked records")
             self.assertContains(response, "Properties")
             self.assertContains(response, "History")
@@ -185,7 +186,7 @@ class GuestsDetailViewsTabsTestCase(TestSessionTokenMixin, BaseTestCase):
             self.assertContains(response, "Properties")
             self.assertContains(response, "History")
 
-    def test_on_each_view_actions_tab_does_not_render_for_la_user(
+    def test_on_each_view_actions_tab_does_render_for_la_user(
         self,
     ):
         user = get_la_user()
@@ -205,7 +206,7 @@ class GuestsDetailViewsTabsTestCase(TestSessionTokenMixin, BaseTestCase):
             self.assertContains(response, "Overview")
             self.assertContains(response, "Linked records")
             self.assertContains(response, "Properties")
-            self.assertNotContains(response, "Actions")
+            self.assertContains(response, "Actions")
 
     def test_on_each_view_actions_tab_does_render_for_la_ea_user(
         self,
@@ -229,7 +230,7 @@ class GuestsDetailViewsTabsTestCase(TestSessionTokenMixin, BaseTestCase):
             self.assertContains(response, "Properties")
             self.assertContains(response, "Actions")
 
-    def test_on_each_view_actions_tab_does_not_render_for_da_user(
+    def test_on_each_view_actions_tab_does_render_for_da_user(
         self,
     ):
         user = get_da_user()
@@ -249,7 +250,7 @@ class GuestsDetailViewsTabsTestCase(TestSessionTokenMixin, BaseTestCase):
             self.assertContains(response, "Overview")
             self.assertContains(response, "Linked records")
             self.assertContains(response, "Properties")
-            self.assertNotContains(response, "Actions")
+            self.assertContains(response, "Actions")
 
     def test_on_each_view_actions_tab_does_not_render_for_ukvi_user(
         self,
@@ -273,7 +274,7 @@ class GuestsDetailViewsTabsTestCase(TestSessionTokenMixin, BaseTestCase):
             self.assertContains(response, "Properties")
             self.assertNotContains(response, "Actions")
 
-    def test_on_each_view_actions_tab_does_not_render_for_service_support_user(
+    def test_on_each_view_actions_tab_does_render_for_service_support_user(
         self,
     ):
         user = get_service_support_user()
@@ -293,4 +294,4 @@ class GuestsDetailViewsTabsTestCase(TestSessionTokenMixin, BaseTestCase):
             self.assertContains(response, "Overview")
             self.assertContains(response, "Linked records")
             self.assertContains(response, "Properties")
-            self.assertNotContains(response, "Actions")
+            self.assertContains(response, "Actions")

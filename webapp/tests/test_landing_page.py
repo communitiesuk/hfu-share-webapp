@@ -610,10 +610,6 @@ class LandingPageFixDuplicateAccommodationTileTests(
         "Find and deduplicate 2 records that represent the same accommodation, "
         "guest or sponsor and host."
     )
-    TILE_BODY_WITHOUT_GUESTS = (
-        "Find and deduplicate 2 records that represent the same accommodation "
-        "or sponsor and host."
-    )
 
     def _get_landing_html(self, user):
         self.client.force_login(user)
@@ -629,33 +625,45 @@ class LandingPageFixDuplicateAccommodationTileTests(
             ]
         )
 
-    def test_la_user_sees_tile(self):
+    def test_la_user_sees_tile_with_guests_body_text(self):
         html = self._get_landing_html(get_la_user())
         soup = BeautifulSoup(html, "html.parser")
         self.assertEqual(self._count_fix_duplicate_tiles(html), 1)
         self.assertTrue(
             selectable_card_exists(
-                soup, "Fix duplicate records", self.TILE_BODY_WITHOUT_GUESTS
+                soup, "Fix duplicate records", self.TILE_BODY_WITH_GUESTS
             )
         )
 
-    def test_da_user_sees_tile(self):
+    def test_da_user_sees_tile_with_guests_body_text(self):
         html = self._get_landing_html(get_da_user())
         soup = BeautifulSoup(html, "html.parser")
         self.assertEqual(self._count_fix_duplicate_tiles(html), 1)
         self.assertTrue(
             selectable_card_exists(
-                soup, "Fix duplicate records", self.TILE_BODY_WITHOUT_GUESTS
+                soup, "Fix duplicate records", self.TILE_BODY_WITH_GUESTS
             )
         )
 
-    def test_mhclg_user_sees_tile(self):
+    def test_mhclg_user_sees_tile_with_guests_body_text(self):
         html = self._get_landing_html(get_mhclg_user())
+        soup = BeautifulSoup(html, "html.parser")
         self.assertEqual(self._count_fix_duplicate_tiles(html), 1)
+        self.assertTrue(
+            selectable_card_exists(
+                soup, "Fix duplicate records", self.TILE_BODY_WITH_GUESTS
+            )
+        )
 
-    def test_service_support_user_sees_tile(self):
+    def test_service_support_user_sees_tile_with_guests_body_text(self):
         html = self._get_landing_html(get_service_support_user())
+        soup = BeautifulSoup(html, "html.parser")
         self.assertEqual(self._count_fix_duplicate_tiles(html), 1)
+        self.assertTrue(
+            selectable_card_exists(
+                soup, "Fix duplicate records", self.TILE_BODY_WITH_GUESTS
+            )
+        )
 
     def test_dev_user_sees_tile_with_guests_body_text(self):
         html = self._get_landing_html(get_admin_user())
