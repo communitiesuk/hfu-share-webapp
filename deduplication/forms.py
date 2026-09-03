@@ -27,14 +27,13 @@ from webapp.mixins import ReadOnlyFieldsMixin
 
 
 class SelectRecordTypeForm(forms.Form):
-    def __init__(self, *args, show_guests_option=False, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         choices = [
             ("Accommodation", "Accommodation"),
+            ("Guests", "Guests"),
+            ("Sponsors and hosts", "Sponsors and hosts"),
         ]
-        if show_guests_option:
-            choices.append(("Guests", "Guests"))
-        choices.append(("Sponsors and hosts", "Sponsors and hosts"))
         self.fields["object_choice"] = ChoiceField(
             label="",
             choices=choices,

@@ -129,7 +129,7 @@ class GuestsActionsTestCase(
         )
         self.assertEqual(response.status_code, http.client.NOT_FOUND)
 
-    def test_mhclg_user_is_not_allowed_access(self):
+    def test_mhclg_user_is_allowed_access(self):
         user = get_mhclg_user()
         self.client.force_login(user)
 
@@ -139,9 +139,9 @@ class GuestsActionsTestCase(
                 args=[self.guest.pk],
             )
         )
-        self.assertEqual(response.status_code, http.client.NOT_FOUND)
+        self.assertEqual(response.status_code, http.client.OK)
 
-    def test_service_support_user_is_not_allowed_access(self):
+    def test_service_support_user_is_allowed_access(self):
         user = get_service_support_user()
         self.client.force_login(user)
 
@@ -151,9 +151,9 @@ class GuestsActionsTestCase(
                 args=[self.guest.pk],
             )
         )
-        self.assertEqual(response.status_code, http.client.NOT_FOUND)
+        self.assertEqual(response.status_code, http.client.OK)
 
-    def test_la_user_is_not_allowed_access(self):
+    def test_la_user_is_allowed_access(self):
         user = get_la_user()
         self.client.force_login(user)
 
@@ -163,7 +163,7 @@ class GuestsActionsTestCase(
                 args=[self.ltla_guest.pk],
             )
         )
-        self.assertEqual(response.status_code, http.client.NOT_FOUND)
+        self.assertEqual(response.status_code, http.client.OK)
 
     def test_la_ea_user_is_allowed_access(self):
         user = get_la_early_adopter_user()
@@ -177,7 +177,7 @@ class GuestsActionsTestCase(
         )
         self.assertEqual(response.status_code, http.client.OK)
 
-    def test_da_user_is_not_allowed_access(self):
+    def test_da_user_is_allowed_access(self):
         user = get_da_user()
         self.client.force_login(user)
 
@@ -187,7 +187,7 @@ class GuestsActionsTestCase(
                 args=[self.da_guest.pk],
             )
         )
-        self.assertEqual(response.status_code, http.client.NOT_FOUND)
+        self.assertEqual(response.status_code, http.client.OK)
 
     def test_records_not_from_dedupes_show_no_actions(self):
         user = get_admin_user()
