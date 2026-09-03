@@ -1,7 +1,6 @@
 import http.client
 from datetime import datetime, timezone
 
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
@@ -12,12 +11,13 @@ from ontology.tests.factories import (
     MvAccommodationFactory,
     MvVolunteerFactory,
 )
+from test_utils.base import BaseTestCase
 from user_management.tests.base import get_admin_user, get_da_user, get_la_user
 from webapp.mixins import SummaryListTestCaseMixin
 
 
 class SponsorsLinkedRecordsTestCase(
-    TestSessionTokenMixin, SummaryListTestCaseMixin, TestCase
+    TestSessionTokenMixin, SummaryListTestCaseMixin, BaseTestCase
 ):
     def setUp(self):
         super().setUp()

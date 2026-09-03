@@ -77,7 +77,7 @@ def get_section_title(resolver_match: ResolverMatch) -> str:
         "sponsors": "Sponsors and hosts",
         "downloads": "Download data",
         "safeguarding": "Escalated checks",
-        "uams": "UAMs",
+        "uams": "Applications to sponsor a child",
         "user-management": "Manage user access",
         "unassigned-accommodation-requests": (
             "Manage unassigned accommodation requests"

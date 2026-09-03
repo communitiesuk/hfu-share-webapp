@@ -1,5 +1,3 @@
-from django.test import TestCase
-
 from ontology.models import EoiHost, MvAccommodation, MvGroup, MvVolunteer
 from ontology.tests.factories import (
     EoiHostFactory,
@@ -8,9 +6,10 @@ from ontology.tests.factories import (
     MvGroupFactory,
     MvVolunteerFactory,
 )
+from test_utils.base import BaseTestCase
 
 
-class MvAccommodationRequestForeignKeysTestCase(TestCase):
+class MvAccommodationRequestForeignKeysTestCase(BaseTestCase):
     def test_get_group_fetches_related_group(self):
         group = MvGroupFactory()
         accommodation_request = MvAccommodationRequestFactory(group=group)

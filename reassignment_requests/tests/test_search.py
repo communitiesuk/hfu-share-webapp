@@ -1,12 +1,11 @@
-from django.test import TestCase
-
 from ontology.models import ReassignmentRequest
 from ontology.tests.factories import MvPersonFactory, ReassignmentRequestFactory
+from test_utils.base import BaseTestCase
 from webapp.constants import REASSIGNMENT_REQUEST_SEARCH_FIELDS
 from webapp.search import perform_search
 
 
-class SearchReassignmentRequestsTestCase(TestCase):
+class SearchReassignmentRequestsTestCase(BaseTestCase):
     def _check_object_in_results(self, obj, results):
         return str(obj.pk) in [str(result.pk) for result in results]
 

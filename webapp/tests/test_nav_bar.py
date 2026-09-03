@@ -1,10 +1,10 @@
 import re
 
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.enums import GroupType
 from accounts.tests.base import TestSessionTokenMixin
+from test_utils.base import BaseTestCase
 from user_management.tests.base import (
     UserGroup,
     get_admin_user,
@@ -21,7 +21,7 @@ def link_exists(text, html):
     return re.search(pattern, html, re.DOTALL | re.IGNORECASE) is not None
 
 
-class NavBarLinkVisibilityTests(TestSessionTokenMixin, TestCase):
+class NavBarLinkVisibilityTests(TestSessionTokenMixin, BaseTestCase):
     def test_la_user_sees_expected_links(self):
         user = get_la_user()
         self.client.force_login(user)

@@ -1,7 +1,5 @@
 from datetime import datetime, timezone
 
-from django.test import TestCase
-
 from ontology.models import (
     CheckType,
     DevCheckV2,
@@ -18,9 +16,10 @@ from ontology.tests.factories import (
     MvPersonFactory,
     MvVolunteerFactory,
 )
+from test_utils.base import BaseTestCase
 
 
-class MvAccommodationRequestDetermineChecksStatusFromLinkedObjects(TestCase):
+class MvAccommodationRequestDetermineChecksStatusFromLinkedObjects(BaseTestCase):
     def setUp(self):
         super().setUp()
 
@@ -848,7 +847,7 @@ class MvAccommodationRequestDetermineChecksStatusFromLinkedObjects(TestCase):
         self.assertEqual(status, MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED)
 
 
-class DetermineChecksStatusFromCurrentSponsorLinkedObjects(TestCase):
+class DetermineChecksStatusFromCurrentSponsorLinkedObjects(BaseTestCase):
     def setUp(self):
         super().setUp()
 
@@ -923,7 +922,7 @@ class DetermineChecksStatusFromCurrentSponsorLinkedObjects(TestCase):
         )
 
 
-class DetermineChecksStatusFromCurrentAccommodationLinkedObjects(TestCase):
+class DetermineChecksStatusFromCurrentAccommodationLinkedObjects(BaseTestCase):
     def setUp(self):
         super().setUp()
 
@@ -978,7 +977,7 @@ class DetermineChecksStatusFromCurrentAccommodationLinkedObjects(TestCase):
         self.assertEqual(status, MvAccommodationRequest.ChecksStatus.SOME_CHECKS_FAILED)
 
 
-class DetermineChecksStatusWithLegacyCheckTypesObjects(TestCase):
+class DetermineChecksStatusWithLegacyCheckTypesObjects(BaseTestCase):
     def test_it_ignores_all_checks_complete_check_type(self):
         group = MvGroupFactory()
         accommodation_request = MvAccommodationRequestFactory(group=group)

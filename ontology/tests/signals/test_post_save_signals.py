@@ -1,5 +1,3 @@
-from django.test import TestCase
-
 from accounts.tests.factories import UserFactory
 from ontology.models import CheckType, DevCheckV2
 from ontology.tests.factories import (
@@ -9,9 +7,10 @@ from ontology.tests.factories import (
     MvPersonFactory,
     MvUkPostcodeFactory,
 )
+from test_utils.base import BaseTestCase
 
 
-class AccommodationRequestTitleSignalTests(TestCase):
+class AccommodationRequestTitleSignalTests(BaseTestCase):
     def setUp(self):
         super().setUp()
 
@@ -53,7 +52,7 @@ class AccommodationRequestTitleSignalTests(TestCase):
         self.assertTrue(self.accommodation_request.edited_in_app)
 
 
-class DevCheckV2PostSaveSignalTests(TestCase):
+class DevCheckV2PostSaveSignalTests(BaseTestCase):
     def setUp(self):
         self.user = UserFactory()
         self.accommodation = MvAccommodationFactory()

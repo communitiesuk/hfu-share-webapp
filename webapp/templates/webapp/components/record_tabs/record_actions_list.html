@@ -7,7 +7,7 @@
                     {{ action.content|default_if_none:""|safe }}
                 </dd>
                 <dd class="govuk-summary-list__actions">
-                    {{ action.value }}
+                    {{ action.value|default_if_none:"" }}
                 </dd>
             </div>
         {% endfor %}

@@ -1,15 +1,15 @@
 import http.client
 
 from django.conf import settings
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
 from ontology.tests.factories import SponsorshipCertificationFormFactory
+from test_utils.base import BaseTestCase
 from user_management.tests.base import get_admin_user
 
 
-class UAMSPageTitlesTestCase(TestSessionTokenMixin, TestCase):
+class UAMSPageTitlesTestCase(TestSessionTokenMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
         self.service_name = settings.SERVICE_NAME
@@ -25,13 +25,24 @@ class UAMSPageTitlesTestCase(TestSessionTokenMixin, TestCase):
 
     def test_uam_detail_tab_titles(self):
         pages_and_titles = [
-            ("uams:detail-overview", f"UAMs: TU, Overview - {self.service_name}"),
-            ("uams:detail-properties", f"UAMs: TU, Properties - {self.service_name}"),
+            (
+                "uams:detail-overview",
+                f"Applications to sponsor a child: TU, Overview - {self.service_name}",
+            ),
+            (
+                "uams:detail-properties",
+                f"Applications to sponsor a child: TU, Properties"
+                f" - {self.service_name}",
+            ),
             (
                 "uams:detail-linked-records",
-                f"UAMs: TU, Linked records - {self.service_name}",
+                f"Applications to sponsor a child: TU, Linked records"
+                f" - {self.service_name}",
             ),
-            ("uams:detail-files", f"UAMs: TU, Files - {self.service_name}"),
+            (
+                "uams:detail-files",
+                f"Applications to sponsor a child: TU, Files - {self.service_name}",
+            ),
         ]
 
         user = get_admin_user()
@@ -61,7 +72,8 @@ class UAMSPageTitlesTestCase(TestSessionTokenMixin, TestCase):
 
         self.assertEqual(response.status_code, http.client.OK)
         self.assertEqual(
-            response.context["TITLE"], f"UAMs: T, Overview - {self.service_name}"
+            response.context["TITLE"],
+            f"Applications to sponsor a child: T, Overview - {self.service_name}",
         )
 
     def test_guest_with_missing_names(self):
@@ -75,5 +87,6 @@ class UAMSPageTitlesTestCase(TestSessionTokenMixin, TestCase):
 
         self.assertEqual(response.status_code, http.client.OK)
         self.assertEqual(
-            response.context["TITLE"], f"UAMs: Overview - {self.service_name}"
+            response.context["TITLE"],
+            f"Applications to sponsor a child: Overview - {self.service_name}",
         )

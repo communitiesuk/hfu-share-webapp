@@ -290,6 +290,7 @@ def create_mv_accommodation_request(
         primary_sponsor=sponsor,
         ltla_name=[accommodation.ltla_name],
         utla_name=[accommodation.utla_name],
+        postcode=[],
         primary_accommodation=accommodation,
         unique_application_number=[unique_application_number],
         number_of_people=group.number_of_people_in_group,

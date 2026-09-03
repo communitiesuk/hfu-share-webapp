@@ -2,20 +2,20 @@ import http.client
 from unittest.mock import call, patch
 
 from django.db import DatabaseError
-from django.test import TestCase
 from django.urls import reverse
 
 from accommodation_requests.views import (
     SelectPrimaryAccommodationAndHostSteps,
 )
 from accounts.tests.base import TestSessionTokenMixin
-from ontology.models import MvAccommodationRequest
+from ontology.models import MvAccommodationRequest, MvInteraction
 from ontology.tests.factories import (
     MvAccommodationFactory,
     MvAccommodationRequestFactory,
     MvUkPostcodeFactory,
     MvVolunteerFactory,
 )
+from test_utils.base import BaseTestCase
 from user_management.tests.base import (
     get_admin_user,
     get_da_user,
@@ -26,7 +26,9 @@ from user_management.tests.base import (
 )
 
 
-class SelectPrimaryAccommodationAndHostWizardTestCase(TestSessionTokenMixin, TestCase):
+class SelectPrimaryAccommodationAndHostWizardTestCase(
+    TestSessionTokenMixin, BaseTestCase
+):
     def setUp(self):
         super().setUp()
 
@@ -247,23 +249,18 @@ class SelectPrimaryAccommodationAndHostWizardTestCase(TestSessionTokenMixin, Tes
             )
         )
 
-        self.assertContains(response, "Confirm current accommodation for")
+        self.assertContains(response, "Confirm current accommodation and host for")
         self.assertContains(response, "Test Accommodation Request")
         self.assertContains(
             response,
-            "This is the current address the guest is living in / "
-            "going to be living in",
-        )
-        self.assertContains(
-            response,
-            "This may not be the same address as the sponsor or "
-            "the address provided on the visa",
+            "This is where guests are staying, or will be staying.",
         )
         self.assertContains(response, "Select current accommodation")
         self.assertContains(response, "Accommodation 1")
         self.assertContains(response, "Accommodation 2")
         self.assertContains(response, "Accommodation 3")
-        self.assertContains(response, "Confirm")
+        self.assertContains(response, "Confirm and continue")
+        self.assertContains(response, "Cancel")
 
     def test_confirm_primary_accomodation_page_errors(self):
         user = get_admin_user()
@@ -287,10 +284,10 @@ class SelectPrimaryAccommodationAndHostWizardTestCase(TestSessionTokenMixin, Tes
         )
 
         self.assertContains(response, "There is a problem")
-        self.assertContains(response, "You must select the current accommodation.")
-        self.assertContains(response, "Confirm current accommodation for")
+        self.assertContains(response, "Select the current accommodation.")
+        self.assertContains(response, "Confirm current accommodation and host for")
         self.assertContains(response, "Test Accommodation Request")
-        self.assertContains(response, "Confirm")
+        self.assertContains(response, "Confirm and continue")
         self.assertContains(response, "Cancel")
 
     def test_confirm_primary_host_page(self):
@@ -315,16 +312,11 @@ class SelectPrimaryAccommodationAndHostWizardTestCase(TestSessionTokenMixin, Tes
             follow=True,
         )
 
-        self.assertContains(response, "Confirm current host for")
+        self.assertContains(response, "Confirm current accommodation and host for")
         self.assertContains(response, "Test Accommodation Request")
         self.assertContains(
             response,
-            "This is the current host the guest is living with / "
-            "going to be living with",
-        )
-        self.assertContains(
-            response,
-            "This may not be the same person as the named sponsor",
+            "This is who guests are staying with, or will be staying with.",
         )
         self.assertContains(response, "Select current host")
         self.assertContains(response, "Host 1")
@@ -373,8 +365,8 @@ class SelectPrimaryAccommodationAndHostWizardTestCase(TestSessionTokenMixin, Tes
         )
 
         self.assertContains(response, "There is a problem")
-        self.assertContains(response, "You must select the current host.")
-        self.assertContains(response, "Confirm current host for")
+        self.assertContains(response, "Select the current host.")
+        self.assertContains(response, "Confirm current accommodation and host for")
         self.assertContains(response, "Test Accommodation Request")
         self.assertContains(response, "Confirm")
         self.assertContains(response, "Cancel")
@@ -541,6 +533,128 @@ class SelectPrimaryAccommodationAndHostWizardTestCase(TestSessionTokenMixin, Tes
 
         self.assertEqual(self.accommodation_request.postcode, ["AB1 2CD"])
         self.assertIn("AB1 2CD", self.accommodation_request.title)
+
+    def test_select_primary_host_success_logs_interaction_when_none_previously_set(
+        self,
+    ):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        self.client.post(
+            reverse(
+                "accommodation-requests:select-primary-step",
+                kwargs={
+                    "pk": self.accommodation_request.pk,
+                    "step": SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION,
+                },
+            ),
+            {
+                "accommodation-accommodation": self.accommodation_2.id,
+                f"select_primary_accommodation_and_host_wizard_"
+                f"{self.accommodation_request.pk}-current_step": (
+                    SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION.value
+                ),
+            },
+            follow=True,
+        )
+
+        self.client.post(
+            reverse(
+                "accommodation-requests:select-primary-step",
+                kwargs={
+                    "pk": self.accommodation_request.pk,
+                    "step": SelectPrimaryAccommodationAndHostSteps.HOST,
+                },
+            ),
+            {
+                "host-host": self.host_2.id,
+                f"select_primary_accommodation_and_host_wizard_"
+                f"{self.accommodation_request.pk}-current_step": (
+                    SelectPrimaryAccommodationAndHostSteps.HOST.value
+                ),
+            },
+            follow=True,
+        )
+
+        interaction = MvInteraction.objects.filter(
+            linked_accommodation_request=self.accommodation_request
+        ).first()
+
+        self.assertIsNotNone(interaction)
+        self.assertEqual(
+            interaction.interaction_contact,
+            MvInteraction.InteractionContact.CURRENT_ACCOMMODATION_AND_HOST_CONFIRMED,
+        )
+        self.assertEqual(
+            interaction.interaction_type,
+            MvInteraction.InteractionContact.CURRENT_ACCOMMODATION_AND_HOST_CONFIRMED,
+        )
+        self.assertEqual(
+            interaction.title,
+            MvInteraction.InteractionContact.CURRENT_ACCOMMODATION_AND_HOST_CONFIRMED,
+        )
+        self.assertEqual(
+            interaction.interaction_notes,
+            "Current accommodation confirmed as Accommodation 2.\n"
+            "Current host confirmed as Host 2.",
+        )
+        self.assertEqual(interaction.created_by, user)
+
+    def test_select_primary_host_success_logs_interaction_when_value_changes(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        self.accommodation_request.primary_accommodation = self.accommodation_1
+        self.accommodation_request.active_host = self.host_1
+        self.accommodation_request.save()
+
+        self.client.post(
+            reverse(
+                "accommodation-requests:select-primary-step",
+                kwargs={
+                    "pk": self.accommodation_request.pk,
+                    "step": SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION,
+                },
+            ),
+            {
+                "accommodation-accommodation": self.accommodation_2.id,
+                f"select_primary_accommodation_and_host_wizard_"
+                f"{self.accommodation_request.pk}-current_step": (
+                    SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION.value
+                ),
+            },
+            follow=True,
+        )
+
+        self.client.post(
+            reverse(
+                "accommodation-requests:select-primary-step",
+                kwargs={
+                    "pk": self.accommodation_request.pk,
+                    "step": SelectPrimaryAccommodationAndHostSteps.HOST,
+                },
+            ),
+            {
+                "host-host": self.host_2.id,
+                f"select_primary_accommodation_and_host_wizard_"
+                f"{self.accommodation_request.pk}-current_step": (
+                    SelectPrimaryAccommodationAndHostSteps.HOST.value
+                ),
+            },
+            follow=True,
+        )
+
+        interaction = MvInteraction.objects.filter(
+            linked_accommodation_request=self.accommodation_request
+        ).first()
+
+        self.assertIsNotNone(interaction)
+        self.assertEqual(
+            interaction.interaction_notes,
+            "Current accommodation confirmed: was Accommodation 1 now "
+            "Accommodation 2.\n"
+            "Current host confirmed: was Host 1 now Host 2.",
+        )
 
     @patch("sentry_sdk.metrics.count")
     def test_select_primary_host_success_sends_sentry_metric(self, sentry_metrics):

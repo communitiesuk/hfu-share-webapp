@@ -5,9 +5,9 @@ from unittest.mock import patch
 
 import boto3
 from botocore.exceptions import ClientError
-from django.test import TestCase
 from moto import mock_aws
 
+from test_utils.base import BaseTestCase
 from webapp.s3 import (
     GOVUK_FORMS_ATTACHMENT_FOLDER,
     get_file_header,
@@ -16,7 +16,7 @@ from webapp.s3 import (
 )
 
 
-class S3TestCaseMixin(TestCase):
+class S3TestCaseMixin(BaseTestCase):
     # Use boto's default endpoint; moto will intercept it regardless of env settings
     patcher = patch.dict(
         os.environ, {"AWS_ENDPOINT_URL": "https://s3.eu-west-2.amazonaws.com"}
@@ -185,7 +185,7 @@ class TestGetPresignedDownloadUrl(S3TestCaseMixin):
         self.assertEqual(response["Error"]["Message"], "Not Found")
 
 
-class TestGetGovukFormsAttachmentFilePath(TestCase):
+class TestGetGovukFormsAttachmentFilePath(BaseTestCase):
     def setUp(self):
         created_at = datetime(2026, 7, 1, 13, 2, 3, tzinfo=timezone.utc)
         self.uam = mock.Mock(

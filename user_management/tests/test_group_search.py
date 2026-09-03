@@ -1,12 +1,11 @@
-from django.test import TestCase
-
 from accounts.models.GroupProxy import GroupProxy
 from accounts.tests.factories import GroupFactory
+from test_utils.base import BaseTestCase
 from webapp.constants import GROUP_SEARCH_FIELDS
 from webapp.search import perform_search
 
 
-class SearchAccessRequestsTestCase(TestCase):
+class SearchAccessRequestsTestCase(BaseTestCase):
     def setUp(self):
         self.group1 = GroupFactory(
             name="bolton", groupinfo__description="ltla group for bolton"

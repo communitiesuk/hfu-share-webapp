@@ -1,7 +1,7 @@
 import http.client
 from datetime import datetime
 
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory
 from django.urls import reverse
 from django.utils import timezone
 
@@ -21,6 +21,7 @@ from safeguarding.tests.base import SafeguardingBaseTestCase
 from safeguarding.views import (
     EscalatedChecksTable,
 )
+from test_utils.base import BaseTestCase
 from user_management.tests.base import (
     get_admin_user,
     get_da_user,
@@ -29,7 +30,7 @@ from user_management.tests.base import (
 )
 
 
-class EscalatedChecksViewTest(TestSessionTokenMixin, TestCase):
+class EscalatedChecksViewTest(TestSessionTokenMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
         self.factory = RequestFactory()

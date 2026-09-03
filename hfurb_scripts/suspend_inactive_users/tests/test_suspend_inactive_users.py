@@ -1,7 +1,6 @@
 from datetime import timedelta
 from unittest.mock import patch
 
-from django.test import TestCase
 from django.utils import timezone
 from freezegun import freeze_time
 
@@ -11,6 +10,7 @@ from hfurb_scripts.suspend_inactive_users import (
     get_users_to_suspend,
     suspend_inactive_users,
 )
+from test_utils.base import BaseTestCase
 from webapp.constants import (
     INACTIVE_ACCOUNT_SUSPEND_DAYS,
     INACTIVE_ACCOUNT_WARNING_DAYS,
@@ -18,7 +18,7 @@ from webapp.constants import (
 
 
 @freeze_time("2026-02-25 12:00:00")
-class TestGetUsersForWarningEmail(TestCase):
+class TestGetUsersForWarningEmail(BaseTestCase):
     def setUp(self):
         self.now = timezone.now()
         self.warning_date = self.now - timedelta(days=INACTIVE_ACCOUNT_WARNING_DAYS)
@@ -108,7 +108,7 @@ class TestGetUsersForWarningEmail(TestCase):
 
 
 @freeze_time("2026-02-25 12:00:00")
-class TestGetUsersToSuspend(TestCase):
+class TestGetUsersToSuspend(BaseTestCase):
     def setUp(self):
         self.now = timezone.now()
         self.suspend_date = self.now - timedelta(days=INACTIVE_ACCOUNT_SUSPEND_DAYS)
@@ -213,7 +213,7 @@ class TestGetUsersToSuspend(TestCase):
 
 
 @freeze_time("2026-02-25 12:00:00")
-class TestSuspendInactiveUsers(TestCase):
+class TestSuspendInactiveUsers(BaseTestCase):
     def setUp(self):
         self.before_suspend_date = timezone.now() - timedelta(
             days=INACTIVE_ACCOUNT_SUSPEND_DAYS + 1

@@ -1,4 +1,3 @@
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
@@ -9,12 +8,13 @@ from ontology.tests.factories import (
     MvVolunteerFactory,
     VisaApplicationFactory,
 )
+from test_utils.base import BaseTestCase
 from user_management.tests.base import get_admin_user, get_da_user
 from webapp.mixins import SummaryListTestCaseMixin
 
 
 class SponsorsPropertiesTestCase(
-    TestSessionTokenMixin, SummaryListTestCaseMixin, TestCase
+    TestSessionTokenMixin, SummaryListTestCaseMixin, BaseTestCase
 ):
     def setUp(self):
         super().setUp()

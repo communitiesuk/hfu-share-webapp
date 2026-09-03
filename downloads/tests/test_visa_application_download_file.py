@@ -1,7 +1,6 @@
 from collections import deque
 from unittest.mock import call, patch
 
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.enums import GroupType
@@ -11,6 +10,7 @@ from ontology.models import VisaApplication
 from ontology.tests.factories import (
     VisaApplicationFactory,
 )
+from test_utils.base import BaseTestCase
 from user_management.tests.base import (
     UserGroup,
     get_admin_user,
@@ -19,7 +19,7 @@ from user_management.tests.base import (
 )
 
 
-class DownloadsViewVisaApplicationTestCase(TestSessionTokenMixin, TestCase):
+class DownloadsViewVisaApplicationTestCase(TestSessionTokenMixin, BaseTestCase):
     def test_da_download_view_visa_applications_csv(self):
         user = get_da_user()
         self.client.force_login(user)

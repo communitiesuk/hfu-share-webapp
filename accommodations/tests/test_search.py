@@ -1,13 +1,12 @@
-from django.test import TestCase
-
 from ontology.models import MvAccommodation as Accommodation
 from ontology.tests.factories import MvAccommodationFactory as AccommodationFactory
 from ontology.tests.factories import MvUkPostcodeFactory as PostCodeFactory
+from test_utils.base import BaseTestCase
 from webapp.constants import ACCOMMODATION_SEARCH_FIELDS
 from webapp.search import perform_search
 
 
-class SearchGuestsTestCase(TestCase):
+class SearchGuestsTestCase(BaseTestCase):
     def setUp(self):
         self.postcode1 = PostCodeFactory()
         self.postcode2 = PostCodeFactory()

@@ -1,9 +1,8 @@
-from django.test import TestCase
-
+from test_utils.base import BaseTestCase
 from webapp.search import perform_search, query_to_tokens
 
 
-class SearchBaseTests(TestCase):
+class SearchBaseTests(BaseTestCase):
     def test_query_to_tokens(self):
         results = query_to_tokens("Jane,- Bob")
 

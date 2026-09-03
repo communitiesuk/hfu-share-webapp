@@ -1,7 +1,7 @@
 from datetime import date, datetime, timedelta, timezone
 from unittest.mock import patch
 
-from django.test import TestCase, override_settings
+from django.test import override_settings
 from django.utils.timezone import now
 
 from deduplication.exceptions import DeduplicationException
@@ -13,10 +13,11 @@ from ontology.tests.factories import (
     MvAccommodationRequestFactory,
     MvVolunteerFactory,
 )
+from test_utils.base import BaseTestCase
 from user_management.tests.base import get_admin_user
 
 
-class SponsorDuplicateGroupDeduplicationTestCase(TestCase):
+class SponsorDuplicateGroupDeduplicationTestCase(BaseTestCase):
     def test_should_create_new_principal_record_when_merging(self):
         self.sponsor_one = MvVolunteerFactory(is_principal=True)
         self.sponsor_two = MvVolunteerFactory(is_principal=True)

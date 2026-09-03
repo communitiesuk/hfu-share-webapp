@@ -309,9 +309,8 @@ class MvPerson(models.Model):
         return today
 
     def get_full_name(self):
-        if self.first_name or self.last_name:
-            return (f"{self.first_name or ''} {self.last_name or ''}").strip()
-        return None
+        name = (f"{self.first_name or ''} {self.last_name or ''}").strip()
+        return name or "Unknown"
 
     def get_initials(self) -> str:
         initials = ""

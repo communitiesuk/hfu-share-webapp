@@ -1,13 +1,12 @@
 from datetime import datetime, timezone
 
-from django.test import TestCase
-
 from ontology.models import ReassignmentRequest
 from ontology.tests.factories import ReassignmentRequestFactory
 from reassignment_requests.views import ReassignmentRequestsMadeFilter
+from test_utils.base import BaseTestCase
 
 
-class FilterReassignmentRequestsMadeTestCase(TestCase):
+class FilterReassignmentRequestsMadeTestCase(BaseTestCase):
     def setUp(self):
         self.pending = ReassignmentRequestFactory(
             outcome=ReassignmentRequest.Outcome.PENDING,

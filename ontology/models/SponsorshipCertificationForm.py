@@ -279,12 +279,16 @@ class SponsorshipCertificationForm(models.Model):
     class Meta:
         verbose_name = "Uam"
 
+    def get_full_name(self):
+        name = f"{self.given_name or ''} {self.family_name or ''}".strip()
+        return name or "Unknown"
+
     def display_link_data(self, linked_from, linked_as) -> LinkedRecordData:
         return LinkedRecordData(
             "uams:detail-overview",
             self.pk,
-            f"{self.given_name} {self.family_name}",
+            self.get_full_name(),
         )
 
     def __str__(self):
-        return f"{self.given_name} {self.family_name}" or super().__str__()
+        return self.get_full_name()

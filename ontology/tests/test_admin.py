@@ -4,7 +4,6 @@ from unittest.mock import patch
 
 from django.contrib.admin import AdminSite
 from django.db import DatabaseError
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
@@ -20,6 +19,7 @@ from ontology.tests.factories import (
     MvPersonFactory,
     MvVolunteerFactory,
 )
+from test_utils.base import BaseTestCase
 from user_management.tests.base import get_admin_user
 
 
@@ -126,18 +126,20 @@ class BaseArchivedModelAdminAccessTest(TestSessionTokenMixin):
 
 
 class ArchivedMvAccommodationAdminAccessTest(
-    BaseArchivedModelAdminAccessTest, TestCase
+    BaseArchivedModelAdminAccessTest, BaseTestCase
 ):
     factory = MvAccommodationFactory
     model_url_name = "mvaccommodation"
 
 
-class ArchivedMvPersonAdminAccessTest(BaseArchivedModelAdminAccessTest, TestCase):
+class ArchivedMvPersonAdminAccessTest(BaseArchivedModelAdminAccessTest, BaseTestCase):
     factory = MvPersonFactory
     model_url_name = "mvperson"
 
 
-class ArchivedMvVolunteerAdminAccessTest(BaseArchivedModelAdminAccessTest, TestCase):
+class ArchivedMvVolunteerAdminAccessTest(
+    BaseArchivedModelAdminAccessTest, BaseTestCase
+):
     factory = MvVolunteerFactory
     model_url_name = "mvvolunteer"
 

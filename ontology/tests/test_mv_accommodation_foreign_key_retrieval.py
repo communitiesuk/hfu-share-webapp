@@ -1,14 +1,13 @@
-from django.test import TestCase
-
 from ontology.models import MvUkPostcode, MvVolunteer
 from ontology.tests.factories import (
     MvAccommodationFactory,
     MvUkPostcodeFactory,
     MvVolunteerFactory,
 )
+from test_utils.base import BaseTestCase
 
 
-class MvAccommodationForeignKeysTestCase(TestCase):
+class MvAccommodationForeignKeysTestCase(BaseTestCase):
     def test_get_postcode_fetches_related_postcode(self):
         postcode = MvUkPostcodeFactory()
         accommodation = MvAccommodationFactory(postcode=postcode)

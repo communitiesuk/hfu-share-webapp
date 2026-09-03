@@ -7,7 +7,7 @@ STATIC_PAGES = [
     ("/sponsors/", "sponsors list"),
     ("/accommodations/", "accommodations list"),
     ("/accommodation-requests/", "accommodation requests list"),
-    ("/uams/", "UAMs list"),
+    ("/applications-to-sponsor-a-child/", "applications to sponsor a child list"),
     ("/visa-applications/", "visa applications list"),
     ("/visa-applications/visa-information-requests", "visa information requests list"),
     ("/downloads/", "downloads page"),
@@ -37,7 +37,7 @@ RECORD_LIST_PAGES = [
     ("/sponsors/", "sponsor"),
     ("/accommodations/", "accommodation"),
     ("/accommodation-requests/", "accommodation request"),
-    ("/uams/", "UAM"),
+    ("/applications-to-sponsor-a-child/", "application to sponsor a child"),
     ("/visa-applications/", "visa application"),
 ]
 

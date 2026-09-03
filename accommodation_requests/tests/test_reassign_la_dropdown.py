@@ -1,14 +1,14 @@
 from typing import cast
 
 from django import forms
-from django.test import TestCase
 
 from accommodation_requests.forms import MoveGuestsFormSelectLocalAuthorityStep
 from accounts.enums import BROWSER_TEST_LTLA_NAMES, GroupType
 from accounts.tests.factories import GroupFactory, UserFactory
+from test_utils.base import BaseTestCase
 
 
-class ReassignLaDropdownTestCase(TestCase):
+class ReassignLaDropdownTestCase(BaseTestCase):
     def setUp(self):
         self.real_la_group = GroupFactory(
             groupinfo__ltla_name="Realshire",

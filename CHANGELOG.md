@@ -1,5 +1,32 @@
 # Changelog
 
+## [2.15.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.14.0...2.15.0) (2026-09-01)
+
+
+### Features
+
+* add interaction to confirm accommodation flow (HFURB-3034) ([#147](https://github.com/communitiesuk/hfu-share-webapp/issues/147)) ([6832699](https://github.com/communitiesuk/hfu-share-webapp/commit/6832699a4a5747d3754f637d6483752d979e2c98))
+* update content for confirm primary accommodation flow (HFURB-4002) ([#149](https://github.com/communitiesuk/hfu-share-webapp/issues/149)) ([0ff0702](https://github.com/communitiesuk/hfu-share-webapp/commit/0ff0702c9e20db752dbebddbe84c1c63848d952c))
+
+
+### Bug Fixes
+
+* HFURB-3959 - use the right status attribute to check for closure ([#153](https://github.com/communitiesuk/hfu-share-webapp/issues/153)) ([6b62d24](https://github.com/communitiesuk/hfu-share-webapp/commit/6b62d24e6252ae7db0d4045d7f6d09c072b01104))
+
+## [2.14.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.13.0...2.14.0) (2026-08-27)
+
+
+### Features
+
+* HFURB-2600 add the journey for selecting primary accommodation and host ([#136](https://github.com/communitiesuk/hfu-share-webapp/issues/136)) ([0f1c7b4](https://github.com/communitiesuk/hfu-share-webapp/commit/0f1c7b471ea75e8c0b9700610fa3e796b7b77214))
+* HFURB-4050 script to fix guest with incorrect ar IDs ([#143](https://github.com/communitiesuk/hfu-share-webapp/issues/143)) ([2d7ea7a](https://github.com/communitiesuk/hfu-share-webapp/commit/2d7ea7a262046c4f394e3105219643e4270ac516))
+* update AR factory postcode field creation to empty list ([#146](https://github.com/communitiesuk/hfu-share-webapp/issues/146)) ([b6fef2d](https://github.com/communitiesuk/hfu-share-webapp/commit/b6fef2d98d93dc3650cbda38086d8f25781ca4a1))
+
+
+### Bug Fixes
+
+* update more UAM references to "Applications to sponsor a child" ([#128](https://github.com/communitiesuk/hfu-share-webapp/issues/128)) ([3cc9cfc](https://github.com/communitiesuk/hfu-share-webapp/commit/3cc9cfc180147abdd345b7b09c8c0a54d83fd626))
+
 ## [2.13.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.12.0...2.13.0) (2026-08-25)
 
 

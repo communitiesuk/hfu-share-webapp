@@ -1,4 +1,3 @@
-from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
@@ -20,13 +19,14 @@ from ontology.tests.factories import (
 from safeguarding.views import (
     SafeguardingDetailCentralSafeguardingView,
 )
+from test_utils.base import BaseTestCase
 from user_management.tests.base import (
     get_admin_user,
 )
 
 
 class SafeguardingDetailCentralSafeguardingViewTestCase(
-    TestSessionTokenMixin, TestCase
+    TestSessionTokenMixin, BaseTestCase
 ):
     def setUp(self):
         super().setUp()
@@ -98,7 +98,7 @@ class SafeguardingDetailCentralSafeguardingViewTestCase(
         self.assertContains(response, "DBS check and Sponsor suitable check failed")
 
 
-class SafeguardingDetailCentralSafeguardingViewGetDetailsTest(TestCase):
+class SafeguardingDetailCentralSafeguardingViewGetDetailsTest(BaseTestCase):
     def setUp(self):
         self.person = MvPersonFactory()
         self.accommodation = MvAccommodationFactory()

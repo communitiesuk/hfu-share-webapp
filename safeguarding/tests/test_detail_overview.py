@@ -1,6 +1,6 @@
 import http.client
 
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
@@ -13,6 +13,7 @@ from ontology.tests.factories import (
     VisaApplicationFactory,
 )
 from safeguarding.views import SafeguardingDetailOverviewView
+from test_utils.base import BaseTestCase
 from user_management.tests.base import (
     get_admin_user,
     get_da_user,
@@ -23,7 +24,7 @@ from webapp.mixins import SummaryListTestCaseMixin
 
 
 class SafeguardingOverviewViewTestCase(
-    TestSessionTokenMixin, SummaryListTestCaseMixin, TestCase
+    TestSessionTokenMixin, SummaryListTestCaseMixin, BaseTestCase
 ):
     def setUp(self):
         super().setUp()

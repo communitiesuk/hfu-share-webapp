@@ -1,11 +1,12 @@
 from django.contrib.auth.models import AnonymousUser
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory
 
+from test_utils.base import BaseTestCase
 from user_management.tests.base import get_la_user, get_user_with_no_access
 from webapp.context_processors import available_links, get_available_links
 
 
-class AvailableLinksContextProcessorTests(TestCase):
+class AvailableLinksContextProcessorTests(BaseTestCase):
     def setUp(self):
         self.factory = RequestFactory()
 

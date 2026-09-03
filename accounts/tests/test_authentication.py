@@ -3,11 +3,12 @@ from unittest.mock import patch
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.sessions.backends.db import SessionStore
 from django.db import IntegrityError
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory
 
 from accounts.authentication import Authentication
 from accounts.models import User
 from accounts.tests.factories import UserFactory
+from test_utils.base import BaseTestCase
 
 TENANT_ID = "11111111-1111-1111-1111-111111111111"
 OBJECT_ID = "22222222-2222-2222-2222-222222222222"
@@ -19,7 +20,7 @@ LAST_NAME = "User"
 ENTRA_AUTH = {"ALLOWED_TENANTS": [TENANT_ID]}
 
 
-class LinkEntraIdentityTestCase(TestCase):
+class LinkEntraIdentityTestCase(BaseTestCase):
     def setUp(self):
         self.request = RequestFactory().get("/auth_callback")
         self.request.session = SessionStore()

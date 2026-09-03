@@ -1,15 +1,15 @@
 from datetime import datetime, timezone
 
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
 from deduplication.views import SelectAndReviewRecordsStep
 from ontology.tests.factories import MvPersonFactory
+from test_utils.base import BaseTestCase
 from user_management.tests.base import get_admin_user
 
 
-class DeduplicationGuestSelectedViewTests(TestSessionTokenMixin, TestCase):
+class DeduplicationGuestSelectedViewTests(TestSessionTokenMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
 

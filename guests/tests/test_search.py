@@ -1,12 +1,11 @@
-from django.test import TestCase
-
 from ontology.models import MvPerson as Guest
 from ontology.tests.factories import MvPersonFactory as GuestFactory
+from test_utils.base import BaseTestCase
 from webapp.constants import GUEST_SEARCH_FIELDS
 from webapp.search import perform_search
 
 
-class SearchGuestsTestCase(TestCase):
+class SearchGuestsTestCase(BaseTestCase):
     def setUp(self):
         self.guest1 = GuestFactory(
             first_name="John",

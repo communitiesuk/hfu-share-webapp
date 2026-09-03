@@ -1,10 +1,9 @@
-from django.test import TestCase
-
 from ontology.models import MvVolunteer
 from ontology.tests.factories import MvVolunteerFactory
+from test_utils.base import BaseTestCase
 
 
-class MvVolunteerTestCase(TestCase):
+class MvVolunteerTestCase(BaseTestCase):
     def test_should_auto_generate_id_with_correct_format_on_save(self):
         sponsor = MvVolunteer.objects.create(is_editable=True)
         sponsor.save()
@@ -30,7 +29,7 @@ class MvVolunteerTestCase(TestCase):
 
         data = sponsor.display_link_data(None, None)
 
-        self.assertEqual(data.title, "(abc@example.com)")
+        self.assertEqual(data.title, "Unknown (abc@example.com)")
 
     def test_mv_volunteer_factory_does_not_create_archived_record(self):
         sponsor = MvVolunteerFactory()

@@ -1,5 +1,4 @@
 from auditlog.models import LogEntry
-from django.test import TestCase
 
 from accounts.enums import (
     BROWSER_TEST_LA_GROUP_NAME,
@@ -34,9 +33,10 @@ from ontology.tests.factories import (
     VIRCommentFactory,
     VIRFactory,
 )
+from test_utils.base import BaseTestCase
 
 
-class BrowserTestLaWipeCompletenessTestCase(TestCase):
+class BrowserTestLaWipeCompletenessTestCase(BaseTestCase):
     def setUp(self):
         GroupFactory(
             name=BROWSER_TEST_LA_GROUP_NAME,

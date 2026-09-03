@@ -1,12 +1,11 @@
-from django.test import TestCase
-
 from ontology.models import VisaApplication
 from ontology.tests.factories import VisaApplicationFactory
+from test_utils.base import BaseTestCase
 from webapp.constants import VISA_APPLICATION_SEARCH_FIELDS
 from webapp.search import perform_search
 
 
-class SearchVisaApplicationsTest(TestCase):
+class SearchVisaApplicationsTest(BaseTestCase):
     def setUp(self):
         self.app1 = VisaApplicationFactory(
             application_unique_application_number="1313-0000-3216-0635",

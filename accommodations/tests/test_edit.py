@@ -1,16 +1,16 @@
 import http.client
 from datetime import date, datetime, timezone
 
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
 from ontology.tests.factories import MvAccommodationFactory as AccommodationFactory
 from ontology.tests.factories import MvUkPostcodeFactory as PostCodeFactory
+from test_utils.base import BaseTestCase
 from user_management.tests.base import get_admin_user, get_da_user, get_la_user
 
 
-class AccommodationEditViewTests(TestSessionTokenMixin, TestCase):
+class AccommodationEditViewTests(TestSessionTokenMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
         self.user = get_admin_user()

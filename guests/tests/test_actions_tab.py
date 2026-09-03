@@ -1,7 +1,6 @@
 import http.client
 from datetime import datetime, timezone
 
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
@@ -12,6 +11,7 @@ from ontology.tests.factories import (
     MvPersonFactory,
     ReassignmentRequestFactory,
 )
+from test_utils.base import BaseTestCase
 from user_management.tests.base import (
     get_admin_user,
     get_da_user,
@@ -24,7 +24,9 @@ from user_management.tests.base import (
 from webapp.mixins import SummaryListTestCaseMixin
 
 
-class GuestsActionsTestCase(TestSessionTokenMixin, SummaryListTestCaseMixin, TestCase):
+class GuestsActionsTestCase(
+    TestSessionTokenMixin, SummaryListTestCaseMixin, BaseTestCase
+):
     def setUp(self):
         super().setUp()
         self.guest = MvPersonFactory(
@@ -264,7 +266,7 @@ class GuestsActionsTestCase(TestSessionTokenMixin, SummaryListTestCaseMixin, Tes
 
 
 class GuestsActionsBlockedByReassignmentTestCase(
-    TestSessionTokenMixin, SummaryListTestCaseMixin, TestCase
+    TestSessionTokenMixin, SummaryListTestCaseMixin, BaseTestCase
 ):
     def setUp(self):
         super().setUp()
@@ -348,7 +350,7 @@ class GuestsActionsBlockedByReassignmentTestCase(
 
 
 class GuestsActionsBlockedByMultiLaAccommodationRequestTestCase(
-    TestSessionTokenMixin, SummaryListTestCaseMixin, TestCase
+    TestSessionTokenMixin, SummaryListTestCaseMixin, BaseTestCase
 ):
     def setUp(self):
         super().setUp()

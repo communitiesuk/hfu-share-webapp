@@ -1,14 +1,13 @@
-from django.test import TestCase
-
 from accounts.tests.factories import UserFactory
 from ontology.tests.factories import (
     MvAccommodationFactory,
     MvAccommodationRequestFactory,
     MvVolunteerFactory,
 )
+from test_utils.base import BaseTestCase
 
 
-class MvAccommodationRequestUpdateHostTest(TestCase):
+class MvAccommodationRequestUpdateHostTest(BaseTestCase):
     def setUp(self):
         self.user = UserFactory(first_name="John", last_name="Doe")
 
@@ -27,7 +26,7 @@ class MvAccommodationRequestUpdateHostTest(TestCase):
             sponsor_id=None,
         )
 
-        accommodation_request.update_host(accommodation, self.user)
+        accommodation_request.update_host(accommodation, author=self.user)
 
         self.assertEqual(accommodation_request.active_host.id, volunteer.id)
         self.assertEqual(accommodation_request.active_eoi_host, None)
@@ -45,7 +44,7 @@ class MvAccommodationRequestUpdateHostTest(TestCase):
             primary_sponsor=existing_volunteer,
         )
 
-        accommodation_request.update_host(accommodation, self.user)
+        accommodation_request.update_host(accommodation, author=self.user)
 
         self.assertEqual(accommodation_request.active_host, new_volunteer)
         self.assertEqual(accommodation_request.primary_sponsor, new_volunteer)
@@ -61,7 +60,7 @@ class MvAccommodationRequestUpdateHostTest(TestCase):
         accommodation.hosts.add(principal_host)
         accommodation_request = MvAccommodationRequestFactory()
 
-        accommodation_request.update_host(accommodation, self.user)
+        accommodation_request.update_host(accommodation, author=self.user)
 
         self.assertEqual(accommodation_request.active_host.id, principal_host.id)
         self.assertEqual(accommodation_request.primary_sponsor, principal_host)
@@ -76,7 +75,7 @@ class MvAccommodationRequestUpdateHostTest(TestCase):
             sponsor_id=[current_volunteer.id],
         )
 
-        accommodation_request.update_host(accommodation, self.user)
+        accommodation_request.update_host(accommodation, author=self.user)
 
         # Should not change anything if no host is available
         self.assertIsNone(accommodation_request.active_host)
@@ -98,7 +97,38 @@ class MvAccommodationRequestUpdateHostTest(TestCase):
             sponsor_id=None,
         )
 
-        accommodation_request.update_host(accommodation, self.user)
+        accommodation_request.update_host(accommodation, author=self.user)
 
         self.assertEqual(accommodation_request.primary_sponsor_id, volunteer.id)
         self.assertIsNone(accommodation_request.sponsor_id)
+
+    def test_update_host_with_explicit_new_host_bypasses_accommodation_derivation(
+        self,
+    ):
+        accommodation_volunteer = MvVolunteerFactory(is_sponsor=True)
+        accommodation = MvAccommodationFactory(volunteer=accommodation_volunteer)
+        explicit_host = MvVolunteerFactory(id="explicit-host", is_sponsor=True)
+        accommodation_request = MvAccommodationRequestFactory(
+            active_host=None,
+            primary_sponsor=None,
+            sponsor_id=None,
+        )
+
+        accommodation_request.update_host(
+            accommodation, explicit_host, author=self.user
+        )
+
+        self.assertEqual(accommodation_request.active_host, explicit_host)
+        self.assertEqual(accommodation_request.primary_sponsor, explicit_host)
+        self.assertEqual(accommodation_request.sponsor_id, [explicit_host.id])
+
+    def test_update_host_does_not_duplicate_an_existing_sponsor_id(self):
+        volunteer = MvVolunteerFactory(is_sponsor=True)
+        accommodation_request = MvAccommodationRequestFactory(
+            sponsor_id=[volunteer.id],
+            primary_sponsor=volunteer,
+        )
+
+        accommodation_request.update_host(None, volunteer, author=self.user)
+
+        self.assertEqual(accommodation_request.sponsor_id, [volunteer.id])

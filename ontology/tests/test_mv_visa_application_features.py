@@ -1,9 +1,8 @@
-from django.test import TestCase
-
 from ontology.tests.factories import MvVolunteerFactory, VisaApplicationFactory
+from test_utils.base import BaseTestCase
 
 
-class MvPersonPermissionsTest(TestCase):
+class MvPersonPermissionsTest(BaseTestCase):
     def setUp(self):
         self.visa_application = VisaApplicationFactory(
             application_unique_application_number="123"

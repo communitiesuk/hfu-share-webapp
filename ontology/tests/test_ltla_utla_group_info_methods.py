@@ -1,5 +1,3 @@
-from django.test import TestCase
-
 from accounts.enums import GroupType
 from accounts.tests.factories import GroupInfoFactory
 from ontology.tests.factories import (
@@ -7,9 +5,10 @@ from ontology.tests.factories import (
     MvAccommodationRequestFactory,
     ReassignmentRequestFactory,
 )
+from test_utils.base import BaseTestCase
 
 
-class LtlaUtlaGroupInfoTest(TestCase):
+class LtlaUtlaGroupInfoTest(BaseTestCase):
     def setUp(self):
         self.ltla_group = GroupInfoFactory(
             ltla_name="Test LTLA",

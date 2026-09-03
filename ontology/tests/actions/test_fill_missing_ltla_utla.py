@@ -1,12 +1,11 @@
 from unittest.mock import Mock
 
-from django.test import TestCase
-
 from ontology.actions.reassignment_request_actions import fill_missing_ltla_utla
 from ontology.models.ReassignmentRequest import ReassignmentRequest
+from test_utils.base import BaseTestCase
 
 
-class FillMissingLtlaUtlaActionTest(TestCase):
+class FillMissingLtlaUtlaActionTest(BaseTestCase):
     def setUp(self):
         self.modeladmin = Mock()
         self.request = Mock()

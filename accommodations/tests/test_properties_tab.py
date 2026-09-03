@@ -1,6 +1,5 @@
 import http.client
 
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
@@ -11,10 +10,11 @@ from ontology.tests.factories import (
     MvVolunteerFactory,
     VisaApplicationFactory,
 )
+from test_utils.base import BaseTestCase
 from user_management.tests.base import get_da_user, get_la_user
 
 
-class AccommodationPropertiesTestCase(TestSessionTokenMixin, TestCase):
+class AccommodationPropertiesTestCase(TestSessionTokenMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
         self.sponsor = MvVolunteerFactory(first_name="LA Sponsor", last_name="Spon")

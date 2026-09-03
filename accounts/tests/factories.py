@@ -3,16 +3,17 @@ from datetime import timezone
 import factory.django
 from django.contrib.auth.models import Group
 from django.db.models.signals import post_save
-from factory import Faker, RelatedFactory, Sequence, SubFactory
+from factory import RelatedFactory, Sequence, SubFactory
 from factory.django import DjangoModelFactory
 
 from accounts.enums import GroupType
 from accounts.models import AccessRequest, GroupInfo, User
+from test_utils.faker import unique_faker
 
 
 @factory.django.mute_signals(post_save)
 class GroupInfoFactory(DjangoModelFactory):
-    ltla_name = Faker("city")
+    ltla_name = unique_faker("city")
     group = SubFactory("accounts.tests.factories.GroupFactory", groupinfo=None)
 
     class Meta:
@@ -29,13 +30,13 @@ class GroupFactory(DjangoModelFactory):
 
 
 class UserFactory(DjangoModelFactory):
-    username = Faker("user_name")
-    email = Faker("email")
-    first_name = Faker("first_name")
-    last_name = Faker("last_name")
-    entra_tid = Faker("uuid4")
-    entra_oid = Faker("uuid4")
-    last_login = Faker(
+    username = unique_faker("user_name")
+    email = unique_faker("email")
+    first_name = unique_faker("first_name")
+    last_name = unique_faker("last_name")
+    entra_tid = unique_faker("uuid4")
+    entra_oid = unique_faker("uuid4")
+    last_login = unique_faker(
         "date_time_between", start_date="-30d", end_date="now", tzinfo=timezone.utc
     )
 

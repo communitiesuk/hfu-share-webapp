@@ -1,10 +1,9 @@
-from django.test import TestCase
-
 from ontology.models import CheckType, DevCheckV2
 from ontology.tests.factories import DevCheckV2Factory, MvVolunteerFactory
+from test_utils.base import BaseTestCase
 
 
-class MvVolunteerDetermineDBSCheckStatusTest(TestCase):
+class MvVolunteerDetermineDBSCheckStatusTest(BaseTestCase):
     def setUp(self):
         super().setUp()
         self.sponsor = MvVolunteerFactory(
