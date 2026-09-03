@@ -498,6 +498,12 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
   white-space: nowrap !important;
 }
 
+/* Summary card action links on record detail pages: regular weight, the
+   GOV.UK bold default reads like the card title. */
+#record-detail-content .govuk-summary-card__actions {
+  font-weight: 400;
+}
+
 /* Tab content column, focused by detail-view-focus.js after side navigation. */
 .app-record-detail-content {
   scroll-margin-top: 120px;
