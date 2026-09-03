@@ -21,9 +21,21 @@
             <strong class="govuk-tag govuk-!-margin-right-1">New</strong>
             We're trialling a new layout.
             {% if detail_layout == "new" %}
-                <a class="govuk-link" href="{{ detail_layout_toggle_url }}">Go back to the old layout</a>
+                <a class="govuk-link govuk-link--no-visited-state"
+                   href="{{ detail_layout_toggle_url }}">Go back to the old layout</a>
+                or
+                <a class="govuk-link govuk-link--no-visited-state"
+                   href="https://mhclgdigital.atlassian.net/servicedesk/customer/portal/7"
+                   rel="noreferrer noopener"
+                   target="_blank">share feedback<span class="govuk-visually-hidden">on the new layout</span> (opens in new tab)</a>
             {% else %}
-                <a class="govuk-link" href="{{ detail_layout_toggle_url }}">Try the new layout</a>
+                <a class="govuk-link govuk-link--no-visited-state"
+                   href="{{ detail_layout_toggle_url }}">Try the new layout</a>
+                or
+                <a class="govuk-link govuk-link--no-visited-state"
+                   href="https://mhclgdigital.atlassian.net/servicedesk/customer/portal/7"
+                   rel="noreferrer noopener"
+                   target="_blank">tell us why you switched back (opens in new tab)</a>
             {% endif %}
         </p>
     </div>

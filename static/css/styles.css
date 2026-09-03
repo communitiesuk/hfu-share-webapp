@@ -475,6 +475,7 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
+  row-gap: 15px;
   margin-bottom: 10px;
   margin-top: 15px;
 }
@@ -482,6 +483,16 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
 .app-breadcrumbs-row .govuk-breadcrumbs {
   margin-bottom: 0;
   margin-top: 0;
+}
+
+.app-breadcrumbs-row .govuk-breadcrumbs__list,
+.app-breadcrumbs-row .govuk-breadcrumbs__list-item {
+  margin-bottom: 0;
+  margin-top: 0;
+}
+
+.app-breadcrumbs-row p {
+  line-height: 1.5;
 }
 
 /* Trial: detail layout switch. Remove with the layout trial. */

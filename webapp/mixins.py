@@ -1,3 +1,4 @@
+import logging
 import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
@@ -48,6 +49,8 @@ from webapp.templatetags.timeline_extras import (
     TimelineEventType,
     format_interaction_content,
 )
+
+logger = logging.getLogger(__name__)
 
 NONE_TYPES = {None, "None", "", "None None", "[]"}
 GO_LIVE_CUTOFF = datetime(2025, 9, 15, tzinfo=dt_timezone.utc)
@@ -1025,6 +1028,11 @@ class DetailLayoutMixin:
         requested = request.GET.get("detail_layout")
         if request.method == "GET" and requested in self.detail_layouts:
             request.session["detail_layout"] = requested
+            logger.info(
+                "Detail layout switched to %s by user ID %s.",
+                requested,
+                request.user.pk,
+            )
             params = request.GET.copy()
             del params["detail_layout"]
             url = request.path
