@@ -447,9 +447,9 @@ class EscalatedChecksTableFilter(FilterPanelMixin, FilterSet):
             sub_widget=DatePicker,
             attrs={
                 "from_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=50)).strftime('%d/%m/%Y')}.",
+                f"{(datetime.today() - timedelta(days=50)).strftime('%-d/%-m/%Y')}.",
                 "to_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%d/%m/%Y')}.",
+                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
                 "from_label": "Date from",
                 "to_label": "Date to",
             },
@@ -466,9 +466,9 @@ class EscalatedChecksTableFilter(FilterPanelMixin, FilterSet):
             sub_widget=DatePicker,
             attrs={
                 "from_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=50)).strftime('%d/%m/%Y')}.",
+                f"{(datetime.today() - timedelta(days=50)).strftime('%-d/%-m/%Y')}.",
                 "to_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%d/%m/%Y')}.",
+                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
                 "from_label": "Date from",
                 "to_label": "Date to",
             },
@@ -485,9 +485,9 @@ class EscalatedChecksTableFilter(FilterPanelMixin, FilterSet):
             sub_widget=DatePicker,
             attrs={
                 "from_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=10000)).strftime('%d/%m/%Y')}.",
+                f"{(datetime.today() - timedelta(days=10000)).strftime('%-d/%-m/%Y')}.",
                 "to_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%d/%m/%Y')}.",
+                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
                 "from_label": "Date from",
                 "to_label": "Date to",
             },

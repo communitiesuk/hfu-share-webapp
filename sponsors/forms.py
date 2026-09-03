@@ -30,7 +30,7 @@ class SponsorEditForm(ReadOnlyFieldsMixin, forms.ModelForm):
         widget=DatePicker(
             attrs={
                 "hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=11000)).strftime('%d/%m/%Y')}.",
+                f"{(datetime.today() - timedelta(days=11000)).strftime('%-d/%-m/%Y')}.",
             }
         ),
         required=True,

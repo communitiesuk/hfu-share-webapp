@@ -40,7 +40,7 @@ class AccommodationEditForm(ReadOnlyFieldsMixin, forms.ModelForm):
         widget=DatePicker(
             attrs={
                 "hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%d/%m/%Y')}.",
+                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
             }
         ),
         required=False,
@@ -51,7 +51,7 @@ class AccommodationEditForm(ReadOnlyFieldsMixin, forms.ModelForm):
         widget=DatePicker(
             attrs={
                 "hint": f"For example, "
-                f"{(datetime.today() + timedelta(days=20)).strftime('%d/%m/%Y')}.",
+                f"{(datetime.today() + timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
             }
         ),
         required=False,
