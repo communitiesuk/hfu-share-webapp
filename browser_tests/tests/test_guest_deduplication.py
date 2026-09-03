@@ -1,12 +1,44 @@
+from dataclasses import dataclass
+
 import pytest
 from playwright.sync_api import expect
 
 from ..pages.home_page import HomePage
 from .base import BrowserTest
 
-GUEST_ONE_FULL_NAME = "Valerie Poole"
-GUEST_TWO_FULL_NAME = "Philip Berry"
-SEARCH_TERM = "poole berry"
+@dataclass(frozen=True)
+class SeededGuest:
+    full_name: str
+    first_name: str
+    last_name: str
+    date_of_birth: str
+    email: str
+    phone: str
+    passport_id: str
+    accommodation_request_title: str
+
+GUEST_ONE = SeededGuest(
+    full_name="Ian Yates",
+    first_name="Ian",
+    last_name="Yates",
+    date_of_birth="12 February 1968",
+    email="cliffordgreen@example.org",
+    phone="01214960497",
+    passport_id="36DSA4XOW",
+    accommodation_request_title="Ian Yates and 1 other to Flat 32J Bates, SW0Y 7AR",
+)
+GUEST_TWO = SeededGuest(
+    full_name="Martyn Field",
+    first_name="Martyn",
+    last_name="Field",
+    date_of_birth="24 September 2005",
+    email="eileenstanley@example.org",
+    phone="(0306)9990909",
+    passport_id="B53RZIT9A",
+    accommodation_request_title="Martyn Field and 1 other to 79 Owen stream, N4J 5SJ",
+)
+SEARCH_TERM = "yates field"
+
 
 @pytest.fixture
 def guest_deduplication_page(home_page: HomePage) -> HomePage:
@@ -37,12 +69,12 @@ def _select_guest_record(guest_deduplication_page: HomePage, full_name: str):
 
 
 def _choose_correct_details(guest_deduplication_page: HomePage):
-    guest_deduplication_page.check_field("Valerie")
-    guest_deduplication_page.check_field("Poole")
-    guest_deduplication_page.check_field("31 May 1965")
-    guest_deduplication_page.check_field("joycejackson@example.org")
-    guest_deduplication_page.check_field("0808 157 0233")
-    guest_deduplication_page.check_field("9T8NIK1PW")
+    guest_deduplication_page.check_field(GUEST_ONE.first_name)
+    guest_deduplication_page.check_field(GUEST_TWO.last_name)
+    guest_deduplication_page.check_field(GUEST_ONE.date_of_birth)
+    guest_deduplication_page.check_field(GUEST_ONE.email)
+    guest_deduplication_page.check_field(GUEST_TWO.phone)
+    guest_deduplication_page.check_field(GUEST_TWO.passport_id)
 
 
 class TestGuestDeduplicationJourney(BrowserTest):
@@ -51,7 +83,7 @@ class TestGuestDeduplicationJourney(BrowserTest):
     ):
         # Filter the list
         _search(guest_deduplication_page, SEARCH_TERM)
-        for full_name in (GUEST_ONE_FULL_NAME, GUEST_TWO_FULL_NAME):
+        for full_name in (GUEST_ONE.full_name, GUEST_TWO.full_name):
             expect(
                 guest_deduplication_page.page.get_by_role(
                     "button", name=f"Select {full_name}"
@@ -59,7 +91,7 @@ class TestGuestDeduplicationJourney(BrowserTest):
             ).to_have_count(1)
 
         # Select the first record
-        _select_guest_record(guest_deduplication_page, GUEST_ONE_FULL_NAME)
+        _select_guest_record(guest_deduplication_page, GUEST_ONE.full_name)
         guest_deduplication_page.assert_has_heading("View selected record")
 
         guest_deduplication_page.click_button("Select another record")
@@ -67,26 +99,29 @@ class TestGuestDeduplicationJourney(BrowserTest):
 
         # Search again and select the second (only remaining) record
         _search(guest_deduplication_page, SEARCH_TERM)
-        _select_guest_record(guest_deduplication_page, GUEST_TWO_FULL_NAME)
+        _select_guest_record(guest_deduplication_page, GUEST_TWO.full_name)
         guest_deduplication_page.assert_has_heading("View selected records")
 
         # Review the selection
         guest_deduplication_page.click_button("Confirm selection")
         guest_deduplication_page.assert_has_heading("Deduplicate selected records")
-        guest_deduplication_page.assert_page_contains_text(GUEST_ONE_FULL_NAME)
-        guest_deduplication_page.assert_page_contains_text(GUEST_TWO_FULL_NAME)
-
+        guest_deduplication_page.assert_page_contains_text(GUEST_ONE.full_name)
+        guest_deduplication_page.assert_page_contains_text(GUEST_TWO.full_name)
         guest_deduplication_page.click_button("Continue")
+
+        guest_deduplication_page.assert_has_heading("Select accommodation request")
+        guest_deduplication_page.check_field(GUEST_ONE.accommodation_request_title)
+        guest_deduplication_page.click_button("Continue deduplication")
+
+        # Choose the correct details for the new principal record
         guest_deduplication_page.assert_has_heading("Select correct details")
         _choose_correct_details(guest_deduplication_page)
-
         guest_deduplication_page.click_button("Continue deduplication")
+
         guest_deduplication_page.assert_has_heading(
             "Check details and complete deduplication"
         )
-
         guest_deduplication_page.click_button("Yes, confirm and deduplicate")
         guest_deduplication_page.assert_page_contains_text(
             "You have deduplicated 2 guest records"
         )
-
