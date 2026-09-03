@@ -1,3 +1,4 @@
+import copy
 import os
 import random
 from datetime import datetime, timedelta
@@ -621,6 +622,26 @@ def _make_deduplicated_guest_pair(author: User) -> str:
     return ar.id
 
 
+def _make_deduplicate_guest_pair() -> str:
+    ar = build_complete_accommodation_scenario(
+        num_guests=1,
+        ltla_name=BROWSER_TEST_LTLA_NAMES[0],
+        id_prefix=BROWSER_TEST_ID_PREFIX,
+        make_uam=False,
+    )
+    guest_one = MvPerson.objects.get(accommodation_request=ar)
+    guest_one.first_name = "Deduplication"
+    guest_one.last_name = "Browser_test"
+    guest_one.save()
+
+    guest_two = copy.deepcopy(guest_one)
+    guest_two.id = record_id("person", BROWSER_TEST_ID_PREFIX)
+    guest_two.save()
+
+    print(f"undeduplicated guest pair on {ar.id}")
+    return ar.id
+
+
 def _make_deduplicated_sponsor_pair(author: User) -> str:
     ar = build_complete_accommodation_scenario(
         num_guests=1,
@@ -924,6 +945,7 @@ def seed_browser_test_la() -> None:
             )
         )
         examples["deduplicated guest pair"] = _make_deduplicated_guest_pair(author)
+        examples["undeduplicated guest pair"] = _make_deduplicate_guest_pair()
         examples["deduplicated sponsor pair"] = _make_deduplicated_sponsor_pair(author)
         examples["pending outbound reassignment"] = _labelled_ar(
             ars, "pending outbound reassignment"
