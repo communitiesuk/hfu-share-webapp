@@ -6,6 +6,7 @@ from playwright.sync_api import expect
 from ..pages.home_page import HomePage
 from .base import BrowserTest
 
+
 @dataclass(frozen=True)
 class SeededGuest:
     full_name: str
@@ -16,6 +17,7 @@ class SeededGuest:
     phone: str
     passport_id: str
     accommodation_request_title: str
+
 
 GUEST_ONE = SeededGuest(
     full_name="Ian Yates",
