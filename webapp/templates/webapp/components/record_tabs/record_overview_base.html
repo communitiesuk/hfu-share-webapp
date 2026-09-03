@@ -18,10 +18,11 @@
             </ol>
         </nav>
         <p class="govuk-body-s govuk-!-margin-bottom-0">
+            We're trialling a new layout.
             {% if detail_layout == "new" %}
-                <a class="govuk-link" href="{{ detail_layout_toggle_url }}">Switch back to the classic view</a>
+                <a class="govuk-link" href="{{ detail_layout_toggle_url }}">Go back to the old layout</a>
             {% else %}
-                <a class="govuk-link" href="{{ detail_layout_toggle_url }}">Switch to the new side navigation</a>
+                <a class="govuk-link" href="{{ detail_layout_toggle_url }}">Try the new layout</a>
             {% endif %}
         </p>
     </div>
