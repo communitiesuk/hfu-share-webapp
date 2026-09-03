@@ -52,7 +52,7 @@ def guest_deduplication_page(home_page: HomePage) -> HomePage:
     return home_page
 
 
-def _search(guest_deduplication_page: HomePage, text: str):
+def _search(guest_deduplication_page: HomePage, text: str) -> None:
     show_filters_button = guest_deduplication_page.main_page.get_by_role(
         "button", name="Show filters"
     )
@@ -62,13 +62,13 @@ def _search(guest_deduplication_page: HomePage, text: str):
     guest_deduplication_page.click_button("Apply filters")
 
 
-def _select_guest_record(guest_deduplication_page: HomePage, full_name: str):
+def _select_guest_record(guest_deduplication_page: HomePage, full_name: str) -> None:
     guest_deduplication_page.page.get_by_role(
         "button", name=f"Select {full_name}"
     ).click()
 
 
-def _choose_correct_details(guest_deduplication_page: HomePage):
+def _choose_correct_details(guest_deduplication_page: HomePage) -> None:
     guest_deduplication_page.check_field(GUEST_ONE.first_name)
     guest_deduplication_page.check_field(GUEST_TWO.last_name)
     guest_deduplication_page.check_field(GUEST_ONE.date_of_birth)
@@ -80,7 +80,7 @@ def _choose_correct_details(guest_deduplication_page: HomePage):
 class TestGuestDeduplicationJourney(BrowserTest):
     def test_guest_deduplication_journey_and_removes_duplicate_from_list(
         self, guest_deduplication_page: HomePage
-    ):
+    ) -> None:
         # Filter the list
         _search(guest_deduplication_page, SEARCH_TERM)
         for full_name in (GUEST_ONE.full_name, GUEST_TWO.full_name):
