@@ -1,7 +1,6 @@
 import http.client
 from datetime import date, datetime, timezone
 
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.enums import GroupType
@@ -10,6 +9,7 @@ from accounts.tests.factories import GroupFactory
 from deduplication.tests.factories import GuestDuplicateGroupFactory
 from guests.views import GuestDetailOverviewView
 from ontology.tests.factories import MvAccommodationRequestFactory, MvPersonFactory
+from test_utils.base import BaseTestCase
 from user_management.tests.base import (
     get_admin_user,
     get_da_user,
@@ -18,7 +18,7 @@ from user_management.tests.base import (
 )
 
 
-class GuestDetailOverviewViewTests(TestSessionTokenMixin, TestCase):
+class GuestDetailOverviewViewTests(TestSessionTokenMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
         self.accommodation_request = MvAccommodationRequestFactory(

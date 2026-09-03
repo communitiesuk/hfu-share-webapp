@@ -1,11 +1,11 @@
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
+from test_utils.base import BaseTestCase
 from user_management.tests.base import get_user_with_no_access
 
 
-class AccessibilityStatementPageTests(TestSessionTokenMixin, TestCase):
+class AccessibilityStatementPageTests(TestSessionTokenMixin, BaseTestCase):
     def test_accessibility_statement_page_is_displayed(self):
         user = get_user_with_no_access()
         self.client.force_login(user)

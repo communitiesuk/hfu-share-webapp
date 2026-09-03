@@ -1,16 +1,16 @@
 from datetime import datetime, timezone
 
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
 from deduplication.tests.factories import SponsorDuplicateGroupFactory
 from ontology.models import MvVolunteer
 from ontology.tests.factories import MvVolunteerFactory
+from test_utils.base import BaseTestCase
 from user_management.tests.base import get_admin_user
 
 
-class SponsorDeduplicationHistoryViewTest(TestSessionTokenMixin, TestCase):
+class SponsorDeduplicationHistoryViewTest(TestSessionTokenMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
         self.first_sponsor = MvVolunteerFactory(

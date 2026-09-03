@@ -1,10 +1,9 @@
-from django.test import TestCase
-
 from ontology.models import MvAccommodationRequest
 from ontology.tests.factories import MvAccommodationRequestFactory
+from test_utils.base import BaseTestCase
 
 
-class TestMvAccommodationRequestGetLocalAuthorityListTestCase(TestCase):
+class TestMvAccommodationRequestGetLocalAuthorityListTestCase(BaseTestCase):
     def setUp(self):
         self.somerset_accommodation_request = MvAccommodationRequestFactory(
             ltla_name=["somerset"],

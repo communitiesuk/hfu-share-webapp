@@ -1,8 +1,9 @@
 from django.contrib.staticfiles.storage import staticfiles_storage
-from django.test import TestCase
+
+from test_utils.base import BaseTestCase
 
 
-class FaviconAuthBypassTest(TestCase):
+class FaviconAuthBypassTest(BaseTestCase):
     def test_favicon_bypasses_auth_middleware(self):
         """
         Ensure unauthenticated requests to /favicon.ico route directly to

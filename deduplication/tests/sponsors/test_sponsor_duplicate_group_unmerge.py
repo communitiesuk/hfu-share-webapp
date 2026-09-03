@@ -1,6 +1,6 @@
 from unittest.mock import patch
 
-from django.test import TestCase, override_settings
+from django.test import override_settings
 from django.utils import timezone
 from freezegun import freeze_time
 
@@ -12,10 +12,11 @@ from ontology.tests.factories import (
     MvAccommodationRequestFactory,
     MvVolunteerFactory,
 )
+from test_utils.base import BaseTestCase
 from user_management.tests.base import get_admin_user
 
 
-class SponsorDuplicateGroupUndoDeduplicationTestCase(TestCase):
+class SponsorDuplicateGroupUndoDeduplicationTestCase(BaseTestCase):
     def test_should_set_is_principal_true_to_all_undo_deduplicated_sponsors(self):
         self.sponsor_one = MvVolunteerFactory(is_principal=True)
         self.sponsor_two = MvVolunteerFactory(is_principal=True)

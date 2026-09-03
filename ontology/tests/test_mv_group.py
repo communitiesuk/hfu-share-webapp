@@ -1,9 +1,8 @@
-from django.test import TestCase
-
 from ontology.tests.factories import MvGroupFactory, MvPersonFactory
+from test_utils.base import BaseTestCase
 
 
-class MvGroupTest(TestCase):
+class MvGroupTest(BaseTestCase):
     def test_group_with_correct_foreign_key_works(self):
         MvGroupFactory(id="Group-123")
         group = MvGroupFactory(
@@ -27,7 +26,7 @@ class MvGroupTest(TestCase):
         self.assertEqual(group.merged_group_id, "inexistent_merged_group_id")
 
 
-class MvGroupSplitMethodsTest(TestCase):
+class MvGroupSplitMethodsTest(BaseTestCase):
     def test_min_age_with_empty_list(self):
         group = MvGroupFactory()
 

@@ -1,11 +1,10 @@
-from django.test import TestCase
-
 from accommodation_requests.views import AccommodationRequestsFilter
 from ontology.models import MvAccommodationRequest as AccReq
 from ontology.tests.factories import MvAccommodationRequestFactory as AccReqFactory
+from test_utils.base import BaseTestCase
 
 
-class AccommodationRequestFilterTestCase(TestCase):
+class AccommodationRequestFilterTestCase(BaseTestCase):
     def setUp(self):
         self.active_req = AccReqFactory(
             id="accommodation_request-00000",

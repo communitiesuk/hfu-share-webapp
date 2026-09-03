@@ -1,6 +1,5 @@
 from datetime import datetime, timezone
 
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
@@ -14,12 +13,13 @@ from ontology.tests.factories import (
     SafeguardingReferralFactory,
     VisaApplicationFactory,
 )
+from test_utils.base import BaseTestCase
 from user_management.tests.base import (
     get_ukvi_user,
 )
 
 
-class SponsorVisaApplicationAlertTests(TestSessionTokenMixin, TestCase):
+class SponsorVisaApplicationAlertTests(TestSessionTokenMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
         # Create sponsor
@@ -91,7 +91,7 @@ class SponsorVisaApplicationAlertTests(TestSessionTokenMixin, TestCase):
         self.assertContains(response, "2 September 2025")
 
 
-class AccommodationExistsVisaApplicationAlertTests(TestSessionTokenMixin, TestCase):
+class AccommodationExistsVisaApplicationAlertTests(TestSessionTokenMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
 
@@ -166,7 +166,7 @@ class AccommodationExistsVisaApplicationAlertTests(TestSessionTokenMixin, TestCa
         self.assertNotContains(response, "GWF347840199")
 
 
-class NoVisaApplicationsAlertTests(TestSessionTokenMixin, TestCase):
+class NoVisaApplicationsAlertTests(TestSessionTokenMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
         self.sponsor = MvVolunteerFactory(

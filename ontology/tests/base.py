@@ -2,7 +2,6 @@ from unittest.mock import MagicMock
 
 from django.contrib.auth.models import Group
 from django.db.models import QuerySet
-from django.test import TestCase
 
 from accounts.enums import GroupType
 from accounts.tests.factories import GroupFactory, UserFactory
@@ -18,6 +17,7 @@ from ontology.tests.factories import (
     SponsorshipCertificationFormFactory,
     VisaApplicationFactory,
 )
+from test_utils.base import BaseTestCase
 
 
 def create_mock_queryset(result: list) -> QuerySet:
@@ -31,7 +31,7 @@ def create_mock_queryset(result: list) -> QuerySet:
     return mock_queryset
 
 
-class LocalAuthorityBaseTestCaseMixin(TestCase):
+class LocalAuthorityBaseTestCaseMixin(BaseTestCase):
     def setUp(self):
         super().setUp()
         # ltla names
@@ -221,7 +221,7 @@ class LocalAuthorityBaseTestCaseMixin(TestCase):
         self.da_northern_ireland_user.groups.set([self.da_northern_ireland_group])
 
 
-class VisaApplicationBaseTestCase(LocalAuthorityBaseTestCaseMixin, TestCase):
+class VisaApplicationBaseTestCase(LocalAuthorityBaseTestCaseMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
 
@@ -272,7 +272,7 @@ class VisaApplicationBaseTestCase(LocalAuthorityBaseTestCaseMixin, TestCase):
         ]
 
 
-class MvPersonBaseTestCase(LocalAuthorityBaseTestCaseMixin, TestCase):
+class MvPersonBaseTestCase(LocalAuthorityBaseTestCaseMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
 
@@ -389,7 +389,7 @@ class MvPersonBaseTestCase(LocalAuthorityBaseTestCaseMixin, TestCase):
         ]
 
 
-class MvAccommodationRequestTestCase(LocalAuthorityBaseTestCaseMixin, TestCase):
+class MvAccommodationRequestTestCase(LocalAuthorityBaseTestCaseMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
 
@@ -513,7 +513,7 @@ class MvAccommodationRequestTestCase(LocalAuthorityBaseTestCaseMixin, TestCase):
         ]
 
 
-class MvAccommodationTestCase(LocalAuthorityBaseTestCaseMixin, TestCase):
+class MvAccommodationTestCase(LocalAuthorityBaseTestCaseMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
 
@@ -616,7 +616,7 @@ class MvAccommodationTestCase(LocalAuthorityBaseTestCaseMixin, TestCase):
         )
 
 
-class PersonMasterRecordBaseTestCase(LocalAuthorityBaseTestCaseMixin, TestCase):
+class PersonMasterRecordBaseTestCase(LocalAuthorityBaseTestCaseMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
 
@@ -700,7 +700,7 @@ class PersonMasterRecordBaseTestCase(LocalAuthorityBaseTestCaseMixin, TestCase):
 
 
 class LocalAuthorityPermissionsManagerBaseTestCase(
-    LocalAuthorityBaseTestCaseMixin, TestCase
+    LocalAuthorityBaseTestCaseMixin, BaseTestCase
 ):
     def setUp(self):
         super().setUp()

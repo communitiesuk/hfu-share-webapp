@@ -1,4 +1,3 @@
-from django.test import TestCase
 from django.utils.dateparse import parse_datetime
 
 from ontology.admin_actions import (
@@ -17,9 +16,10 @@ from ontology.tests.factories import (
     MvVolunteerFactory,
     SponsorMasterRecordFactory,
 )
+from test_utils.base import BaseTestCase
 
 
-class ProcessSingleSponsorCheckTest(TestCase):
+class ProcessSingleSponsorCheckTest(BaseTestCase):
     def test_it_wont_process_incorrect_date(self):
         sponsor = MvVolunteerFactory(is_principal=False)
         check = DevCheckV2Factory(
@@ -257,7 +257,7 @@ class ProcessSingleSponsorCheckTest(TestCase):
         self.assertEqual(expected_message, messages[-1])
 
 
-class ProcessSingleAccommodationExistsCheckTest(TestCase):
+class ProcessSingleAccommodationExistsCheckTest(BaseTestCase):
     def test_it_wont_process_incorrect_check_type(self):
         check = DevCheckV2Factory(
             check_type=CheckType.objects.get(id=CheckType.Id.ACCOMM_SUITABLE),
@@ -510,7 +510,7 @@ class ProcessSingleAccommodationExistsCheckTest(TestCase):
         )
 
 
-class ProcessSingleAccommodationSuitableCheckTest(TestCase):
+class ProcessSingleAccommodationSuitableCheckTest(BaseTestCase):
     def test_it_wont_process_incorrect_check_type(self):
         check = DevCheckV2Factory(
             check_type=CheckType.objects.get(id=CheckType.Id.ACCOMM_EXISTS),
@@ -754,7 +754,7 @@ class ProcessSingleAccommodationSuitableCheckTest(TestCase):
         )
 
 
-class ProcessUpdateGuestTitlesTest(TestCase):
+class ProcessUpdateGuestTitlesTest(BaseTestCase):
     def test_does_not_alter_already_correct_title(self):
         guest = MvPerson.objects.create(
             first_name="Guest", last_name="One", title="Guest One"

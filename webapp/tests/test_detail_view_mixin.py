@@ -2,9 +2,10 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from django.core.exceptions import ImproperlyConfigured
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory
 from django.views.generic import DetailView
 
+from test_utils.base import BaseTestCase
 from webapp.mixins import DetailViewMixin
 
 
@@ -58,7 +59,7 @@ class TestActionsView(DetailViewMixinTestView):  # pylint: disable=W1351
         return "Actions heading"
 
 
-class DetailViewMixinTests(TestCase):
+class DetailViewMixinTests(BaseTestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.request = self.factory.get("/")

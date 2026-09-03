@@ -1,7 +1,6 @@
 import http.client
 import uuid
 
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
@@ -11,10 +10,11 @@ from ontology.tests.factories import (
     MvVolunteerFactory,
     SafeguardingReferralFactory,
 )
+from test_utils.base import BaseTestCase
 from user_management.tests.base import get_ukvi_user
 
 
-class SearchEscalatedChecksTestCase(TestSessionTokenMixin, TestCase):
+class SearchEscalatedChecksTestCase(TestSessionTokenMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
         self.user = get_ukvi_user()

@@ -4,7 +4,7 @@ from unittest.mock import patch
 from django.db.models import QuerySet
 from django.http import Http404
 from django.template.loader import render_to_string
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory
 from django.urls import reverse
 from freezegun import freeze_time
 
@@ -26,6 +26,7 @@ from ontology.tests.factories import (
     MvVolunteerFactory,
     VisaApplicationFactory,
 )
+from test_utils.base import BaseTestCase
 from user_management.tests.base import (
     get_admin_user,
     get_da_user,
@@ -145,7 +146,7 @@ class TestVisaApplicationDetailView(VisaApplicationPropertiesView):
 
 
 class VisaApplicationDetailsTwoColumnViewTest(
-    TestSessionTokenMixin, LocalAuthorityBaseTestCaseMixin, TestCase
+    TestSessionTokenMixin, LocalAuthorityBaseTestCaseMixin, BaseTestCase
 ):
     def test_fields_split_and_sorted_correctly(self):
         """
@@ -210,7 +211,7 @@ class VisaApplicationDetailsTwoColumnViewTest(
         self.assertContains(response, "Test Sponsor")
 
 
-class VisaApplicationOverviewViewTest(TestCase):
+class VisaApplicationOverviewViewTest(BaseTestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.application = VisaApplication.objects.create(
@@ -394,7 +395,7 @@ class VisaApplicationOverviewViewTest(TestCase):
         self.assertIsNone(fields["Decision date"])
 
 
-class VisaApplicationLinkedRecordsViewTest(TestCase):
+class VisaApplicationLinkedRecordsViewTest(BaseTestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.sponsor = MvVolunteerFactory(id="s1")
@@ -430,7 +431,7 @@ class VisaApplicationLinkedRecordsViewTest(TestCase):
         self.assertIn(self.sponsor, fields["Host"])
 
 
-class TestVirViews(TestSessionTokenMixin, TestCase):
+class TestVirViews(TestSessionTokenMixin, BaseTestCase):
     def test_access_virs_shows_results_if_da_user(self):
         user = get_da_user()
         self.client.force_login(user)
@@ -465,7 +466,7 @@ class TestVirViews(TestSessionTokenMixin, TestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class VisaApplicationVIRViewTests(TestCase):
+class VisaApplicationVIRViewTests(BaseTestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.user = get_ukvi_user()
@@ -586,7 +587,7 @@ class VisaApplicationVIRViewTests(TestCase):
         self.assertIsNotNone(comment)
 
 
-class VisaApplicationVIRViewAddCommentTests(TestCase):
+class VisaApplicationVIRViewAddCommentTests(BaseTestCase):
     def setUp(self):
         fixed_datetime = datetime(2025, 7, 29, 12, 0, 0, tzinfo=timezone.utc)
         self.factory = RequestFactory()
@@ -761,7 +762,7 @@ class VisaApplicationVIRViewAddCommentTests(TestCase):
         self.assertNotIn("close_vir_submit", button_names)
 
 
-class VisaApplicationVIRViewReopenTests(TestCase):
+class VisaApplicationVIRViewReopenTests(BaseTestCase):
     def setUp(self):
         fixed_datetime = datetime(2025, 7, 29, 12, 0, 0, tzinfo=timezone.utc)
         self.factory = RequestFactory()
@@ -843,7 +844,7 @@ class VisaApplicationVIRViewReopenTests(TestCase):
         self.assertFalse(context["user_can_reopen_vir"])
 
 
-class VIRRequestDetailsTableTest(TestCase):
+class VIRRequestDetailsTableTest(BaseTestCase):
     def render_closed_date(self, closed_at):
         return render_to_string(
             "visa_applications/detail_view/vir/vir_request_details_table.html",

@@ -1,5 +1,3 @@
-from django.test import TestCase
-
 from deduplication.tests.factories import (
     SponsorDuplicateGroupFactory,
 )
@@ -7,9 +5,10 @@ from ontology.tests.factories import (
     MvAccommodationRequestFactory,
     MvVolunteerFactory,
 )
+from test_utils.base import BaseTestCase
 
 
-class SponsorDuplicateGroupHasBlockingMultiLaAccommodationRequestTestCase(TestCase):
+class SponsorDuplicateGroupHasBlockingMultiLaAccommodationRequestTestCase(BaseTestCase):
     def setUp(self):
         self.first_sponsor = MvVolunteerFactory(is_principal=True)
         self.second_sponsor = MvVolunteerFactory(is_principal=True)

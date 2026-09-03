@@ -1,13 +1,13 @@
 from unittest.mock import patch
 
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
+from test_utils.base import BaseTestCase
 from user_management.tests.base import get_user_with_no_access
 
 
-class CookiesPageTests(TestSessionTokenMixin, TestCase):
+class CookiesPageTests(TestSessionTokenMixin, BaseTestCase):
     def test_cookies_page_is_displayed(self):
         user = get_user_with_no_access()
         self.client.force_login(user)

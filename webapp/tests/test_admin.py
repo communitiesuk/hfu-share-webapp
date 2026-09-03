@@ -2,11 +2,11 @@ from datetime import datetime, timezone
 from unittest.mock import patch
 
 from django.contrib.auth.models import Permission
-from django.test import TestCase
 from django.urls import reverse
 from freezegun import freeze_time
 
 from accounts.tests.base import TestSessionTokenMixin
+from test_utils.base import BaseTestCase
 from user_management.tests.base import (
     get_admin_user,
     get_la_user,
@@ -14,7 +14,7 @@ from user_management.tests.base import (
 )
 
 
-class AdminStatsTests(TestSessionTokenMixin, TestCase):
+class AdminStatsTests(TestSessionTokenMixin, BaseTestCase):
     def test_admin_stats_view_inaccessible_to_logged_out_user(self):
         response = self.client.get(reverse("admin:auditlog-stats"))
         self.assertEqual(response.status_code, 404)

@@ -1,5 +1,3 @@
-from django.test import TestCase
-
 from accounts.tests.factories import UserFactory
 from ontology.models import (
     CheckType,
@@ -13,9 +11,10 @@ from ontology.tests.factories import (
     MvAccommodationRequestFactory,
     MvVolunteerFactory,
 )
+from test_utils.base import BaseTestCase
 
 
-class DevCheckV2M2MSignalTests(TestCase):
+class DevCheckV2M2MSignalTests(BaseTestCase):
     def setUp(self):
         self.user = UserFactory()
 

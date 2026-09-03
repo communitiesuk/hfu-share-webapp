@@ -1,11 +1,10 @@
-from django.test import TestCase
-
 from ontology.models import VisaApplication
 from ontology.tests.factories import VisaApplicationFactory
+from test_utils.base import BaseTestCase
 from visa_applications.views import VisaApplicationsTableFilter
 
 
-class VisaApplicationFilterTestCase(TestCase):
+class VisaApplicationFilterTestCase(BaseTestCase):
     def setUp(self):
         self.app1 = VisaApplicationFactory(
             application_unique_application_number="UAN123",

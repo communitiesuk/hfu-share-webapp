@@ -1,16 +1,16 @@
 import http.client
 
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.enums import GroupType
 from accounts.models import AccessRequest
 from accounts.tests.base import TestSessionTokenMixin
 from accounts.tests.factories import AccessRequestFactory
+from test_utils.base import BaseTestCase
 from user_management.tests.base import get_la_user, get_user_with_no_access
 
 
-class YourRequestPageTests(TestSessionTokenMixin, TestCase):
+class YourRequestPageTests(TestSessionTokenMixin, BaseTestCase):
     def test_should_return_404_for_request_not_belonging_to_user(self):
         user = get_la_user()
         other_user = get_user_with_no_access()

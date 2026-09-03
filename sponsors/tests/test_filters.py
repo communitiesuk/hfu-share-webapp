@@ -1,14 +1,14 @@
 from datetime import datetime
 
-from django.test import TestCase
 from django.utils import timezone
 
 from ontology.models import MvVolunteer
 from ontology.tests.factories import MvVolunteerFactory
 from sponsors.views import SponsorsFilter
+from test_utils.base import BaseTestCase
 
 
-class SponsorFilterSexTestCase(TestCase):
+class SponsorFilterSexTestCase(BaseTestCase):
     def setUp(self):
         self.male_sponsor = MvVolunteerFactory(sex="Male", is_principal=True)
         self.female_sponsor = MvVolunteerFactory(sex="Female", is_principal=True)
@@ -54,7 +54,7 @@ class SponsorFilterSexTestCase(TestCase):
         self.assertIn(self.no_data_sex_sponsor.id, sponsor_ids)
 
 
-class SponsorFilterDateOfBirthTestCase(TestCase):
+class SponsorFilterDateOfBirthTestCase(BaseTestCase):
     def setUp(self):
         self.sponsor_1 = MvVolunteerFactory(
             date_of_birth="2025-10-01",
@@ -100,7 +100,7 @@ class SponsorFilterDateOfBirthTestCase(TestCase):
         self.assertEqual(len(results), 0)
 
 
-class SponsorFilterCreatedDateTestCase(TestCase):
+class SponsorFilterCreatedDateTestCase(BaseTestCase):
     def setUp(self):
         self.sponsor_1 = MvVolunteerFactory(
             created_date=timezone.make_aware(datetime(2025, 10, 1, 12, 0, 0)),
@@ -146,7 +146,7 @@ class SponsorFilterCreatedDateTestCase(TestCase):
         self.assertEqual(len(results), 0)
 
 
-class SponsorFilterIsEOITestCase(TestCase):
+class SponsorFilterIsEOITestCase(BaseTestCase):
     def setUp(self):
         self.sponsor_1 = MvVolunteerFactory(is_eoi=True, is_principal=True)
         self.sponsor_2 = MvVolunteerFactory(is_eoi=False, is_principal=True)
@@ -166,7 +166,7 @@ class SponsorFilterIsEOITestCase(TestCase):
         self.assertNotIn(self.sponsor_3.id, sponsor_ids)
 
 
-class SponsorFilterIncludeDuplicatesTestCase(TestCase):
+class SponsorFilterIncludeDuplicatesTestCase(BaseTestCase):
     def setUp(self):
         self.sponsor_1 = MvVolunteerFactory(is_principal=True)
         self.sponsor_2 = MvVolunteerFactory(is_principal=False)

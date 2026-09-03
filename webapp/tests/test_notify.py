@@ -1,11 +1,10 @@
 from unittest.mock import patch
 
-from django.test import TestCase
-
+from test_utils.base import BaseTestCase
 from webapp.notify import send_email
 
 
-class TestSendEmailWithoutApiKey(TestCase):
+class TestSendEmailWithoutApiKey(BaseTestCase):
     @patch("webapp.notify.notify_client", None)
     def test_send_email_raises_when_notify_client_is_none(self):
         with self.assertRaises(RuntimeError) as error:

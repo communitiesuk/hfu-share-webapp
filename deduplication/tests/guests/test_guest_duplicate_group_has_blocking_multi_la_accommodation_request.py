@@ -1,10 +1,9 @@
-from django.test import TestCase
-
 from deduplication.tests.factories import GuestDuplicateGroupFactory
 from ontology.tests.factories import MvAccommodationRequestFactory, MvPersonFactory
+from test_utils.base import BaseTestCase
 
 
-class GuestDuplicateGroupHasBlockingMultiLaAccommodationRequestTestCase(TestCase):
+class GuestDuplicateGroupHasBlockingMultiLaAccommodationRequestTestCase(BaseTestCase):
     def setUp(self):
         self.first_guest = MvPersonFactory(is_principal=True)
         self.second_guest = MvPersonFactory(is_principal=True)

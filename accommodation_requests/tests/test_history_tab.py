@@ -4,7 +4,6 @@ from datetime import timezone as dt_timezone
 
 from auditlog.models import LogEntry
 from django.contrib.contenttypes.models import ContentType
-from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
@@ -22,6 +21,7 @@ from ontology.tests.factories import (
     SponsorshipCertificationFormFactory,
     VisaApplicationFactory,
 )
+from test_utils.base import BaseTestCase
 from user_management.tests.base import (
     UserGroup,
     get_admin_user,
@@ -36,7 +36,7 @@ from webapp.tests.test_s3 import S3TestCaseMixin
 
 
 class AccommodationRequestHistoryTestCase(
-    TestSessionTokenMixin, S3TestCaseMixin, TestCase
+    TestSessionTokenMixin, S3TestCaseMixin, BaseTestCase
 ):
     def setUp(self):
         super().setUp()

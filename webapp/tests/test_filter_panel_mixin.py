@@ -1,6 +1,6 @@
 from django.db import models
 from django.db.models import CharField, IntegerField
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory
 from django_filters import (
     CharFilter,
     DateFilter,
@@ -10,6 +10,7 @@ from django_filters import (
     RangeFilter,
 )
 
+from test_utils.base import BaseTestCase
 from webapp.mixins import Filter, FilterPanelMixin
 from webapp.widgets import DatePicker
 
@@ -52,7 +53,7 @@ class TestFilterSet(FilterSet, FilterPanelMixin):
         ]
 
 
-class FilterPanelMixinTestCase(TestCase):
+class FilterPanelMixinTestCase(BaseTestCase):
     def setUp(self):
         self.test_filter_set = TestFilterSet()
 

@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 from datetime import timezone as dt_timezone
 
-from django.test import TestCase
 from django.utils import timezone
 from django.views.generic import DetailView
 
@@ -10,6 +9,7 @@ from ontology.tests.factories import (
     InteractionFactory,
     MvAccommodationRequestFactory,
 )
+from test_utils.base import BaseTestCase
 from webapp.mixins import InteractionWithFilesTimelineEventsMixin
 
 
@@ -34,7 +34,7 @@ class TestInteractionDateRangeView(InteractionWithFilesTimelineEventsMixin):
         return self._show
 
 
-class InteractionTimelineMixinTest(TestCase):
+class InteractionTimelineMixinTest(BaseTestCase):
     def setUp(self):
         self.view = TestTimelineView()
 

@@ -1,17 +1,16 @@
 from contextlib import nullcontext
 from unittest.mock import MagicMock, patch
 
-from django.test import TestCase
-
 from accommodation_requests.safeguarding_utils import (
     bulk_create_escalations,
     recalculate_checks_status,
 )
 from ontology.models import SafeguardingReferral
 from ontology.tests.factories import MvPersonFactory, SafeguardingReferralFactory
+from test_utils.base import BaseTestCase
 
 
-class RecalculateChecksTests(TestCase):
+class RecalculateChecksTests(BaseTestCase):
     def test_updates_status_when_changed(self):
         with (
             patch(
@@ -122,7 +121,7 @@ class RecalculateChecksTests(TestCase):
                 recalculate_checks_status(accommodation_request_id=123)
 
 
-class BulkCreateEscalationsPrincipalFilterTests(TestCase):
+class BulkCreateEscalationsPrincipalFilterTests(BaseTestCase):
     def test_does_not_create_referrals_for_duplicate_people(self):
         duplicate = MvPersonFactory(is_principal=False)
 

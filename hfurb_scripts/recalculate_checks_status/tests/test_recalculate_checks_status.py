@@ -1,6 +1,5 @@
 from unittest.mock import patch
 
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
@@ -13,10 +12,11 @@ from ontology.tests.factories import (
 from ontology.tests.factories import (
     MvAccommodationRequestFactory as ARFactory,
 )
+from test_utils.base import BaseTestCase
 from user_management.tests.base import get_admin_user
 
 
-class TestRecalculateChecksStatus(TestSessionTokenMixin, TestCase):
+class TestRecalculateChecksStatus(TestSessionTokenMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
 

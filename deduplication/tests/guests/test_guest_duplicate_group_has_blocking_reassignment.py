@@ -1,16 +1,15 @@
 from datetime import datetime, timezone
 
-from django.test import TestCase
-
 from deduplication.tests.factories import GuestDuplicateGroupFactory
 from ontology.models import ReassignmentRequest
 from ontology.tests.factories import (
     MvPersonFactory,
     ReassignmentRequestFactory,
 )
+from test_utils.base import BaseTestCase
 
 
-class GuestDuplicateGroupHasBlockingReassignmentForUndoTestCase(TestCase):
+class GuestDuplicateGroupHasBlockingReassignmentForUndoTestCase(BaseTestCase):
     def setUp(self):
         self.first_guest = MvPersonFactory(is_principal=True)
         self.second_guest = MvPersonFactory(is_principal=True)
@@ -82,7 +81,7 @@ class GuestDuplicateGroupHasBlockingReassignmentForUndoTestCase(TestCase):
         self.assertFalse(self.dup_group.can_undo_deduplication(self.principal_guest.pk))
 
 
-class GuestDuplicateGroupHasBlockingReassignmentForDedupeTestCase(TestCase):
+class GuestDuplicateGroupHasBlockingReassignmentForDedupeTestCase(BaseTestCase):
     def setUp(self):
         self.first_guest = MvPersonFactory(is_principal=True)
         self.second_guest = MvPersonFactory(is_principal=True)

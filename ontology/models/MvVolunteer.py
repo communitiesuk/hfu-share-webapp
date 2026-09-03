@@ -199,7 +199,7 @@ class MvVolunteer(models.Model):
     def get_full_name(self):
         if self.full_name:
             return self.full_name
-        return self.build_full_name()
+        return self.build_full_name() or "Unknown"
 
     def display_link_data(self, linked_from, linked_as) -> LinkedRecordData:
         from ontology.models.MvAccommodationRequest import MvAccommodationRequest

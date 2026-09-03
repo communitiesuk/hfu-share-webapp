@@ -1,15 +1,15 @@
 from typing import cast
 
 from django.contrib.auth.models import Group
-from django.test import TestCase
 from django.views.generic import TemplateView
 
 from accounts.mixins import AdminAccessRequiredMixin, GroupRequiredMixin
 from accounts.models import User
 from accounts.tests.factories import GroupFactory, UserFactory
+from test_utils.base import BaseTestCase
 
 
-class GroupRequiredMixinBaseTestCase(TestCase):
+class GroupRequiredMixinBaseTestCase(BaseTestCase):
     ADMIN_GROUP_NAME = "dev"
     ALLOW = "allow"
     DENY = "deny"

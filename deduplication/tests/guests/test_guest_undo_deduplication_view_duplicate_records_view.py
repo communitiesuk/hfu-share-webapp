@@ -1,7 +1,6 @@
 import http.client
 from datetime import datetime, timezone
 
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
@@ -14,6 +13,7 @@ from ontology.tests.factories import (
     MvPersonFactory,
     ReassignmentRequestFactory,
 )
+from test_utils.base import BaseTestCase
 from user_management.tests.base import (
     get_admin_user,
     get_da_user,
@@ -27,7 +27,7 @@ from webapp.mixins import SummaryListTestCaseMixin
 
 
 class UndoDeduplicationGuestViewDeduplicatedRecordsViewTestCase(
-    TestSessionTokenMixin, SummaryListTestCaseMixin, TestCase
+    TestSessionTokenMixin, SummaryListTestCaseMixin, BaseTestCase
 ):
     def setUp(self):
         super().setUp()
@@ -284,7 +284,7 @@ class UndoDeduplicationGuestViewDeduplicatedRecordsViewTestCase(
 
 
 class UndoDeduplicationGuestWizardBlockedByReassignmentTestCase(
-    TestSessionTokenMixin, SummaryListTestCaseMixin, TestCase
+    TestSessionTokenMixin, SummaryListTestCaseMixin, BaseTestCase
 ):
     def setUp(self):
         super().setUp()

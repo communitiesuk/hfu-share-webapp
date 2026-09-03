@@ -1,15 +1,15 @@
 from django.conf import settings
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
 from ontology.tests.factories import (
     VisaApplicationFactory,
 )
+from test_utils.base import BaseTestCase
 from user_management.tests.base import get_admin_user
 
 
-class VisaApplicationsPageTitlesTestCase(TestSessionTokenMixin, TestCase):
+class VisaApplicationsPageTitlesTestCase(TestSessionTokenMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
         self.service_name = settings.SERVICE_NAME

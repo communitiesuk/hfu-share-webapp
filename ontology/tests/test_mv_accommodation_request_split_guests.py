@@ -1,7 +1,5 @@
 from datetime import datetime, timedelta
 
-from django.test import TestCase
-
 from ontology.tests.factories import (
     MvAccommodationFactory,
     MvAccommodationRequestFactory,
@@ -9,9 +7,10 @@ from ontology.tests.factories import (
     MvPersonFactory,
     MvUkPostcodeFactory,
 )
+from test_utils.base import BaseTestCase
 
 
-class MvAccommodationRequestSplitGuestsTest(TestCase):
+class MvAccommodationRequestSplitGuestsTest(BaseTestCase):
     def test_split_guests(self):
         postcode = MvUkPostcodeFactory(postcode="", postcode_formatted="SW1A 2AA")
         accommodation = MvAccommodationFactory(

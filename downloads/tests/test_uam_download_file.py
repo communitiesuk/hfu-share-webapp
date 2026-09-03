@@ -1,7 +1,6 @@
 from collections import deque
 from unittest.mock import call, patch
 
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.enums import GroupType
@@ -11,6 +10,7 @@ from ontology.models import SponsorshipCertificationForm
 from ontology.tests.factories import (
     SponsorshipCertificationFormFactory,
 )
+from test_utils.base import BaseTestCase
 from user_management.tests.base import (
     UserGroup,
     get_admin_user,
@@ -19,7 +19,7 @@ from user_management.tests.base import (
 )
 
 
-class DownloadsViewUamTestCase(TestSessionTokenMixin, TestCase):
+class DownloadsViewUamTestCase(TestSessionTokenMixin, BaseTestCase):
     def test_da_download_view_uam_data_csv(self):
         user = get_da_user()
         self.client.force_login(user)

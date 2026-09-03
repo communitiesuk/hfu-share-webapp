@@ -1,15 +1,15 @@
 import http.client
 
 from django.conf import settings
-from django.test import TestCase
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
 from ontology.tests.factories import SponsorshipCertificationFormFactory
+from test_utils.base import BaseTestCase
 from user_management.tests.base import get_admin_user
 
 
-class UAMSPageTitlesTestCase(TestSessionTokenMixin, TestCase):
+class UAMSPageTitlesTestCase(TestSessionTokenMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
         self.service_name = settings.SERVICE_NAME

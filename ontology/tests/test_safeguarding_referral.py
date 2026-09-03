@@ -1,10 +1,9 @@
-from django.test import TestCase
-
 from ontology.models import MvPerson
 from ontology.tests.factories import MvPersonFactory, SafeguardingReferralFactory
+from test_utils.base import BaseTestCase
 
 
-class SafeguardingReferralTestCase(TestCase):
+class SafeguardingReferralTestCase(BaseTestCase):
     def test_get_person_works_fetches_related_person(self):
         person = MvPersonFactory()
         safeguarding_referral = SafeguardingReferralFactory(person=person)

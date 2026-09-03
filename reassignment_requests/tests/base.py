@@ -1,7 +1,5 @@
 from datetime import datetime
 
-from django.test import TestCase
-
 from accounts.tests.base import TestSessionTokenMixin
 from ontology.models import ReassignmentRequest
 from ontology.tests.base import LocalAuthorityBaseTestCaseMixin
@@ -10,10 +8,11 @@ from ontology.tests.factories import (
     MvPersonFactory,
     ReassignmentRequestFactory,
 )
+from test_utils.base import BaseTestCase
 
 
 class ReassignmentRequestsBaseTestCase(
-    TestSessionTokenMixin, LocalAuthorityBaseTestCaseMixin, TestCase
+    TestSessionTokenMixin, LocalAuthorityBaseTestCaseMixin, BaseTestCase
 ):
     def setUp(self):
         super().setUp()
