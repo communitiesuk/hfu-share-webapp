@@ -4,8 +4,9 @@ from playwright.sync_api import expect
 from ..pages.home_page import HomePage
 from .base import BrowserTest
 
-GUEST_FULL_NAME = "Deduplication Browser_test"
-
+GUEST_ONE_FULL_NAME = "Valerie Poole"
+GUEST_TWO_FULL_NAME = "Philip Berry"
+SEARCH_TERM = "poole berry"
 
 @pytest.fixture
 def guest_deduplication_page(home_page: HomePage) -> HomePage:
@@ -19,16 +20,30 @@ def guest_deduplication_page(home_page: HomePage) -> HomePage:
     return home_page
 
 
-def _search_for_guest_pair(guest_deduplication_page: HomePage):
+def _search(guest_deduplication_page: HomePage, text: str):
     guest_deduplication_page.click_button("Show filters")
-    guest_deduplication_page.enter_text_into_form_field("Search", "Deduplication")
+    guest_deduplication_page.enter_text_into_form_field("Search", text)
     guest_deduplication_page.click_button("Apply filters")
 
 
-def _select_guest_record(guest_deduplication_page: HomePage):
+def _select_guest_record(guest_deduplication_page: HomePage, full_name: str):
     guest_deduplication_page.page.get_by_role(
-        "button", name=f"Select {GUEST_FULL_NAME}"
-    ).first.click()
+        "button", name=f"Select {full_name}"
+    ).click()
+
+
+def _choose_first_option(guest_deduplication_page: HomePage):
+    inputs = guest_deduplication_page.main_page.locator(
+        'input[type="radio"], input[type="checkbox"]'
+    )
+    seen_field_names = set()
+    for index in range(inputs.count()):
+        field_input = inputs.nth(index)
+        field_name = field_input.get_attribute("name")
+        if field_name in seen_field_names:
+            continue
+        seen_field_names.add(field_name)
+        field_input.check()
 
 
 class TestGuestDeduplicationJourney(BrowserTest):
@@ -36,38 +51,35 @@ class TestGuestDeduplicationJourney(BrowserTest):
         self, guest_deduplication_page: HomePage
     ):
         # Filter the list
-        _search_for_guest_pair(guest_deduplication_page)
-        expect(
-            guest_deduplication_page.page.get_by_role(
-                "button", name=f"Select {GUEST_FULL_NAME}"
-            )
-        ).to_have_count(2)
+        _search(guest_deduplication_page, SEARCH_TERM)
+        for full_name in (GUEST_ONE_FULL_NAME, GUEST_TWO_FULL_NAME):
+            expect(
+                guest_deduplication_page.page.get_by_role(
+                    "button", name=f"Select {full_name}"
+                )
+            ).to_have_count(1)
 
         # Select the first record
-        _select_guest_record(guest_deduplication_page)
+        _select_guest_record(guest_deduplication_page, GUEST_ONE_FULL_NAME)
         guest_deduplication_page.assert_has_heading("View selected record")
 
         guest_deduplication_page.click_button("Select another record")
         guest_deduplication_page.assert_has_heading("Select next record")
 
         # Search again and select the second (only remaining) record
-        _search_for_guest_pair(guest_deduplication_page)
-        expect(
-            guest_deduplication_page.page.get_by_role(
-                "button", name=f"Select {GUEST_FULL_NAME}"
-            )
-        ).to_have_count(1)
-        _select_guest_record(guest_deduplication_page)
+        _search(guest_deduplication_page, SEARCH_TERM)
+        _select_guest_record(guest_deduplication_page, GUEST_TWO_FULL_NAME)
         guest_deduplication_page.assert_has_heading("View selected records")
 
         # Review the selection
         guest_deduplication_page.click_button("Confirm selection")
         guest_deduplication_page.assert_has_heading("Deduplicate selected records")
-        guest_deduplication_page.assert_page_contains_text(GUEST_FULL_NAME)
+        guest_deduplication_page.assert_page_contains_text(GUEST_ONE_FULL_NAME)
+        guest_deduplication_page.assert_page_contains_text(GUEST_TWO_FULL_NAME)
 
-        # Complete the deduplication
         guest_deduplication_page.click_button("Continue")
         guest_deduplication_page.assert_has_heading("Select correct details")
+        _choose_first_option(guest_deduplication_page)
 
         guest_deduplication_page.click_button("Continue deduplication")
         guest_deduplication_page.assert_has_heading(
@@ -82,7 +94,7 @@ class TestGuestDeduplicationJourney(BrowserTest):
         # The non-principal (duplicate) record is no longer shown as a
         # standalone record in the guest list
         guest_deduplication_page.goto("/guests/")
-        _search_for_guest_pair(guest_deduplication_page)
+        _search(guest_deduplication_page, SEARCH_TERM)
         expect(
-            guest_deduplication_page.page.get_by_role("link", name=GUEST_FULL_NAME)
+            guest_deduplication_page.main_page.locator("table tbody tr")
         ).to_have_count(1)
