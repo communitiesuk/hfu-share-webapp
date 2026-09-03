@@ -145,6 +145,10 @@ module = 'django_tables2.*'
 ignore_missing_imports = 'True'
 
 [[tool.mypy.overrides]]
+module = 'crispy_forms.*'
+ignore_missing_imports = 'True'
+
+[[tool.mypy.overrides]]
 module = 'crispy_forms_gds.*'
 ignore_missing_imports = 'True'
 

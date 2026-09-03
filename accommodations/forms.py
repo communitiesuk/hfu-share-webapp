@@ -39,8 +39,8 @@ class AccommodationEditForm(ReadOnlyFieldsMixin, forms.ModelForm):
         label="Availability start date (optional)",
         widget=DatePicker(
             attrs={
-                "hint": f"For example "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%d/%m/%Y')}",
+                "hint": f"For example, "
+                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
             }
         ),
         required=False,
@@ -50,8 +50,8 @@ class AccommodationEditForm(ReadOnlyFieldsMixin, forms.ModelForm):
         label="Availability end date (optional)",
         widget=DatePicker(
             attrs={
-                "hint": f"For example "
-                f"{(datetime.today() + timedelta(days=20)).strftime('%d/%m/%Y')}",
+                "hint": f"For example, "
+                f"{(datetime.today() + timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
             }
         ),
         required=False,

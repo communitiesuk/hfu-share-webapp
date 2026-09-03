@@ -114,10 +114,10 @@ class AccessRequestsFilter(FilterSet, FilterPanelMixin):
         widget=StackedRangeInput(
             sub_widget=DatePicker,
             attrs={
-                "from_hint": f"For example "
-                f"{(datetime.today() - timedelta(days=50)).strftime('%d/%m/%Y')}",
-                "to_hint": f"For example "
-                f"{(datetime.today() + timedelta(days=400)).strftime('%d/%m/%Y')}",
+                "from_hint": f"For example, "
+                f"{(datetime.today() - timedelta(days=600)).strftime('%-d/%-m/%Y')}.",
+                "to_hint": f"For example, "
+                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
                 "from_label": "Date from",
                 "to_label": "Date to",
             },
