@@ -40,7 +40,10 @@ def _filter_known_issues(response: dict) -> None:
 def collect_axe_violations(page: SharePage, page_name: str) -> str | None:
     results = Axe().run(
         page.page,
-        options={"runOnly": {"type": "tag", "values": WCAG_TAGS}},
+        options={
+            "runOnly": {"type": "tag", "values": WCAG_TAGS},
+            "exclude": [["#djDebug"]],
+        },
     )
 
     _filter_known_issues(results.response)
