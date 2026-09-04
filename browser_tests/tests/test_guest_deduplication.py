@@ -23,7 +23,7 @@ GUEST_ONE = SeededGuest(
     full_name="Ian Yates",
     first_name="Ian",
     last_name="Yates",
-    date_of_birth="12 February 1968",
+    date_of_birth="13 February 1968",
     email="cliffordgreen@example.org",
     phone="01214960497",
     passport_id="36DSA4XOW",
@@ -65,7 +65,7 @@ def _search(guest_deduplication_page: HomePage, text: str) -> None:
 
 
 def _select_guest_record(guest_deduplication_page: HomePage, full_name: str) -> None:
-    guest_deduplication_page.page.get_by_role(
+    guest_deduplication_page.main_page.get_by_role(
         "button", name=f"Select {full_name}"
     ).click()
 
@@ -87,7 +87,7 @@ class TestGuestDeduplicationJourney(BrowserTest):
         _search(guest_deduplication_page, SEARCH_TERM)
         for full_name in (GUEST_ONE.full_name, GUEST_TWO.full_name):
             expect(
-                guest_deduplication_page.page.get_by_role(
+                guest_deduplication_page.main_page.get_by_role(
                     "button", name=f"Select {full_name}"
                 )
             ).to_have_count(1)
