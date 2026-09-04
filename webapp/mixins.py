@@ -1,3 +1,4 @@
+import logging
 import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
@@ -12,13 +13,14 @@ from django.contrib import messages
 from django.core.exceptions import ImproperlyConfigured
 from django.core.paginator import Paginator
 from django.db.models import Field, Model, OuterRef, QuerySet, Subquery
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.http.request import QueryDict
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.datastructures import MultiValueDict
 from django.utils.html import format_html, format_html_join
+from django.utils.http import url_has_allowed_host_and_scheme
 from django_filters import MultipleChoiceFilter
 
 from accounts.enums import GroupType
@@ -47,6 +49,8 @@ from webapp.templatetags.timeline_extras import (
     TimelineEventType,
     format_interaction_content,
 )
+
+logger = logging.getLogger(__name__)
 
 NONE_TYPES = {None, "None", "", "None None", "[]"}
 GO_LIVE_CUTOFF = datetime(2025, 9, 15, tzinfo=dt_timezone.utc)
@@ -1001,7 +1005,59 @@ class Tab(TypedDict):
     current: bool
 
 
-class DetailViewMixin(ABC):
+class DetailLayoutMixin:
+    """
+    Temporary, for the new record layout trial: session flag choosing the
+    classic or new detail layout, and the switch redirect. Delete this class,
+    its entry in DetailViewMixin's bases and the classic templates when the
+    trial ends.
+    """
+
+    request: HttpRequest
+
+    detail_layouts = ("classic", "new")
+
+    @property
+    def detail_layout(self) -> str:
+        session = getattr(self.request, "session", None)
+        if session is None:
+            return "new"
+        return session.get("detail_layout", "new")
+
+    def dispatch(self, request, *args, **kwargs):
+        requested = request.GET.get("detail_layout")
+        if request.method == "GET" and requested in self.detail_layouts:
+            request.session["detail_layout"] = requested
+            logger.info(
+                "Detail layout switched to %s by user ID %s.",
+                requested,
+                request.user.pk,
+            )
+            params = request.GET.copy()
+            del params["detail_layout"]
+            url = request.path
+            if params:
+                url = f"{url}?{params.urlencode()}"
+            if not url_has_allowed_host_and_scheme(
+                url, allowed_hosts={request.get_host()}
+            ):
+                url = request.path
+            return HttpResponseRedirect(url)
+        return super().dispatch(request, *args, **kwargs)
+
+    def add_detail_layout(self, context: Context) -> None:
+        layout = self.detail_layout
+        other = "classic" if layout == "new" else "new"
+        context["detail_layout"] = layout
+        context["detail_layout_base"] = (
+            f"webapp/components/record_tabs/record_overview_base_{layout}.html"
+        )
+        context["detail_layout_toggle_url"] = (
+            f"{self.request.path}?detail_layout={other}"
+        )
+
+
+class DetailViewMixin(DetailLayoutMixin, ABC):
     request: HttpRequest
     object: Any
     view_name: ClassVar[str]
@@ -1022,6 +1078,7 @@ class DetailViewMixin(ABC):
     }
     views_with_full_width_tab_content = {
         "properties",
+        "central-safeguarding",
     }
 
     @property
@@ -1104,6 +1161,7 @@ class DetailViewMixin(ABC):
         self.add_back_button(context)
         self.add_tabs_navigation(context)
         self.add_page_headings(context)
+        self.add_detail_layout(context)
         context["use_full_width"] = (
             self.view_name in self.views_with_full_width_tab_content
         )

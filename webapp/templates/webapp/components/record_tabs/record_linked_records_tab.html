@@ -1,2 +1,11 @@
-<h4 class="govuk-heading-l">Linked records</h4>
-{% include "webapp/components/record_tabs/record_summary_list.html" %}
+{% if detail_layout == "classic" %}
+    <h4 class="govuk-heading-l">Linked records</h4>
+    {% include "webapp/components/record_tabs/record_summary_list.html" %}
+{% else %}
+    <div class="govuk-summary-card">
+        <div class="govuk-summary-card__title-wrapper">
+            <h2 class="govuk-summary-card__title">Linked records</h2>
+        </div>
+        <div class="govuk-summary-card__content">{% include "webapp/components/record_tabs/record_summary_list.html" %}</div>
+    </div>
+{% endif %}

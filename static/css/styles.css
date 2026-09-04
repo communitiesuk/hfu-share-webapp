@@ -1,3 +1,5 @@
+@import url("side-navigation.css");
+
 :root {
   --app-brand-colour: #006660;
   --app-surface-colour: #80B3B0;
@@ -464,4 +466,72 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
 
 .govuk-\!-secondary-text-colour {
   color: var(--govuk-secondary-text-colour)
+}
+
+/* Trial: detail layout switch. Breadcrumb row on record detail pages,
+   breadcrumbs left, view switch right. Remove with the layout trial. */
+.app-breadcrumbs-row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  row-gap: 15px;
+  margin-bottom: 10px;
+  margin-top: 15px;
+}
+
+.app-breadcrumbs-row .govuk-breadcrumbs {
+  margin-bottom: 0;
+  margin-top: 0;
+}
+
+.app-breadcrumbs-row .govuk-breadcrumbs__list,
+.app-breadcrumbs-row .govuk-breadcrumbs__list-item {
+  margin-bottom: 0;
+  margin-top: 0;
+}
+
+.app-breadcrumbs-row p {
+  line-height: 1.5;
+}
+
+/* Trial: detail layout switch. Remove with the layout trial. */
+.app-breadcrumbs-row .govuk-tag {
+  font-size: 0.875rem;
+  line-height: 1.25;
+}
+
+/* Alerted status card: the summary card header already shows the title, so
+   the form's fieldset legend is hidden visually but kept for screen readers. */
+.app-alerted-status-card .govuk-fieldset__legend {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  clip-path: inset(50%) !important;
+  border: 0 !important;
+  white-space: nowrap !important;
+}
+
+/* Trial: detail layout switch. Demo variant with a button in a summary card
+   header; centres the title against the taller button. */
+.app-summary-card-header-with-button {
+  align-items: center;
+}
+
+.app-summary-card-header-with-button .govuk-summary-card__title {
+  margin-bottom: 0;
+  margin-top: 0;
+}
+
+/* Tab content column, focused by detail-view-focus.js after side navigation. */
+.app-record-detail-content {
+  scroll-margin-top: 120px;
+}
+
+.app-record-detail-content:focus {
+  outline: none;
 }

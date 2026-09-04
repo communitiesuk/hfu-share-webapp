@@ -1,13 +1,31 @@
 {% extends "webapp/components/record_tabs/record_overview_base.html" %}
 {% load timeline_extras %}
 {% block selected_tab %}
-    <h4 class="govuk-heading-l">Comments</h4>
-    <p>
-        This page shows details of previous comments, before the Share system launched. You can view previous comments, but you cannot add new comments manually.
-    </p>
-    {% if events|length == 0 %}
-        <p class="govuk-body govuk-hint govuk-!-padding-top-3">No comments found</p>
+    {% if detail_layout == "classic" %}
+        <h4 class="govuk-heading-l">Comments</h4>
+        <p>
+            This page shows details of previous comments, before the Share system launched. You can view previous comments, but you cannot add new comments manually.
+        </p>
+        {% if events|length == 0 %}
+            <p class="govuk-body govuk-hint govuk-!-padding-top-3">No comments found</p>
+        {% else %}
+            {% timeline request events event_type events_with_files %}
+        {% endif %}
     {% else %}
-        {% timeline request events event_type events_with_files %}
+        <div class="govuk-summary-card">
+            <div class="govuk-summary-card__title-wrapper">
+                <h2 class="govuk-summary-card__title">Comments</h2>
+            </div>
+            <div class="govuk-summary-card__content">
+                <p class="govuk-body">
+                    This page shows details of previous comments, before the Share system launched. You can view previous comments, but you cannot add new comments manually.
+                </p>
+                {% if events|length == 0 %}
+                    <p class="govuk-body govuk-hint govuk-!-padding-top-3">No comments found</p>
+                {% else %}
+                    {% timeline request events event_type events_with_files %}
+                {% endif %}
+            </div>
+        </div>
     {% endif %}
 {% endblock selected_tab %}

@@ -1,44 +1,45 @@
-{% extends "base.html" %}
-{% block breadcrumb_content %}
-    {% for breadcrumb in breadcrumbs %}
-        <li class="govuk-breadcrumbs__list-item">
-            {% if breadcrumb.url %}
-                <a class="govuk-breadcrumbs__link" href="{{ breadcrumb.url }}">{{ breadcrumb.text }}</a>
+{% extends detail_layout_base %}
+{% load static %}
+{% block breadcrumbs %}
+    <div class="app-breadcrumbs-row govuk-!-display-none-print">
+        <nav aria-label="Breadcrumb"
+             class="govuk-breadcrumbs govuk-breadcrumbs--collapse-on-mobile">
+            <ol class="govuk-breadcrumbs__list">
+                {% include "webapp/components/breadcrumbs/home_link.html" %}
+                {% for breadcrumb in breadcrumbs %}
+                    <li class="govuk-breadcrumbs__list-item">
+                        {% if breadcrumb.url %}
+                            <a class="govuk-breadcrumbs__link" href="{{ breadcrumb.url }}">{{ breadcrumb.text }}</a>
+                        {% else %}
+                            {{ breadcrumb.text }}
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ol>
+        </nav>
+        <p class="govuk-body-s govuk-!-margin-bottom-0">
+            <strong class="govuk-tag govuk-!-margin-right-1">New</strong>
+            We're trialling a new layout.
+            {% if detail_layout == "new" %}
+                <a class="govuk-link govuk-link--no-visited-state"
+                   href="{{ detail_layout_toggle_url }}">Go back to the old layout</a>
+                or
+                <a class="govuk-link govuk-link--no-visited-state"
+                   href="https://mhclgdigital.atlassian.net/servicedesk/customer/portal/7"
+                   rel="noreferrer noopener"
+                   target="_blank">share feedback<span class="govuk-visually-hidden">on the new layout</span> (opens in new tab)</a>
             {% else %}
-                {{ breadcrumb.text }}
+                <a class="govuk-link govuk-link--no-visited-state"
+                   href="{{ detail_layout_toggle_url }}">Try the new layout</a>
+                or
+                <a class="govuk-link govuk-link--no-visited-state"
+                   href="https://mhclgdigital.atlassian.net/servicedesk/customer/portal/7"
+                   rel="noreferrer noopener"
+                   target="_blank">tell us why you switched back (opens in new tab)</a>
             {% endif %}
-        </li>
-    {% endfor %}
-{% endblock breadcrumb_content %}
-{% block content %}
-    {% include "webapp/components/notification_banner/notification_banner_from_messages.html" %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-one-half">
-            {% if form %}
-                {% load crispy_forms_gds %}
-                {% error_summary form %}
-            {% endif %}
-            {% include "webapp/components/heading/heading.html" with caption=page_caption page_heading=page_heading tag=page_heading_tag %}
-        </div>
+        </p>
     </div>
-    <div class="govuk-grid-row">
-        <div class="{% if use_full_width %}govuk-grid-column-full{% else %}govuk-grid-column-two-thirds{% endif %}">
-            <div class="govuk-tabs tabs--tight">
-                <h3 class="govuk-tabs__title">Contents</h3>
-                <ul class="govuk-tabs__list">
-                    {% for tab in tabs %}
-                        <li class="govuk-tabs__list-item {% if tab.current %}govuk-tabs__list-item--selected{% endif %}">
-                            <a class="govuk-tabs__tab" href="{{ tab.url }}">{{ tab.text }}</a>
-                        </li>
-                    {% endfor %}
-                </ul>
-                <div class="govuk-tabs__panel">
-                    {% block selected_tab %}
-                    {% endblock selected_tab %}
-                </div>
-            </div>
-            <a href="{{ back_button.url }}"
-               class="govuk-button govuk-button--secondary">{{ back_button.text }}</a>
-        </div>
-    </div>
-{% endblock content %}
+{% endblock breadcrumbs %}
+{% block extra_js %}
+    <script src="{% static 'js/detail-view-focus.js' %}"></script>
+{% endblock extra_js %}
