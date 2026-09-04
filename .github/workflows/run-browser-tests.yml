@@ -57,7 +57,7 @@ jobs:
   wipe-browser-test-data:
     needs: [browser-tests, accessibility-tests]
     if: always()
-    name: Seed test data for the browser tests
+    name: Wipe test data for the browser tests
     uses: ./.github/workflows/seed-browser-tests.yml
     secrets: inherit
     with:
