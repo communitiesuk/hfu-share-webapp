@@ -1,0 +1,51 @@
+name: Seed or wipe browser test data
+
+on:
+  workflow_dispatch:
+    inputs:
+      seed_or_wipe:
+        description: Seed or wipe browser test data
+        type: choice
+        default: seed
+        options:
+          - seed
+          - wipe
+  workflow_call:
+    inputs:
+      seed_or_wipe:
+        description: Seed or wipe browser test data
+        default: seed
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: browser-tests-seed
+  cancel-in-progress: false
+
+jobs:
+  seed-browser-test-data:
+    name: Seed browser test data
+    runs-on: ubuntu-latest
+    environment: aws-dev
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
+        with:
+          aws-region: ${{ secrets.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_TESTING_ROLE_TO_ASSUME }}
+          role-session-name: BrowserTestSeed-${{ github.run_id }}
+
+      - name: Run seed command in ECS
+        env:
+          ECS_CLUSTER: ${{ vars.ECS_CLUSTER }}
+          ECS_MIGRATION_TASK_DEFINITION: ${{ vars.ECS_MIGRATION_TASK_DEFINITION }}
+          ECS_MIGRATION_SUBNET_ID_LIST: ${{ vars.ECS_MIGRATION_SUBNET_ID_LIST }}
+          ECS_MIGRATION_SECURITY_GROUP_LIST: ${{ vars.ECS_MIGRATION_SECURITY_GROUP_LIST }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: ./.github/workflows/scripts/run_ecs_task.sh "python manage.py seed_browser_test_la --${{ inputs.seed_or_wipe }}"

@@ -18,9 +18,14 @@ class Command(BaseCommand):
             help="Report what the wipe would delete, then roll back",
         )
         parser.add_argument(
-            "--wipe-only",
+            "--seed",
             action="store_true",
-            help="Delete browser test local authority records without reseeding",
+            help="Reset the browser test data",
+        )
+        parser.add_argument(
+            "--wipe",
+            action="store_true",
+            help="Wipe the browser test data",
         )
 
     def handle(self, *args, **options):
@@ -36,10 +41,10 @@ class Command(BaseCommand):
             self.stdout.write("Dry run complete, nothing was deleted.")
             return
 
-        if options["wipe_only"]:
+        if options["wipe"]:
             with transaction.atomic():
                 wipe_browser_test_la_data()
-            self.stdout.write("Browser test LA wiped.")
+            self.stdout.write("Browser test data was wiped")
             return
 
         seed_browser_test_la()

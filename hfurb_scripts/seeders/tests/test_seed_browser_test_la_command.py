@@ -55,7 +55,7 @@ class SeedBrowserTestLaCommandTestCase(BaseTestCase):
             num_guests=1, ltla_name="Realshire"
         )
 
-        call_command("seed_browser_test_la", "--wipe-only")
+        call_command("seed_browser_test_la", "--wipe")
 
         self.assertFalse(
             MvAccommodationRequest.objects.filter(
