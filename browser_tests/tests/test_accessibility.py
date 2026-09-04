@@ -1,4 +1,5 @@
 import os
+from typing import cast
 
 import pytest
 
@@ -9,11 +10,13 @@ from browser_tests.accessibility_pages import (
 )
 from browser_tests.axe_checks import assert_no_axe_violations, collect_axe_violations
 
-from ..pages.share_page import SharePage
+from ..pages import HomePage, SharePage
 from .base import BrowserTest
 
 
-def open_page(page: SharePage, path, page_name):
+def open_page(page: SharePage, path: str, page_name: str):
+    page.sign_in()
+
     response = page.goto(path)
 
     assert response is not None and response.ok, (
@@ -32,8 +35,13 @@ def open_page(page: SharePage, path, page_name):
 
 @pytest.mark.accessibility
 class TestAccessibility(BrowserTest):
-    def test_sign_in_page_has_no_axe_violations(self, sign_in_page):
-        assert_no_axe_violations(sign_in_page, "sign in page")
+    def test_sign_in_page_has_no_axe_violations(self, home_page: HomePage):
+        home_page.goto(home_page.base_url)
+        home_page.close_django_tool_bar()
+
+        home_page.assert_has_heading_with_status("Sign in", "Status: Entra ID disabled")
+
+        assert_no_axe_violations(home_page, "sign in page")
 
     @pytest.mark.parametrize(
         ("path", "page_name"),
@@ -44,13 +52,15 @@ class TestAccessibility(BrowserTest):
             else []
         ),
     )
-    def test_page_has_no_axe_violations(self, home_page, path, page_name):
+    def test_page_has_no_axe_violations(
+        self, home_page: HomePage, path: str, page_name: str
+    ):
         open_page(home_page, path, page_name)
         assert_no_axe_violations(home_page, page_name)
 
     @pytest.mark.parametrize(("list_path", "record_name"), RECORD_LIST_PAGES)
     def test_record_tabs_have_no_axe_violations(
-        self, home_page, list_path, record_name
+        self, home_page: HomePage, list_path: str, record_name: str
     ):
         open_page(home_page, list_path, f"{record_name} list")
 
@@ -68,7 +78,7 @@ class TestAccessibility(BrowserTest):
             for tab in home_page.page.locator("a.govuk-tabs__tab").all()
         ]
         for href in tab_hrefs:
-            home_page.goto(href)
+            home_page.goto(cast(str, href))
             reports.append(
                 collect_axe_violations(home_page, f"{record_name} record tab {href}")
             )
