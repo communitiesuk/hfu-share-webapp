@@ -34,6 +34,7 @@ jobs:
   seed-browser-test-data:
     name: Seed test data for the browser tests
     uses: ./.github/workflows/seed-browser-tests.yml
+    secrets: inherit
     with:
       seed_or_wipe: seed
 
@@ -58,5 +59,6 @@ jobs:
     if: always()
     name: Seed test data for the browser tests
     uses: ./.github/workflows/seed-browser-tests.yml
+    secrets: inherit
     with:
       seed_or_wipe: wipe
