@@ -123,9 +123,7 @@ class GuestLinkedRecordsTestCase(
 
         self.assertContains(response, "Linked records")
         self.assertContains(response, "Visa applications")
-        self.assertContains(
-            response, "View the list of all visa applications for this guest"
-        )
+        self.assertContains(response, "Visa applications associated with this guest")
 
     def test_should_display_only_related_visa_applications_within_users_la(self):
         user = get_la_user()
