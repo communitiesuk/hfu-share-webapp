@@ -843,6 +843,7 @@ def seed_browser_test_la() -> None:
     with transaction.atomic():
         wipe_browser_test_la_data()
 
+        print(f"Using {BROWSER_TEST_SEED=}")
         random.seed(BROWSER_TEST_SEED)
         Faker.seed(BROWSER_TEST_SEED)
         reset_record_id_counters()

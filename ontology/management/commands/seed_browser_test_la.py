@@ -17,6 +17,16 @@ class Command(BaseCommand):
             action="store_true",
             help="Report what the wipe would delete, then roll back",
         )
+        parser.add_argument(
+            "--seed",
+            action="store_true",
+            help="Reset the browser test data",
+        )
+        parser.add_argument(
+            "--wipe",
+            action="store_true",
+            help="Wipe the browser test data",
+        )
 
     def handle(self, *args, **options):
         if not browser_test_seeding_allowed():
@@ -29,6 +39,12 @@ class Command(BaseCommand):
                 wipe_browser_test_la_data()
                 transaction.set_rollback(True)
             self.stdout.write("Dry run complete, nothing was deleted.")
+            return
+
+        if options["wipe"]:
+            with transaction.atomic():
+                wipe_browser_test_la_data()
+            self.stdout.write("Browser test data was wiped")
             return
 
         seed_browser_test_la()

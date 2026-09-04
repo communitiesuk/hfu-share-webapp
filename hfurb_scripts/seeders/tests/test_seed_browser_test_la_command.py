@@ -44,6 +44,31 @@ class SeedBrowserTestLaCommandTestCase(BaseTestCase):
         )
 
     @override_settings(ENVIRONMENT="dev")
+    def test_wipe_only_deletes_without_reseeding(self):
+        build_complete_accommodation_scenario(
+            num_guests=1,
+            ltla_name=BROWSER_TEST_LTLA_NAMES[0],
+            id_prefix=BROWSER_TEST_ID_PREFIX,
+            make_uam=False,
+        )
+        other_ar = build_complete_accommodation_scenario(
+            num_guests=1, ltla_name="Realshire"
+        )
+
+        call_command("seed_browser_test_la", "--wipe")
+
+        self.assertFalse(
+            MvAccommodationRequest.objects.filter(
+                ltla_name__overlap=[BROWSER_TEST_LTLA_NAMES[0]]
+            ).exists(),
+            "wipe-only must leave the browser test LA empty, not reseed it",
+        )
+        self.assertTrue(
+            MvAccommodationRequest.objects.filter(pk=other_ar.pk).exists(),
+            "wipe-only must not touch records in other LAs",
+        )
+
+    @override_settings(ENVIRONMENT="dev")
     def test_dry_run_leaves_the_database_unchanged(self):
         build_complete_accommodation_scenario(
             num_guests=1,
