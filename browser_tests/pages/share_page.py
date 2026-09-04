@@ -34,7 +34,7 @@ class SharePage:
         self.click_button("Sign in")
 
     def close_django_tool_bar(self):
-        close_button = self.page.locator('#djHideToolBarButton')
+        close_button = self.page.locator("#djHideToolBarButton")
 
         if close_button.is_visible():
             close_button.click()

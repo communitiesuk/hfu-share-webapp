@@ -10,7 +10,7 @@ def collect_axe_violations(page: SharePage, page_name: str) -> str | None:
         page.page,
         options={
             "runOnly": {"type": "tag", "values": WCAG_TAGS},
-            "exclude": [['#djDebug']]
+            "exclude": [["#djDebug"]],
         },
     )
 
