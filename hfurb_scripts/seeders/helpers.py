@@ -38,7 +38,7 @@ fake = Faker("en_GB")
 
 
 def get_group_info_from_ltla(ltla_name: str) -> Optional[GroupInfo]:
-    return GroupInfo.objects.filter(ltla_name=ltla_name).first()
+    return GroupInfo.objects.order_by("id").filter(ltla_name=ltla_name).first()
 
 
 _id_counters: dict[str, int] = {}
@@ -588,8 +588,8 @@ def build_complete_accommodation_scenario(
 
 
 def create_new_accommodation_request_for_person(person: MvPerson):
-    accommodation = random.choice(list(MvAccommodation.objects.all()))
-    sponsor = random.choice(list(MvVolunteer.objects.all()))
+    accommodation = random.choice(list(MvAccommodation.objects.order_by("id").all()))
+    sponsor = random.choice(list(MvVolunteer.objects.order_by("id").all()))
     group = create_mv_group([person])
 
     add_people_to_group(group, [person])
@@ -610,19 +610,25 @@ def create_new_visa_application_for_person(person: MvPerson):
         sponsor = (
             primary_sponsor
             if primary_sponsor and primary_sponsor.is_editable
-            else random.choice(list(MvVolunteer.objects.filter(is_editable=True)))
+            else random.choice(
+                list(MvVolunteer.objects.order_by("id").filter(is_editable=True))
+            )
         )
 
         primary_accommodation = accommodation_request.get_primary_accommodation()
         accommodation = (
             primary_accommodation
             if primary_accommodation and primary_accommodation.is_editable
-            else random.choice(list(MvAccommodation.objects.filter(is_editable=True)))
+            else random.choice(
+                list(MvAccommodation.objects.order_by("id").filter(is_editable=True))
+            )
         )
     else:
-        sponsor = random.choice(list(MvVolunteer.objects.filter(is_editable=True)))
+        sponsor = random.choice(
+            list(MvVolunteer.objects.order_by("id").filter(is_editable=True))
+        )
         accommodation = random.choice(
-            list(MvAccommodation.objects.filter(is_editable=True))
+            list(MvAccommodation.objects.order_by("id").filter(is_editable=True))
         )
 
     visa_application = create_visa_application(

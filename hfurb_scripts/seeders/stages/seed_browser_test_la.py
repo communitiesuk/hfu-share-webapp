@@ -505,7 +505,7 @@ def _make_multi_la_accommodation_request(ar: MvAccommodationRequest) -> str:
     ar.unique_application_number = ar.unique_application_number + [new_uan]
     ar.save()
 
-    for person in MvPerson.objects.filter(accommodation_request=ar):
+    for person in MvPerson.objects.order_by("id").filter(accommodation_request=ar):
         visa_application = create_visa_application(
             person,
             second_sponsor,
@@ -794,7 +794,7 @@ def _add_case_comments(ars: list[MvAccommodationRequest], author: User) -> None:
 def _move_guests_off_closed_empty_ar(
     ar: MvAccommodationRequest, receiving_ar: MvAccommodationRequest
 ) -> None:
-    for person in MvPerson.objects.filter(accommodation_request=ar):
+    for person in MvPerson.objects.order_by("id").filter(accommodation_request=ar):
         person.accommodation_request = receiving_ar
         person.save()
         receiving_ar.person_id = (receiving_ar.person_id or []) + [person.id]
@@ -883,7 +883,9 @@ def seed_browser_test_la() -> None:
                     reason="Guest has moved in with new partner",
                 )
 
-            for person in MvPerson.objects.filter(accommodation_request=ar):
+            for person in MvPerson.objects.order_by("id").filter(
+                accommodation_request=ar
+            ):
                 create_export_tool_object(
                     person,
                     ar.primary_sponsor,
