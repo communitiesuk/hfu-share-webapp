@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.16.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.15.0...2.16.0) (2026-09-04)
+
+
+### Features
+
+* release guest dedupe (HFURB-4107) ([#155](https://github.com/communitiesuk/hfu-share-webapp/issues/155)) ([99a7e70](https://github.com/communitiesuk/hfu-share-webapp/commit/99a7e70db91f3ad2533317b2c3ee1bff65d58add))
+
+
+### Bug Fixes
+
+* add workflow to allow user triggered seeding and wiping of browser test data ([#165](https://github.com/communitiesuk/hfu-share-webapp/issues/165)) ([b42905e](https://github.com/communitiesuk/hfu-share-webapp/commit/b42905ea2e5bb9617c980de3799a3b73617d4a78))
+* ensure that faker generates unqiue data ([#151](https://github.com/communitiesuk/hfu-share-webapp/issues/151)) ([f7aa6b8](https://github.com/communitiesuk/hfu-share-webapp/commit/f7aa6b89f7a62689f102ac861714c1669e7a5b4c))
+* HFURB-3997 fall back to Unknown for record names and link titles with no data ([#148](https://github.com/communitiesuk/hfu-share-webapp/issues/148)) ([d3d459e](https://github.com/communitiesuk/hfu-share-webapp/commit/d3d459e21af69963ec0d2fe8eb067c480af1dfc3))
+* HFURB-4006 date picker format hints ([#145](https://github.com/communitiesuk/hfu-share-webapp/issues/145)) ([3ace90e](https://github.com/communitiesuk/hfu-share-webapp/commit/3ace90ec4196964da1cbb65504f81d49742b7b52))
+* update aria-controls on conditional question to only be there if the radio has conditional content ([#162](https://github.com/communitiesuk/hfu-share-webapp/issues/162)) ([60c336b](https://github.com/communitiesuk/hfu-share-webapp/commit/60c336b2925729e8b70c7ac6cf4096136f6cbf4d))
+* update curl to allow the Dockerfile to build ([#158](https://github.com/communitiesuk/hfu-share-webapp/issues/158)) ([001e205](https://github.com/communitiesuk/hfu-share-webapp/commit/001e20561254b0b4d5497f48c8dd53a898756e43))
+
 ## [2.15.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.14.0...2.15.0) (2026-09-01)
 
 
