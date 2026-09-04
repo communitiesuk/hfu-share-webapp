@@ -22,12 +22,22 @@ class SharePage:
     def sign_in(self):
         self.page.goto(self.base_url)
 
+        # This fixes an issue when running the tests locally
+        # It will close the config panel that is restricting visibility of links
+        self.close_django_tool_bar()
+
         self.assert_has_heading_with_status("Sign in", "Status: Entra ID disabled")
 
         self.enter_text_into_form_field("Email address", self.user.email)
         self.enter_text_into_form_field("Password", self.user.password)
 
         self.click_button("Sign in")
+
+    def close_django_tool_bar(self):
+        close_button = self.page.locator('#djHideToolBarButton')
+
+        if close_button.is_visible():
+            close_button.click()
 
     def assert_has_heading(self, heading_text: str):
         expect(self.page_heading).to_have_text(heading_text)
