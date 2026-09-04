@@ -27,6 +27,7 @@ def sign_in_page_factory(page: Page):
     def create(user_type):
         home_page = HomePage(page, BrowserTestUserFactory.create(user_type))
         home_page.open()
+        home_page.close_django_tool_bar()
         return home_page
 
     return create

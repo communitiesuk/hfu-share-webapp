@@ -16,6 +16,7 @@ STATIC_PAGES = [
     ("/deduplication/", "deduplication start page"),
     ("/deduplication/sponsors/", "sponsor deduplication wizard"),
     ("/deduplication/accommodations/", "accommodation deduplication wizard"),
+    ("/deduplication/guests/", "guest deduplication wizard"),
     ("/user-management/request-access/intro", "request access intro"),
     ("/user-management/request-access", "request access form"),
 ]
@@ -26,7 +27,6 @@ STATIC_PAGES = [
 ELEVATED_ACCESS_PAGES = [
     ("/unassigned-accommodation-requests/", "unassigned accommodation requests list"),
     ("/safeguarding/escalated_checks", "escalated checks"),
-    ("/deduplication/guests/", "guest deduplication wizard"),
     ("/user-management/users", "manage people"),
     ("/user-management/groups", "manage groups"),
     ("/user-management/access-requests", "manage access requests"),
