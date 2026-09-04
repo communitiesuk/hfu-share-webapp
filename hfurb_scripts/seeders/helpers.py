@@ -4,10 +4,10 @@ from datetime import date, timedelta
 from typing import List, Optional
 
 from django.utils import timezone
-from faker import Faker
 
 from accounts.enums import BROWSER_TEST_LTLA_NAMES
 from accounts.models import GroupInfo
+from hfurb_scripts.seeders.frozen_faker_data import helpers_fake
 from ontology.models import (
     CheckType,
     ExportToolObject,
@@ -34,7 +34,7 @@ from ontology.tests.factories import (
     VisaApplicationFactory,
 )
 
-fake = Faker("en_GB")
+fake = helpers_fake
 
 
 def get_group_info_from_ltla(ltla_name: str) -> Optional[GroupInfo]:

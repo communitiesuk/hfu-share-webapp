@@ -1,12 +1,11 @@
 import os
 import random
 
-from faker import Faker
-
 from accommodation_requests.forms import (
     AccommodationRequestUpdateSafeguardingChecksForm,
 )
 from accounts.models import User
+from hfurb_scripts.seeders.frozen_faker_data import mutators_fake
 from hfurb_scripts.seeders.helpers import get_group_info_from_ltla, record_id
 from ontology.models import (
     DevCheckV2,
@@ -20,7 +19,7 @@ from ontology.tests.factories import (
     InteractionFactory,
 )
 
-fake = Faker()
+fake = mutators_fake
 
 
 def mutate_closed_left_programme(accommodation_request: MvAccommodationRequest) -> None:

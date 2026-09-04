@@ -185,5 +185,8 @@ pyrightconfig.json
 # Do not ignore the GOV.UK Front manifest.json
 !static/gds/assets/manifest.json
 
+# Do not ignore the frozen browser test seed data - required at runtime
+!hfurb_scripts/seeders/frozen_faker_output.json
+
 # Playwright
 test-results/

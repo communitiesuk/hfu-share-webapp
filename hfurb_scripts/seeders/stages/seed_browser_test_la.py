@@ -10,7 +10,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
 from django.db.models import Q, QuerySet
 from django.utils import timezone
-from faker import Faker
 
 from accounts.enums import BROWSER_TEST_LA_GROUP_NAME, BROWSER_TEST_LTLA_NAMES
 from accounts.models import User
@@ -844,7 +843,6 @@ def seed_browser_test_la() -> None:
         wipe_browser_test_la_data()
 
         random.seed(BROWSER_TEST_SEED)
-        Faker.seed(BROWSER_TEST_SEED)
         reset_record_id_counters()
         author = _get_browser_test_author()
 

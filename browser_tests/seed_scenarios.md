@@ -2,7 +2,7 @@
 
 Catalog of every record scenario created by `python manage.py seed_browser_test_la`. The seeder wipes and recreates all data in the browser test local authority (LA) "Hobbiton (Browser test LTLA)", so this state is the baseline at the start of every browser test run.
 
-Source of truth: `hfurb_scripts/seeders/stages/seed_browser_test_la.py` (`AR_SCENARIOS` table and the special scenario builders). If this file and the code disagree, the code wins; regenerate the details by running the command, which prints an example record id per scenario. Titles below come from a run with the default seed and are stable while the seed and seeder version stay unchanged.
+Source of truth: `hfurb_scripts/seeders/stages/seed_browser_test_la.py` (`AR_SCENARIOS` table and the special scenario builders) plus `hfurb_scripts/seeders/frozen_faker_output.json` (the frozen, deterministic values used instead of live Faker calls - see `hfurb_scripts/seeders/frozen_faker_data.py`). If this file and the code disagree, the code wins; regenerate the details with `python manage.py seed_browser_test_la && python manage.py dump_browser_test_seed_facts`, which prints the current content of every table below.
 
 ## Fixed values
 
@@ -22,42 +22,42 @@ One accommodation request (AR) per row, created in this order. Guest count equal
 
 | # | AR id | Title | Checks status | Guest visa statuses | Extras |
 | --- | --- | --- | --- | --- | --- |
-| 1 | browser-test-ar-00001 | Jade Smith to Flat 95 | Checks required | Arrived | 2 case comments |
+| 1 | browser-test-ar-00001 | Jade Smith to Flat 95 Lee pa, N5C 7HD | Checks required | Arrived | 2 case comments |
 | 2 | browser-test-ar-00002 | Valerie Poole and 1 other to 25 Barlow tunn, BH60 2AD | Checks required | Arrived, Issued | |
-| 3 | browser-test-ar-00003 | Jeremy Hunt and 2 others to Flat 65 | Checks partially completed | Confirmed, Arrived, Pending | 1 passed check |
+| 3 | browser-test-ar-00003 | Jeremy Hunt and 2 others to Flat 65 Hazel , B9T 4XB | Checks partially completed | Confirmed, Arrived, Pending | 1 passed check |
 | 4 | browser-test-ar-00004 | Debra Bell to 1 Julian forge, L9T 1HG | Checks completed | Arrived | 4 passed checks, 2 case comments |
-| 5 | browser-test-ar-00005 | Kirsty Hawkins and 1 other to Studio 83 | Checks required | Issued, Refused | |
+| 5 | browser-test-ar-00005 | Kirsty Hawkins and 1 other to Studio 83 Evan, TF57 2UR | Checks required | Issued, Refused | |
 | 6 | browser-test-ar-00006 | Edward Schofield and 2 others to 582 Gerald thr, W02 6TR | Checks required | Arrived, Confirmed, Withdrawn | |
-| 7 | browser-test-ar-00007 | Dominic Curtis to Flat 82T | Some checks failed | Arrived | 1 failed check, escalated when the failed check is an accommodation or sponsor check |
-| 8 | browser-test-ar-00008 | Dylan Kaur and 1 other to Flat 11s | Checks completed | Pending, Lapsed | 4 passed checks |
-| 9 | browser-test-ar-00009 | Tom Byrne and 2 others to Studio 3 | Checks required | Arrived, Arrived, Arrived | |
-| 10 | browser-test-ar-00010 | Susan Robson to Flat 60 | Closed, left programme | Issued | leaving programme interaction ("Return to Ukraine") |
+| 7 | browser-test-ar-00007 | Dominic Curtis to Flat 82T Patrick wall, Hobbiton | Some checks failed | Arrived | 1 failed check, escalated when the failed check is an accommodation or sponsor check |
+| 8 | browser-test-ar-00008 | Dylan Kaur and 1 other to Flat 11s Willi, CO6P 9BD | Checks completed | Pending, Lapsed | 4 passed checks |
+| 9 | browser-test-ar-00009 | Tom Byrne and 2 others to Studio 3 Antho, GU9H 5PS | Checks required | Arrived, Arrived, Arrived | |
+| 10 | browser-test-ar-00010 | Susan Robson to Flat 60 Gary o, G77 5UL | Closed - Left programme | Issued | leaving programme interaction ("Return to Ukraine") |
 | 11 | browser-test-ar-00011 | Jonathan Greenwood and 1 other to 35 Amelia fiel, L8 1TQ | Checks partially completed | Confirmed, Arrived | 1 passed check, 2 case comments |
-| 12 | browser-test-ar-00012 | Yvonne Smith and 2 others to Flat 95 | Checks completed | Pending, Arrived, Issued | 4 passed checks |
-| 13 | browser-test-ar-00013 | Amber Ellis to Flat 4 | Checks required | Refused | unaccompanied minor (UAM, Flow Visa Pending) |
-| 14 | browser-test-ar-00014 | Ian Yates and 1 other to Flat 32J | Checks required | Arrived, Confirmed | |
+| 12 | browser-test-ar-00012 | Yvonne Smith and 2 others to Flat 95 Roy cr, M36 5FL | Checks completed | Pending, Arrived, Issued | 4 passed checks |
+| 13 | browser-test-ar-00013 | Amber Ellis to Flat 4 Irene river, Hobbiton | Checks required | Refused | unaccompanied minor (UAM, Flow Visa Pending) |
+| 14 | browser-test-ar-00014 | Ian Yates and 1 other to Flat 32J Bates, SW0Y 7AR | Checks required | Arrived, Confirmed | |
 | 15 | browser-test-ar-00015 | Molly Mills and 2 others to 1 Melanie isle, CV1B 5WN | Checks partially completed | Withdrawn, Arrived, Pending | 1 passed check |
 | 16 | browser-test-ar-00016 | Valerie Jordan to 756 Knight bri, N7 0JG | Checks completed | Lapsed | 4 passed checks, pending outbound reassignment to Isles of Scilly |
 | 17 | browser-test-ar-00017 | Martyn Field and 1 other to 79 Owen stream, N4J 5SJ | Checks required | Arrived, Arrived | |
 | 18 | browser-test-ar-00018 | Karen Brown and 2 others to 44 Clayton pra, L8S 3XY | Checks required | Arrived, Issued, Confirmed | |
-| 19 | browser-test-ar-00019 | Diane Williams to 10 Helen pass,, KT5R 6RG | Closed, duplicate | Arrived | |
-| 20 | browser-test-ar-00020 | Charlene Hussain and 1 other to Flat 76 | Checks completed | Pending, Arrived | 4 passed checks |
-| 21 | browser-test-ar-00021 | Naomi Gibbs and 2 others to Flat 2 | Checks required | Issued, Refused, Arrived | receives the guest moved off the closed empty AR (#22) |
-| 22 | browser-test-ar-00022 | Bernard Walton to Flat 98y | Closed, empty | Confirmed | its guest is moved to AR #21, leaving it with no people |
-| 23 | browser-test-ar-00023 | Yvonne Palmer and 1 other to Studio 2 | Checks partially completed | Withdrawn, Arrived | 1 passed check |
-| 24 | browser-test-ar-00024 | Leonard Arnold and 2 others to Flat 86 | Checks completed | Pending, Lapsed, Arrived | 4 passed checks |
-| 25 | browser-test-ar-00025 | Antony Davies to Flat 77u | Cancelled | Arrived | |
-| 26 | browser-test-ar-00026 | Howard Parker and 1 other to Flat 01d | Checks required | Arrived, Issued | |
-| 27 | browser-test-ar-00027 | Rebecca Morgan and 2 others to Flat 69K | Checks partially completed | Confirmed, Arrived, Pending | 1 passed check |
+| 19 | browser-test-ar-00019 | Diane Williams to 10 Helen pass,, KT5R 6RG | Closed - Duplicate | Arrived | |
+| 20 | browser-test-ar-00020 | Charlene Hussain and 1 other to Flat 76 Jeffre, G76 2JL | Checks completed | Pending, Arrived | 4 passed checks |
+| 21 | browser-test-ar-00021 | Naomi Gibbs and 2 others to Flat 2 Swift meadows, Hobbiton | Checks required | Issued, Refused, Arrived | receives the guest moved off the closed empty AR (#22) |
+| 22 | browser-test-ar-00022 | Bernard Walton to Flat 98y Rosie ridges, Hobbiton | Closed - Empty | Confirmed | its guest is moved to AR #21, leaving it with no people |
+| 23 | browser-test-ar-00023 | Yvonne Palmer and 1 other to Studio 2 Mason, B2U 2WA | Checks partially completed | Withdrawn, Arrived | 1 passed check |
+| 24 | browser-test-ar-00024 | Leonard Arnold and 2 others to Flat 86 Moss c, NP6 2YY | Checks completed | Pending, Lapsed, Arrived | 4 passed checks |
+| 25 | browser-test-ar-00025 | Antony Davies to Flat 77u Jean , N51 2AA | Cancelled | Arrived | |
+| 26 | browser-test-ar-00026 | Howard Parker and 1 other to Flat 01d Hill , KT77 6GS | Checks required | Arrived, Issued | |
+| 27 | browser-test-ar-00027 | Rebecca Morgan and 2 others to Flat 69K Hunte, SY6 1SH | Checks partially completed | Confirmed, Arrived, Pending | 1 passed check |
 | 28 | browser-test-ar-00028 | Diane Lowe to 53 Walsh divide, Hobbiton | In temporary accommodation | Arrived | accommodation type is temporary accommodation |
 | 29 | browser-test-ar-00029 | Joan Daly and 1 other to 1 Warren dam, , BR94 2RZ | Checks required | Issued, Refused | |
 | 30 | browser-test-ar-00030 | Helen Walker and 2 others to 6 Luke avenue,, L1 6XL | Checks required | Arrived, Confirmed, Withdrawn | |
-| 31 | browser-test-ar-00031 | Peter Lowe to 78 Charlene cove, Hobbiton | Pre-arrival checks complete | Arrived | |
-| 32 | browser-test-ar-00032 | Albert Gibson and 1 other to Flat 7 | Checks completed | Pending, Lapsed | 4 passed checks |
-| 33 | browser-test-ar-00033 | Harriet Thompson and 2 others to Flat 1 | Checks required | Arrived, Arrived, Arrived | |
-| 34 | browser-test-ar-00034 | Charlene Davies to Flat 98 | Checks required | Issued | AR status: Missing accommodation |
+| 31 | browser-test-ar-00031 | Peter Lowe to 78 Charlene cove, Hobbiton | Pre-Arrival checks complete | Arrived | |
+| 32 | browser-test-ar-00032 | Albert Gibson and 1 other to Flat 7 Terry e, LA84 8QS | Checks completed | Pending, Lapsed | 4 passed checks |
+| 33 | browser-test-ar-00033 | Harriet Thompson and 2 others to Flat 1 Reece f, PO0H 9DX | Checks required | Arrived, Arrived, Arrived | |
+| 34 | browser-test-ar-00034 | Charlene Davies to Flat 98 Paulin, DD0A 7JZ | Checks required | Issued | AR status: Missing accommodation |
 | 35 | browser-test-ar-00035 | Joseph Thompson and 1 other to 189 Davison sp, SK9 6ZB | Checks partially completed | Confirmed, Arrived | 1 passed check |
-| 36 | browser-test-ar-00036 | Clive Evans and 2 others to Flat 1 | Checks completed | Pending, Arrived, Issued | 4 passed checks |
+| 36 | browser-test-ar-00036 | Clive Evans and 2 others to Flat 1 Shirley, G7W 5FL | Checks completed | Pending, Arrived, Issued | 4 passed checks |
 | 37 | browser-test-ar-00037 | Stacey Harvey to 24 Ferguson pines, Hobbiton | Checks required | Refused | AR status: Arrival confirmed, unaccompanied minor (UAM, Flow Visa Pending) |
 | 38 | browser-test-ar-00038 | Gerard Simpson and 1 other to 57 Gibson pine, SP21 6AP | Checks required | Arrived, Confirmed | multi-LA sponsor: the sponsor also owns a property in Isles of Scilly |
 | 39 | browser-test-ar-00039 | Howard Johnson and 2 others to 8 Fowler trail, PO4X 3EQ | Checks partially completed | Withdrawn, Arrived, Pending | 1 passed check, rejected outbound reassignment to Isles of Scilly |
@@ -100,7 +100,7 @@ Accommodation requests flagged with case comments (#1, #4, #11) each get 2 comme
 
 ## All seeded records
 
-Every record the seeder creates, grouped by model, in creation order. Generated from a seeded local database with the default seed.
+Every record the seeder creates, grouped by model, in creation order. Generated with `python manage.py seed_browser_test_la && python manage.py dump_browser_test_seed_facts`, using the frozen (default-seed) data.
 
 ### Guests (MvPerson)
 
@@ -244,64 +244,42 @@ Every record the seeder creates, grouped by model, in creation order. Generated 
 
 | Id | Address | LA | AR(s) |
 | --- | --- | --- | --- |
-| browser-test-accommodation-00001 | Flat 95
-Lee path, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00001 |
+| browser-test-accommodation-00001 | Flat 95 Lee path, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00001 |
 | browser-test-accommodation-00002 | 25 Barlow tunnel, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00002 |
-| browser-test-accommodation-00003 | Flat 65
-Hazel crossing, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00003 |
+| browser-test-accommodation-00003 | Flat 65 Hazel crossing, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00003 |
 | browser-test-accommodation-00004 | 1 Julian forge, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00004 |
-| browser-test-accommodation-00005 | Studio 83
-Evans canyon, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00005 |
+| browser-test-accommodation-00005 | Studio 83 Evans canyon, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00005 |
 | browser-test-accommodation-00006 | 582 Gerald throughway, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00006 |
-| browser-test-accommodation-00007 | Flat 82T
-Patrick wall, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00007 |
-| browser-test-accommodation-00008 | Flat 11s
-Williams meadow, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00008 |
-| browser-test-accommodation-00009 | Studio 3
-Anthony plaza, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00009 |
-| browser-test-accommodation-00010 | Flat 60
-Gary oval, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00010 |
+| browser-test-accommodation-00007 | Flat 82T Patrick wall, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00007 |
+| browser-test-accommodation-00008 | Flat 11s Williams meadow, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00008 |
+| browser-test-accommodation-00009 | Studio 3 Anthony plaza, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00009 |
+| browser-test-accommodation-00010 | Flat 60 Gary oval, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00010 |
 | browser-test-accommodation-00011 | 35 Amelia field, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00011 |
-| browser-test-accommodation-00012 | Flat 95
-Roy crest, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00012 |
-| browser-test-accommodation-00013 | Flat 4
-Irene river, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00013 |
-| browser-test-accommodation-00014 | Flat 32J
-Bates lodge, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00014 |
+| browser-test-accommodation-00012 | Flat 95 Roy crest, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00012 |
+| browser-test-accommodation-00013 | Flat 4 Irene river, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00013 |
+| browser-test-accommodation-00014 | Flat 32J Bates lodge, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00014 |
 | browser-test-accommodation-00015 | 1 Melanie isle, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00015 |
 | browser-test-accommodation-00016 | 756 Knight bridge, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00016 |
 | browser-test-accommodation-00017 | 79 Owen stream, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00017 |
 | browser-test-accommodation-00018 | 44 Clayton prairie, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00018 |
 | browser-test-accommodation-00019 | 10 Helen pass, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00019 |
-| browser-test-accommodation-00020 | Flat 76
-Jeffrey run, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00020 |
-| browser-test-accommodation-00021 | Flat 2
-Swift meadows, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00021 |
-| browser-test-accommodation-00022 | Flat 98y
-Rosie ridges, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00022 |
-| browser-test-accommodation-00023 | Studio 2
-Mason cliffs, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00023 |
-| browser-test-accommodation-00024 | Flat 86
-Moss corners, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00024 |
-| browser-test-accommodation-00025 | Flat 77u
-Jean island, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00025 |
-| browser-test-accommodation-00026 | Flat 01d
-Hill walks, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00026 |
-| browser-test-accommodation-00027 | Flat 69K
-Hunter burg, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00027 |
+| browser-test-accommodation-00020 | Flat 76 Jeffrey run, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00020 |
+| browser-test-accommodation-00021 | Flat 2 Swift meadows, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00021 |
+| browser-test-accommodation-00022 | Flat 98y Rosie ridges, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00022 |
+| browser-test-accommodation-00023 | Studio 2 Mason cliffs, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00023 |
+| browser-test-accommodation-00024 | Flat 86 Moss corners, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00024 |
+| browser-test-accommodation-00025 | Flat 77u Jean island, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00025 |
+| browser-test-accommodation-00026 | Flat 01d Hill walks, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00026 |
+| browser-test-accommodation-00027 | Flat 69K Hunter burg, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00027 |
 | browser-test-accommodation-00028 | 53 Walsh divide, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00028 |
 | browser-test-accommodation-00029 | 1 Warren dam, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00029 |
 | browser-test-accommodation-00030 | 6 Luke avenue, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00030 |
 | browser-test-accommodation-00031 | 78 Charlene cove, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00031 |
-| browser-test-accommodation-00032 | Flat 7
-Terry expressway, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00032 |
-| browser-test-accommodation-00033 | Flat 1
-Reece flat, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00033 |
-| browser-test-accommodation-00034 | Flat 98
-Pauline ports, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00034 |
+| browser-test-accommodation-00032 | Flat 7 Terry expressway, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00032 |
+| browser-test-accommodation-00033 | Flat 1 Reece flat, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00033 |
+| browser-test-accommodation-00034 | Flat 98 Pauline ports, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00034 |
 | browser-test-accommodation-00035 | 189 Davison springs, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00035 |
-| browser-test-accommodation-00036 | Flat 1
-Shirley ridges, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00036 |
+| browser-test-accommodation-00036 | Flat 1 Shirley ridges, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00036 |
 | browser-test-accommodation-00037 | 24 Ferguson pines, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00037 |
 | browser-test-accommodation-00038 | 57 Gibson pine, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00038 |
 | browser-test-accommodation-00039 | 8 Fowler trail, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00039 |
@@ -454,7 +432,7 @@ Shirley ridges, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00036 
 | browser-test-check-00005 | Guests have arrived in their accommodation | Passed |  | browser-test-ar-00004 |
 | browser-test-check-00006 | Uk Form Uploaded |  |  |  |
 | browser-test-check-00007 | Ukr Form Uploaded |  |  |  |
-| browser-test-check-00008 | DBS check and Sponsor suitable | Failed | NO_RESPONSE | browser-test-ar-00007 |
+| browser-test-check-00008 | DBS check and Sponsor suitable | Failed | Sponsor has not responded to communications | browser-test-ar-00007 |
 | browser-test-check-00009 | Accommodation suitable | Passed |  | browser-test-ar-00008 |
 | browser-test-check-00010 | Accommodation exists | Passed |  | browser-test-ar-00008 |
 | browser-test-check-00011 | DBS check and Sponsor suitable | Passed |  | browser-test-ar-00008 |
@@ -506,15 +484,15 @@ Shirley ridges, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00036 
 
 | Id | AR | Check |
 | --- | --- | --- |
-| 90c465bf-6f1c-4bbb-8701-de40988f19cb | browser-test-ar-00007 | browser-test-check-00008 |
+| 7c05b30f-bcd7-4289-8bb6-d1776372d7ce | browser-test-ar-00007 | browser-test-check-00008 |
 
 ### Reassignment requests
 
 | Id | Outcome | Destination LA | AR |
 | --- | --- | --- | --- |
-| browser-test-rr-00001 | Rejected | Isles of Scilly | browser-test-ar-00039 |
-| rr-18f74a82-5549-483a-ae3f-818715483340 | Accepted | Hobbiton (Browser test LTLA) | browser-test-ar-00041 |
 | rr-ab5f413d-003f-4891-ac8c-e6dca38298d7 | Pending | Isles of Scilly | browser-test-ar-00016 |
+| rr-18f74a82-5549-483a-ae3f-818715483340 | Accepted | Hobbiton (Browser test LTLA) | browser-test-ar-00041 |
+| browser-test-rr-00001 | Rejected | Isles of Scilly | browser-test-ar-00039 |
 
 ### Visa information request records
 
