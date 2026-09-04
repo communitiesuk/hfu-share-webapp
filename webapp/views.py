@@ -479,8 +479,9 @@ class SummaryListViewBase(DetailView):
             getattr(field, "accessor_name", field.name)
             for field in sorted(
                 filter(
-                    lambda field: field.name not in exclude_fields
-                    and not field.is_relation,
+                    lambda field: (
+                        field.name not in exclude_fields and not field.is_relation
+                    ),
                     self.model._meta.get_fields(),
                 ),
                 key=lambda f: getattr(f, "verbose_name", f.name).lower(),

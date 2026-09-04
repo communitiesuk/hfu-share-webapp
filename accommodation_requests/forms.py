@@ -706,8 +706,8 @@ class WithdrawSponsorAccommodationRequestForm(forms.Form):
 
         if sponsors_queryset and len(sponsors_queryset) > 1:
             self.fields["sponsors"].queryset = sponsors_queryset
-            self.fields["sponsors"].label_from_instance = (
-                lambda sponsor: sponsor.get_full_name()
+            self.fields["sponsors"].label_from_instance = lambda sponsor: (
+                sponsor.get_full_name()
             )
 
             self.helper = FormHelper()
