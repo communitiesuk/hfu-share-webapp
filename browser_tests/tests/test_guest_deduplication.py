@@ -80,7 +80,7 @@ def _choose_correct_details(guest_deduplication_page: HomePage) -> None:
 
 
 class TestGuestDeduplicationJourney(BrowserTest):
-    def test_guest_deduplication_journey_and_removes_duplicate_from_list(
+    def test_guest_deduplication_journey(
         self, guest_deduplication_page: HomePage
     ) -> None:
         # Filter the list
