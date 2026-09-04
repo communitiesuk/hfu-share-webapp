@@ -9,20 +9,53 @@
         {% endif %}
     {% else %}
         <div class="govuk-summary-card">
-            <div class="govuk-summary-card__title-wrapper">
+            <div class="govuk-summary-card__title-wrapper {% if request.GET.add_check == 'header-button' %}app-summary-card-header-with-button{% endif %}">
                 <h2 class="govuk-summary-card__title">Safeguarding checks</h2>
                 {% if user_can_add_update %}
-                    <ul class="govuk-summary-card__actions">
-                        <li class="govuk-summary-card__action">
-                            <a class="govuk-link"
-                               href="{% url 'accommodation-requests:update-safeguarding-checks' object.id %}">Add safeguarding check</a>
-                        </li>
-                    </ul>
+                    {% if request.GET.add_check == "header" %}
+                        <ul class="govuk-summary-card__actions">
+                            <li class="govuk-summary-card__action">
+                                <a class="govuk-link"
+                                   href="{% url 'accommodation-requests:update-safeguarding-checks' object.id %}">Add safeguarding check</a>
+                            </li>
+                        </ul>
+                    {% elif request.GET.add_check == "header-button" %}
+                        <ul class="govuk-summary-card__actions">
+                            <li class="govuk-summary-card__action">
+                                <a href="{% url 'accommodation-requests:update-safeguarding-checks' object.id %}"
+                                   class="govuk-button govuk-button--primary govuk-!-margin-bottom-0">Add safeguarding check</a>
+                            </li>
+                        </ul>
+                    {% endif %}
                 {% endif %}
             </div>
             <div class="govuk-summary-card__content">
                 {% include "webapp/components/record_tabs/record_summary_list.html" with fields=fields %}
+                {% if user_can_add_update and request.GET.add_check != "header" and request.GET.add_check != "header-button" %}
+                    <a href="{% url 'accommodation-requests:update-safeguarding-checks' object.id %}"
+                       class="govuk-button govuk-button--primary govuk-!-margin-top-4 govuk-!-margin-bottom-0">Add safeguarding check</a>
+                {% endif %}
             </div>
         </div>
+        <p class="govuk-body-s">
+            Demo, add check placement:
+            {% if request.GET.add_check == "header" or request.GET.add_check == "header-button" %}
+                <a class="govuk-link" href="{{ request.path }}?add_check=button">Bottom button</a>
+            {% else %}
+                <strong>Bottom button</strong>
+            {% endif %}
+            |
+            {% if request.GET.add_check == "header" %}
+                <strong>Header link</strong>
+            {% else %}
+                <a class="govuk-link" href="{{ request.path }}?add_check=header">Header link</a>
+            {% endif %}
+            |
+            {% if request.GET.add_check == "header-button" %}
+                <strong>Header button</strong>
+            {% else %}
+                <a class="govuk-link" href="{{ request.path }}?add_check=header-button">Header button</a>
+            {% endif %}
+        </p>
     {% endif %}
 {% endblock selected_tab %}
