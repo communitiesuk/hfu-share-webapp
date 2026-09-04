@@ -202,8 +202,9 @@ class SponsorDuplicateGroup(models.Model):
         )
         principal_record_values["viewer_group_names"] = list(
             reduce(
-                lambda viewer_group_names, sponsor: viewer_group_names
-                + list(sponsor.viewer_group_names or []),
+                lambda viewer_group_names, sponsor: (
+                    viewer_group_names + list(sponsor.viewer_group_names or [])
+                ),
                 sponsors,
                 [],
             )
@@ -217,8 +218,9 @@ class SponsorDuplicateGroup(models.Model):
         )
         principal_record_values["response_id"] = list(
             reduce(
-                lambda response_ids, sponsor: response_ids
-                + list(sponsor.response_id or []),
+                lambda response_ids, sponsor: (
+                    response_ids + list(sponsor.response_id or [])
+                ),
                 sponsors,
                 [],
             )
@@ -642,8 +644,10 @@ class SponsorDuplicateGroup(models.Model):
         """
         new_principal.sponsorship_certification_number_id = list(
             reduce(
-                lambda cert_numbers, sponsor: cert_numbers
-                + list(sponsor.sponsorship_certification_number_id or []),
+                lambda cert_numbers, sponsor: (
+                    cert_numbers
+                    + list(sponsor.sponsorship_certification_number_id or [])
+                ),
                 sponsors,
                 [],
             )
@@ -675,8 +679,10 @@ class SponsorDuplicateGroup(models.Model):
         """
         new_principal.application_unique_application_number = list(
             reduce(
-                lambda application_numbers, sponsor: application_numbers
-                + list(sponsor.application_unique_application_number or []),
+                lambda application_numbers, sponsor: (
+                    application_numbers
+                    + list(sponsor.application_unique_application_number or [])
+                ),
                 sponsors,
                 [],
             )
@@ -833,8 +839,12 @@ class AccommodationDuplicateGroup(models.Model):
         principal_record_values["application_unique_application_number"] = list(
             set(
                 reduce(
-                    lambda ids, accommodation: ids
-                    + list(accommodation.application_unique_application_number or []),
+                    lambda ids, accommodation: (
+                        ids
+                        + list(
+                            accommodation.application_unique_application_number or []
+                        )
+                    ),
                     accommodations,
                     [],
                 )
@@ -934,8 +944,9 @@ class AccommodationDuplicateGroup(models.Model):
         principal_record_values["response_id"] = list(
             set(
                 reduce(
-                    lambda response_ids, accommodation: response_ids
-                    + list(accommodation.response_id or []),
+                    lambda response_ids, accommodation: (
+                        response_ids + list(accommodation.response_id or [])
+                    ),
                     accommodations,
                     [],
                 )
@@ -952,8 +963,9 @@ class AccommodationDuplicateGroup(models.Model):
         principal_record_values["source"] = list(
             set(
                 reduce(
-                    lambda sources, accommodation: sources
-                    + list(accommodation.source or []),
+                    lambda sources, accommodation: (
+                        sources + list(accommodation.source or [])
+                    ),
                     accommodations,
                     [],
                 )
@@ -962,8 +974,10 @@ class AccommodationDuplicateGroup(models.Model):
         principal_record_values["sponsorship_certification_number_id"] = list(
             set(
                 reduce(
-                    lambda ids, accommodation: ids
-                    + list(accommodation.sponsorship_certification_number_id or []),
+                    lambda ids, accommodation: (
+                        ids
+                        + list(accommodation.sponsorship_certification_number_id or [])
+                    ),
                     accommodations,
                     [],
                 )
@@ -989,8 +1003,9 @@ class AccommodationDuplicateGroup(models.Model):
         )
         principal_record_values["viewer_group_names"] = list(
             reduce(
-                lambda viewer_group_names, accommodation: viewer_group_names
-                + list(accommodation.viewer_group_names or []),
+                lambda viewer_group_names, accommodation: (
+                    viewer_group_names + list(accommodation.viewer_group_names or [])
+                ),
                 accommodations,
                 [],
             )
@@ -1004,11 +1019,13 @@ class AccommodationDuplicateGroup(models.Model):
         principal_record_values["what_type_of_living_space_can_you_offer"] = list(
             set(
                 reduce(
-                    lambda living_space, accommodation: living_space
-                    + (
-                        accommodation.what_type_of_living_space_can_you_offer
-                        if accommodation.what_type_of_living_space_can_you_offer
-                        else []
+                    lambda living_space, accommodation: (
+                        living_space
+                        + (
+                            accommodation.what_type_of_living_space_can_you_offer
+                            if accommodation.what_type_of_living_space_can_you_offer
+                            else []
+                        )
                     ),
                     accommodations,
                     [],
@@ -1407,8 +1424,9 @@ class GuestDuplicateGroup(models.Model):
         )
         principal_record_values["viewer_group_names"] = list(
             reduce(
-                lambda viewer_group_names, guest: viewer_group_names
-                + list(guest.viewer_group_names or []),
+                lambda viewer_group_names, guest: (
+                    viewer_group_names + list(guest.viewer_group_names or [])
+                ),
                 guests,
                 [],
             )
@@ -1429,16 +1447,19 @@ class GuestDuplicateGroup(models.Model):
         )
         principal_record_values["application_number"] = list(
             reduce(
-                lambda application_number, guest: application_number
-                + list(guest.application_number or []),
+                lambda application_number, guest: (
+                    application_number + list(guest.application_number or [])
+                ),
                 guests,
                 [],
             )
         )
         principal_record_values["primary_application_numbers"] = list(
             reduce(
-                lambda primary_application_numbers, guest: primary_application_numbers
-                + list(guest.primary_application_numbers or []),
+                lambda primary_application_numbers, guest: (
+                    primary_application_numbers
+                    + list(guest.primary_application_numbers or [])
+                ),
                 guests,
                 [],
             )
@@ -1993,8 +2014,9 @@ class GuestDuplicateGroup(models.Model):
         """
         new_principal.sponsorship_certification_number_id = list(
             reduce(
-                lambda cert_numbers, guest: cert_numbers
-                + list(guest.sponsorship_certification_number_id or []),
+                lambda cert_numbers, guest: (
+                    cert_numbers + list(guest.sponsorship_certification_number_id or [])
+                ),
                 guests,
                 [],
             )

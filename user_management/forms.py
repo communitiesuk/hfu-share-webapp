@@ -35,16 +35,18 @@ class AccessRequestFormGroupTypeStep(forms.Form):
             )
             for value, label in list(
                 filter(
-                    lambda group: group[0]
-                    not in [
-                        GroupType.DEV,
-                        GroupType.LOCAL_AUTHORITY_BROWSER_TEST,
-                        GroupType.MHCLG_EARLY_ADOPTERS,
-                        GroupType.DEVOLVED_ADMINISTRATION_EARLY_ADOPTERS,
-                        GroupType.HOME_OFFICE_EARLY_ADOPTERS,
-                        GroupType.LOCAL_AUTHORITY_EARLY_ADOPTERS,
-                        GroupType.SERVICE_SUPPORT_EARLY_ADOPTERS,
-                    ],
+                    lambda group: (
+                        group[0]
+                        not in [
+                            GroupType.DEV,
+                            GroupType.LOCAL_AUTHORITY_BROWSER_TEST,
+                            GroupType.MHCLG_EARLY_ADOPTERS,
+                            GroupType.DEVOLVED_ADMINISTRATION_EARLY_ADOPTERS,
+                            GroupType.HOME_OFFICE_EARLY_ADOPTERS,
+                            GroupType.LOCAL_AUTHORITY_EARLY_ADOPTERS,
+                            GroupType.SERVICE_SUPPORT_EARLY_ADOPTERS,
+                        ]
+                    ),
                     GroupType.choices,
                 )
             )

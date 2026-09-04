@@ -43,7 +43,7 @@ types-requests = "^2.32.0.20250328"
 freezegun = "^1.5.1"
 boto3-stubs = {extras = ["s3"], version = "^1.40.11"}
 moto = {extras = ["s3"], version = "^5.1.10"}
-ruff = "^0.13.1"
+ruff = "^0.16.5"
 types-python-dateutil = "^2.9.0.20251008"
 tblib = "^1.7.0"
 beautifulsoup4 = "^4.14.3"
