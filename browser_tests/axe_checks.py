@@ -8,7 +8,10 @@ WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"]
 def collect_axe_violations(page: SharePage, page_name: str) -> str | None:
     results = Axe().run(
         page.page,
-        options={"runOnly": {"type": "tag", "values": WCAG_TAGS}},
+        options={
+            "runOnly": {"type": "tag", "values": WCAG_TAGS},
+            "exclude": [['#djDebug']]
+        },
     )
 
     if results.violations_count == 0:
