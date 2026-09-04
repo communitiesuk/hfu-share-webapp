@@ -516,12 +516,6 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
   white-space: nowrap !important;
 }
 
-/* Summary card action links on record detail pages: regular weight, the
-   GOV.UK bold default reads like the card title. */
-#record-detail-content .govuk-summary-card__actions {
-  font-weight: 400;
-}
-
 /* Trial: detail layout switch. Demo variant with a button in a summary card
    header; centres the title against the taller button. */
 .app-summary-card-header-with-button {
