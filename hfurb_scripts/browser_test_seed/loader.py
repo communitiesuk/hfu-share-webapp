@@ -78,8 +78,11 @@ def _substitute(value, replacements: dict):
 
 
 def read_seed_data(directory: Path = SEED_DATA_DIR) -> list[dict]:
+    paths = sorted(directory.glob("*.json"))
+    if not paths:
+        raise FileNotFoundError(f"no browser test seed data files in {directory}")
     records: list[dict] = []
-    for path in sorted(directory.glob("*.json")):
+    for path in paths:
         with open(path) as f:
             try:
                 records.extend(json.load(f))

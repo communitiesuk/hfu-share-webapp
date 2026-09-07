@@ -1,5 +1,6 @@
+from pathlib import Path
+
 from auditlog.models import LogEntry
-from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q, QuerySet
 
@@ -40,7 +41,7 @@ from ontology.models.SponsorshipCertificationAttachmentMetadata import (
 
 BROWSER_TEST_ID_PREFIX = "browser-test"
 BROWSER_TEST_LTLA_NAME = BROWSER_TEST_LTLA_NAMES[0]
-SEED_DATA_DIR = settings.BASE_DIR / "browser_tests" / "seed_data"
+SEED_DATA_DIR = Path(__file__).resolve().parent / "data"
 PREFIXED = Q(pk__startswith=f"{BROWSER_TEST_ID_PREFIX}-")
 
 
