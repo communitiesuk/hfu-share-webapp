@@ -618,7 +618,7 @@ class GuestDetailLinkedRecordsView(
             view_all_visa_applications_link = SummaryListLink(
                 view_name="guests:detail-linked-records-visa-applications",
                 object_id=guest.pk,
-                title="View the list of all visa applications for this guest",
+                title="Visa applications associated with this guest",
             )
 
             linked_records.append(
@@ -881,6 +881,9 @@ class GuestVisaApplicationsListView(PermissionsMixin, SingleTableView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["object"] = get_object_or_404(MvPerson, pk=self.kwargs["pk"])
+        ctx["page_heading"] = (
+            f"Visa applications referencing {ctx['object'].get_full_name()}"
+        )
         return ctx
 
     def get_queryset(self):
