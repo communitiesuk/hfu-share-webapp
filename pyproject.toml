@@ -31,6 +31,7 @@ notifications-python-client = "^10.0.1"
 beautifulsoup4 = "^4.14.3"
 faker = "^37.8.0"
 factory-boy = "^3.3.1"
+freezegun = "^1.5.1"
 
 [tool.poetry.group.dev.dependencies]
 pylint = "^3.3.7"
@@ -40,7 +41,6 @@ django-stubs = "^5.1.1"
 coverage = "^7.6.10"
 djlint = "^1.36.4"
 types-requests = "^2.32.0.20250328"
-freezegun = "^1.5.1"
 boto3-stubs = {extras = ["s3"], version = "^1.40.11"}
 moto = {extras = ["s3"], version = "^5.1.10"}
 ruff = "^0.16.5"

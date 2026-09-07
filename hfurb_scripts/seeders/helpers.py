@@ -1,11 +1,10 @@
 import random
 import uuid
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from typing import List, Optional
 
 from django.utils import timezone
 from faker import Faker
-from faker.providers.date_time import change_year
 
 from accounts.enums import BROWSER_TEST_LTLA_NAMES
 from accounts.models import GroupInfo
@@ -36,32 +35,6 @@ from ontology.tests.factories import (
 )
 
 fake = Faker("en_GB")
-
-BROWSER_TEST_REFERENCE_DATE = date(2025, 1, 1)
-BROWSER_TEST_REFERENCE_DATETIME = timezone.make_aware(
-    datetime.combine(BROWSER_TEST_REFERENCE_DATE, datetime.min.time())
-)
-
-
-def days_before_reference(min_days: int, max_days: int) -> datetime:
-    return BROWSER_TEST_REFERENCE_DATETIME - timedelta(
-        days=random.randint(min_days, max_days)
-    )
-
-
-def datetime_within_year_of_reference() -> datetime:
-    return fake.date_time_between(
-        start_date=BROWSER_TEST_REFERENCE_DATETIME - timedelta(days=365),
-        end_date=BROWSER_TEST_REFERENCE_DATETIME,
-        tzinfo=timezone.get_current_timezone(),
-    )
-
-
-def deterministic_date_of_birth(age: int) -> date:
-    start_date = change_year(BROWSER_TEST_REFERENCE_DATE, -(age + 1))
-    end_date = change_year(BROWSER_TEST_REFERENCE_DATE, -age)
-    dob = fake.date_time_ad(start_datetime=start_date, end_datetime=end_date).date()
-    return dob if dob != start_date else dob + timedelta(days=1)
 
 
 def get_group_info_from_ltla(ltla_name: str) -> Optional[GroupInfo]:
@@ -140,7 +113,7 @@ def create_mv_sponsor(
 
     age = random.randint(21, 70)
     # Generate a valid date of birth matching the age
-    date_of_birth = deterministic_date_of_birth(age)
+    date_of_birth = fake.date_of_birth(minimum_age=age, maximum_age=age)
 
     return MvVolunteerFactory(  # type: ignore[return-value]
         id=record_id("sponsor", id_prefix),
@@ -174,8 +147,12 @@ def create_mv_sponsor(
         other_nationalities=[random.choices(["No", "Yes"], weights=[80, 20])[0]],
         flag_unsuitable=random.choices([False, True], weights=[97, 3])[0],
         hosting_duration=random.randint(6, 15),
-        requested_checks_latest_date=datetime_within_year_of_reference(),
-        last_updated_date=datetime_within_year_of_reference(),
+        requested_checks_latest_date=fake.date_time_between(
+            start_date="-1y", end_date="now", tzinfo=timezone.get_current_timezone()
+        ),
+        last_updated_date=fake.date_time_between(
+            start_date="-1y", end_date="now", tzinfo=timezone.get_current_timezone()
+        ),
     )
 
 
@@ -211,7 +188,7 @@ def create_mv_person(
 
     age = random.randint(18, 65)
     # Generate a valid date of birth matching the age
-    date_of_birth = deterministic_date_of_birth(age)
+    date_of_birth = fake.date_of_birth(minimum_age=age, maximum_age=age)
 
     return MvPersonFactory(  # type: ignore[return-value]
         accommodation_request=None,
@@ -295,7 +272,7 @@ def create_mv_accommodation_request(
 
     if checks_status is None:
         checks_status = MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED
-    latest_application_date = days_before_reference(30, 365)
+    latest_application_date = timezone.now() - timedelta(days=random.randint(30, 365))
 
     if id_prefix:
         unique_application_number = f"1313-0000-{next_serial(f'{id_prefix}-uan'):08d}"
@@ -356,7 +333,7 @@ def create_visa_application(
     )
 
     # Generate random visa decision date (between 30 and 180 days ago)
-    visa_decision_date = days_before_reference(30, 180)
+    visa_decision_date = timezone.now() - timedelta(days=random.randint(30, 180))
 
     if id_prefix:
         visa_application_id = record_id("visa", id_prefix)
@@ -391,7 +368,8 @@ def create_visa_application(
             f"{sponsor.last_name} to {title_town}"
         ),
         visa_status=visa_status,
-        application_event_datetime=days_before_reference(30, 365),
+        application_event_datetime=timezone.now()
+        - timedelta(days=random.randint(30, 365)),
     )
 
 
@@ -426,7 +404,7 @@ def create_uam(
         minor_email=person.email[0],
         minor_phone_number=person.phone[0],
         minor_contact_type=["email"],
-        created_at=days_before_reference(30, 365),
+        created_at=timezone.now() - timedelta(days=random.randint(30, 365)),
         ltla_name=[accommodation.ltla_name],
         uk_parental_consent_filename="uk_parental_consent.txt",
         ukraine_parental_consent_filename="ukraine_parental_consent.txt",
