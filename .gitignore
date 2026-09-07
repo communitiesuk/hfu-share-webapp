@@ -187,3 +187,6 @@ pyrightconfig.json
 
 # Playwright
 test-results/
+
+# committed browser test seed data, regenerated via generate_browser_test_seed_data
+!browser_tests/seed_data/*.json

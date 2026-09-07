@@ -1,0 +1,43 @@
+[
+  {
+    "fields": {
+      "accommodation_ids": null,
+      "alert_status": "ESCALATED",
+      "alert_type": "SAFEGUARDING_CHECK",
+      "applicant_gwfs": null,
+      "applicant_names": null,
+      "applicant_person_ids": null,
+      "applicant_uans": null,
+      "ar": "browser-test-ar-00007",
+      "assigned": null,
+      "created_at": "2025-01-01T12:00:00Z",
+      "deferral_status": null,
+      "description": "Sponsor has not responded to communications",
+      "dev_check_v2": "browser-test-check-00008",
+      "dluhc_id": null,
+      "escalation_status": null,
+      "exported_bf": null,
+      "exported_ukvi": null,
+      "full_addresses": null,
+      "ltla": null,
+      "ltla_code": null,
+      "modified_at": null,
+      "modified_by": null,
+      "modified_by_org": null,
+      "name": "DBS check and Sponsor suitable check failed",
+      "new_alert_status": "AUTO_ESCALATED_TO_UKVI",
+      "notional_data": null,
+      "rule_description": null,
+      "sponsor_ids": "[\"browser-test-sponsor-00007\"]",
+      "sponsor_names": "[\"Jemma Davies\"]",
+      "taurus_rule_id": null,
+      "updated_at": null,
+      "utla": null,
+      "utla_code": null,
+      "viewer_groups": null,
+      "visa_statuses": null
+    },
+    "model": "ontology.safeguardingnotification",
+    "pk": "browser-test-safeguarding-notification-00001"
+  }
+]

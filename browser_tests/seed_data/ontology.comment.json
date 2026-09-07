@@ -1,0 +1,80 @@
+[
+  {
+    "fields": {
+      "attached_accommodation_request_id": "browser-test-ar-00001",
+      "attached_reassignment_request_id": null,
+      "content": "Called the sponsor to confirm the guests arrived safely.",
+      "created_at": "2025-06-12T09:30:00Z",
+      "created_by": "__BROWSER_TEST_USER_EMAIL__",
+      "modified_by": null,
+      "modified_date": "2025-06-12T09:30:00Z"
+    },
+    "model": "ontology.comment",
+    "pk": "browser-test-comment-00001"
+  },
+  {
+    "fields": {
+      "attached_accommodation_request_id": "browser-test-ar-00001",
+      "attached_reassignment_request_id": null,
+      "content": "Property visit booked, sponsor available Tuesday morning.",
+      "created_at": "2025-07-03T13:05:00Z",
+      "created_by": "__BROWSER_TEST_USER_EMAIL__",
+      "modified_by": null,
+      "modified_date": "2025-07-03T13:05:00Z"
+    },
+    "model": "ontology.comment",
+    "pk": "browser-test-comment-00002"
+  },
+  {
+    "fields": {
+      "attached_accommodation_request_id": "browser-test-ar-00004",
+      "attached_reassignment_request_id": null,
+      "content": "Guest asked about school places for the youngest child, referred to admissions.",
+      "created_at": "2025-07-24T08:15:00Z",
+      "created_by": "__BROWSER_TEST_USER_EMAIL__",
+      "modified_by": null,
+      "modified_date": "2025-07-24T08:15:00Z"
+    },
+    "model": "ontology.comment",
+    "pk": "browser-test-comment-00003"
+  },
+  {
+    "fields": {
+      "attached_accommodation_request_id": "browser-test-ar-00004",
+      "attached_reassignment_request_id": null,
+      "content": "DBS certificate received for the second adult in the household.",
+      "created_at": "2025-08-14T15:40:00Z",
+      "created_by": "__BROWSER_TEST_USER_EMAIL__",
+      "modified_by": null,
+      "modified_date": "2025-08-14T15:40:00Z"
+    },
+    "model": "ontology.comment",
+    "pk": "browser-test-comment-00004"
+  },
+  {
+    "fields": {
+      "attached_accommodation_request_id": "browser-test-ar-00011",
+      "attached_reassignment_request_id": null,
+      "content": "Sponsor reported a delay getting the spare room ready, follow up in two weeks.",
+      "created_at": "2025-09-02T10:20:00Z",
+      "created_by": "__BROWSER_TEST_USER_EMAIL__",
+      "modified_by": null,
+      "modified_date": "2025-09-02T10:20:00Z"
+    },
+    "model": "ontology.comment",
+    "pk": "browser-test-comment-00005"
+  },
+  {
+    "fields": {
+      "attached_accommodation_request_id": "browser-test-ar-00011",
+      "attached_reassignment_request_id": null,
+      "content": "Spoke with the guest about GP registration, forms sent by email.",
+      "created_at": "2025-09-19T14:55:00Z",
+      "created_by": "__BROWSER_TEST_USER_EMAIL__",
+      "modified_by": null,
+      "modified_date": "2025-09-19T14:55:00Z"
+    },
+    "model": "ontology.comment",
+    "pk": "browser-test-comment-00006"
+  }
+]

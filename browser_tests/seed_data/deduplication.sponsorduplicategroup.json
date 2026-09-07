@@ -1,0 +1,17 @@
+[
+  {
+    "fields": {
+      "archived_at": null,
+      "created_at": "2025-01-01T12:00:00Z",
+      "is_archived": false,
+      "principal_record": "sponsor-84c5442e-efc6-475d-8bf0-9436d5462775",
+      "source_sponsor_ar_mapping": "[{\"ar_pk\": \"browser-test-ar-00043\", \"sponsor_pk\": \"browser-test-sponsor-00044\"}]",
+      "sponsors": [
+        "browser-test-sponsor-00044",
+        "browser-test-sponsor-00045"
+      ]
+    },
+    "model": "deduplication.sponsorduplicategroup",
+    "pk": null
+  }
+]

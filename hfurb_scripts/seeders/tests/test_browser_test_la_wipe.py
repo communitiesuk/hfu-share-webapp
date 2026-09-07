@@ -7,11 +7,11 @@ from accounts.enums import (
 )
 from accounts.tests.factories import GroupFactory
 from deduplication.models import GuestDuplicateGroup
-from hfurb_scripts.seeders.helpers import build_complete_accommodation_scenario
-from hfurb_scripts.seeders.stages.seed_browser_test_la import (
+from hfurb_scripts.browser_test_seed.records import (
     BROWSER_TEST_ID_PREFIX,
     wipe_browser_test_la_data,
 )
+from hfurb_scripts.seeders.helpers import build_complete_accommodation_scenario
 from ontology.models import (
     Comment,
     MvAccommodation,

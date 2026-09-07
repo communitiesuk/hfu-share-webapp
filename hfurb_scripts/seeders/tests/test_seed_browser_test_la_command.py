@@ -8,10 +8,10 @@ from accounts.enums import (
     GroupType,
 )
 from accounts.tests.factories import GroupFactory
-from hfurb_scripts.seeders.helpers import build_complete_accommodation_scenario
-from hfurb_scripts.seeders.stages.seed_browser_test_la import (
+from hfurb_scripts.browser_test_seed.records import (
     BROWSER_TEST_ID_PREFIX,
 )
+from hfurb_scripts.seeders.helpers import build_complete_accommodation_scenario
 from ontology.models import (
     MvAccommodationRequest,
     MvPerson,

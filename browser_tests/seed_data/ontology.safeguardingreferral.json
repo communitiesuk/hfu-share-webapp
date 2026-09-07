@@ -1,0 +1,23 @@
+[
+  {
+    "fields": {
+      "alerted_status": "Not Alerted",
+      "assignee": null,
+      "comments": null,
+      "cop_reference": null,
+      "created_at": "2025-01-01T12:00:00Z",
+      "deferral_status": null,
+      "included_uans": null,
+      "last_referred_at": null,
+      "modified_at": null,
+      "modified_by": null,
+      "notional_data": null,
+      "person": "browser-test-person-00013",
+      "person_has_new_uans": null,
+      "title_key": null,
+      "viewer_group_names": null
+    },
+    "model": "ontology.safeguardingreferral",
+    "pk": "browser-test-safeguarding-referral-00001"
+  }
+]

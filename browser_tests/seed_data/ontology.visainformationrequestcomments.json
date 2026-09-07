@@ -1,0 +1,122 @@
+[
+  {
+    "fields": {
+      "check_id": null,
+      "checks": null,
+      "comment": "Please confirm whether this guest is still residing at the sponsor's address.",
+      "comment_type": null,
+      "created_at": "2026-07-06T09:00:00Z",
+      "created_by_organisation": null,
+      "created_by_uid": "browser-test-ukvi",
+      "current_status": "Awaiting LA",
+      "display_name": "UKVI",
+      "interaction_id": null,
+      "is_notional": null,
+      "previous_status": "Awaiting LA",
+      "viewer_group_names": null,
+      "visa_information_request": "browser-test-vir-00001"
+    },
+    "model": "ontology.visainformationrequestcomments",
+    "pk": "browser-test-vir-comment-00001"
+  },
+  {
+    "fields": {
+      "check_id": null,
+      "checks": null,
+      "comment": "Please confirm the guest's arrival date for this application.",
+      "comment_type": null,
+      "created_at": "2026-07-07T09:00:00Z",
+      "created_by_organisation": null,
+      "created_by_uid": "browser-test-ukvi",
+      "current_status": "Awaiting LA",
+      "display_name": "UKVI",
+      "interaction_id": null,
+      "is_notional": null,
+      "previous_status": "Awaiting LA",
+      "viewer_group_names": null,
+      "visa_information_request": "browser-test-vir-00002"
+    },
+    "model": "ontology.visainformationrequestcomments",
+    "pk": "browser-test-vir-comment-00002"
+  },
+  {
+    "fields": {
+      "check_id": null,
+      "checks": null,
+      "comment": "Guest arrived on the date recorded, confirmed with the sponsor.",
+      "comment_type": null,
+      "created_at": "2026-07-07T10:00:00Z",
+      "created_by_organisation": null,
+      "created_by_uid": "__BROWSER_TEST_USER_USERNAME__",
+      "current_status": "Awaiting UKVI",
+      "display_name": "Hobbiton (Browser test LTLA)",
+      "interaction_id": null,
+      "is_notional": null,
+      "previous_status": "Awaiting LA",
+      "viewer_group_names": null,
+      "visa_information_request": "browser-test-vir-00002"
+    },
+    "model": "ontology.visainformationrequestcomments",
+    "pk": "browser-test-vir-comment-00003"
+  },
+  {
+    "fields": {
+      "check_id": null,
+      "checks": null,
+      "comment": "Please confirm whether the guests are known to your authority.",
+      "comment_type": null,
+      "created_at": "2026-07-08T09:00:00Z",
+      "created_by_organisation": null,
+      "created_by_uid": "browser-test-ukvi",
+      "current_status": "Awaiting LA",
+      "display_name": "UKVI",
+      "interaction_id": null,
+      "is_notional": null,
+      "previous_status": "Awaiting LA",
+      "viewer_group_names": null,
+      "visa_information_request": "browser-test-vir-00003"
+    },
+    "model": "ontology.visainformationrequestcomments",
+    "pk": "browser-test-vir-comment-00004"
+  },
+  {
+    "fields": {
+      "check_id": null,
+      "checks": null,
+      "comment": "Guests are known and receiving support from our team.",
+      "comment_type": null,
+      "created_at": "2026-07-08T10:00:00Z",
+      "created_by_organisation": null,
+      "created_by_uid": "__BROWSER_TEST_USER_USERNAME__",
+      "current_status": "Awaiting UKVI",
+      "display_name": "Hobbiton (Browser test LTLA)",
+      "interaction_id": null,
+      "is_notional": null,
+      "previous_status": "Awaiting LA",
+      "viewer_group_names": null,
+      "visa_information_request": "browser-test-vir-00003"
+    },
+    "model": "ontology.visainformationrequestcomments",
+    "pk": "browser-test-vir-comment-00005"
+  },
+  {
+    "fields": {
+      "check_id": null,
+      "checks": null,
+      "comment": "Thank you, closing this request.",
+      "comment_type": null,
+      "created_at": "2026-07-08T11:00:00Z",
+      "created_by_organisation": null,
+      "created_by_uid": "browser-test-ukvi",
+      "current_status": "Awaiting LA",
+      "display_name": "UKVI",
+      "interaction_id": null,
+      "is_notional": null,
+      "previous_status": "Awaiting UKVI",
+      "viewer_group_names": null,
+      "visa_information_request": "browser-test-vir-00003"
+    },
+    "model": "ontology.visainformationrequestcomments",
+    "pk": "browser-test-vir-comment-00006"
+  }
+]

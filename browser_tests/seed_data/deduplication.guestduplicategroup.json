@@ -1,0 +1,17 @@
+[
+  {
+    "fields": {
+      "archived_at": null,
+      "created_at": "2025-01-01T12:00:00Z",
+      "guests": [
+        "browser-test-person-00081",
+        "browser-test-person-00082"
+      ],
+      "is_archived": false,
+      "principal_record": "person-430a7866-5e12-43c7-9cb0-95dbf600084f",
+      "source_guest_ar_mapping": "[]"
+    },
+    "model": "deduplication.guestduplicategroup",
+    "pk": null
+  }
+]

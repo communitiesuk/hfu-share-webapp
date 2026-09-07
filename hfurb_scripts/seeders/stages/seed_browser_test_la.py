@@ -1,24 +1,40 @@
+import json
 import os
 import random
+import uuid
 from datetime import datetime, timedelta
+from pathlib import Path
 from typing import cast
+from unittest import mock
 
-from auditlog.models import LogEntry
-from django.conf import settings
-from django.contrib.auth.models import Group
-from django.contrib.contenttypes.models import ContentType
+from django.apps import apps
+from django.core import serializers
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db import transaction
-from django.db.models import Q, QuerySet
+from django.db.models import AutoField
 from django.utils import timezone
 from faker import Faker
 from freezegun import freeze_time
 
-from accounts.enums import BROWSER_TEST_LA_GROUP_NAME, BROWSER_TEST_LTLA_NAMES
+from accounts.enums import BROWSER_TEST_LTLA_NAMES
 from accounts.models import User
 from deduplication.models import (
-    AccommodationDuplicateGroup,
     GuestDuplicateGroup,
     SponsorDuplicateGroup,
+)
+from hfurb_scripts.browser_test_seed.loader import (
+    USER_EMAIL_PLACEHOLDER,
+    USER_FULL_NAME_PLACEHOLDER,
+    USER_PK_PLACEHOLDER,
+    USER_USERNAME_PLACEHOLDER,
+    browser_test_seeding_allowed,
+    get_browser_test_author,
+)
+from hfurb_scripts.browser_test_seed.records import (
+    BROWSER_TEST_ID_PREFIX,
+    SEED_DATA_DIR,
+    collect_browser_test_records,
+    wipe_browser_test_la_data,
 )
 from hfurb_scripts.seeders.helpers import (
     add_accommodation_to_sponsor,
@@ -40,35 +56,19 @@ from hfurb_scripts.seeders.mutators import (
 )
 from ontology.models import (
     Comment,
-    CommentAttachment,
-    DevCheckV2,
-    ExportToolObject,
-    HiddenUnassignedAccommodationRequest,
     MvAccommodation,
     MvAccommodationRequest,
-    MvGroup,
     MvInteraction,
-    MvInteractionAttachmentMetadata,
     MvPerson,
-    MvUkPostcode,
-    MvVolunteer,
-    PersonMasterRecord,
     ReassignmentRequest,
     SafeguardingNotification,
     SafeguardingReferral,
-    SponsorMasterRecord,
-    SponsorshipCertificationForm,
     VisaApplication,
     VisaInformationRequest,
     VisaInformationRequestComments,
 )
-from ontology.models.AccommodationMasterRecord import AccommodationMasterRecord
-from ontology.models.SponsorshipCertificationAttachmentMetadata import (
-    SponsorshipCertificationAttachmentMetadata,
-)
 from ontology.tests.factories import CommentFactory
 
-BROWSER_TEST_ID_PREFIX = "browser-test"
 BROWSER_TEST_SEED = int(os.environ.get("BROWSER_TEST_SEED", 1313))
 BROWSER_TEST_REFERENCE_DATETIME = datetime(2025, 1, 1, 12, 0, 0)
 MULTI_LA_SECOND_LTLA = "Isles of Scilly"
@@ -273,222 +273,6 @@ def _labelled_ar(
         if scenario.get("label") == label:
             return ars[index]
     raise ValueError(f"no scenario labelled {label!r}")
-
-
-def _delete_with_audit_logs(label: str, queryset: QuerySet) -> None:
-    model = queryset.model
-    pks = [str(pk) for pk in queryset.values_list("pk", flat=True)]
-    if not pks:
-        return
-    queryset.delete()
-    LogEntry.objects.filter(
-        content_type=ContentType.objects.get_for_model(model),
-        object_pk__in=pks,
-    ).delete()
-    print(f"wiped {len(pks)} {label}")
-
-
-def wipe_browser_test_la_data() -> None:
-    name = BROWSER_TEST_LTLA_NAMES[0]
-
-    ars = MvAccommodationRequest.objects.filter(ltla_name__overlap=[name])
-    ar_ids = list(ars.values_list("id", flat=True))
-    person_ids = [pid for ar in ars for pid in (ar.person_id or [])]
-    sponsor_ids = [sid for ar in ars for sid in (ar.sponsor_id or [])]
-    accommodation_ids = [aid for ar in ars for aid in (ar.accommodation_id or [])]
-    group_ids = [ar.group_id for ar in ars if ar.group_id]
-    uam_refs = [
-        ref for ar in ars for ref in (ar.sponsorship_certification_number_id or [])
-    ]
-    uam_refs += list(
-        SponsorshipCertificationForm.objects.filter(
-            ltla_name__overlap=[name]
-        ).values_list("reference", flat=True)
-    )
-
-    reassignments = ReassignmentRequest.objects.filter(
-        Q(source_ltla_name__overlap=[name]) | Q(destination_ltla_name=name)
-    )
-    reassignment_ids = list(reassignments.values_list("pk", flat=True))
-
-    guest_dup_groups = GuestDuplicateGroup.objects_including_archived.filter(
-        Q(guests__id__in=person_ids)
-        | Q(guests__id__startswith=f"{BROWSER_TEST_ID_PREFIX}-")
-    ).distinct()
-    person_ids += [
-        group.principal_record_id
-        for group in guest_dup_groups
-        if group.principal_record_id
-    ]
-    sponsor_dup_groups = SponsorDuplicateGroup.objects_including_archived.filter(
-        Q(sponsors__id__in=sponsor_ids)
-        | Q(sponsors__id__startswith=f"{BROWSER_TEST_ID_PREFIX}-")
-    ).distinct()
-    sponsor_ids += [
-        group.principal_record_id
-        for group in sponsor_dup_groups
-        if group.principal_record_id
-    ]
-    accommodation_dup_groups = (
-        AccommodationDuplicateGroup.objects_including_archived.filter(
-            Q(accommodations__id__in=accommodation_ids)
-            | Q(accommodations__id__startswith=f"{BROWSER_TEST_ID_PREFIX}-")
-        ).distinct()
-    )
-    accommodation_ids += [
-        group.principal_record_id
-        for group in accommodation_dup_groups
-        if group.principal_record_id
-    ]
-
-    virs = VisaInformationRequest.objects.filter(
-        Q(ltla_name=name) | Q(visa_application__ltla_name=name)
-    )
-
-    interactions = MvInteraction.objects.filter(
-        Q(linked_accommodation_request__id__in=ar_ids)
-        | Q(linked_guest__id__in=person_ids)
-        | Q(linked_sponsor__id__in=sponsor_ids)
-        | Q(linked_accommodation__id__in=accommodation_ids)
-    ).distinct()
-    interaction_ids = [str(pk) for pk in interactions.values_list("pk", flat=True)]
-
-    comments = Comment.objects.filter(
-        Q(attached_accommodation_request_id__id__in=ar_ids)
-        | Q(attached_reassignment_request_id__id__in=reassignment_ids)
-    ).distinct()
-    comment_ids = list(comments.values_list("pk", flat=True))
-    comment_attachments = CommentAttachment.objects.filter(comment__id__in=comment_ids)
-
-    checks = DevCheckV2.objects.filter(
-        Q(AR__id__in=ar_ids)
-        | Q(person__id__in=person_ids)
-        | Q(sponsor__id__in=sponsor_ids)
-        | Q(accommodation__id__in=accommodation_ids)
-        | Q(group__id__in=group_ids)
-    ).distinct()
-
-    _delete_with_audit_logs(
-        "safeguarding notifications",
-        SafeguardingNotification.objects.filter(
-            Q(ar__id__in=ar_ids) | Q(applicant_person_ids__overlap=person_ids or ["-"])
-        ).distinct(),
-    )
-    _delete_with_audit_logs(
-        "safeguarding referrals",
-        SafeguardingReferral.objects.filter(person__id__in=person_ids),
-    )
-    _delete_with_audit_logs(
-        "visa information request comments",
-        VisaInformationRequestComments.objects.filter(
-            visa_information_request__in=virs
-        ),
-    )
-    _delete_with_audit_logs("visa information requests", virs)
-    _delete_with_audit_logs("comment attachments", comment_attachments)
-    _delete_with_audit_logs("comments", comments)
-    _delete_with_audit_logs(
-        "interaction attachment metadata",
-        MvInteractionAttachmentMetadata.objects.filter(rid__in=interaction_ids),
-    )
-    _delete_with_audit_logs("interactions", interactions)
-    _delete_with_audit_logs(
-        "hidden unassigned accommodation requests",
-        HiddenUnassignedAccommodationRequest.objects.filter(
-            accommodation_request__id__in=ar_ids
-        ),
-    )
-    _delete_with_audit_logs("reassignment requests", reassignments)
-    _delete_with_audit_logs("guest duplicate groups", guest_dup_groups)
-    _delete_with_audit_logs("sponsor duplicate groups", sponsor_dup_groups)
-    _delete_with_audit_logs("accommodation duplicate groups", accommodation_dup_groups)
-    _delete_with_audit_logs("checks", checks)
-    _delete_with_audit_logs(
-        "person master records",
-        PersonMasterRecord.objects.filter(
-            Q(principal_record__id__in=person_ids) | Q(persons__id__in=person_ids)
-        ).distinct(),
-    )
-    _delete_with_audit_logs(
-        "sponsor master records",
-        SponsorMasterRecord.objects.filter(
-            Q(principal_record__id__in=sponsor_ids) | Q(sponsors__id__in=sponsor_ids)
-        ).distinct(),
-    )
-    _delete_with_audit_logs(
-        "accommodation master records",
-        AccommodationMasterRecord.objects.filter(
-            Q(principal_record__id__in=accommodation_ids)
-            | Q(accommodations__id__in=accommodation_ids)
-        ).distinct(),
-    )
-
-    rid_values = [f"{ref}-uk" for ref in uam_refs] + [f"{ref}-ukr" for ref in uam_refs]
-    _delete_with_audit_logs(
-        "uam attachment metadata",
-        SponsorshipCertificationAttachmentMetadata.objects.filter(
-            Q(rid__in=rid_values)
-            | Q(sponsorship_certification_form__reference__in=uam_refs)
-            | Q(id__startswith=BROWSER_TEST_ID_PREFIX)
-        ),
-    )
-    _delete_with_audit_logs(
-        "uam forms",
-        SponsorshipCertificationForm.objects.filter(reference__in=uam_refs),
-    )
-    _delete_with_audit_logs(
-        "visa applications", VisaApplication.objects.filter(ltla_name=name)
-    )
-    _delete_with_audit_logs(
-        "export tool objects",
-        ExportToolObject.objects.get_queryset_without_annotations().filter(
-            ltla_name__overlap=[name]
-        ),
-    )
-    _delete_with_audit_logs("people", MvPerson.objects.filter(id__in=person_ids))
-    _delete_with_audit_logs("accommodation requests", ars)
-    _delete_with_audit_logs("groups", MvGroup.objects.filter(id__in=group_ids))
-    _delete_with_audit_logs("sponsors", MvVolunteer.objects.filter(id__in=sponsor_ids))
-    _delete_with_audit_logs(
-        "accommodations", MvAccommodation.objects.filter(id__in=accommodation_ids)
-    )
-    _delete_with_audit_logs("postcodes", MvUkPostcode.objects.filter(ltla_name=name))
-
-    # strays whose linkage was severed by app actions: catch by id prefix
-    for model in [
-        DevCheckV2,
-        MvPerson,
-        MvAccommodationRequest,
-        MvGroup,
-        MvVolunteer,
-        MvAccommodation,
-        MvUkPostcode,
-        VisaApplication,
-        VisaInformationRequest,
-        VisaInformationRequestComments,
-        ReassignmentRequest,
-        Comment,
-        SponsorshipCertificationForm,
-    ]:
-        _delete_with_audit_logs(
-            f"stray {model.__name__} records",
-            model.objects.filter(pk__startswith=f"{BROWSER_TEST_ID_PREFIX}-"),
-        )
-
-    _delete_with_audit_logs(
-        "stray ExportToolObject records",
-        ExportToolObject.objects.get_queryset_without_annotations().filter(
-            pk__startswith=f"{BROWSER_TEST_ID_PREFIX}-"
-        ),
-    )
-
-    stray_logs = LogEntry.objects.filter(
-        object_pk__startswith=f"{BROWSER_TEST_ID_PREFIX}-"
-    )
-    stray_log_count = stray_logs.count()
-    if stray_log_count:
-        stray_logs.delete()
-        print(f"wiped {stray_log_count} stray audit log entries")
 
 
 def _make_multi_la_accommodation_request(ar: MvAccommodationRequest) -> str:
@@ -810,30 +594,6 @@ def _move_guests_off_closed_empty_ar(
     print(f"closed empty: guests moved from {ar.id} to {receiving_ar.id}")
 
 
-def _get_browser_test_author() -> User:
-    group = Group.objects.get(name=BROWSER_TEST_LA_GROUP_NAME)
-
-    browser_test_email = os.environ.get("BROWSER_TEST_USER_EMAIL")
-    if browser_test_email:
-        author = User.objects.filter(email=browser_test_email).first()
-        if author:
-            author.groups.set([group])
-            return author
-
-    author = User.objects.filter(groups=group).order_by("email").first()
-    if author is None:
-        raise ValueError(
-            "No browser test user available: set BROWSER_TEST_USER_EMAIL to an "
-            f"existing user's email or add a user to the "
-            f"{BROWSER_TEST_LA_GROUP_NAME} group"
-        )
-    return author
-
-
-def browser_test_seeding_allowed() -> bool:
-    return settings.ENVIRONMENT == "dev" or settings.DEBUG
-
-
 def seed_browser_test_la() -> None:
     if not browser_test_seeding_allowed():
         raise RuntimeError(
@@ -849,7 +609,7 @@ def seed_browser_test_la() -> None:
         random.seed(BROWSER_TEST_SEED)
         Faker.seed(BROWSER_TEST_SEED)
         reset_record_id_counters()
-        author = _get_browser_test_author()
+        author = get_browser_test_author()
 
         ars = []
         examples: dict[str, str] = {}
@@ -939,3 +699,119 @@ def seed_browser_test_la() -> None:
     print("Example records per scenario:")
     for label, example_id in sorted(examples.items()):
         print(f"  {label}: {example_id}")
+
+
+def _replace_author_strings(value, author: User):
+    replacements = {
+        author.email: USER_EMAIL_PLACEHOLDER,
+        author.username: USER_USERNAME_PLACEHOLDER,
+        author.get_full_name(): USER_FULL_NAME_PLACEHOLDER,
+    }
+    if isinstance(value, str):
+        return replacements.get(value, value)
+    if isinstance(value, list):
+        return [_replace_author_strings(item, author) for item in value]
+    return value
+
+
+def _rename_pk(model, old_pk: str, new_pk: str) -> None:
+    for relation in model._meta.get_fields(include_hidden=True):
+        if not relation.auto_created or relation.concrete:
+            continue
+        related_model = relation.related_model
+        field_name = relation.field.name
+        related_model._base_manager.filter(**{field_name: old_pk}).update(
+            **{field_name: new_pk}
+        )
+    model._base_manager.filter(pk=old_pk).update(**{model._meta.pk.name: new_pk})
+
+
+def _content_key(obj) -> str:
+    fields = serializers.serialize("python", [obj])[0]["fields"]
+    return json.dumps(fields, cls=DjangoJSONEncoder, sort_keys=True)
+
+
+def _slug_app_generated_ids() -> None:
+    renames = [
+        (MvInteraction, "interaction"),
+        (ReassignmentRequest, "rr"),
+        (SafeguardingNotification, "safeguarding-notification"),
+        (SafeguardingReferral, "safeguarding-referral"),
+    ]
+    collected = {
+        queryset.model: queryset for _label, queryset in collect_browser_test_records()
+    }
+    for model, kind in renames:
+        unprefixed = [
+            obj
+            for obj in collected[model]
+            if not str(obj.pk).startswith(f"{BROWSER_TEST_ID_PREFIX}-")
+        ]
+        for obj in sorted(unprefixed, key=_content_key):
+            _rename_pk(model, obj.pk, record_id(kind, BROWSER_TEST_ID_PREFIX))
+
+
+def _serialise_browser_test_records(author: User) -> list[dict]:
+    records: list[dict] = []
+    for _label, queryset in collect_browser_test_records():
+        records.extend(serializers.serialize("python", queryset.order_by("pk")))
+
+    for record in records:
+        model = apps.get_model(record["model"])
+        fields = record["fields"]
+        for name, value in list(fields.items()):
+            field = model._meta.get_field(name)
+            if field.is_relation and field.related_model is User and value:
+                fields[name] = (
+                    [USER_PK_PLACEHOLDER for _ in value]
+                    if field.many_to_many
+                    else USER_PK_PLACEHOLDER
+                )
+            elif field.many_to_many:
+                fields[name] = sorted(value, key=str)
+            else:
+                fields[name] = _replace_author_strings(value, author)
+
+        if isinstance(model._meta.pk, AutoField):
+            record["pk"] = None
+
+    records.sort(
+        key=lambda record: (
+            record["model"],
+            str(record["pk"]),
+            json.dumps(record["fields"], cls=DjangoJSONEncoder, sort_keys=True),
+        )
+    )
+    return records
+
+
+def _seeded_uuid4_factory():
+    rng = random.Random(BROWSER_TEST_SEED)
+
+    def seeded_uuid4():
+        return uuid.UUID(int=rng.getrandbits(128), version=4)
+
+    return seeded_uuid4
+
+
+def generate_browser_test_seed_data(
+    directory: Path = SEED_DATA_DIR,
+) -> tuple[Path, int]:
+    with mock.patch("uuid.uuid4", _seeded_uuid4_factory()), transaction.atomic():
+        seed_browser_test_la()
+        _slug_app_generated_ids()
+        records = _serialise_browser_test_records(get_browser_test_author())
+        transaction.set_rollback(True)
+
+    directory.mkdir(parents=True, exist_ok=True)
+    for stale in directory.glob("*.json"):
+        stale.unlink()
+    by_model: dict[str, list[dict]] = {}
+    for record in records:
+        by_model.setdefault(record["model"], []).append(record)
+    for model, model_records in by_model.items():
+        (directory / f"{model}.json").write_text(
+            json.dumps(model_records, cls=DjangoJSONEncoder, indent=2, sort_keys=True)
+            + "\n"
+        )
+    return directory, len(records)

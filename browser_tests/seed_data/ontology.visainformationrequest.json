@@ -1,0 +1,74 @@
+[
+  {
+    "fields": {
+      "bulk_foreign_key": null,
+      "closed_at": null,
+      "created_at": "2026-07-06T08:00:00Z",
+      "created_by": "browser-test-ukvi",
+      "forwarded_to_dluhc": null,
+      "is_notional": null,
+      "ltla_name": "Hobbiton (Browser test LTLA)",
+      "modified_at": null,
+      "modified_by": null,
+      "request_details": "Please confirm whether this guest is still residing at the sponsor's address.",
+      "request_status": "Awaiting LA",
+      "request_title": "Visa information request for Jade Smith",
+      "request_type": "General",
+      "requested_at": "2026-07-06T08:00:00Z",
+      "requested_check_type_id": null,
+      "utla_name": null,
+      "viewer_group_names": null,
+      "visa_application": "browser-test-visa-00001"
+    },
+    "model": "ontology.visainformationrequest",
+    "pk": "browser-test-vir-00001"
+  },
+  {
+    "fields": {
+      "bulk_foreign_key": null,
+      "closed_at": null,
+      "created_at": "2026-07-07T08:00:00Z",
+      "created_by": "browser-test-ukvi",
+      "forwarded_to_dluhc": null,
+      "is_notional": null,
+      "ltla_name": "Hobbiton (Browser test LTLA)",
+      "modified_at": null,
+      "modified_by": null,
+      "request_details": "Please confirm the guest's arrival date for this application.",
+      "request_status": "Awaiting UKVI",
+      "request_title": "Visa information request for Valerie Poole",
+      "request_type": "General",
+      "requested_at": "2026-07-07T08:00:00Z",
+      "requested_check_type_id": null,
+      "utla_name": null,
+      "viewer_group_names": null,
+      "visa_application": "browser-test-visa-00002"
+    },
+    "model": "ontology.visainformationrequest",
+    "pk": "browser-test-vir-00002"
+  },
+  {
+    "fields": {
+      "bulk_foreign_key": null,
+      "closed_at": "2026-07-08T12:00:00Z",
+      "created_at": "2026-07-08T08:00:00Z",
+      "created_by": "browser-test-ukvi",
+      "forwarded_to_dluhc": null,
+      "is_notional": null,
+      "ltla_name": "Hobbiton (Browser test LTLA)",
+      "modified_at": null,
+      "modified_by": null,
+      "request_details": "Please confirm whether the guests are known to your authority.",
+      "request_status": "Closed",
+      "request_title": "Visa information request for Philip Berry",
+      "request_type": "General",
+      "requested_at": "2026-07-08T08:00:00Z",
+      "requested_check_type_id": null,
+      "utla_name": null,
+      "viewer_group_names": null,
+      "visa_application": "browser-test-visa-00003"
+    },
+    "model": "ontology.visainformationrequest",
+    "pk": "browser-test-vir-00003"
+  }
+]
