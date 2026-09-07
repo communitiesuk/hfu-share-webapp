@@ -11,6 +11,7 @@ from django.db import transaction
 from django.db.models import Q, QuerySet
 from django.utils import timezone
 from faker import Faker
+from freezegun import freeze_time
 
 from accounts.enums import BROWSER_TEST_LA_GROUP_NAME, BROWSER_TEST_LTLA_NAMES
 from accounts.models import User
@@ -69,6 +70,7 @@ from ontology.tests.factories import CommentFactory
 
 BROWSER_TEST_ID_PREFIX = "browser-test"
 BROWSER_TEST_SEED = int(os.environ.get("BROWSER_TEST_SEED", 1313))
+BROWSER_TEST_REFERENCE_DATETIME = datetime(2025, 1, 1, 12, 0, 0)
 MULTI_LA_SECOND_LTLA = "Isles of Scilly"
 
 
@@ -840,7 +842,7 @@ def seed_browser_test_la() -> None:
 
     ltla_name = BROWSER_TEST_LTLA_NAMES[0]
 
-    with transaction.atomic():
+    with freeze_time(BROWSER_TEST_REFERENCE_DATETIME), transaction.atomic():
         wipe_browser_test_la_data()
 
         print(f"Using {BROWSER_TEST_SEED=}")
