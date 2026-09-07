@@ -76,7 +76,7 @@ python manage.py flush
 
 # Force delete the db
 docker compose down
-docker volume rm hfu-case-management-webapp_postgres_data
+docker volume rm hfu-share-webapp_postgres_data
 docker compose up
 ```
 
