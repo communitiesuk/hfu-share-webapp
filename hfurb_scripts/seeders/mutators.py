@@ -207,8 +207,10 @@ def mutate_checks(  # noqa: C901
 
             if link_attr == "accommodation":
                 form_data["accommodations"] = link_obj.pk
-                form_data["accommodation_exists_failure"] = _get_reason(devcheck)
-                form_data["accommodation_suitable_failure"] = _get_reason(devcheck)
+                if devcheck.check_type.id == CheckType.Id.ACCOMM_EXISTS:
+                    form_data["accommodation_exists_failure"] = _get_reason(devcheck)
+                elif devcheck.check_type.id == CheckType.Id.ACCOMM_SUITABLE:
+                    form_data["accommodation_suitable_failure"] = _get_reason(devcheck)
             elif link_attr == "sponsor":
                 form_data["sponsors"] = link_obj.pk
                 form_data["sponsor_dbs_failure"] = _get_reason(devcheck)
