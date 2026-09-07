@@ -81,7 +81,12 @@ def read_seed_data(directory: Path = SEED_DATA_DIR) -> list[dict]:
     records: list[dict] = []
     for path in sorted(directory.glob("*.json")):
         with open(path) as f:
-            records.extend(json.load(f))
+            try:
+                records.extend(json.load(f))
+            except json.JSONDecodeError as exc:
+                raise ValueError(
+                    f"browser test seed data file {path.name} is not valid JSON: {exc}"
+                ) from exc
     return records
 
 
