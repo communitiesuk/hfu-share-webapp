@@ -5,6 +5,7 @@ from typing import List, Optional
 
 from django.utils import timezone
 from faker import Faker
+from faker.providers.date_time import change_year
 
 from accounts.enums import BROWSER_TEST_LTLA_NAMES
 from accounts.models import GroupInfo
@@ -35,6 +36,15 @@ from ontology.tests.factories import (
 )
 
 fake = Faker("en_GB")
+
+BROWSER_TEST_DOB_REFERENCE_DATE = date(2025, 1, 1)
+
+
+def deterministic_date_of_birth(age: int) -> date:
+    start_date = change_year(BROWSER_TEST_DOB_REFERENCE_DATE, -(age + 1))
+    end_date = change_year(BROWSER_TEST_DOB_REFERENCE_DATE, -age)
+    dob = fake.date_time_ad(start_datetime=start_date, end_datetime=end_date).date()
+    return dob if dob != start_date else dob + timedelta(days=1)
 
 
 def get_group_info_from_ltla(ltla_name: str) -> Optional[GroupInfo]:
@@ -113,7 +123,7 @@ def create_mv_sponsor(
 
     age = random.randint(21, 70)
     # Generate a valid date of birth matching the age
-    date_of_birth = fake.date_of_birth(minimum_age=age, maximum_age=age)
+    date_of_birth = deterministic_date_of_birth(age)
 
     return MvVolunteerFactory(  # type: ignore[return-value]
         id=record_id("sponsor", id_prefix),
@@ -188,7 +198,7 @@ def create_mv_person(
 
     age = random.randint(18, 65)
     # Generate a valid date of birth matching the age
-    date_of_birth = fake.date_of_birth(minimum_age=age, maximum_age=age)
+    date_of_birth = deterministic_date_of_birth(age)
 
     return MvPersonFactory(  # type: ignore[return-value]
         accommodation_request=None,
