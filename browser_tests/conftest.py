@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from playwright.sync_api import Page
 
 from browser_tests.pages.home_page import HomePage
+from browser_tests.pages.safeguarding_page import SafeguardingPage
 
 from .test_users import USER_TYPES, BrowserTestUserFactory
 
@@ -23,22 +24,21 @@ def pytest_sessionstart(session):
 
 
 @pytest.fixture
-def sign_in_page_factory(page: Page):
+def home_page_factory(page: Page):
     def create(user_type):
         home_page = HomePage(page, BrowserTestUserFactory.create(user_type))
-        home_page.open()
-        home_page.close_django_tool_bar()
         return home_page
 
     return create
 
 
 @pytest.fixture
-def home_page_factory(page: Page):
+def safeguarding_page_factory(page: Page):
     def create(user_type):
-        home_page = HomePage(page, BrowserTestUserFactory.create(user_type))
-        home_page.sign_in()
-        return home_page
+        safeguarding_page = SafeguardingPage(
+            page, BrowserTestUserFactory.create(user_type)
+        )
+        return safeguarding_page
 
     return create
 
@@ -51,10 +51,10 @@ def create_home_page_fixture(user_type: str):
     return fixture
 
 
-def create_sign_in_page_fixture(user_type: str):
+def create_safeguarding_page_fixture(user_type: str):
     @pytest.fixture
-    def fixture(sign_in_page_factory):
-        return sign_in_page_factory(user_type)
+    def fixture(safeguarding_page_factory):
+        return safeguarding_page_factory(user_type)
 
     return fixture
 
@@ -63,4 +63,6 @@ for user_type in USER_TYPES:
     fixture_param = f"_with_{user_type}_user" if user_type != "default" else ""
 
     globals()[f"home_page{fixture_param}"] = create_home_page_fixture(user_type)
-    globals()[f"sign_in_page{fixture_param}"] = create_sign_in_page_fixture(user_type)
+    globals()[f"safeguarding_page{fixture_param}"] = create_safeguarding_page_fixture(
+        user_type
+    )

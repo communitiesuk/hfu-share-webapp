@@ -1,23 +1,9 @@
-from dataclasses import dataclass
-
 import pytest
 from playwright.sync_api import expect
 
-from ..pages.home_page import HomePage
+from ..pages import HomePage
+from ..seeded_data import SeededGuest
 from .base import BrowserTest
-
-
-@dataclass(frozen=True)
-class SeededGuest:
-    full_name: str
-    first_name: str
-    last_name: str
-    date_of_birth: str
-    email: str
-    phone: str
-    passport_id: str
-    accommodation_request_title: str
-
 
 GUEST_ONE = SeededGuest(
     full_name="Ian Yates",
@@ -44,6 +30,7 @@ SEARCH_TERM = "yates field"
 
 @pytest.fixture
 def guest_deduplication_page(home_page: HomePage) -> HomePage:
+    home_page.sign_in()
     home_page.click_on_card("Fix duplicate records")
     home_page.assert_has_heading("Fix duplicate records")
 
