@@ -1,27 +1,17 @@
-from dataclasses import dataclass
-
 import pytest
 
 from ..pages import HomePage, SafeguardingPage
+from ..seeded_data import SeededAccommodationRequest
 from .base import BrowserTest
 
-
-@dataclass(frozen=True)
-class SeededGuest:
-    full_name: str
-    accommodation_request_title: str
-    address: str
-    sponsor: str
-
-
-GUEST_ONE = SeededGuest(
+AR_ONE = SeededAccommodationRequest(
     full_name="Helen Walker and 2 others",
     accommodation_request_title="Helen Walker and 2 others to 6 Luke avenue,, L1 6XL",
     address="6 Luke avenue, Hobbiton",
     sponsor="Colin Khan (alice57@example.org)",
 )
 
-GUEST_TWO = SeededGuest(
+AR_TWO = SeededAccommodationRequest(
     full_name="Kirsty Hawkins and 1 other",
     accommodation_request_title="Kirsty Hawkins and 1 other to "
     "Studio 83 Evan, TF57 2UR",
@@ -29,7 +19,7 @@ GUEST_TWO = SeededGuest(
     sponsor="Michael Murphy (hughesjohn@example.org)",
 )
 
-GUEST_THREE = SeededGuest(
+AR_THREE = SeededAccommodationRequest(
     full_name="Howard Johnson and 2 others",
     accommodation_request_title="Howard Johnson and 2 others to "
     "8 Fowler trail, PO4X 3EQ",
@@ -37,7 +27,7 @@ GUEST_THREE = SeededGuest(
     sponsor="Julian Baker (vwilliams@example.com)",
 )
 
-GUEST_FOUR = SeededGuest(
+AR_FOUR = SeededAccommodationRequest(
     full_name="Jonathan Greenwood and 1 other",
     accommodation_request_title="Jonathan Greenwood and 1 other to "
     "35 Amelia fiel, L8 1TQ",
@@ -46,7 +36,7 @@ GUEST_FOUR = SeededGuest(
 )
 
 
-GUEST_FIVE = SeededGuest(
+AR_FIVE = SeededAccommodationRequest(
     full_name="Eileen Austin",
     accommodation_request_title="Eileen Austin to 76 Helen sprin, B8 3RS",
     address="35 Amelia field, Hobbiton",
@@ -64,7 +54,7 @@ def navigate_to_accommidation_request_page(home_page: HomePage):
 
 
 def _navigate_to_add_safeguarding_check(
-    safeguarding_page: SafeguardingPage, guest: SeededGuest
+    safeguarding_page: SafeguardingPage, guest: SeededAccommodationRequest
 ):
     safeguarding_page.click_link(guest.accommodation_request_title)
 
@@ -100,7 +90,7 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
     def test_add_not_started_checks_basic_validation_and_navigation(
         self, safeguarding_page: SafeguardingPage
     ):
-        _navigate_to_add_safeguarding_check(safeguarding_page, GUEST_ONE)
+        _navigate_to_add_safeguarding_check(safeguarding_page, AR_ONE)
 
         safeguarding_page.select_option_for_field(
             "Check type", "Accommodation suitable"
@@ -122,7 +112,7 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
         safeguarding_page.save_and_return_button.click()
 
         safeguarding_page.assert_has_heading(
-            f"Accommodation request record for {GUEST_ONE.accommodation_request_title}"
+            f"Accommodation request record for {AR_ONE.accommodation_request_title}"
         )
 
         safeguarding_page.assert_has_secondary_heading(
@@ -139,7 +129,7 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
         safeguarding_page.save_and_add_button.click()
 
         safeguarding_page.assert_has_heading(
-            f"Accommodation request record for {GUEST_ONE.accommodation_request_title}"
+            f"Accommodation request record for {AR_ONE.accommodation_request_title}"
         )
 
         safeguarding_page.assert_has_secondary_heading(
@@ -156,14 +146,14 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
         safeguarding_page.cancel_link.click()
 
         safeguarding_page.assert_has_heading(
-            f"Accommodation request record for {GUEST_ONE.accommodation_request_title}"
+            f"Accommodation request record for {AR_ONE.accommodation_request_title}"
         )
         safeguarding_page.assert_has_secondary_heading("Safeguarding checks", level=4)
 
     def test_complete_a_passed_safeguarding_check(
         self, safeguarding_page: SafeguardingPage
     ):
-        _navigate_to_add_safeguarding_check(safeguarding_page, GUEST_ONE)
+        _navigate_to_add_safeguarding_check(safeguarding_page, AR_ONE)
 
         # Accommodation suitable check
         safeguarding_page.select_option_for_field(
@@ -179,7 +169,7 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
 
         safeguarding_page.select_option_for_field("Status", "Passed")
 
-        safeguarding_page.select_option_for_field("Accommodation", GUEST_ONE.address)
+        safeguarding_page.select_option_for_field("Accommodation", AR_ONE.address)
 
         safeguarding_page.save_and_add_button.click()
 
@@ -187,7 +177,7 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
             "Your changes have been saved", success_banner=True
         )
         safeguarding_page.assert_has_heading(
-            f"Accommodation request record for {GUEST_ONE.accommodation_request_title}"
+            f"Accommodation request record for {AR_ONE.accommodation_request_title}"
         )
         safeguarding_page.assert_has_secondary_heading(
             "Add safeguarding check", level=3
@@ -195,7 +185,7 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
 
         safeguarding_page.assert_safeguarding_check_completion_check(
             accommodation_suitable_check=(
-                GUEST_ONE.address,
+                AR_ONE.address,
                 "Checks complete: Passed",
             )
         )
@@ -216,7 +206,7 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
 
         safeguarding_page.select_option_for_field("Status", "Passed")
 
-        safeguarding_page.select_option_for_field("Accommodation", GUEST_ONE.address)
+        safeguarding_page.select_option_for_field("Accommodation", AR_ONE.address)
 
         safeguarding_page.save_and_add_button.click()
 
@@ -224,7 +214,7 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
             "Your changes have been saved", success_banner=True
         )
         safeguarding_page.assert_has_heading(
-            f"Accommodation request record for {GUEST_ONE.accommodation_request_title}"
+            f"Accommodation request record for {AR_ONE.accommodation_request_title}"
         )
         safeguarding_page.assert_has_secondary_heading(
             "Add safeguarding check", level=3
@@ -232,11 +222,11 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
 
         safeguarding_page.assert_safeguarding_check_completion_check(
             accommodation_suitable_check=(
-                GUEST_ONE.address,
+                AR_ONE.address,
                 "Checks complete: Passed",
             ),
             accommodation_exists_check=(
-                GUEST_ONE.address,
+                AR_ONE.address,
                 "Checks complete: Passed",
             ),
         )
@@ -259,7 +249,7 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
 
         safeguarding_page.select_option_for_field("Status", "Passed")
 
-        safeguarding_page.select_option_for_field("Sponsor", GUEST_ONE.sponsor)
+        safeguarding_page.select_option_for_field("Sponsor", AR_ONE.sponsor)
 
         safeguarding_page.save_and_add_button.click()
 
@@ -267,7 +257,7 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
             "Your changes have been saved", success_banner=True
         )
         safeguarding_page.assert_has_heading(
-            f"Accommodation request record for {GUEST_ONE.accommodation_request_title}"
+            f"Accommodation request record for {AR_ONE.accommodation_request_title}"
         )
         safeguarding_page.assert_has_secondary_heading(
             "Add safeguarding check", level=3
@@ -275,15 +265,15 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
 
         safeguarding_page.assert_safeguarding_check_completion_check(
             accommodation_suitable_check=(
-                GUEST_ONE.address,
+                AR_ONE.address,
                 "Checks complete: Passed",
             ),
             accommodation_exists_check=(
-                GUEST_ONE.address,
+                AR_ONE.address,
                 "Checks complete: Passed",
             ),
             dbs_check=(
-                GUEST_ONE.sponsor,
+                AR_ONE.sponsor,
                 "Checks complete: Passed",
             ),
         )
@@ -311,27 +301,27 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
             "Your changes have been saved", success_banner=True
         )
         safeguarding_page.assert_has_heading(
-            f"Accommodation request record for {GUEST_ONE.accommodation_request_title}"
+            f"Accommodation request record for {AR_ONE.accommodation_request_title}"
         )
         safeguarding_page.assert_has_secondary_heading("Safeguarding checks", level=4)
 
         safeguarding_page.assert_safeguarding_check_completion_check(
             accommodation_suitable_check=(
-                GUEST_ONE.address,
+                AR_ONE.address,
                 "Checks complete: Passed",
             ),
             accommodation_exists_check=(
-                GUEST_ONE.address,
+                AR_ONE.address,
                 "Checks complete: Passed",
             ),
             dbs_check=(
-                GUEST_ONE.sponsor,
+                AR_ONE.sponsor,
                 "Checks complete: Passed",
             ),
             guests_have_arrived_check=(
-                GUEST_ONE.full_name,
+                AR_ONE.full_name,
                 "Edit Guests have arrived in their accommodation check for "
-                f"{GUEST_ONE.full_name}",
+                f"{AR_ONE.full_name}",
                 "Checks complete: Passed",
             ),
         )
@@ -344,7 +334,7 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
     def test_move_a_safeguarding_check_to_in_progress(
         self, safeguarding_page: SafeguardingPage
     ):
-        _navigate_to_add_safeguarding_check(safeguarding_page, GUEST_TWO)
+        _navigate_to_add_safeguarding_check(safeguarding_page, AR_TWO)
 
         # Accommodation suitable check
         safeguarding_page.select_option_for_field(
@@ -360,7 +350,7 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
 
         safeguarding_page.select_option_for_field("Status", "Passed")
 
-        safeguarding_page.select_option_for_field("Accommodation", GUEST_TWO.address)
+        safeguarding_page.select_option_for_field("Accommodation", AR_TWO.address)
 
         safeguarding_page.save_and_return_button.click()
 
@@ -368,14 +358,14 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
             "Your changes have been saved", success_banner=True
         )
         safeguarding_page.assert_has_heading(
-            f"Accommodation request record for {GUEST_TWO.accommodation_request_title}"
+            f"Accommodation request record for {AR_TWO.accommodation_request_title}"
         )
         safeguarding_page.assert_has_secondary_heading("Safeguarding checks", level=4)
 
         safeguarding_page.assert_safeguarding_check_completion_check(
             accommodation_suitable_check=(
-                GUEST_TWO.address,
-                f"Edit Accommodation suitable check for {GUEST_TWO.address}",
+                AR_TWO.address,
+                f"Edit Accommodation suitable check for {AR_TWO.address}",
                 "Checks complete: Passed",
             ),
         )
@@ -388,11 +378,10 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
         )
 
     def test_edit_a_check_and_make_it_failed(self, safeguarding_page: SafeguardingPage):
-        safeguarding_page.click_link(GUEST_THREE.accommodation_request_title)
+        safeguarding_page.click_link(AR_THREE.accommodation_request_title)
 
         safeguarding_page.assert_has_heading(
-            "Accommodation request record for "
-            f"{GUEST_THREE.accommodation_request_title}"
+            f"Accommodation request record for {AR_THREE.accommodation_request_title}"
         )
 
         safeguarding_page.assert_summary_list_item(
@@ -404,19 +393,18 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
 
         safeguarding_page.assert_safeguarding_check_completion_check(
             accommodation_exists_check=(
-                GUEST_THREE.address,
-                f"Edit Accommodation exists check for {GUEST_THREE.address}",
+                AR_THREE.address,
+                f"Edit Accommodation exists check for {AR_THREE.address}",
                 "Checks complete: Passed",
             ),
         )
 
         safeguarding_page.click_link(
-            f"Edit Accommodation exists check for {GUEST_THREE.address}"
+            f"Edit Accommodation exists check for {AR_THREE.address}"
         )
 
         safeguarding_page.assert_has_heading(
-            "Accommodation request record for "
-            f"{GUEST_THREE.accommodation_request_title}"
+            f"Accommodation request record for {AR_THREE.accommodation_request_title}"
         )
 
         safeguarding_page.assert_has_secondary_heading(
@@ -425,7 +413,7 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
 
         safeguarding_page.assert_safeguarding_check_completion_check(
             accommodation_exists_check=(
-                GUEST_THREE.address,
+                AR_THREE.address,
                 "Checks complete: Passed",
             ),
         )
@@ -454,15 +442,14 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
             "Your changes have been saved", success_banner=True
         )
         safeguarding_page.assert_has_heading(
-            "Accommodation request record for "
-            f"{GUEST_THREE.accommodation_request_title}"
+            f"Accommodation request record for {AR_THREE.accommodation_request_title}"
         )
         safeguarding_page.assert_has_secondary_heading("Safeguarding checks", level=4)
 
         safeguarding_page.assert_safeguarding_check_completion_check(
             accommodation_exists_check=(
-                GUEST_THREE.address,
-                f"Edit Accommodation exists check for {GUEST_THREE.address}",
+                AR_THREE.address,
+                f"Edit Accommodation exists check for {AR_THREE.address}",
                 "This is not a residential address",
                 "I think it may be next door",
                 "Checks complete: Failed",
@@ -475,10 +462,10 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
         safeguarding_page.assert_summary_list_item("Status", "Some Checks Failed")
 
     def test_try_adding_existing_check(self, safeguarding_page: SafeguardingPage):
-        safeguarding_page.click_link(GUEST_FOUR.accommodation_request_title)
+        safeguarding_page.click_link(AR_FOUR.accommodation_request_title)
 
         safeguarding_page.assert_has_heading(
-            f"Accommodation request record for {GUEST_FOUR.accommodation_request_title}"
+            f"Accommodation request record for {AR_FOUR.accommodation_request_title}"
         )
 
         safeguarding_page.assert_summary_list_item(
@@ -490,8 +477,8 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
 
         safeguarding_page.assert_safeguarding_check_completion_check(
             accommodation_suitable_check=(
-                GUEST_FOUR.address,
-                f"Edit Accommodation suitable check for {GUEST_FOUR.address}",
+                AR_FOUR.address,
+                f"Edit Accommodation suitable check for {AR_FOUR.address}",
                 "Checks complete: Passed",
             ),
         )
@@ -499,7 +486,7 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
         safeguarding_page.click_link("Add safeguarding check")
 
         safeguarding_page.assert_has_heading(
-            f"Accommodation request record for {GUEST_FOUR.accommodation_request_title}"
+            f"Accommodation request record for {AR_FOUR.accommodation_request_title}"
         )
 
         safeguarding_page.assert_has_secondary_heading(
@@ -512,7 +499,7 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
 
         safeguarding_page.assert_safeguarding_check_completion_check(
             accommodation_suitable_check=(
-                GUEST_FOUR.address,
+                AR_FOUR.address,
                 "Checks complete: Passed",
             ),
         )
@@ -530,12 +517,12 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
 
         safeguarding_page.select_option_for_field("Status", "Passed")
 
-        safeguarding_page.select_option_for_field("Accommodation", GUEST_FOUR.address)
+        safeguarding_page.select_option_for_field("Accommodation", AR_FOUR.address)
 
         safeguarding_page.save_and_add_button.click()
 
         safeguarding_page.assert_has_heading(
-            f"Accommodation request record for {GUEST_FOUR.accommodation_request_title}"
+            f"Accommodation request record for {AR_FOUR.accommodation_request_title}"
         )
 
         safeguarding_page.assert_has_secondary_heading(
@@ -549,14 +536,14 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
         safeguarding_page.cancel_link.click()
 
         safeguarding_page.assert_has_heading(
-            f"Accommodation request record for {GUEST_FOUR.accommodation_request_title}"
+            f"Accommodation request record for {AR_FOUR.accommodation_request_title}"
         )
         safeguarding_page.assert_has_secondary_heading("Safeguarding checks", level=4)
 
     def test_javascript_functionality_accommodation_exists(
         self, safeguarding_page: SafeguardingPage
     ):
-        _navigate_to_add_safeguarding_check(safeguarding_page, GUEST_FIVE)
+        _navigate_to_add_safeguarding_check(safeguarding_page, AR_FIVE)
 
         # Accommodation Exists Failed
         safeguarding_page.select_option_for_field("Check type", "Accommodation exists")
@@ -610,7 +597,7 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
     def test_javascript_functionality_dbs_visibility(
         self, safeguarding_page: SafeguardingPage
     ):
-        _navigate_to_add_safeguarding_check(safeguarding_page, GUEST_FIVE)
+        _navigate_to_add_safeguarding_check(safeguarding_page, AR_FIVE)
 
         # Sponsor DBS Passed
         safeguarding_page.select_option_for_field(
@@ -685,7 +672,7 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
     def test_javascript_functionality_dbs_error_messages(
         self, safeguarding_page: SafeguardingPage
     ):
-        _navigate_to_add_safeguarding_check(safeguarding_page, GUEST_FIVE)
+        _navigate_to_add_safeguarding_check(safeguarding_page, AR_FIVE)
 
         safeguarding_page.select_option_for_field(
             "Check type", "DBS check and Sponsor suitable"
