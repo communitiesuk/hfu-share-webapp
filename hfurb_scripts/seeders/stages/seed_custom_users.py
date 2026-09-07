@@ -1,11 +1,19 @@
 import os
+from typing import TypedDict
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.db import transaction
 
+from accounts.models import User as UserModel
 
-def seed_user(user_data, password, user_model):
+
+class UserData(TypedDict):
+    email: str
+    group_name: str
+
+
+def seed_user(user_data: UserData, password: str, user_model: UserModel):
     email = user_data["email"]
     group_name = user_data["group_name"]
     username = email.split("@", maxsplit=1)[0]
@@ -28,7 +36,7 @@ def seed_user(user_data, password, user_model):
 
     # Add user to the specified group
     group = Group.objects.get(name=group_name)
-    group.user_set.add(user)
+    group.user_set.add(user)  # type: ignore[attr-defined]
 
     print(f"Added user {email} to group {group_name}")
 
