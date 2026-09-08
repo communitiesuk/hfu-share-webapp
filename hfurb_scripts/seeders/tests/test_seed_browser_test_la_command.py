@@ -12,16 +12,16 @@ from hfurb_scripts.seeders.helpers import build_complete_accommodation_scenario
 from hfurb_scripts.seeders.stages.seed_browser_test_la import (
     BROWSER_TEST_ID_PREFIX,
 )
+from hfurb_scripts.tests.base import BaseScriptTestCase
 from ontology.models import (
     MvAccommodationRequest,
     MvPerson,
     VisaApplication,
 )
 from ontology.tests.factories import MvAccommodationRequestFactory
-from test_utils.base import BaseTestCase
 
 
-class SeedBrowserTestLaCommandTestCase(BaseTestCase):
+class SeedBrowserTestLaCommandTestCase(BaseScriptTestCase):
     def setUp(self):
         GroupFactory(
             name=BROWSER_TEST_LA_GROUP_NAME,

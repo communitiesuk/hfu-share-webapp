@@ -125,46 +125,22 @@ jobs:
           poetry run python manage.py migrate
 
   test-parallel:
-    name: Tests
+    name: Test app
+    uses: ./.github/workflows/unit-tests.yml
     needs: poetry-cache-setup
-    runs-on: ubuntu-latest
-    env:
-      DB_HOST: 'localhost'
-      DB_USERNAME: 'postgres'
-      DB_PASSWORD: 'postgres'
-    services:
-      postgres:
-        image: postgres:16.8
-        env:
-          POSTGRES_PASSWORD: 'postgres'
-        # Set health checks to wait until postgres has started
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
+    secrets: inherit
+    with:
+      session_id: ${{ github.run_id }}
+      test_args: --exclude-tag=scripts
 
-    steps:
-      - name: Check out code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
-
-      - name: Setup Python and Poetry + Restore Poetry cache
-        uses: ./.github/actions/setup-python-poetry
-        with:
-          role-session-name: BuildAndTest-Tests-${{ github.run_id }}
-          aws-region: ${{ secrets.AWS_REGION }}
-          aws-role-to-assume: ${{ secrets.AWS_TESTING_ROLE_TO_ASSUME }}
-          aws-codeartifact-account-id: ${{ secrets.AWS_CODEARTIFACT_ACCOUNT_ID }}
-
-      - name: Test
-        run: |
-          poetry run python manage.py collectstatic --noinput
-          poetry run test-parallel
-        env:
-          SECRET_KEY: 'a_very_long_and_random_string_for_tests'
-          ENTRA_AUTHORITY: 'https://login.microsoftonline.com/organizations'
+  test-scripts-parallel:
+    name: Test scripts
+    uses: ./.github/workflows/unit-tests.yml
+    needs: poetry-cache-setup
+    secrets: inherit
+    with:
+      session_id: ${{ github.run_id }}
+      test_args: --tag=scripts
 
   test-image-build:
     name: Test image build
@@ -206,7 +182,7 @@ jobs:
   checks-passed:
     name: Build & Test
     runs-on: ubuntu-latest
-    needs: [lint, migrations, test-parallel, test-image-build]
+    needs: [lint, migrations, test-parallel, test-scripts-parallel, test-image-build]
     if: always()
     steps:
       - name: Check status of all jobs
