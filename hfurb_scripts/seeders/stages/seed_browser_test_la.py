@@ -75,6 +75,9 @@ logger = logging.getLogger(__name__)
 
 BROWSER_TEST_ID_PREFIX = "browser-test"
 BROWSER_TEST_SEED = int(os.environ.get("BROWSER_TEST_SEED", 1313))
+# Seeding runs under a frozen clock so that date-relative values (dates of birth,
+# application dates, timestamps) come out the same on any day. Noon rather than
+# midnight so timezone conversion never shifts a date by a day.
 BROWSER_TEST_REFERENCE_DATETIME = datetime(2025, 1, 1, 12, 0, 0)
 MULTI_LA_SECOND_LTLA = BROWSER_TEST_LTLA_NAMES[1]
 
@@ -83,8 +86,12 @@ ChecksStatus = MvAccommodationRequest.ChecksStatus
 Status = MvAccommodationRequest.Status
 AccommodationType = MvAccommodation.AccommodationType
 
-# one entry per seeded accommodation request; every checks status and AR
-# status must appear at least once
+# One entry per seeded accommodation request; every checks status and AR status
+# must appear at least once. Ids are assigned in creation order, so add new
+# scenarios at the end: inserting one in the middle renumbers every record after
+# it and breaks the browser tests that name those records (see
+# browser_tests/seed_scenarios.md for the catalog and the seeder tests for what
+# is asserted).
 AR_SCENARIOS: list[dict] = [
     {
         "checks_status": ChecksStatus.CHECKS_REQUIRED,
