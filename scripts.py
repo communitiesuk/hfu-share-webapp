@@ -97,15 +97,13 @@ def _run_browser_tests(marker: str):
     try:
         test_args = sys.argv[1:]
 
+        if not any("browser_tests" in arg for arg in test_args):
+            test_args.insert(0, "browser_tests")
+
+        command = ["pytest", "-c", "browser_tests/pytest.ini", "-m", marker, *test_args]
+
         subprocess.run(
-            [
-                "pytest",
-                "-c",
-                "browser_tests/pytest.ini",
-                "-m",
-                marker,
-            ]
-            + (test_args if test_args else ["browser_tests"]),
+            command,
             check=True,
         )
     except subprocess.CalledProcessError as error:
