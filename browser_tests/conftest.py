@@ -1,4 +1,5 @@
 import os
+from urllib.parse import urlparse
 
 import pytest
 from dotenv import load_dotenv
@@ -18,9 +19,45 @@ def _verify_config():
         )
 
 
+def _browser_test_url_is_local() -> bool:
+    return urlparse(os.environ["BROWSER_TEST_URL"]).hostname in (
+        "localhost",
+        "127.0.0.1",
+    )
+
+
+def _setup_django():
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "case_management.settings")
+
+    import django
+
+    django.setup()
+
+
 def pytest_sessionstart(session):
     load_dotenv()
     _verify_config()
+
+    if _browser_test_url_is_local():
+        _setup_django()
+
+        from hfurb_scripts.seeders.stages.seed_browser_test_la import (
+            seed_browser_test_la,
+        )
+
+        seed_browser_test_la()
+
+
+def pytest_sessionfinish():
+    if _browser_test_url_is_local():
+        from django.db import transaction
+
+        from hfurb_scripts.seeders.stages.seed_browser_test_la import (
+            wipe_browser_test_la_data,
+        )
+
+        with transaction.atomic():
+            wipe_browser_test_la_data()
 
 
 @pytest.fixture
