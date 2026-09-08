@@ -109,7 +109,7 @@ class SharePage:
     def click_button(self, button_text: str):
         self.main_page.get_by_role("button", name=button_text).click()
 
-    def search(self, text: str):
+    def search(self, text: str) -> None:
         show_filters_button = self.main_page.get_by_role("button", name="Show filters")
         if show_filters_button.count() > 0:
             show_filters_button.click()
