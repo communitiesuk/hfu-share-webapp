@@ -40,7 +40,10 @@ class TestReassignmentRequestJourney(BrowserTest):
         # Open the accommodation request and start "Reassign guests"
         home_page.search(ACCOMMODATION_REQUEST.guest_full_names[0])
         home_page.click_link(ACCOMMODATION_REQUEST.accommodation_request_title)
-        home_page.assert_has_heading(ACCOMMODATION_REQUEST.accommodation_request_title)
+        home_page.assert_has_heading(
+            f"Accommodation request record for "
+            f"{ACCOMMODATION_REQUEST.accommodation_request_title}"
+        )
 
         home_page.click_link("Actions")
         home_page.click_link("Start Move guests (rematch or reassign)")
