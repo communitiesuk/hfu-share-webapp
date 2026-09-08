@@ -36,7 +36,7 @@ def open_page(page: SharePage, path: str, page_name: str):
 @pytest.mark.accessibility
 class TestAccessibility(BrowserTest):
     def test_sign_in_page_has_no_axe_violations(self, home_page: HomePage):
-        home_page.goto(home_page.base_url)
+        home_page.goto("/")
         home_page.close_django_tool_bar()
 
         home_page.assert_has_heading_with_status("Sign in", "Status: Entra ID disabled")
