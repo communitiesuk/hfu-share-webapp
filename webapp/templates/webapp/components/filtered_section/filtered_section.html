@@ -23,6 +23,7 @@
                            name="show_filters_panel"
                            value="{{ filter.show_filters_panel|yesno:'True,False' }}">
                     <div id="filter-container"
+                         aria-expanded="{{ filter.show_filters_panel|yesno:"true,false" }}"
                          style="display: {{ filter.show_filters_panel|yesno:"block,none" }};
                                 width: 400px;
                                 margin-right: 16px"
@@ -134,8 +135,8 @@
             const optionSet = open ? this.optionSets.open : this.optionSets.hidden;
 
             this.filterContainer.style.display = optionSet.filterContainerStyle;
+            this.filterContainer.setAttribute("aria-expanded", optionSet.showFilterAriaExpandedStatus);
             this.showFilterLink.textContent = optionSet.showFilterLinkText;
-            this.showFilterLink.setAttribute("aria-expanded", optionSet.showFilterAriaExpandedStatus);
             if (this.input) this.input.value = optionSet.inputValue;
 
             localStorage.setItem(this.viewKey, optionSet.localStorageValue);
