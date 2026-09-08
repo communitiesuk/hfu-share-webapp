@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 from datetime import datetime, timedelta
@@ -7,6 +8,8 @@ from auditlog.models import LogEntry
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
+from django.core import serializers
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db import transaction
 from django.db.models import Q, QuerySet
 from django.utils import timezone
@@ -560,6 +563,7 @@ def _make_inbound_reassignment(author: User) -> str:
         approve=True,
         author=author,
         reason="Sponsorship placement broke down",
+        id_prefix=BROWSER_TEST_ID_PREFIX,
     )
     logger.info(
         "inbound reassignment: %s moved from %s to %s",
@@ -820,6 +824,67 @@ def _move_guests_off_closed_empty_ar(
     logger.info("closed empty: guests moved from %s to %s", ar.id, receiving_ar.id)
 
 
+SEEDED_ID_START = f"{BROWSER_TEST_ID_PREFIX}-"
+
+APP_CREATED_RECORDS = [
+    (
+        MvInteraction,
+        "interaction",
+        [
+            "linked_accommodation_request",
+            "linked_guest",
+            "linked_sponsor",
+            "linked_accommodation",
+        ],
+    ),
+    (DevCheckV2, "check", ["AR", "person", "sponsor", "accommodation"]),
+    (SafeguardingNotification, "safeguarding-notification", ["ar"]),
+    (SafeguardingReferral, "safeguarding-referral", ["person"]),
+]
+
+
+def _linked_to_seeded_records(link_fields: list[str]) -> Q:
+    linked = Q()
+    for field in link_fields:
+        linked |= Q(**{f"{field}__id__startswith": SEEDED_ID_START})
+    return linked
+
+
+def _stable_ordering_key(record) -> str:
+    fields = serializers.serialize("python", [record])[0]["fields"]
+    return json.dumps(fields, cls=DjangoJSONEncoder, sort_keys=True)
+
+
+def _repoint_references(model, old_id: str, new_id: str) -> None:
+    for relation in model._meta.get_fields(include_hidden=True):
+        is_reference_to_this_model = relation.auto_created and not relation.concrete
+        if is_reference_to_this_model:
+            field = relation.field.name
+            relation.related_model._base_manager.filter(**{field: old_id}).update(
+                **{field: new_id}
+            )
+    LogEntry.objects.filter(
+        content_type=ContentType.objects.get_for_model(model), object_pk=old_id
+    ).update(object_pk=new_id)
+
+
+def _rename_record(record, new_id: str) -> None:
+    model = type(record)
+    _repoint_references(model, record.id, new_id)
+    model._base_manager.filter(id=record.id).update(id=new_id)
+
+
+def _give_app_created_records_browser_test_ids() -> None:
+    for model, id_kind, link_fields in APP_CREATED_RECORDS:
+        app_created = (
+            model._base_manager.filter(_linked_to_seeded_records(link_fields))
+            .exclude(id__startswith=SEEDED_ID_START)
+            .distinct()
+        )
+        for record in sorted(app_created, key=_stable_ordering_key):
+            _rename_record(record, record_id(id_kind, BROWSER_TEST_ID_PREFIX))
+
+
 def _get_browser_test_author() -> User:
     group = Group.objects.get(name=BROWSER_TEST_FIRST_LA_GROUP_NAME)
 
@@ -877,7 +942,7 @@ def seed_browser_test_la() -> None:
 
             match ar.checks_status:
                 case ChecksStatus.CLOSED_LEFT_PROGRAMME:
-                    mutate_closed_left_programme(ar)
+                    mutate_closed_left_programme(ar, BROWSER_TEST_ID_PREFIX)
                 case (
                     ChecksStatus.CHECKS_PARTIALLY_COMPLETED
                     | ChecksStatus.CHECKS_COMPLETED
@@ -892,6 +957,7 @@ def seed_browser_test_la() -> None:
                     approve=False,
                     author=author,
                     reason="Guest has moved in with new partner",
+                    id_prefix=BROWSER_TEST_ID_PREFIX,
                 )
 
             for person in MvPerson.objects.filter(accommodation_request=ar):
@@ -942,6 +1008,7 @@ def seed_browser_test_la() -> None:
         examples["pending outbound reassignment"] = _labelled_ar(
             ars, "pending outbound reassignment"
         ).id
+        _give_app_created_records_browser_test_ids()
 
     logger.info(
         "Successfully reset %s browser test AccommodationRequest objects in %s.",
