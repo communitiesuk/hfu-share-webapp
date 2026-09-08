@@ -20,6 +20,8 @@ from ontology.tests.factories import (
 
 
 def _seeded_id(kind: str, id_prefix: str) -> str:
+    # fake.uuid4() is always drawn, even when a prefixed id is used instead, so
+    # the Faker sequence (and every seeded name and address) stays the same.
     random_id = f"{kind}-{fake.uuid4()}"
     return record_id(kind, id_prefix) if id_prefix else random_id
 
