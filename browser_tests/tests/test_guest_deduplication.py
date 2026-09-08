@@ -5,7 +5,8 @@ from ..pages import HomePage
 from ..seeded_data import SeededGuest
 from .base import BrowserTest
 
-GUEST_ONE = SeededGuest(
+GUEST_CONFIRMED_VISA_CHECKS_REQUIRED = SeededGuest(
+    id="browser-test-person-00027",
     full_name="Ian Yates",
     first_name="Ian",
     last_name="Yates",
@@ -15,7 +16,8 @@ GUEST_ONE = SeededGuest(
     passport_id="36DSA4XOW",
     accommodation_request_title="Ian Yates and 1 other to Flat 32J Bates, SW0Y 7AR",
 )
-GUEST_TWO = SeededGuest(
+GUEST_ARRIVED_VISA_CHECKS_REQUIRED = SeededGuest(
+    id="browser-test-person-00032",
     full_name="Martyn Field",
     first_name="Martyn",
     last_name="Field",
@@ -58,12 +60,16 @@ def _select_guest_record(guest_deduplication_page: HomePage, full_name: str) -> 
 
 
 def _choose_correct_details(guest_deduplication_page: HomePage) -> None:
-    guest_deduplication_page.check_field(GUEST_ONE.first_name)
-    guest_deduplication_page.check_field(GUEST_TWO.last_name)
-    guest_deduplication_page.check_field(GUEST_ONE.date_of_birth)
-    guest_deduplication_page.check_field(GUEST_ONE.email)
-    guest_deduplication_page.check_field(GUEST_TWO.phone)
-    guest_deduplication_page.check_field(GUEST_TWO.passport_id)
+    guest_deduplication_page.check_field(
+        GUEST_CONFIRMED_VISA_CHECKS_REQUIRED.first_name
+    )
+    guest_deduplication_page.check_field(GUEST_ARRIVED_VISA_CHECKS_REQUIRED.last_name)
+    guest_deduplication_page.check_field(
+        GUEST_CONFIRMED_VISA_CHECKS_REQUIRED.date_of_birth
+    )
+    guest_deduplication_page.check_field(GUEST_CONFIRMED_VISA_CHECKS_REQUIRED.email)
+    guest_deduplication_page.check_field(GUEST_ARRIVED_VISA_CHECKS_REQUIRED.phone)
+    guest_deduplication_page.check_field(GUEST_ARRIVED_VISA_CHECKS_REQUIRED.passport_id)
 
 
 class TestGuestDeduplicationJourney(BrowserTest):
@@ -72,7 +78,10 @@ class TestGuestDeduplicationJourney(BrowserTest):
     ) -> None:
         # Filter the list
         _search(guest_deduplication_page, SEARCH_TERM)
-        for full_name in (GUEST_ONE.full_name, GUEST_TWO.full_name):
+        for full_name in (
+            GUEST_CONFIRMED_VISA_CHECKS_REQUIRED.full_name,
+            GUEST_ARRIVED_VISA_CHECKS_REQUIRED.full_name,
+        ):
             expect(
                 guest_deduplication_page.main_page.get_by_role(
                     "button", name=f"Select {full_name}"
@@ -80,7 +89,9 @@ class TestGuestDeduplicationJourney(BrowserTest):
             ).to_have_count(1)
 
         # Select the first record
-        _select_guest_record(guest_deduplication_page, GUEST_ONE.full_name)
+        _select_guest_record(
+            guest_deduplication_page, GUEST_CONFIRMED_VISA_CHECKS_REQUIRED.full_name
+        )
         guest_deduplication_page.assert_has_heading("View selected record")
 
         guest_deduplication_page.click_button("Select another record")
@@ -88,19 +99,27 @@ class TestGuestDeduplicationJourney(BrowserTest):
 
         # Search again and select the second (only remaining) record
         _search(guest_deduplication_page, SEARCH_TERM)
-        _select_guest_record(guest_deduplication_page, GUEST_TWO.full_name)
+        _select_guest_record(
+            guest_deduplication_page, GUEST_ARRIVED_VISA_CHECKS_REQUIRED.full_name
+        )
         guest_deduplication_page.assert_has_heading("View selected records")
 
         # Review the selection
         guest_deduplication_page.click_button("Confirm selection")
         guest_deduplication_page.assert_has_heading("Deduplicate selected records")
-        guest_deduplication_page.assert_page_contains_text(GUEST_ONE.full_name)
-        guest_deduplication_page.assert_page_contains_text(GUEST_TWO.full_name)
+        guest_deduplication_page.assert_page_contains_text(
+            GUEST_CONFIRMED_VISA_CHECKS_REQUIRED.full_name
+        )
+        guest_deduplication_page.assert_page_contains_text(
+            GUEST_ARRIVED_VISA_CHECKS_REQUIRED.full_name
+        )
         guest_deduplication_page.click_button("Continue")
 
         # Select accommodation request
         guest_deduplication_page.assert_has_heading("Select accommodation request")
-        guest_deduplication_page.check_field(GUEST_ONE.accommodation_request_title)
+        guest_deduplication_page.check_field(
+            GUEST_CONFIRMED_VISA_CHECKS_REQUIRED.accommodation_request_title
+        )
         guest_deduplication_page.click_button("Continue deduplication")
 
         # Choose the correct details for the new principal record
