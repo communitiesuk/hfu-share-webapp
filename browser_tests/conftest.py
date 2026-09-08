@@ -1,4 +1,7 @@
 import os
+import subprocess
+import sys
+from pathlib import Path
 from urllib.parse import urlparse
 
 import pytest
@@ -9,6 +12,8 @@ from browser_tests.pages.home_page import HomePage
 from browser_tests.pages.safeguarding_page import SafeguardingPage
 
 from .test_users import USER_TYPES, BrowserTestUserFactory
+
+MANAGE_PY = Path(__file__).resolve().parent.parent / "manage.py"
 
 
 def _verify_config():
@@ -26,12 +31,11 @@ def _browser_test_url_is_local() -> bool:
     )
 
 
-def _setup_django():
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "case_management.settings")
-
-    import django
-
-    django.setup()
+def _run_seed_browser_test_la(*args: str) -> None:
+    subprocess.run(
+        [sys.executable, str(MANAGE_PY), "seed_browser_test_la", *args],
+        check=True,
+    )
 
 
 def pytest_sessionstart(session):
@@ -39,25 +43,12 @@ def pytest_sessionstart(session):
     _verify_config()
 
     if _browser_test_url_is_local():
-        _setup_django()
-
-        from hfurb_scripts.seeders.stages.seed_browser_test_la import (
-            seed_browser_test_la,
-        )
-
-        seed_browser_test_la()
+        _run_seed_browser_test_la("--seed")
 
 
 def pytest_sessionfinish():
     if _browser_test_url_is_local():
-        from django.db import transaction
-
-        from hfurb_scripts.seeders.stages.seed_browser_test_la import (
-            wipe_browser_test_la_data,
-        )
-
-        with transaction.atomic():
-            wipe_browser_test_la_data()
+        _run_seed_browser_test_la("--wipe")
 
 
 @pytest.fixture
