@@ -1,5 +1,4 @@
 import os
-import random
 from datetime import datetime, timedelta
 from typing import cast
 
@@ -10,7 +9,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
 from django.db.models import Q, QuerySet
 from django.utils import timezone
-from faker import Faker
 from freezegun import freeze_time
 
 from accounts.enums import BROWSER_TEST_LA_GROUP_NAME, BROWSER_TEST_LTLA_NAMES
@@ -38,6 +36,7 @@ from hfurb_scripts.seeders.mutators import (
     mutate_closed_left_programme,
     mutate_rematch_required,
 )
+from hfurb_scripts.seeders.rng import seed_seeders
 from ontology.models import (
     Comment,
     CommentAttachment,
@@ -846,8 +845,7 @@ def seed_browser_test_la() -> None:
         wipe_browser_test_la_data()
 
         print(f"Using {BROWSER_TEST_SEED=}")
-        random.seed(BROWSER_TEST_SEED)
-        Faker.seed(BROWSER_TEST_SEED)
+        seed_seeders(BROWSER_TEST_SEED)
         reset_record_id_counters()
         author = _get_browser_test_author()
 

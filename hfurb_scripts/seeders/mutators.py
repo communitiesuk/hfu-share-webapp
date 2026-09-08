@@ -1,13 +1,11 @@
 import os
-import random
-
-from faker import Faker
 
 from accommodation_requests.forms import (
     AccommodationRequestUpdateSafeguardingChecksForm,
 )
 from accounts.models import User
 from hfurb_scripts.seeders.helpers import get_group_info_from_ltla, record_id
+from hfurb_scripts.seeders.rng import fake, rng
 from ontology.models import (
     DevCheckV2,
     MvAccommodationRequest,
@@ -19,8 +17,6 @@ from ontology.tests.factories import (
     DevCheckV2Factory,
     InteractionFactory,
 )
-
-fake = Faker()
 
 
 def mutate_closed_left_programme(accommodation_request: MvAccommodationRequest) -> None:
@@ -43,7 +39,7 @@ def mutate_rematch_required(
 ) -> None:
     # Create RR
     if destination_ltla_name is None:
-        destination_ltla_name = random.choice(["Lewisham", "Bromley", "Croydon"])
+        destination_ltla_name = rng.choice(["Lewisham", "Bromley", "Croydon"])
         # Ensure ltla_name is different from the current one
         if destination_ltla_name == accommodation_request.ltla_name:
             destination_ltla_name = (
@@ -72,7 +68,7 @@ def mutate_rematch_required(
 
     if approve is None:
         # randomise number from 0 to 2
-        approve = random.randint(0, 2) == 0
+        approve = rng.randint(0, 2) == 0
     if not approve:
         return  # Do not approve the request
 
@@ -180,12 +176,12 @@ def mutate_checks(  # noqa: C901
             ]
 
         if choices:
-            return random.choice(choices)
+            return rng.choice(choices)
 
         return None
 
     if status == MvAccommodationRequest.ChecksStatus.CHECKS_PARTIALLY_COMPLETED:
-        type_id, link_attr, link_obj = random.choice(checks)
+        type_id, link_attr, link_obj = rng.choice(checks)
         _create_check(type_id, link_attr, link_obj, DevCheckV2.CheckStatus.PASSED)
 
     elif status == MvAccommodationRequest.ChecksStatus.CHECKS_COMPLETED:
@@ -193,7 +189,7 @@ def mutate_checks(  # noqa: C901
             _create_check(type_id, link_attr, link_obj, DevCheckV2.CheckStatus.PASSED)
 
     elif status == MvAccommodationRequest.ChecksStatus.SOME_CHECKS_FAILED:
-        type_id, link_attr, link_obj = random.choice(checks)
+        type_id, link_attr, link_obj = rng.choice(checks)
         devcheck = _create_check(
             type_id, link_attr, link_obj, DevCheckV2.CheckStatus.FAILED
         )
