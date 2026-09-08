@@ -1,15 +1,50 @@
 import pytest
 
 from ..pages import HomePage, SafeguardingPage
-from ..seeded_data import (
-    AR_CHECKS_PARTIALLY_COMPLETED_WITH_CASE_COMMENTS,
-    AR_CHECKS_REQUIRED_THREE_GUESTS,
-    AR_CHECKS_REQUIRED_TWO_GUESTS,
-    AR_DEDUPLICATED_GUEST_PAIR,
-    AR_REJECTED_OUTBOUND_REASSIGNMENT,
-    SeededAccommodationRequest,
-)
+from ..seeded_data import SeededAccommodationRequest
 from .base import BrowserTest
+
+AR_CHECKS_REQUIRED_THREE_GUESTS = SeededAccommodationRequest(
+    id="browser-test-ar-00030",
+    full_name="Helen Walker and 2 others",
+    accommodation_request_title="Helen Walker and 2 others to 6 Luke avenue,, L1 6XL",
+    address="6 Luke avenue, Hobbiton",
+    sponsor="Colin Khan (alice57@example.org)",
+)
+AR_CHECKS_REQUIRED_TWO_GUESTS = SeededAccommodationRequest(
+    id="browser-test-ar-00005",
+    full_name="Kirsty Hawkins and 1 other",
+    accommodation_request_title=(
+        "Kirsty Hawkins and 1 other to Studio 83 Evan, TF57 2UR"
+    ),
+    address="Studio 83 Evans canyon, Hobbiton",
+    sponsor="Michael Murphy (hughesjohn@example.org)",
+)
+AR_REJECTED_OUTBOUND_REASSIGNMENT = SeededAccommodationRequest(
+    id="browser-test-ar-00039",
+    full_name="Howard Johnson and 2 others",
+    accommodation_request_title=(
+        "Howard Johnson and 2 others to 8 Fowler trail, PO4X 3EQ"
+    ),
+    address="8 Fowler trail, Hobbiton",
+    sponsor="Julian Baker (vwilliams@example.com)",
+)
+AR_CHECKS_PARTIALLY_COMPLETED_WITH_CASE_COMMENTS = SeededAccommodationRequest(
+    id="browser-test-ar-00011",
+    full_name="Jonathan Greenwood and 1 other",
+    accommodation_request_title=(
+        "Jonathan Greenwood and 1 other to 35 Amelia fiel, L8 1TQ"
+    ),
+    address="35 Amelia field, Hobbiton",
+    sponsor="Adrian Gardner (boylemandy@example.org)",
+)
+AR_DEDUPLICATED_GUEST_PAIR = SeededAccommodationRequest(
+    id="browser-test-ar-00042",
+    full_name="Eileen Austin",
+    accommodation_request_title="Eileen Austin to 76 Helen sprin, B8 3RS",
+    address="76 Helen spring, Hobbiton",
+    sponsor="June Evans (hporter@example.org)",
+)
 
 
 def _record_heading(ar: SeededAccommodationRequest) -> str:

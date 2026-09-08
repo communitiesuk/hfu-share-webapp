@@ -2,12 +2,31 @@ import pytest
 from playwright.sync_api import expect
 
 from ..pages import HomePage
-from ..seeded_data import (
-    GUEST_ARRIVED_VISA_CHECKS_REQUIRED,
-    GUEST_CONFIRMED_VISA_CHECKS_REQUIRED,
-)
+from ..seeded_data import SeededGuest
 from .base import BrowserTest
 
+GUEST_CONFIRMED_VISA_CHECKS_REQUIRED = SeededGuest(
+    id="browser-test-person-00027",
+    full_name="Ian Yates",
+    first_name="Ian",
+    last_name="Yates",
+    date_of_birth="12 June 1966",
+    email="cliffordgreen@example.org",
+    phone="01214960497",
+    passport_id="36DSA4XOW",
+    accommodation_request_title="Ian Yates and 1 other to Flat 32J Bates, SW0Y 7AR",
+)
+GUEST_ARRIVED_VISA_CHECKS_REQUIRED = SeededGuest(
+    id="browser-test-person-00032",
+    full_name="Martyn Field",
+    first_name="Martyn",
+    last_name="Field",
+    date_of_birth="22 January 2004",
+    email="eileenstanley@example.org",
+    phone="(0306)9990909",
+    passport_id="B53RZIT9A",
+    accommodation_request_title="Martyn Field and 1 other to 79 Owen stream, N4J 5SJ",
+)
 SEARCH_TERM = "yates field"
 
 

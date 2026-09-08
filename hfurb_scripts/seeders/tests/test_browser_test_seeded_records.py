@@ -6,16 +6,17 @@ from accounts.enums import (
     GroupType,
 )
 from accounts.tests.factories import GroupFactory, UserFactory
-from browser_tests.seeded_data import (
+from browser_tests.seeded_data import SeededAccommodationRequest, SeededGuest
+from browser_tests.tests.test_guest_deduplication import (
+    GUEST_ARRIVED_VISA_CHECKS_REQUIRED,
+    GUEST_CONFIRMED_VISA_CHECKS_REQUIRED,
+)
+from browser_tests.tests.test_safeguarding import (
     AR_CHECKS_PARTIALLY_COMPLETED_WITH_CASE_COMMENTS,
     AR_CHECKS_REQUIRED_THREE_GUESTS,
     AR_CHECKS_REQUIRED_TWO_GUESTS,
     AR_DEDUPLICATED_GUEST_PAIR,
     AR_REJECTED_OUTBOUND_REASSIGNMENT,
-    GUEST_ARRIVED_VISA_CHECKS_REQUIRED,
-    GUEST_CONFIRMED_VISA_CHECKS_REQUIRED,
-    SeededAccommodationRequest,
-    SeededGuest,
 )
 from hfurb_scripts.seeders.stages.seed_browser_test_la import seed_browser_test_la
 from ontology.models import MvAccommodationRequest, MvPerson
