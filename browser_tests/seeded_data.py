@@ -3,6 +3,7 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class SeededGuest:
+    id: str
     full_name: str
     first_name: str
     last_name: str
@@ -15,6 +16,7 @@ class SeededGuest:
 
 @dataclass(frozen=True)
 class SeededAccommodationRequest:
+    id: str
     full_name: str
     accommodation_request_title: str
     address: str

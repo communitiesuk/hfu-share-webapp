@@ -1,13 +1,12 @@
-import random
 import uuid
 from datetime import date, timedelta
 from typing import List, Optional
 
 from django.utils import timezone
-from faker import Faker
 
 from accounts.enums import BROWSER_TEST_LTLA_NAMES
 from accounts.models import GroupInfo
+from hfurb_scripts.seeders.rng import fake, rng
 from ontology.models import (
     CheckType,
     ExportToolObject,
@@ -33,8 +32,6 @@ from ontology.tests.factories import (
     SponsorshipCertificationFormFactory,
     VisaApplicationFactory,
 )
-
-fake = Faker("en_GB")
 
 
 def get_group_info_from_ltla(ltla_name: str) -> Optional[GroupInfo]:
@@ -111,7 +108,7 @@ def create_mv_sponsor(
     if sponsor_type is None:
         sponsor_type = MvVolunteer.SponsorType.INDIVIDUAL
 
-    age = random.randint(21, 70)
+    age = rng.randint(21, 70)
     # Generate a valid date of birth matching the age
     date_of_birth = fake.date_of_birth(minimum_age=age, maximum_age=age)
 
@@ -141,12 +138,12 @@ def create_mv_sponsor(
         ],
         residential_postcodes=[
             fake.postcode()
-            for _ in range(random.choices([1, 2, 3], weights=[90, 7, 3])[0])
+            for _ in range(rng.choices([1, 2, 3], weights=[90, 7, 3])[0])
         ],  # noqa: E501
         nationality=[],
-        other_nationalities=[random.choices(["No", "Yes"], weights=[80, 20])[0]],
-        flag_unsuitable=random.choices([False, True], weights=[97, 3])[0],
-        hosting_duration=random.randint(6, 15),
+        other_nationalities=[rng.choices(["No", "Yes"], weights=[80, 20])[0]],
+        flag_unsuitable=rng.choices([False, True], weights=[97, 3])[0],
+        hosting_duration=rng.randint(6, 15),
         requested_checks_latest_date=fake.date_time_between(
             start_date="-1y", end_date="now", tzinfo=timezone.get_current_timezone()
         ),
@@ -186,7 +183,7 @@ def create_mv_person(
     if visa_status is None:
         visa_status = "Confirmed"
 
-    age = random.randint(18, 65)
+    age = rng.randint(18, 65)
     # Generate a valid date of birth matching the age
     date_of_birth = fake.date_of_birth(minimum_age=age, maximum_age=age)
 
@@ -272,7 +269,7 @@ def create_mv_accommodation_request(
 
     if checks_status is None:
         checks_status = MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED
-    latest_application_date = timezone.now() - timedelta(days=random.randint(30, 365))
+    latest_application_date = timezone.now() - timedelta(days=rng.randint(30, 365))
 
     if id_prefix:
         unique_application_number = f"1313-0000-{next_serial(f'{id_prefix}-uan'):08d}"
@@ -333,7 +330,7 @@ def create_visa_application(
     )
 
     # Generate random visa decision date (between 30 and 180 days ago)
-    visa_decision_date = timezone.now() - timedelta(days=random.randint(30, 180))
+    visa_decision_date = timezone.now() - timedelta(days=rng.randint(30, 180))
 
     if id_prefix:
         visa_application_id = record_id("visa", id_prefix)
@@ -350,7 +347,7 @@ def create_visa_application(
         Q44c_family_name=person.last_name,
         Q44g_full_name=f"{person.first_name} {person.last_name}",
         Q11b_applicant_date_of_birth=date(
-            2024 - person.age, random.randint(1, 12), random.randint(1, 28)
+            2024 - person.age, rng.randint(1, 12), rng.randint(1, 28)
         )
         if person.age
         else None,
@@ -369,7 +366,7 @@ def create_visa_application(
         ),
         visa_status=visa_status,
         application_event_datetime=timezone.now()
-        - timedelta(days=random.randint(30, 365)),
+        - timedelta(days=rng.randint(30, 365)),
     )
 
 
@@ -404,7 +401,7 @@ def create_uam(
         minor_email=person.email[0],
         minor_phone_number=person.phone[0],
         minor_contact_type=["email"],
-        created_at=timezone.now() - timedelta(days=random.randint(30, 365)),
+        created_at=timezone.now() - timedelta(days=rng.randint(30, 365)),
         ltla_name=[accommodation.ltla_name],
         uk_parental_consent_filename="uk_parental_consent.txt",
         ukraine_parental_consent_filename="ukraine_parental_consent.txt",
@@ -490,7 +487,7 @@ def add_attachments_to_uam(
     uk_path = "uk-form-id/uk_parental_consent.txt"
     ukr_path = "ukr-form-id/ukraine_parental_consent.txt"
 
-    if random.choice([True, False]):
+    if rng.choice([True, False]):
         SponsorshipCertificationAttachmentMetadataFactory(
             id=record_id("attachment", id_prefix),
             sponsorship_certification_form=uam,
@@ -558,7 +555,7 @@ def build_complete_accommodation_scenario(
 
     if make_uam is None:
         # randomize a number from 0 to 4
-        one_in_five = random.randint(0, 4)
+        one_in_five = rng.randint(0, 4)
         make_uam = (one_in_five == 0) and (num_guests == 1)
     if not make_uam:
         for i, person in enumerate(people):
@@ -588,8 +585,8 @@ def build_complete_accommodation_scenario(
 
 
 def create_new_accommodation_request_for_person(person: MvPerson):
-    accommodation = random.choice(list(MvAccommodation.objects.all()))
-    sponsor = random.choice(list(MvVolunteer.objects.all()))
+    accommodation = rng.choice(list(MvAccommodation.objects.all()))
+    sponsor = rng.choice(list(MvVolunteer.objects.all()))
     group = create_mv_group([person])
 
     add_people_to_group(group, [person])
@@ -610,18 +607,18 @@ def create_new_visa_application_for_person(person: MvPerson):
         sponsor = (
             primary_sponsor
             if primary_sponsor and primary_sponsor.is_editable
-            else random.choice(list(MvVolunteer.objects.filter(is_editable=True)))
+            else rng.choice(list(MvVolunteer.objects.filter(is_editable=True)))
         )
 
         primary_accommodation = accommodation_request.get_primary_accommodation()
         accommodation = (
             primary_accommodation
             if primary_accommodation and primary_accommodation.is_editable
-            else random.choice(list(MvAccommodation.objects.filter(is_editable=True)))
+            else rng.choice(list(MvAccommodation.objects.filter(is_editable=True)))
         )
     else:
-        sponsor = random.choice(list(MvVolunteer.objects.filter(is_editable=True)))
-        accommodation = random.choice(
+        sponsor = rng.choice(list(MvVolunteer.objects.filter(is_editable=True)))
+        accommodation = rng.choice(
             list(MvAccommodation.objects.filter(is_editable=True))
         )
 
