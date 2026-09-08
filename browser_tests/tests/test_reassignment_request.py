@@ -87,7 +87,9 @@ class TestReassignmentRequestJourney(BrowserTest):
 
         # It appears on the sending LA's "Made" list as Pending
         home_page.goto("/reassignment-requests/made/")
-        row = home_page.main_page.locator("tr", has_text=ACCOMMODATION_REQUEST.guest_full_names[0])
+        row = home_page.main_page.locator(
+            "tr", has_text=ACCOMMODATION_REQUEST.guest_full_names[0]
+        )
         expect(row).to_contain_text("Pending")
 
         # Confirm it's correctly destined for the receiving LA.
