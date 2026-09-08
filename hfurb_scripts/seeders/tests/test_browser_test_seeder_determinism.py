@@ -60,6 +60,8 @@ def _snapshot() -> str:
 
 
 def _drain_global_randomness(*args, **kwargs):
+    # Stands in for anything else in the process drawing from the shared
+    # generators mid-seed, as the Sentry log batcher thread does on dev.
     random.random()
     Faker().name()
     return _original_create_mv_person(*args, **kwargs)
