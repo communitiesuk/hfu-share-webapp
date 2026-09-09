@@ -1,6 +1,10 @@
 from django.db.models import QuerySet
 
-from accounts.enums import BROWSER_TEST_LTLA_NAMES, GroupType
+from accounts.enums import (
+    BROWSER_TEST_LTLA_NAMES,
+    BROWSER_TEST_SECOND_LTLA_NAME,
+    GroupType,
+)
 from accounts.models import User
 from accounts.tests.factories import GroupFactory, UserFactory
 from ontology.models import (
@@ -41,6 +45,9 @@ class BrowserTestLaScopingTestCase(LocalAuthorityPermissionsManagerBaseTestCase)
         self.browser_test_object = VisaApplicationFactory(
             ltla_name=BROWSER_TEST_LTLA_NAMES[0], utla_name=""
         )
+        self.second_browser_test_object = VisaApplicationFactory(
+            ltla_name=BROWSER_TEST_SECOND_LTLA_NAME, utla_name=""
+        )
 
     def assert_get_for_user_returns(
         self, user: User, visa_applications: list[VisaApplication]
@@ -74,6 +81,20 @@ class BrowserTestLaScopingTestCase(LocalAuthorityPermissionsManagerBaseTestCase)
         self.assert_get_for_user_returns(
             self.browser_test_user, [self.browser_test_object]
         )
+
+    def test_records_in_the_second_browser_test_la_are_hidden(self):
+        for user in (
+            self.ltla_one_a_user,
+            self.da_england_user,
+            self.ltla_user_dev,
+            get_mhclg_user(),
+            get_ukvi_user(),
+        ):
+            with self.subTest(user.username):
+                self.assertNotIn(
+                    self.second_browser_test_object,
+                    VisaApplication.objects.get_for_user(user),
+                )
 
 
 class BrowserTestLaGuardsTestCase(BaseTestCase):

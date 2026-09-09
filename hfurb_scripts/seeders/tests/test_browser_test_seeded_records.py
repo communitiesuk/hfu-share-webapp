@@ -1,11 +1,6 @@
 from django.test import override_settings
 
-from accounts.enums import (
-    BROWSER_TEST_LA_GROUP_NAME,
-    BROWSER_TEST_LTLA_NAMES,
-    GroupType,
-)
-from accounts.tests.factories import GroupFactory, UserFactory
+from accounts.tests.factories import UserFactory
 from browser_tests.seeded_data import SeededAccommodationRequest, SeededGuest
 from browser_tests.tests.test_guest_deduplication import (
     GUEST_ARRIVED_VISA_CHECKS_REQUIRED,
@@ -19,6 +14,7 @@ from browser_tests.tests.test_safeguarding import (
     AR_REJECTED_OUTBOUND_REASSIGNMENT,
 )
 from hfurb_scripts.seeders.stages.seed_browser_test_la import seed_browser_test_la
+from hfurb_scripts.seeders.tests.helpers import create_browser_test_la_groups
 from ontology.models import MvAccommodationRequest, MvPerson
 from test_utils.base import BaseTestCase
 
@@ -27,14 +23,8 @@ from test_utils.base import BaseTestCase
 class BrowserTestSeededRecordsTestCase(BaseTestCase):
     @classmethod
     def setUpTestData(cls):
-        group = GroupFactory(
-            name=BROWSER_TEST_LA_GROUP_NAME,
-            groupinfo__ltla_name=BROWSER_TEST_LTLA_NAMES[0],
-            groupinfo__utla_name="Hobbiton (Browser test UTLA)",
-            groupinfo__da_name="England",
-            groupinfo__group_type=GroupType.LOCAL_AUTHORITY_BROWSER_TEST,
-        )
-        UserFactory().groups.add(group)
+        groups = create_browser_test_la_groups()
+        UserFactory().groups.add(groups[0])
         seed_browser_test_la()
 
     def assert_seeded_guest(self, expected: SeededGuest) -> None:
