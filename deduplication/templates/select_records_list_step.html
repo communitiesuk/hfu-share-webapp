@@ -7,11 +7,7 @@
     {% include "webapp/components/notification_banner/notification_banner_from_messages.html" %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-one-half">
-            {% if selected_ids|length == 0 %}
-                {% include "webapp/components/heading/heading.html" with page_heading="Fix duplicate "|add:type|add:" records" %}
-            {% else %}
-                {% include "webapp/components/heading/heading.html" with page_heading="Select next record" %}
-            {% endif %}
+            {% include "webapp/components/heading/heading.html" with page_heading=page_heading %}
             <p class="govuk-body">Select a record to review and deduplicate. You can use the filter panel to find records.</p>
             <p class="govuk-body">
                 You cannot deduplicate records across lower tier local authorities (LAs). Records with links to multiple LAs are hidden from the list.
