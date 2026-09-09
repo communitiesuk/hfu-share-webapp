@@ -7,7 +7,7 @@ from hfurb_scripts.seeders.stages.seed_browser_test_la import (
     BROWSER_TEST_ID_PREFIX,
     seed_browser_test_la,
 )
-from hfurb_scripts.seeders.tests.helpers import create_browser_test_la_groups
+from hfurb_scripts.seeders.tests.factories import create_browser_test_la_groups
 from ontology.models import (
     ExportToolObject,
     MvAccommodation,

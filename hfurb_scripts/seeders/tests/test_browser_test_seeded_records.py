@@ -14,7 +14,7 @@ from browser_tests.tests.test_safeguarding import (
     AR_REJECTED_OUTBOUND_REASSIGNMENT,
 )
 from hfurb_scripts.seeders.stages.seed_browser_test_la import seed_browser_test_la
-from hfurb_scripts.seeders.tests.helpers import create_browser_test_la_groups
+from hfurb_scripts.seeders.tests.factories import create_browser_test_la_groups
 from hfurb_scripts.tests.base import BaseScriptTestCase
 from ontology.models import MvAccommodationRequest, MvPerson
 
