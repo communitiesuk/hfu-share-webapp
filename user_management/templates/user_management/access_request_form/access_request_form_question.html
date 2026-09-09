@@ -17,13 +17,11 @@
 {% load crispy_forms_filters crispy_forms_tags crispy_forms_gds %}
 {% block form-content %}
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
+        <div class="govuk-grid-column-one-half">
             {% error_summary wizard.form %}
-            {% include "webapp/components/heading/heading.html" with page_heading=title %}
-        </div>
-    </div>
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-one-third">
+            {% if title %}
+                {% include "webapp/components/heading/heading.html" with page_heading=title %}
+            {% endif %}
             <form method="post">
                 {% csrf_token %}
                 {{ wizard.management_form }}
