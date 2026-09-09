@@ -60,21 +60,6 @@ def pytest_sessionstart(session):
         seed_browser_test_la()
 
 
-def pytest_sessionfinish():
-    if _browser_test_url_is_local():
-        from django.db import transaction
-
-        from hfurb_scripts.seeders.stages.seed_browser_test_la import (
-            wipe_browser_test_la_data,
-        )
-
-        with transaction.atomic():
-            wipe_browser_test_la_data()
-
-    if _browser_test_url_is_local():
-        _run_seed_browser_test_la("--seed")
-
-
 @pytest.fixture
 def home_page_factory(page: Page):
     def create(user_type):
