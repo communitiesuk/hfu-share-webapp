@@ -3,7 +3,6 @@ import subprocess
 import sys
 from pathlib import Path
 from urllib.parse import urlparse
-from urllib.parse import urlparse
 
 import pytest
 from dotenv import load_dotenv
@@ -38,13 +37,6 @@ def _setup_django():
     import django
 
     django.setup()
-
-
-def _browser_test_url_is_local() -> bool:
-    return urlparse(os.environ["BROWSER_TEST_URL"]).hostname in (
-        "localhost",
-        "127.0.0.1",
-    )
 
 
 def _run_seed_browser_test_la(*args: str) -> None:
