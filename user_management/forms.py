@@ -3,6 +3,7 @@ from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import HTML, Button, Div, Field, Layout, Size
 from django import forms
 from django.core.exceptions import ValidationError
+from django.template.loader import render_to_string
 from django.urls import reverse
 
 from accounts.enums import GroupType
@@ -51,7 +52,7 @@ class AccessRequestFormGroupTypeStep(forms.Form):
                 )
             )
         ],
-        label="",
+        label="Select user group",
         widget=forms.RadioSelect(),
     )
 
@@ -59,14 +60,14 @@ class AccessRequestFormGroupTypeStep(forms.Form):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Field.radios("group_type"),
+            Field.radios("group_type", legend_size=Size.EXTRA_LARGE, legend_tag="h1"),
             Div(
                 Button("button", "Next"),
                 HTML(
-                    f'<a href="{reverse("webapp:landing-page")}"'
-                    f'class="govuk-link govuk-link--no-visited-state govuk-body">'
-                    f"Cancel"
-                    f"</a>"
+                    render_to_string(
+                        "user_management/access_request_form/buttons/cancel_link.html",
+                        {"cancel_url": reverse("webapp:landing-page")},
+                    )
                 ),
                 style="display: flex; gap: 16px; align-items: baseline",
             ),
@@ -76,7 +77,10 @@ class AccessRequestFormGroupTypeStep(forms.Form):
 class AccessRequestFormDaGroupTypeStep(forms.Form):
     da_group_type = forms.ChoiceField(
         choices=AccessRequest.DaGroupType.choices,
-        label="",
+        label="Select user group",
+        help_text=render_to_string(
+            "user_management/access_request_form/help_text/da_group_type_hint.html"
+        ),
         widget=forms.RadioSelect(),
     )
 
@@ -84,21 +88,16 @@ class AccessRequestFormDaGroupTypeStep(forms.Form):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            HTML(
-                '<p class="govuk-body">'
-                "If you need to see the data for a whole country select "
-                "'Central user'. If you need the data for a local authority "
-                "in a devolved administration select 'Local authority'."
-                "</p>"
+            Field.radios(
+                "da_group_type", legend_size=Size.EXTRA_LARGE, legend_tag="h1"
             ),
-            Field.radios("da_group_type"),
             Div(
                 Button("button", "Next"),
                 HTML(
-                    '<button type="submit" name="wizard_goto_step" value="group_type" '
-                    'class="govuk-link govuk-link--no-visited-state">'
-                    "Cancel"
-                    "</button>"
+                    render_to_string(
+                        "user_management/access_request_form/buttons/cancel_button.html",
+                        {"value": "group_type"},
+                    )
                 ),
                 css_class="govuk-button-group",
             ),
@@ -126,11 +125,10 @@ class AccessRequestFormDevolvedAdministrationStep(forms.Form):
             Div(
                 Button("button", "Next"),
                 HTML(
-                    '<button type="submit" name="wizard_goto_step" '
-                    'value="da_group_type" '
-                    'class="govuk-link govuk-link--no-visited-state">'
-                    "Cancel"
-                    "</button>"
+                    render_to_string(
+                        "user_management/access_request_form/buttons/cancel_button.html",
+                        {"value": "da_group_type"},
+                    )
                 ),
                 css_class="govuk-button-group",
             ),
@@ -144,14 +142,8 @@ class AccessRequestFormLocalAuthorityStep(forms.Form):
         ).order_by("group__name"),
         empty_label="",
         label="Select an upper tier or lower tier local authority",
-        help_text=(
-            "You can only select one. If you need to select more you "
-            "will need to start a new data access request for each area.</br></br>"
-            "If you are from a unitary authority you can select either LTLA or UTLA "
-            "for the relevant area you need to access to.</br></br>"
-            "UTLA users only need to select their relevant UTLA. They will also get "
-            "access to the LTLA data for that area, they do not need to submit "
-            "another data access request for LTLA data."
+        help_text=render_to_string(
+            "user_management/access_request_form/help_text/local_authority_hint.html"
         ),
         error_messages={"required": "You must select one."},
         widget=SearchableSelect(),
@@ -171,9 +163,10 @@ class AccessRequestFormLocalAuthorityStep(forms.Form):
 
 class AccessRequestFormJustificationStep(forms.Form):
     justification = forms.CharField(
-        label="Reason for requesting access",
-        help_text="For example, I am working on the Homes for Ukraine scheme in (your "
-        "local authority) and need access to the records.",
+        label="Tell us why you need access",
+        help_text=render_to_string(
+            "user_management/access_request_form/help_text/justification_hint.html",
+        ),
         widget=forms.Textarea(),
         error_messages={"required": "Enter why you need access"},
     )
@@ -182,16 +175,10 @@ class AccessRequestFormJustificationStep(forms.Form):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            HTML(
-                '<p class="govuk-body">'
-                "Tell us which local authority or department you work for "
-                "and why you need access to this data."
-                "</p>"
-            ),
             Field(
                 "justification",
-                context={"label_size": "govuk-visually-hidden"},
                 rows="5",
+                context={"label_tag": "h1", "label_size": "govuk-label--xl"},
             ),
             Button("button", "Next"),
         )
@@ -233,10 +220,10 @@ class AccessRequestApprovalForm(forms.Form):
             Div(
                 Button("submit", "Confirm"),
                 HTML(
-                    f'<a href="{reverse("user-management:access-requests")}"'
-                    f'class="govuk-link govuk-link--no-visited-state govuk-body">'
-                    f"Cancel"
-                    f"</a>"
+                    render_to_string(
+                        "user_management/access_request_form/buttons/cancel_link.html",
+                        {"cancel_url": reverse("user-management:access-requests")},
+                    )
                 ),
                 style="display: flex; gap: 16px; align-items: baseline",
             ),
