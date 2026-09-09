@@ -43,11 +43,8 @@ ACCESS_REQUEST_TEMPLATES = {
 
 
 ACCESS_REQUEST_FORM_TITLES = {
-    "group_type": "Select user group",
-    "da_group_type": "Select user group",
     "local_authority": "Local authority",
     "devolved_administration": "Devolved administration: central user",
-    "justification": "Tell us why you need access",
     "review": "Check your answers",
 }
 
