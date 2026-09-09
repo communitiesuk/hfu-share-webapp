@@ -21,7 +21,7 @@ class TestRequestAccessJourney(BrowserTest):
         home_page.assert_has_heading("Tell us why you need access")
 
         home_page.enter_text_into_form_field(
-            "Reason for requesting access", reason_for_access
+            "Tell us why you need access", reason_for_access
         )
         home_page.click_button("Next")
         home_page.assert_has_heading("Check your answers")

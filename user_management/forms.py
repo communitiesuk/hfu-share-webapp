@@ -177,7 +177,6 @@ class AccessRequestFormJustificationStep(forms.Form):
         self.helper.layout = Layout(
             Field(
                 "justification",
-                label_tag="h1",
                 rows="5",
                 context={"label_tag": "h1", "label_size": "govuk-label--xl"},
             ),
