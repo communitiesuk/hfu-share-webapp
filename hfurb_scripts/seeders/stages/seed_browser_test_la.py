@@ -1,3 +1,4 @@
+import logging
 import os
 from datetime import datetime, timedelta
 from typing import cast
@@ -66,6 +67,8 @@ from ontology.models.SponsorshipCertificationAttachmentMetadata import (
     SponsorshipCertificationAttachmentMetadata,
 )
 from ontology.tests.factories import CommentFactory
+
+logger = logging.getLogger(__name__)
 
 BROWSER_TEST_ID_PREFIX = "browser-test"
 BROWSER_TEST_SEED = int(os.environ.get("BROWSER_TEST_SEED", 1313))
@@ -284,7 +287,7 @@ def _delete_with_audit_logs(label: str, queryset: QuerySet) -> None:
         content_type=ContentType.objects.get_for_model(model),
         object_pk__in=pks,
     ).delete()
-    print(f"wiped {len(pks)} {label}")
+    logger.info("wiped %s %s", len(pks), label)
 
 
 def wipe_browser_test_la_data() -> None:
@@ -487,7 +490,7 @@ def wipe_browser_test_la_data() -> None:
     stray_log_count = stray_logs.count()
     if stray_log_count:
         stray_logs.delete()
-        print(f"wiped {stray_log_count} stray audit log entries")
+        logger.info("wiped %s stray audit log entries", stray_log_count)
 
 
 def _make_multi_la_accommodation_request(ar: MvAccommodationRequest) -> str:
@@ -521,7 +524,7 @@ def _make_multi_la_accommodation_request(ar: MvAccommodationRequest) -> str:
         ]
         person.save()
 
-    print(f"multi-LA AR: {ar.id} extended into {MULTI_LA_SECOND_LTLA}")
+    logger.info("multi-LA AR: %s extended into %s", ar.id, MULTI_LA_SECOND_LTLA)
     return ar.id
 
 
@@ -530,9 +533,10 @@ def _make_multi_la_sponsor(ar: MvAccommodationRequest) -> str:
         MULTI_LA_SECOND_LTLA, id_prefix=BROWSER_TEST_ID_PREFIX
     )
     add_accommodation_to_sponsor(ar.primary_sponsor, extra_accommodation)
-    print(
-        f"multi-LA sponsor: {ar.primary_sponsor.id} "
-        f"owns property in {MULTI_LA_SECOND_LTLA}"
+    logger.info(
+        "multi-LA sponsor: %s owns property in %s",
+        ar.primary_sponsor.id,
+        MULTI_LA_SECOND_LTLA,
     )
     return ar.primary_sponsor.id
 
@@ -552,9 +556,11 @@ def _make_inbound_reassignment(author: User) -> str:
         author=author,
         reason="Sponsorship placement broke down",
     )
-    print(
-        f"inbound reassignment: {ar.id} moved from "
-        f"{MULTI_LA_SECOND_LTLA} to {BROWSER_TEST_LTLA_NAMES[0]}"
+    logger.info(
+        "inbound reassignment: %s moved from %s to %s",
+        ar.id,
+        MULTI_LA_SECOND_LTLA,
+        BROWSER_TEST_LTLA_NAMES[0],
     )
     return ar.id
 
@@ -579,7 +585,7 @@ def _make_rejected_outbound_reassignment(ar: MvAccommodationRequest) -> str:
     )
     reassignment_request.save()
     reassignment_request.guests.set(ar.get_people())
-    print(f"rejected outbound reassignment on {ar.id}")
+    logger.info("rejected outbound reassignment on %s", ar.id)
     return ar.id
 
 
@@ -618,7 +624,7 @@ def _make_deduplicated_guest_pair(author: User) -> str:
         },
         user=author,
     )
-    print(f"deduplicated guest pair on {ar.id}")
+    logger.info("deduplicated guest pair on %s", ar.id)
     return ar.id
 
 
@@ -656,7 +662,7 @@ def _make_deduplicated_sponsor_pair(author: User) -> str:
         },
         user=author,
     )
-    print(f"deduplicated sponsor pair on {ar.id}")
+    logger.info("deduplicated sponsor pair on %s", ar.id)
     return ar.id
 
 
@@ -759,7 +765,7 @@ def _make_visa_information_requests(author: User) -> dict[str, str]:
 
         examples[label] = vir.visa_information_request_id
 
-    print("visa information request conversations created")
+    logger.info("visa information request conversations created")
     return examples
 
 
@@ -789,7 +795,7 @@ def _add_case_comments(ars: list[MvAccommodationRequest], author: User) -> None:
             )
             comment_index += 1
 
-    print(f"case comments added to {len(commented_ars)} accommodation requests")
+    logger.info("case comments added to %s accommodation requests", len(commented_ars))
 
 
 def _move_guests_off_closed_empty_ar(
@@ -806,7 +812,7 @@ def _move_guests_off_closed_empty_ar(
     ar.person_id = []
     ar.number_of_people = 0
     ar.save()
-    print(f"closed empty: guests moved from {ar.id} to {receiving_ar.id}")
+    logger.info("closed empty: guests moved from %s to %s", ar.id, receiving_ar.id)
 
 
 def _get_browser_test_author() -> User:
@@ -844,7 +850,7 @@ def seed_browser_test_la() -> None:
     with freeze_time(BROWSER_TEST_REFERENCE_DATETIME), transaction.atomic():
         wipe_browser_test_la_data()
 
-        print(f"Using {BROWSER_TEST_SEED=}")
+        logger.info("Using BROWSER_TEST_SEED=%s", BROWSER_TEST_SEED)
         seed_seeders(BROWSER_TEST_SEED)
         reset_record_id_counters()
         author = _get_browser_test_author()
@@ -898,7 +904,9 @@ def seed_browser_test_la() -> None:
             if scenario.get("make_uam"):
                 examples.setdefault("UAM (Flow Visa Pending)", ar.id)
 
-            print(f"{index}: BrowserTest AccommodationRequests[{ar.checks_status}]")
+            logger.info(
+                "%s: BrowserTest AccommodationRequests[%s]", index, ar.checks_status
+            )
 
         _move_guests_off_closed_empty_ar(
             _labelled_ar(ars, "closed empty"),
@@ -930,10 +938,11 @@ def seed_browser_test_la() -> None:
             ars, "pending outbound reassignment"
         ).id
 
-    print(
-        f"\nSuccessfully reset {len(AR_SCENARIOS)} browser test "
-        f"AccommodationRequest objects in {ltla_name}.\n"
+    logger.info(
+        "Successfully reset %s browser test AccommodationRequest objects in %s.",
+        len(AR_SCENARIOS),
+        ltla_name,
     )
-    print("Example records per scenario:")
+    logger.info("Example records per scenario:")
     for label, example_id in sorted(examples.items()):
-        print(f"  {label}: {example_id}")
+        logger.info("  %s: %s", label, example_id)
