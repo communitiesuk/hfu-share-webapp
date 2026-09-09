@@ -2,7 +2,7 @@ import os
 from datetime import datetime, timedelta
 
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import HTML, Button, Div, Field, Layout
+from crispy_forms_gds.layout import HTML, Button, Div, Field, Fieldset, Layout
 from crispy_forms_gds.layout.constants import Size
 from django import forms
 from django.contrib.messages.views import SuccessMessageMixin
@@ -135,7 +135,7 @@ class ReassignmentRequestsMadeFilter(FilterSet, FilterPanelMixin):
             for choice in ReassignmentRequest.Outcome.choices
             if choice[0] != "Needs Accommodation Request"
         ],
-        label="Status",
+        label="",
         widget=CheckboxSelectMultipleWithTags(
             label_to_tag_colour=reassignment_request_outcome_label_to_tag_colour
         ),
@@ -192,7 +192,12 @@ class ReassignmentRequestsMadeFilter(FilterSet, FilterPanelMixin):
             Field.text("search", label_size=Size.MEDIUM),
             Field.text("destination_ltla_name", small=True, label_size=Size.MEDIUM),
             Field("created_at", context={"legend_size": "govuk-fieldset__legend--m"}),
-            Field("outcome", context={"label_size": "govuk-fieldset__legend--m"}),
+            Fieldset(
+                "outcome",
+                legend="Status",
+                legend_size=Size.MEDIUM,
+                css_class="govuk-!-margin-top-5",
+            ),
         )
         return form
 
@@ -213,7 +218,7 @@ class ReassignmentRequestsReceivedFilter(FilterSet, FilterPanelMixin):
             for choice in ReassignmentRequest.Outcome.choices
             if choice[0] != "Needs Accommodation Request"
         ],
-        label="Status",
+        label="",
         widget=CheckboxSelectMultipleWithTags(
             label_to_tag_colour=reassignment_request_outcome_label_to_tag_colour
         ),
@@ -283,7 +288,12 @@ class ReassignmentRequestsReceivedFilter(FilterSet, FilterPanelMixin):
             Field.text("search", label_size=Size.MEDIUM),
             Field.text("source_ltla_name", small=True, label_size=Size.MEDIUM),
             Field("created_at", context={"legend_size": "govuk-fieldset__legend--m"}),
-            Field("outcome", context={"label_size": "govuk-fieldset__legend--m"}),
+            Fieldset(
+                "outcome",
+                legend="Status",
+                legend_size=Size.MEDIUM,
+                css_class="govuk-!-margin-top-5",
+            ),
         )
         return form
 
