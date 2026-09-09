@@ -46,11 +46,6 @@ def pytest_sessionstart(session):
         _run_seed_browser_test_la("--seed")
 
 
-def pytest_sessionfinish():
-    if _browser_test_url_is_local():
-        _run_seed_browser_test_la("--wipe")
-
-
 @pytest.fixture
 def home_page_factory(page: Page):
     def create(user_type):
