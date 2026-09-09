@@ -31,14 +31,6 @@ def _browser_test_url_is_local() -> bool:
     )
 
 
-def _setup_django():
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "case_management.settings")
-
-    import django
-
-    django.setup()
-
-
 def _run_seed_browser_test_la(*args: str) -> None:
     subprocess.run(
         [sys.executable, str(MANAGE_PY), "seed_browser_test_la", *args],
@@ -51,13 +43,7 @@ def pytest_sessionstart(session):
     _verify_config()
 
     if _browser_test_url_is_local():
-        _setup_django()
-
-        from hfurb_scripts.seeders.stages.seed_browser_test_la import (
-            seed_browser_test_la,
-        )
-
-        seed_browser_test_la()
+        _run_seed_browser_test_la("--seed")
 
 
 @pytest.fixture
