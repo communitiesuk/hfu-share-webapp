@@ -3,8 +3,9 @@ import os
 import stat
 import subprocess
 import tempfile
-import unittest
 from pathlib import Path
+
+from .base import BaseScriptTestCase
 
 SCRIPT = Path(".github/workflows/scripts/run_ecs_task.sh").resolve()
 
@@ -25,7 +26,7 @@ esac
 """
 
 
-class RunEcsTaskScriptTestCase(unittest.TestCase):
+class RunEcsTaskScriptTestCase(BaseScriptTestCase):
     def run_script(self, args: list[str], describe_tasks_response: str) -> tuple:
         bin_dir = tempfile.mkdtemp()
         fake_aws = Path(bin_dir) / "aws"

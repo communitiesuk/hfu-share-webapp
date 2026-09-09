@@ -15,12 +15,12 @@ from browser_tests.tests.test_safeguarding import (
 )
 from hfurb_scripts.seeders.stages.seed_browser_test_la import seed_browser_test_la
 from hfurb_scripts.seeders.tests.helpers import create_browser_test_la_groups
+from hfurb_scripts.tests.base import BaseScriptTestCase
 from ontology.models import MvAccommodationRequest, MvPerson
-from test_utils.base import BaseTestCase
 
 
 @override_settings(ENVIRONMENT="dev")
-class BrowserTestSeededRecordsTestCase(BaseTestCase):
+class BrowserTestSeededRecordsTestCase(BaseScriptTestCase):
     @classmethod
     def setUpTestData(cls):
         groups = create_browser_test_la_groups()

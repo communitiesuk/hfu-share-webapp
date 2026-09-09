@@ -10,7 +10,7 @@ from hfurb_scripts.suspend_inactive_users import (
     get_users_to_suspend,
     suspend_inactive_users,
 )
-from test_utils.base import BaseTestCase
+from hfurb_scripts.tests.base import BaseScriptTestCase
 from webapp.constants import (
     INACTIVE_ACCOUNT_SUSPEND_DAYS,
     INACTIVE_ACCOUNT_WARNING_DAYS,
@@ -18,7 +18,7 @@ from webapp.constants import (
 
 
 @freeze_time("2026-02-25 12:00:00")
-class TestGetUsersForWarningEmail(BaseTestCase):
+class TestGetUsersForWarningEmail(BaseScriptTestCase):
     def setUp(self):
         self.now = timezone.now()
         self.warning_date = self.now - timedelta(days=INACTIVE_ACCOUNT_WARNING_DAYS)
@@ -108,7 +108,7 @@ class TestGetUsersForWarningEmail(BaseTestCase):
 
 
 @freeze_time("2026-02-25 12:00:00")
-class TestGetUsersToSuspend(BaseTestCase):
+class TestGetUsersToSuspend(BaseScriptTestCase):
     def setUp(self):
         self.now = timezone.now()
         self.suspend_date = self.now - timedelta(days=INACTIVE_ACCOUNT_SUSPEND_DAYS)
@@ -213,7 +213,7 @@ class TestGetUsersToSuspend(BaseTestCase):
 
 
 @freeze_time("2026-02-25 12:00:00")
-class TestSuspendInactiveUsers(BaseTestCase):
+class TestSuspendInactiveUsers(BaseScriptTestCase):
     def setUp(self):
         self.before_suspend_date = timezone.now() - timedelta(
             days=INACTIVE_ACCOUNT_SUSPEND_DAYS + 1

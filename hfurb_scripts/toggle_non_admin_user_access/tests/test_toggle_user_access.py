@@ -4,12 +4,12 @@ from django.utils import timezone
 from freezegun import freeze_time
 
 from accounts.models import User
+from hfurb_scripts.tests.base import BaseScriptTestCase
 from hfurb_scripts.toggle_non_admin_user_access import (
     disable_users,
     enable_users,
     toggle_non_admin_user_access,
 )
-from test_utils.base import BaseTestCase
 from user_management.tests.base import (
     get_admin_user,
     get_da_user,
@@ -22,7 +22,7 @@ from webapp.constants import INACTIVE_ACCOUNT_SUSPEND_DAYS
 
 
 @freeze_time("2026-06-01 12:00:00")
-class TestToggleUserAccess(BaseTestCase):
+class TestToggleUserAccess(BaseScriptTestCase):
     def setUp(self):
         now = timezone.now()
         suspended_date = now - timedelta(days=INACTIVE_ACCOUNT_SUSPEND_DAYS + 1)

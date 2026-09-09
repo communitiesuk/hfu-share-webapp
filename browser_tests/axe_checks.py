@@ -5,13 +5,16 @@ from .pages.share_page import SharePage
 WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"]
 
 KNOWN_ISSUES = [
+    # govuk-frontend deliberately sets aria-expanded on radios with
+    # conditional reveals, see https://github.com/alphagov/govuk-frontend/issues/979
     {
         "rule": "aria-allowed-attr",
         "html_contains": ("govuk-radios__input", "aria-expanded"),
-        "reason": (
-            "govuk-frontend deliberately sets aria-expanded on radios with"
-            " conditional reveals, see alphagov/govuk-frontend#979"
-        ),
+    },
+    # A known false positive as the skip link does not need to apear in a landmark (see https://design-system.service.gov.uk/components/skip-link/#when-to-use-this-component)
+    {
+        "rule": "region",
+        "html_contains": ("govuk-skip-link",),
     },
 ]
 
@@ -42,7 +45,10 @@ def collect_axe_violations(page: SharePage, page_name: str) -> str | None:
         page.page,
         options={
             "runOnly": {"type": "tag", "values": WCAG_TAGS},
-            "exclude": [["#djDebug"]],
+            "exclude": [
+                # Django debug toolbar which only apears on dev so should be exluded
+                ["#djDebug"],
+            ],
         },
     )
 

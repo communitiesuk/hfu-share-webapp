@@ -1,4 +1,8 @@
 import os
+import subprocess
+import sys
+from pathlib import Path
+from urllib.parse import urlparse
 from urllib.parse import urlparse
 
 import pytest
@@ -9,6 +13,8 @@ from browser_tests.pages.home_page import HomePage
 from browser_tests.pages.safeguarding_page import SafeguardingPage
 
 from .test_users import USER_TYPES, BrowserTestUserFactory
+
+MANAGE_PY = Path(__file__).resolve().parent.parent / "manage.py"
 
 
 def _verify_config():
@@ -32,6 +38,20 @@ def _setup_django():
     import django
 
     django.setup()
+
+
+def _browser_test_url_is_local() -> bool:
+    return urlparse(os.environ["BROWSER_TEST_URL"]).hostname in (
+        "localhost",
+        "127.0.0.1",
+    )
+
+
+def _run_seed_browser_test_la(*args: str) -> None:
+    subprocess.run(
+        [sys.executable, str(MANAGE_PY), "seed_browser_test_la", *args],
+        check=True,
+    )
 
 
 def pytest_sessionstart(session):
@@ -58,6 +78,9 @@ def pytest_sessionfinish():
 
         with transaction.atomic():
             wipe_browser_test_la_data()
+
+    if _browser_test_url_is_local():
+        _run_seed_browser_test_la("--seed")
 
 
 @pytest.fixture

@@ -21,3 +21,4 @@ class SeededAccommodationRequest:
     accommodation_request_title: str
     address: str
     sponsor: str
+    guest_full_names: tuple[str, ...] = ()

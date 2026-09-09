@@ -7,6 +7,7 @@
                class="govuk-button govuk-button--secondary"
                role="button"
                aria-controls="filter-container"
+               aria-expanded="{{ filter.show_filters_panel|yesno:"true,false" }}"
                href="{% if filter.show_filters_panel %}{% url_remove request.get_full_path 'show_filters_panel' %} {% else %} {% url_replace request.get_full_path 'show_filters_panel' True %} {% endif %}">
                 {{ filter.show_filters_panel|yesno:"Hide,Show" }} filters
             </a>
@@ -60,7 +61,7 @@
                             </div>
                         {% endif %}
                         <div class="moj-filter__options">
-                            <input class="govuk-visually-hidden" type="submit" />
+                            <input tabindex="-1" class="govuk-visually-hidden" type="submit" />
                             {% crispy filter.form %}
                             <button class="govuk-button govuk-!-margin-top-5"
                                     data-module="govuk-button"
