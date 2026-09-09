@@ -10,7 +10,8 @@ Source of truth: `hfurb_scripts/seeders/stages/seed_browser_test_la.py` (`AR_SCE
 | --- | --- |
 | Test LA | Hobbiton (Browser test LTLA) |
 | Test LA group | `ltla_hobbiton_browser_test` |
-| Second LA (multi-LA and reassignment scenarios) | Isles of Scilly |
+| Second LA (multi-LA and reassignment scenarios) | Bree (Browser test LTLA) |
+| Second LA group | `ltla_bree_browser_test` |
 | Record id prefix | `browser-test` |
 | Random seed | `BROWSER_TEST_SEED` env var, default 1313 |
 
@@ -37,7 +38,7 @@ One accommodation request (AR) per row, created in this order. Guest count equal
 | 13 | browser-test-ar-00013 | Amber Ellis to Flat 4 | Checks required | Refused | unaccompanied minor (UAM, Flow Visa Pending) |
 | 14 | browser-test-ar-00014 | Ian Yates and 1 other to Flat 32J | Checks required | Arrived, Confirmed | |
 | 15 | browser-test-ar-00015 | Molly Mills and 2 others to 1 Melanie isle, CV1B 5WN | Checks partially completed | Withdrawn, Arrived, Pending | 1 passed check |
-| 16 | browser-test-ar-00016 | Valerie Jordan to 756 Knight bri, N7 0JG | Checks completed | Lapsed | 4 passed checks, pending outbound reassignment to Isles of Scilly |
+| 16 | browser-test-ar-00016 | Valerie Jordan to 756 Knight bri, N7 0JG | Checks completed | Lapsed | 4 passed checks, pending outbound reassignment to Bree (Browser test LTLA) |
 | 17 | browser-test-ar-00017 | Martyn Field and 1 other to 79 Owen stream, N4J 5SJ | Checks required | Arrived, Arrived | |
 | 18 | browser-test-ar-00018 | Karen Brown and 2 others to 44 Clayton pra, L8S 3XY | Checks required | Arrived, Issued, Confirmed | |
 | 19 | browser-test-ar-00019 | Diane Williams to 10 Helen pass,, KT5R 6RG | Closed, duplicate | Arrived | |
@@ -59,15 +60,15 @@ One accommodation request (AR) per row, created in this order. Guest count equal
 | 35 | browser-test-ar-00035 | Joseph Thompson and 1 other to 189 Davison sp, SK9 6ZB | Checks partially completed | Confirmed, Arrived | 1 passed check |
 | 36 | browser-test-ar-00036 | Clive Evans and 2 others to Flat 1 | Checks completed | Pending, Arrived, Issued | 4 passed checks |
 | 37 | browser-test-ar-00037 | Stacey Harvey to 24 Ferguson pines, Hobbiton | Checks required | Refused | AR status: Arrival confirmed, unaccompanied minor (UAM, Flow Visa Pending) |
-| 38 | browser-test-ar-00038 | Gerard Simpson and 1 other to 57 Gibson pine, SP21 6AP | Checks required | Arrived, Confirmed | multi-LA sponsor: the sponsor also owns a property in Isles of Scilly |
-| 39 | browser-test-ar-00039 | Howard Johnson and 2 others to 8 Fowler trail, PO4X 3EQ | Checks partially completed | Withdrawn, Arrived, Pending | 1 passed check, rejected outbound reassignment to Isles of Scilly |
-| 40 | browser-test-ar-00040 | Shane Adams to 2 Hardy valley, HG31 6BP | Checks completed | Lapsed | 4 passed checks, multi-LA AR: extended with a second accommodation, sponsor and unique application number in Isles of Scilly, plus a Pending visa application per guest, so it spans two LAs |
+| 38 | browser-test-ar-00038 | Gerard Simpson and 1 other to 57 Gibson pine, SP21 6AP | Checks required | Arrived, Confirmed | multi-LA sponsor: the sponsor also owns a property in Bree (Browser test LTLA) |
+| 39 | browser-test-ar-00039 | Howard Johnson and 2 others to 8 Fowler trail, PO4X 3EQ | Checks partially completed | Withdrawn, Arrived, Pending | 1 passed check, rejected outbound reassignment to Bree (Browser test LTLA) |
+| 40 | browser-test-ar-00040 | Shane Adams to 2 Hardy valley, HG31 6BP | Checks completed | Lapsed | 4 passed checks, multi-LA AR: extended with a second accommodation, sponsor and unique application number in Bree (Browser test LTLA), plus a Pending visa application per guest, so it spans two LAs |
 
 ## Special scenarios created after the table
 
 | Scenario | AR id | Title | Detail |
 | --- | --- | --- | --- |
-| Inbound accepted reassignment | browser-test-ar-00041 | Thomas Simpson | Built in Isles of Scilly with checks status Rematch required, then reassigned into the test LA with an accepted reassignment request ("Sponsorship placement broke down"), a rematch interaction, accommodation removed and hosts unlinked (which is why the title has no address) |
+| Inbound accepted reassignment | browser-test-ar-00041 | Thomas Simpson | Built in Bree (Browser test LTLA) with checks status Rematch required, then reassigned into the test LA with an accepted reassignment request ("Sponsorship placement broke down"), a rematch interaction, accommodation removed and hosts unlinked (which is why the title has no address) |
 | Deduplicated guest pair | browser-test-ar-00042 | Eileen Austin to 76 Helen sprin, B8 3RS | One guest plus a near-duplicate (same name, date of birth and passport, surname uppercased), merged through a GuestDuplicateGroup by the browser test user |
 | Deduplicated sponsor pair | browser-test-ar-00043 | Abigail Richards to 8 Callum branc, N6W 4NY | One sponsor plus a near-duplicate (same email and date of birth, surname lowercased), merged through a SponsorDuplicateGroup by the browser test user |
 
@@ -306,9 +307,9 @@ Shirley ridges, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00036 
 | browser-test-accommodation-00038 | 57 Gibson pine, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00038 |
 | browser-test-accommodation-00039 | 8 Fowler trail, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00039 |
 | browser-test-accommodation-00040 | 2 Hardy valleys, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00040 |
-| browser-test-accommodation-00041 | 4 Victoria canyon, Isles of Scilly | Isles of Scilly | browser-test-ar-00040 |
-| browser-test-accommodation-00042 | 09 Hill street, Isles of Scilly | Isles of Scilly |  |
-| browser-test-accommodation-00043 | 09 Holt ford, Isles of Scilly | Isles of Scilly |  |
+| browser-test-accommodation-00041 | 4 Victoria canyon, Bree | Bree (Browser test LTLA) | browser-test-ar-00040 |
+| browser-test-accommodation-00042 | 09 Hill street, Bree | Bree (Browser test LTLA) |  |
+| browser-test-accommodation-00043 | 09 Holt ford, Bree | Bree (Browser test LTLA) |  |
 | browser-test-accommodation-00044 | 76 Helen spring, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00042 |
 | browser-test-accommodation-00045 | 8 Callum branch, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00043 |
 
@@ -512,9 +513,9 @@ Shirley ridges, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00036 
 
 | Id | Outcome | Destination LA | AR |
 | --- | --- | --- | --- |
-| browser-test-rr-00001 | Rejected | Isles of Scilly | browser-test-ar-00039 |
+| browser-test-rr-00001 | Rejected | Bree (Browser test LTLA) | browser-test-ar-00039 |
 | rr-18f74a82-5549-483a-ae3f-818715483340 | Accepted | Hobbiton (Browser test LTLA) | browser-test-ar-00041 |
-| rr-ab5f413d-003f-4891-ac8c-e6dca38298d7 | Pending | Isles of Scilly | browser-test-ar-00016 |
+| rr-ab5f413d-003f-4891-ac8c-e6dca38298d7 | Pending | Bree (Browser test LTLA) | browser-test-ar-00016 |
 
 ### Visa information request records
 
