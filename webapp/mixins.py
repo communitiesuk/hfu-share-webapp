@@ -24,7 +24,7 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django_filters import MultipleChoiceFilter
 
 from accounts.enums import GroupType
-from accounts.mixins import GroupRequiredMixin
+from accounts.mixins import GroupRequiredMixin, user_in_any_group_names
 from case_management.settings import FILE_DOWNLOAD_S3_BUCKET_NAME
 from deduplication.models import (
     AccommodationDuplicateGroup,
@@ -1007,26 +1007,46 @@ class Tab(TypedDict):
 
 class DetailLayoutMixin:
     """
-    Temporary, for the new record layout trial: session flag choosing the
-    classic or new detail layout, and the switch redirect. Delete this class,
-    its entry in DetailViewMixin's bases and the classic templates when the
-    trial ends.
+    Temporary, for the new record layout rollout: the early adopters group
+    defaults to the new detail layout, everyone else to the classic one.
+    detail_layout_switch_enabled additionally shows a banner line above the
+    detail pages letting any user switch layout for themselves, remembered in
+    the session. Delete this class, its entry in DetailViewMixin's bases and
+    the classic templates when the rollout completes.
     """
 
     request: HttpRequest
 
     detail_layouts = ("classic", "new")
+    detail_layout_group = "local_authority_early_adopters"
+    detail_layout_switch_enabled = False
+
+    @property
+    def detail_layout_default(self) -> str:
+        user = getattr(self.request, "user", None)
+        if user is not None and user_in_any_group_names(
+            user, [self.detail_layout_group]
+        ):
+            return "new"
+        return "classic"
 
     @property
     def detail_layout(self) -> str:
-        session = getattr(self.request, "session", None)
-        if session is None:
-            return "new"
-        return session.get("detail_layout", "new")
+        if self.detail_layout_switch_enabled:
+            session = getattr(self.request, "session", None)
+            if session is not None:
+                chosen = session.get("detail_layout")
+                if chosen in self.detail_layouts:
+                    return chosen
+        return self.detail_layout_default
 
     def dispatch(self, request, *args, **kwargs):
         requested = request.GET.get("detail_layout")
-        if request.method == "GET" and requested in self.detail_layouts:
+        if (
+            self.detail_layout_switch_enabled
+            and request.method == "GET"
+            and requested in self.detail_layouts
+        ):
             request.session["detail_layout"] = requested
             logger.info(
                 "Detail layout switched to %s by user ID %s.",
@@ -1052,6 +1072,7 @@ class DetailLayoutMixin:
         context["detail_layout_base"] = (
             f"webapp/components/record_tabs/record_overview_base_{layout}.html"
         )
+        context["detail_layout_switch_enabled"] = self.detail_layout_switch_enabled
         context["detail_layout_toggle_url"] = (
             f"{self.request.path}?detail_layout={other}"
         )
