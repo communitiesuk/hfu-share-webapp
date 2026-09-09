@@ -1,3 +1,4 @@
+from bs4 import BeautifulSoup
 from django.urls import reverse
 from freezegun import freeze_time
 
@@ -16,7 +17,7 @@ class DownloadsViewGeneralTestCase(TestSessionTokenMixin, BaseTestCase):
 
         self.assertEqual(
             response.context["TITLE"],
-            "Download data - Share Homes for Ukraine data",
+            "Download data - Share Homes for Ukraine data - GOV.UK",
         )
 
     def test_download_view_loads_correctly_for_la_user(self):
@@ -85,6 +86,9 @@ class DownloadsViewGeneralTestCase(TestSessionTokenMixin, BaseTestCase):
 
         self.assertContains(response, "govuk-error-summary")
         self.assertContains(response, "govuk-error-message")
+        soup = BeautifulSoup(response.content.decode(), "html.parser")
+        title = " ".join(soup.title.get_text().split())
+        self.assertTrue(title.startswith("Error: Download data"))
 
     @freeze_time("2024-07-01 12:00:00")
     def test_timestamp_in_bst_summer(self):

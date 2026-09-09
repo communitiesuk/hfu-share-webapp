@@ -132,6 +132,8 @@ class AccessRequestFormWizard(UserActionsMixin, SessionWizardView):  # pylint: d
             )
             context["title"] = ACCESS_REQUEST_FORM_TITLES.get(self.steps.current)
 
+        self.request.step_title = context["title"]
+
         def get_cleaned_value(step, field):
             data = self.get_cleaned_data_for_step(step) or {}
             return data.get(field)
@@ -262,6 +264,7 @@ class AccessRequestFormConfirmationPageView(TemplateView):  # pylint: disable=vi
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["breadcrumbs"] = ACCESS_REQUEST_FORM_BREADCRUMBS.get("confirmation")
+        self.request.step_title = "Request submitted"
         context["group_name"] = self.request.session.pop(
             "latest_access_request_group_name", None
         )

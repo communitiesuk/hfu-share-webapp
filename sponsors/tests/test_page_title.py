@@ -20,23 +20,28 @@ class SponsorsPageTitlesTestCase(TestSessionTokenMixin, BaseTestCase):
         pages_and_titles = [
             (
                 "sponsors:detail-overview",
-                "Sponsors and hosts: TS, Overview - Share Homes for Ukraine data",
+                "Sponsors and hosts: TS, Overview - "
+                "Share Homes for Ukraine data - GOV.UK",
             ),
             (
                 "sponsors:detail-actions",
-                "Sponsors and hosts: TS, Actions - Share Homes for Ukraine data",
+                "Sponsors and hosts: TS, Actions - "
+                "Share Homes for Ukraine data - GOV.UK",
             ),
             (
                 "sponsors:detail-linked-records",
-                "Sponsors and hosts: TS, Linked records - Share Homes for Ukraine data",
+                "Sponsors and hosts: TS, Linked records - "
+                "Share Homes for Ukraine data - GOV.UK",
             ),
             (
                 "sponsors:detail-properties",
-                "Sponsors and hosts: TS, Properties - Share Homes for Ukraine data",
+                "Sponsors and hosts: TS, Properties - "
+                "Share Homes for Ukraine data - GOV.UK",
             ),
             (
                 "sponsors:detail-history",
-                "Sponsors and hosts: TS, History - Share Homes for Ukraine data",
+                "Sponsors and hosts: TS, History - "
+                "Share Homes for Ukraine data - GOV.UK",
             ),
         ]
         user = get_admin_user()
@@ -68,7 +73,7 @@ class SponsorsPageTitlesTestCase(TestSessionTokenMixin, BaseTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.context["TITLE"],
-            "Sponsors and hosts: T, Overview - Share Homes for Ukraine data",
+            "Sponsors and hosts: T, Overview - Share Homes for Ukraine data - GOV.UK",
         )
 
     def test_sponsor_with_missing_names(self):
@@ -85,5 +90,5 @@ class SponsorsPageTitlesTestCase(TestSessionTokenMixin, BaseTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.context["TITLE"],
-            "Sponsors and hosts: Overview - Share Homes for Ukraine data",
+            "Sponsors and hosts: Overview - Share Homes for Ukraine data - GOV.UK",
         )
