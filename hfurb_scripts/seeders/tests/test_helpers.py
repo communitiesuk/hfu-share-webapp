@@ -3,6 +3,7 @@ from accounts.tests.factories import GroupInfoFactory
 from hfurb_scripts.seeders.helpers import (
     build_complete_accommodation_scenario,
 )
+from hfurb_scripts.tests.base import BaseScriptTestCase
 from ontology.models import (
     MvAccommodation,
     MvAccommodationRequest,
@@ -10,10 +11,9 @@ from ontology.models import (
     MvVolunteer,
     VisaApplication,
 )
-from test_utils.base import BaseTestCase
 
 
-class TestBuildCompleteAccommodationScenario(BaseTestCase):
+class TestBuildCompleteAccommodationScenario(BaseScriptTestCase):
     def setUp(self):
         self.group_info = GroupInfoFactory(
             ltla_name="Test LTLA",

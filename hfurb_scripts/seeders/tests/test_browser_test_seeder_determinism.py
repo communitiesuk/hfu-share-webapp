@@ -19,6 +19,7 @@ from hfurb_scripts.seeders.stages.seed_browser_test_la import (
     BROWSER_TEST_ID_PREFIX,
     seed_browser_test_la,
 )
+from hfurb_scripts.tests.base import BaseScriptTestCase
 from ontology.models import (
     DevCheckV2,
     MvAccommodation,
@@ -28,7 +29,6 @@ from ontology.models import (
     ReassignmentRequest,
     VisaApplication,
 )
-from test_utils.base import BaseTestCase
 
 SNAPSHOT_MODELS = [
     MvAccommodationRequest,
@@ -69,7 +69,7 @@ _original_create_mv_person = helpers.create_mv_person
 
 
 @override_settings(ENVIRONMENT="dev")
-class BrowserTestSeederDeterminismTestCase(BaseTestCase):
+class BrowserTestSeederDeterminismTestCase(BaseScriptTestCase):
     def setUp(self):
         super().setUp()
         group = GroupFactory(
