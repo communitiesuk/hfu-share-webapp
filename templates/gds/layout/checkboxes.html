@@ -21,9 +21,7 @@
                        id="id_{{ field.html_name }}{% if forloop.counter0 > 0 %}_{{ forloop.counter0 }}{% endif %}"
                        value="{{ choice.0|unlocalize }}"
                        {% if choice.0 in field.value or choice.0|stringformat:"s" in field.value %}checked="checked"{% endif %}
-                       {% if choice.hint %} aria-describedby="id_{{ field.html_name }}{% if forloop.counter0 > 0 %}_{{ forloop.counter0 }}{% endif %}
-                       _hint
-                       "
+                       {% if choice.hint %} aria-describedby={% if forloop.counter0 > 0 %}"id_{{ field.html_name }}_{{ forloop.counter0 }}_hint"{% else %}"id_{{ field.html_name }}_hint"{% endif %}
                        {% endif %}>
                 <label class="govuk-label govuk-checkboxes__label"
                        for="id_{{ field.html_name }}{% if forloop.counter0 > 0 %}_{{ forloop.counter0 }}{% endif %}">

@@ -6,9 +6,7 @@
            id="id_{{ field.html_name }}{% if position > 0 %}_{{ position }}{% endif %}"
            value="{{ choice.0|unlocalize }}"
            {% if choice.0|stringformat:"s" == field.value|stringformat:"s" %}checked="checked"{% endif %}
-           {% if choice.hint %} aria-describedby="id_{{ field.html_name }}{% if position > 0 %}_{{ position }}{% endif %}
-           _hint
-           "
+           {% if choice.hint %} aria-describedby={% if position > 0 %}"id_{{ field.html_name }}_{{ position }}_hint"{% else %}"id_{{ field.html_name }}_hint"{% endif %}
            {% endif %}
            {% block additional_input_attributes %}
            {% endblock additional_input_attributes %}>
