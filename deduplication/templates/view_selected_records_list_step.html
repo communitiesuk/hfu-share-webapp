@@ -8,7 +8,7 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-one-half">
             {% with suffix=object_list|length|pluralize %}
-                {% include "webapp/components/heading/heading.html" with page_heading="View selected record"|add:suffix %}
+                {% include "webapp/components/heading/heading.html" with page_heading=page_heading %}
             {% endwith %}
             {% if object_list|length > 1 %}<p class="govuk-body">You can now review your selected records.</p>{% endif %}
         </div>
