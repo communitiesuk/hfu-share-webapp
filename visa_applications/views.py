@@ -56,8 +56,10 @@ from webapp.constants import (
 from webapp.mixins import (
     DetailViewMixin,
     FilterPanelMixin,
+    PageTitleMixin,
     PermissionsMixin,
     PIISafeRecordNameMixin,
+    SectionHeadingMixin,
 )
 from webapp.search import perform_search
 from webapp.utils import (
@@ -242,7 +244,12 @@ class VisaApplicationsTableFilter(FilterSet, FilterPanelMixin):
         ]
 
 
-class VisaApplicationListView(PermissionsMixin, SingleTableMixin, FilterView):
+class VisaApplicationListView(
+    SectionHeadingMixin,
+    PermissionsMixin,
+    SingleTableMixin,
+    FilterView,
+):
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
@@ -945,7 +952,9 @@ class VIRFilter(FilterSet, FilterPanelMixin):
         }
 
 
-class VIRListView(PermissionsMixin, SingleTableMixin, FilterView):
+class VIRListView(PageTitleMixin, PermissionsMixin, SingleTableMixin, FilterView):
+    page_heading = "Visa Information Requests"
+    heading_labels_title = False
     group_type = [
         GroupType.DEV,
         GroupType.MHCLG,
@@ -984,7 +993,14 @@ class VIRListView(PermissionsMixin, SingleTableMixin, FilterView):
         return ctx
 
 
-class VIRCloseConfirmView(PermissionsMixin, SingleObjectMixin, FormView):
+class VIRCloseConfirmView(
+    PageTitleMixin,
+    PermissionsMixin,
+    SingleObjectMixin,
+    FormView,
+):
+    page_heading = "Close VIR"
+    heading_labels_title = False
     group_type = [
         GroupType.DEV,
         GroupType.HOME_OFFICE,
@@ -1036,7 +1052,14 @@ class VIRCloseConfirmView(PermissionsMixin, SingleObjectMixin, FormView):
         return self.render_to_response(context)
 
 
-class VIRReopenConfirmView(PermissionsMixin, SingleObjectMixin, FormView):
+class VIRReopenConfirmView(
+    PageTitleMixin,
+    PermissionsMixin,
+    SingleObjectMixin,
+    FormView,
+):
+    page_heading = "Re-open VIR"
+    heading_labels_title = False
     group_type = [
         GroupType.DEV,
         GroupType.HOME_OFFICE,

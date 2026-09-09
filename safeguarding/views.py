@@ -63,8 +63,10 @@ from webapp.mixins import (
     DetailViewMixin,
     FilterPanelMixin,
     GroupRequiredMixin,
+    PageTitleMixin,
     PermissionsMixin,
     PIISafeRecordNameMixin,
+    SectionHeadingMixin,
     UserActionsMixin,
 )
 from webapp.search import perform_search
@@ -570,7 +572,11 @@ class EscalatedChecksTableFilter(FilterPanelMixin, FilterSet):
 
 
 class EscalatedChecksView(
-    UserActionsMixin, GroupRequiredMixin, SingleTableMixin, FilterView
+    SectionHeadingMixin,
+    UserActionsMixin,
+    GroupRequiredMixin,
+    SingleTableMixin,
+    FilterView,
 ):
     group_type = [GroupType.HOME_OFFICE, GroupType.MHCLG, GroupType.DEV]
     model = SafeguardingReferral
@@ -1435,8 +1441,10 @@ class SafeguardingDetailCentralSafeguardingView(
 
 
 class SafeguardingDetailCentralSafeguardingAlertDetailView(
-    UserActionsMixin, GroupRequiredMixin, DetailView
+    PageTitleMixin, UserActionsMixin, GroupRequiredMixin, DetailView
 ):
+    page_heading = "Alert"
+    heading_labels_title = False
     group_type = [GroupType.HOME_OFFICE, GroupType.MHCLG, GroupType.DEV]
     template_name = "safeguarding/detail_view/central_safeguarding/check_detail.html"
     model = SafeguardingNotification

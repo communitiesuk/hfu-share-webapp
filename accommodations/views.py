@@ -39,8 +39,10 @@ from webapp.mixins import (
     FilterPanelMixin,
     InteractionTimelineEventsMixin,
     IsDuplicateMixin,
+    PageTitleMixin,
     PermissionsMixin,
     PIISafeRecordNameMixin,
+    SectionHeadingMixin,
     TableRendererMixin,
     UserActionsMixinProtocol,
 )
@@ -150,7 +152,12 @@ class AccommodationFilter(FilterSet, FilterPanelMixin):
         ]
 
 
-class AccommodationsListView(PermissionsMixin, SingleTableMixin, FilterView):
+class AccommodationsListView(
+    SectionHeadingMixin,
+    PermissionsMixin,
+    SingleTableMixin,
+    FilterView,
+):
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
@@ -493,8 +500,13 @@ class AccommodationDetailHistoryView(
 
 
 class AccommodationEditView(
-    PIISafeRecordNameMixin, PermissionsMixin, SuccessMessageMixin, UpdateView
+    PageTitleMixin,
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    SuccessMessageMixin,
+    UpdateView,
 ):
+    heading_labels_title = False
     model = MvAccommodation
     group_type = [
         GroupType.DEV,

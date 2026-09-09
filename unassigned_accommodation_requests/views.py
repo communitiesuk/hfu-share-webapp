@@ -45,6 +45,7 @@ from webapp.mixins import (
     FilterPanelMixin,
     PermissionsMixin,
     PIISafeRecordNameMixin,
+    SectionHeadingMixin,
     WizardPageTitleMixin,
 )
 from webapp.search import perform_search
@@ -198,7 +199,7 @@ class UnassignedAccommodationRequestsFilter(FilterSet, FilterPanelMixin):
 
 
 class UnassignedAccommodationRequestsListView(
-    PermissionsMixin, SingleTableMixin, FilterView
+    SectionHeadingMixin, PermissionsMixin, SingleTableMixin, FilterView
 ):
     group_type = UNASSIGNED_ACCOMMODATION_REQUESTS_ALLOWED_GROUP_TYPES
     model = MvAccommodationRequest

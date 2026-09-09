@@ -33,6 +33,7 @@ from webapp.mixins import (
     FilterPanelMixin,
     PermissionsMixin,
     PIISafeRecordNameMixin,
+    SectionHeadingMixin,
 )
 from webapp.s3 import (
     get_govuk_forms_attachment_filepath,
@@ -156,7 +157,7 @@ class UamsFilter(FilterSet, FilterPanelMixin):
         ]
 
 
-class UamsListView(PermissionsMixin, SingleTableMixin, FilterView):
+class UamsListView(SectionHeadingMixin, PermissionsMixin, SingleTableMixin, FilterView):
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,

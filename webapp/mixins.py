@@ -1114,17 +1114,37 @@ class DetailViewMixin(ABC):
 class PageTitleMixin:
     request: HttpRequest
     page_heading: str | None = None
+    heading_labels_title: bool = True
 
     def get_page_heading(self) -> str | None:
         return self.page_heading
+
+    def get_title_label(self) -> str | None:
+        if self.heading_labels_title:
+            return self.get_page_heading()
+        return None
 
     def get_context_data(self, **kwargs) -> dict:
         context = super().get_context_data(**kwargs)  # type: ignore[misc]
         heading = self.get_page_heading()
         if heading:
             context.setdefault("page_heading", heading)
-            self.request.step_title = heading  # type: ignore[attr-defined]
+        title_label = self.get_title_label()
+        if title_label:
+            self.request.step_title = title_label  # type: ignore[attr-defined]
         return context
+
+
+class SectionHeadingMixin(PageTitleMixin):
+    heading_labels_title = False
+
+    def get_page_heading(self) -> str | None:
+        from case_management.page_title import get_section_title
+
+        resolver_match = self.request.resolver_match
+        if resolver_match is None:
+            return None
+        return get_section_title(resolver_match)
 
 
 class WizardPageTitleMixin(PageTitleMixin):

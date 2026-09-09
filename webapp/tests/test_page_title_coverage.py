@@ -8,50 +8,21 @@ from case_management.page_title import get_tab_title
 from webapp.mixins import PageTitleMixin
 
 SKIPPED_ROUTE_PREFIXES = ("admin/", "__debug__", "assets/")
+HOME_ROUTES = ("", "landing-page")
 
-# Views whose pages are identified by their section title alone, or which do
-# not render a page at all (file downloads, redirects, endpoints). This list
-# is a ratchet: entries may be removed as views gain a declared page
-# identity (PageTitleMixin, get_step_heading, or a TAB_MAP tab), never
-# added. A new view must declare its identity or be consciously added here
-# in review.
-SECTION_TITLE_ONLY_ALLOWLIST = {
-    "accommodation_requests.views.AccommodationRequestCloseForGuests",
+# Endpoints and redirects that render no page, so a page identity would be
+# meaningless: file downloads, POST-and-redirect actions and report sinks.
+NON_PAGE_VIEWS = {
     "accommodation_requests.views.AccommodationRequestCommentsDownloadAttachmentView",
     "accommodation_requests.views.AccommodationRequestInteractionsDownloadAttachmentView",
-    "accommodation_requests.views.AccommodationRequestReopenRequestView",
-    "accommodation_requests.views.AccommodationRequestWithdrawSponsorView",
-    "accommodations.views.AccommodationEditView",
     "accommodations.views.PostcodeSearchView",
-    "deduplication.views.SelectRecordTypeView",
-    "django.views.generic.base.TemplateView",
-    "downloads.views.DownloadsPage",
-    "guests.views.GuestEditView",
-    "reassignment_requests.views.CancelReassignmentRequestView",
-    "reassignment_requests.views.ReassignmentRequestDetailView",
     "safeguarding.views.DownloadEscalatedChecksCSVView",
-    "safeguarding.views.EscalatedChecksView",
-    "sponsors.views.SponsorEditView",
     "uams.views.UamsDownloadAttachmentView",
     "uams.views.UamsDownloadGOVUKFormsAttachmentView",
     "unassigned_accommodation_requests.views.HideUnassignedAccommodationRequestView",
     "unassigned_accommodation_requests.views.UnhideUnassignedAccommodationRequestView",
     "user_management.views.access_requests_views.AccessRequestHideRequest",
-    "user_management.views.access_requests_views.AccessRequestYourRequestView",
-    "user_management.views.access_requests_views.AccessRequestsDetailsPage",
-    "user_management.views.form_wizard_views.AccessRequestFormConfirmationPageView",
-    "user_management.views.form_wizard_views.AccessRequestFormWizard",
-    "user_management.views.groups_views.GroupDetailsView",
-    "user_management.views.groups_views.GroupRemoveUserView",
-    "user_management.views.intro_views.AccessRequestIntroView",
-    "user_management.views.users_views.UserDetailsView",
-    "user_management.views.users_views.UserRemoveGroupView",
-    "visa_applications.views.VIRCloseConfirmView",
-    "visa_applications.views.VIRReopenConfirmView",
-    "webapp.views.AccessibilityStatementView",
     "webapp.views.CSPReportView",
-    "webapp.views.CookiesView",
-    "webapp.views.LandingPageView",
 }
 
 
@@ -65,7 +36,7 @@ def class_based_views():
 
     seen = set()
     for route, callback in walk(get_resolver()):
-        if route.startswith(SKIPPED_ROUTE_PREFIXES):
+        if route.startswith(SKIPPED_ROUTE_PREFIXES) or route in HOME_ROUTES:
             continue
         view_class = getattr(callback, "view_class", None)
         if view_class is None or view_class in seen:
@@ -95,7 +66,7 @@ class PageTitleCoverageTest(SimpleTestCase):
             dotted_path(view_class)
             for view_class in class_based_views()
             if not has_page_identity(view_class)
-            and dotted_path(view_class) not in SECTION_TITLE_ONLY_ALLOWLIST
+            and dotted_path(view_class) not in NON_PAGE_VIEWS
         )
 
         self.assertEqual(
@@ -103,11 +74,11 @@ class PageTitleCoverageTest(SimpleTestCase):
             [],
             "\n\nThese views declare no page identity for the browser title. "
             "Give each a PageTitleMixin page_heading (or get_step_heading for "
-            "wizards), or add it to SECTION_TITLE_ONLY_ALLOWLIST if the "
+            "wizards), or add it to NON_PAGE_VIEWS if the "
             "section title alone identifies the page:\n" + "\n".join(missing),
         )
 
-    def test_allowlist_contains_no_compliant_views(self):
+    def test_non_page_list_contains_no_compliant_views(self):
         known = {dotted_path(view_class) for view_class in class_based_views()}
         compliant = {
             dotted_path(view_class)
@@ -115,9 +86,7 @@ class PageTitleCoverageTest(SimpleTestCase):
             if has_page_identity(view_class)
         }
         stale = sorted(
-            path
-            for path in SECTION_TITLE_ONLY_ALLOWLIST
-            if path not in known or path in compliant
+            path for path in NON_PAGE_VIEWS if path not in known or path in compliant
         )
 
         self.assertEqual(

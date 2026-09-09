@@ -19,7 +19,9 @@ from user_management.templatetags.access_request_extras import (
 from webapp.constants import GROUP_SEARCH_FIELDS
 from webapp.mixins import (
     FilterPanelMixin,
+    PageTitleMixin,
     PIISafeRecordNameMixin,
+    SectionHeadingMixin,
     UserActionsMixin,
 )
 from webapp.search import perform_search
@@ -72,7 +74,12 @@ class GroupsFilter(FilterSet, FilterPanelMixin):
         fields = ["search"]
 
 
-class GroupListView(AdminAccessRequiredMixin, SingleTableMixin, FilterView):
+class GroupListView(
+    SectionHeadingMixin,
+    AdminAccessRequiredMixin,
+    SingleTableMixin,
+    FilterView,
+):
     model = GroupProxy
     table_class = GroupsTable
     filterset_class = GroupsFilter
@@ -82,8 +89,13 @@ class GroupListView(AdminAccessRequiredMixin, SingleTableMixin, FilterView):
 
 
 class GroupDetailsView(
-    PIISafeRecordNameMixin, UserActionsMixin, AdminAccessRequiredMixin, SummaryListView
+    PageTitleMixin,
+    PIISafeRecordNameMixin,
+    UserActionsMixin,
+    AdminAccessRequiredMixin,
+    SummaryListView,
 ):
+    heading_labels_title = False
     template_name = "user_management/groups/groups_detail_view.html"
     model = GroupProxy
 
@@ -150,7 +162,10 @@ class GroupRemoveUserForm(forms.Form):
         )
 
 
-class GroupRemoveUserView(UserActionsMixin, AdminAccessRequiredMixin, FormView):
+class GroupRemoveUserView(
+    PageTitleMixin, UserActionsMixin, AdminAccessRequiredMixin, FormView
+):
+    heading_labels_title = False
     template_name = "user_management/groups/groups_remove_user_page.html"
     form_class = GroupRemoveUserForm
 

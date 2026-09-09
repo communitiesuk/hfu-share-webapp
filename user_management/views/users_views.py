@@ -20,7 +20,9 @@ from user_management.templatetags.access_request_extras import (
 from webapp.constants import USERS_SEARCH_FIELDS
 from webapp.mixins import (
     FilterPanelMixin,
+    PageTitleMixin,
     PIISafeRecordNameMixin,
+    SectionHeadingMixin,
     UserActionsMixin,
 )
 from webapp.search import perform_search
@@ -73,7 +75,12 @@ class UsersFilter(FilterSet, FilterPanelMixin):
         ]
 
 
-class UserListView(AdminAccessRequiredMixin, SingleTableMixin, FilterView):
+class UserListView(
+    SectionHeadingMixin,
+    AdminAccessRequiredMixin,
+    SingleTableMixin,
+    FilterView,
+):
     model = User
     table_class = UsersTable
     filterset_class = UsersFilter
@@ -84,8 +91,13 @@ class UserListView(AdminAccessRequiredMixin, SingleTableMixin, FilterView):
 
 
 class UserDetailsView(
-    PIISafeRecordNameMixin, UserActionsMixin, AdminAccessRequiredMixin, SummaryListView
+    PageTitleMixin,
+    PIISafeRecordNameMixin,
+    UserActionsMixin,
+    AdminAccessRequiredMixin,
+    SummaryListView,
 ):
+    heading_labels_title = False
     template_name = "user_management/users/users_detail_view.html"
     model = User
 
@@ -152,7 +164,8 @@ class UserRemoveGroupForm(forms.Form):
         )
 
 
-class UserRemoveGroupView(AdminAccessRequiredMixin, FormView):
+class UserRemoveGroupView(PageTitleMixin, AdminAccessRequiredMixin, FormView):
+    heading_labels_title = False
     template_name = "user_management/users/users_remove_group_page.html"
     form_class = UserRemoveGroupForm
 
