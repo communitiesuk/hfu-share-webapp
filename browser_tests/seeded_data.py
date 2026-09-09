@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 
-# Records the browser tests expect to find in the seeded browser test local
-# authority. Each test module declares the records it uses; the seeder unit test
-# test_browser_test_seeded_records checks they exist with these values, so a
-# change to the seeder fails in CI rather than as a failing browser test on dev.
-# A record that a test modifies (merging, adding checks) should belong to that
-# test alone, since the whole suite runs against one seed.
+# Shapes for describing a record the browser test seeder creates, so a browser
+# test can declare the seeded records it relies on. Instances live in the test
+# module that uses them, with the record's seeded id; the seeder unit test
+# test_browser_test_seeded_records looks each one up by id and checks the values.
+# To rely on a record type not described here, add a dataclass with the id and
+# the fields the test asserts on screen, and extend that unit test to check it.
 
 
 @dataclass(frozen=True)
