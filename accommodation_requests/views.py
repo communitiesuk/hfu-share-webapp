@@ -238,7 +238,7 @@ class AccommodationRequestsTable(tables.Table):
 class AccommodationRequestsFilter(FilterSet, FilterPanelMixin):
     status = MultipleChoiceFilter(
         choices=MvAccommodationRequest.ChecksStatus.choices,
-        label="Status",
+        label="",
         field_name="checks_status",
         widget=CheckboxSelectMultipleWithTags(
             label_to_tag_colour=accommodation_checks_status_label_to_tag_colour
@@ -333,7 +333,12 @@ class AccommodationRequestsFilter(FilterSet, FilterPanelMixin):
                     "legend_size": "govuk-fieldset__legend--m",
                 },
             ),
-            Field("status", context={"label_size": "govuk-fieldset__legend--m"}),
+            Fieldset(
+                "status",
+                legend="Status",
+                legend_size=Size.MEDIUM,
+                css_class="govuk-!-margin-bottom-5",
+            ),
             Field.text("number_of_people", label_size=Size.MEDIUM),
             Field.text("ltla_name", small=True, label_size=Size.MEDIUM),
             Field.text("utla_name", small=True, label_size=Size.MEDIUM),

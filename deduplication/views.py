@@ -558,7 +558,7 @@ class ManualGuestDeduplicationFilter(FilterSet, FilterPanelMixin):
 
     visa_status = MultipleChoiceFilter(
         choices=[(value.name, value.name) for value in visa_status_list],
-        label="Visa status",
+        label="",
         widget=CheckboxSelectMultipleWithTags(
             label_to_tag_colour=visa_status_to_tag_colour
         ),
@@ -628,7 +628,12 @@ class ManualGuestDeduplicationFilter(FilterSet, FilterPanelMixin):
                     "legend_size": "govuk-fieldset__legend--m",
                 },
             ),
-            Field("visa_status", context={"label_size": "govuk-fieldset__legend--m"}),
+            Fieldset(
+                "visa_status",
+                legend="Visa status",
+                legend_size=Size.MEDIUM,
+                css_class="govuk-!-margin-bottom-5",
+            ),
             Field(
                 "first_arrival_date",
                 context={
