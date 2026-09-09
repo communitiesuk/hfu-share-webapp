@@ -22,6 +22,7 @@
             {% if content|length > 2000 %}
                 <a id="event-show-less-link-{{ forloop.counter }}"
                    class="govuk-link"
+                   aria-expanded="true"
                    href="{{ request.path }}{% if page_param %}?page={{ page_param }}{% endif %}#event-datetime-{{ forloop.counter }}">Show less<span class="govuk-visually-hidden"> of
                     {% if title %}{{ title }}{% endif %}
                 {{ date|format_date }}</span></a>
@@ -32,6 +33,7 @@
             {% if content|length > 2000 %}
                 <a id="event-show-more-link-{{ forloop.counter }}"
                    class="govuk-link"
+                   aria-expanded="false"
                    href="{% if page_param %}?page={{ page_param }}&show_expanded_content={{ forloop.counter }}{% else %}?show_expanded_content={{ forloop.counter }}{% endif %}#event-datetime-{{ forloop.counter }}">Show more<span class="govuk-visually-hidden"> of
                     {% if title %}{{ title }}{% endif %}
                 {{ date|format_date }}</span></a>
