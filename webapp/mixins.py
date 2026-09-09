@@ -1109,3 +1109,27 @@ class DetailViewMixin(ABC):
         )
 
         return context
+
+
+class PageTitleMixin:
+    request: HttpRequest
+    page_heading: str | None = None
+
+    def get_page_heading(self) -> str | None:
+        return self.page_heading
+
+    def get_context_data(self, **kwargs) -> dict:
+        context = super().get_context_data(**kwargs)  # type: ignore[misc]
+        heading = self.get_page_heading()
+        if heading:
+            context.setdefault("page_heading", heading)
+            self.request.step_title = heading  # type: ignore[attr-defined]
+        return context
+
+
+class WizardPageTitleMixin(PageTitleMixin):
+    steps: Any
+    step_headings: dict[str, str] = {}
+
+    def get_page_heading(self) -> str | None:
+        return self.step_headings.get(self.steps.current)

@@ -16,6 +16,7 @@ from django.forms import (
 )
 from django.forms.widgets import Input
 from django.utils import timezone
+from django.utils.html import escape
 
 from accommodation_requests.enums import MoveGuestsTypes
 from accommodation_requests.safeguarding_utils import (
@@ -881,7 +882,7 @@ class MoveGuestsConfirmationStep(forms.Form):
         # Set names based on the number of guests moved
         names = MvAccommodationRequest.format_guest_names(moving_guests)
 
-        headline = f"Are you sure you want to move {names} to {destination}?"
+        headline = escape(f"Are you sure you want to move {names} to {destination}?")
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
