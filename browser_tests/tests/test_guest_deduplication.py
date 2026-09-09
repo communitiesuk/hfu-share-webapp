@@ -43,16 +43,6 @@ def guest_deduplication_page(home_page: HomePage) -> HomePage:
     return home_page
 
 
-def _search(guest_deduplication_page: HomePage, text: str) -> None:
-    show_filters_button = guest_deduplication_page.main_page.get_by_role(
-        "button", name="Show filters"
-    )
-    if show_filters_button.count() > 0:
-        show_filters_button.click()
-    guest_deduplication_page.enter_text_into_form_field("Search", text)
-    guest_deduplication_page.click_button("Apply filters")
-
-
 def _select_guest_record(guest_deduplication_page: HomePage, full_name: str) -> None:
     guest_deduplication_page.main_page.get_by_role(
         "button", name=f"Select {full_name}"
@@ -77,7 +67,7 @@ class TestGuestDeduplicationJourney(BrowserTest):
         self, guest_deduplication_page: HomePage
     ) -> None:
         # Filter the list
-        _search(guest_deduplication_page, SEARCH_TERM)
+        guest_deduplication_page.search(SEARCH_TERM)
         for full_name in (
             GUEST_CONFIRMED_VISA_CHECKS_REQUIRED.full_name,
             GUEST_ARRIVED_VISA_CHECKS_REQUIRED.full_name,
@@ -98,7 +88,7 @@ class TestGuestDeduplicationJourney(BrowserTest):
         guest_deduplication_page.assert_has_heading("Select next record")
 
         # Search again and select the second (only remaining) record
-        _search(guest_deduplication_page, SEARCH_TERM)
+        guest_deduplication_page.search(SEARCH_TERM)
         _select_guest_record(
             guest_deduplication_page, GUEST_ARRIVED_VISA_CHECKS_REQUIRED.full_name
         )

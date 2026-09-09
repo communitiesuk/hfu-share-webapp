@@ -2,8 +2,8 @@ from unittest.mock import patch
 
 from django.urls import reverse
 
-from accounts.tests.base import TestSessionTokenMixin
 from hfurb_scripts.recalculate_checks_status import run
+from hfurb_scripts.tests.base import BaseScriptTestCaseWithSession
 from ontology.models import CheckType, DevCheckV2, MvAccommodationRequest
 from ontology.tests.factories import (
     DevCheckV2Factory,
@@ -12,11 +12,10 @@ from ontology.tests.factories import (
 from ontology.tests.factories import (
     MvAccommodationRequestFactory as ARFactory,
 )
-from test_utils.base import BaseTestCase
 from user_management.tests.base import get_admin_user
 
 
-class TestRecalculateChecksStatus(TestSessionTokenMixin, BaseTestCase):
+class TestRecalculateChecksStatus(BaseScriptTestCaseWithSession):
     def setUp(self):
         super().setUp()
 

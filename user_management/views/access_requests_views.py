@@ -2,7 +2,7 @@ import os
 from datetime import datetime, timedelta
 
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import Field, Layout, Size
+from crispy_forms_gds.layout import Field, Fieldset, Layout, Size
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
@@ -129,6 +129,7 @@ class AccessRequestsFilter(FilterSet, FilterPanelMixin):
 
     status = MultipleChoiceFilter(
         choices=AccessRequest.Status.choices,
+        label="",
         widget=CheckboxSelectMultipleWithTags(
             label_to_tag_colour=access_request_status_label_to_tag_colour
         ),
@@ -153,9 +154,11 @@ class AccessRequestsFilter(FilterSet, FilterPanelMixin):
                 "created_at",
                 context={"legend_size": "govuk-fieldset__legend--m"},
             ),
-            Field(
+            Fieldset(
                 "status",
-                context={"label_size": "govuk-fieldset__legend--m"},
+                legend="Status",
+                legend_size=Size.MEDIUM,
+                css_class="govuk-!-margin-top-5",
             ),
         )
 

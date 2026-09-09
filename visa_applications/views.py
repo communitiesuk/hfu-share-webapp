@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from typing import Any
 
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import Field, Layout
+from crispy_forms_gds.layout import Field, Fieldset, Layout
 from crispy_forms_gds.layout.constants import Size
 from django.contrib import messages
 from django.db.models import QuerySet
@@ -143,7 +143,7 @@ class VisaApplicationsTable(tables.Table):
 class VisaApplicationsTableFilter(FilterSet, FilterPanelMixin):
     visa_status = MultipleChoiceFilter(
         choices=[(value.name, value.name) for value in visa_status_list],
-        label="Visa status",
+        label="",
         widget=CheckboxSelectMultipleWithTags(
             label_to_tag_colour=visa_status_to_tag_colour
         ),
@@ -211,7 +211,12 @@ class VisaApplicationsTableFilter(FilterSet, FilterPanelMixin):
         form.helper = FormHelper()
         form.helper.layout = Layout(
             Field.text("search", label_size=Size.MEDIUM),
-            Field("visa_status", context={"label_size": "govuk-fieldset__legend--m"}),
+            Fieldset(
+                "visa_status",
+                legend="Visa status",
+                legend_size=Size.MEDIUM,
+                css_class="govuk-!-margin-bottom-5",
+            ),
             Field.text("ltla_name", small=True, label_size=Size.MEDIUM),
             Field(
                 "application_event_datetime",
@@ -828,7 +833,7 @@ class VIRFilter(FilterSet, FilterPanelMixin):
 
     request_status = MultipleChoiceFilter(
         choices=[(value.name, value.name) for value in vir_status_list],
-        label="VIR status",
+        label="",
         widget=CheckboxSelectMultipleWithTags(
             label_to_tag_colour=vir_status_to_tag_colour
         ),
@@ -836,7 +841,7 @@ class VIRFilter(FilterSet, FilterPanelMixin):
 
     visa_application__visa_status = MultipleChoiceFilter(
         choices=[(value.name, value.name) for value in visa_status_list],
-        label="Visa status",
+        label="",
         widget=CheckboxSelectMultipleWithTags(
             label_to_tag_colour=visa_status_to_tag_colour
         ),
@@ -904,12 +909,17 @@ class VIRFilter(FilterSet, FilterPanelMixin):
         form.helper = FormHelper()
         form.helper.layout = Layout(
             Field.text("search", label_size=Size.MEDIUM),
-            Field(
-                "request_status", context={"label_size": "govuk-fieldset__legend--m"}
+            Fieldset(
+                "request_status",
+                legend="VIR status",
+                legend_size=Size.MEDIUM,
+                css_class="govuk-!-margin-bottom-5",
             ),
-            Field(
+            Fieldset(
                 "visa_application__visa_status",
-                context={"label_size": "govuk-fieldset__legend--m"},
+                legend="Visa status",
+                legend_size=Size.MEDIUM,
+                css_class="govuk-!-margin-bottom-5",
             ),
             Field(
                 "requested_at",

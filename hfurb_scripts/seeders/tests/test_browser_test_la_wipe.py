@@ -12,6 +12,7 @@ from hfurb_scripts.seeders.stages.seed_browser_test_la import (
     BROWSER_TEST_ID_PREFIX,
     wipe_browser_test_la_data,
 )
+from hfurb_scripts.tests.base import BaseScriptTestCase
 from ontology.models import (
     Comment,
     MvAccommodation,
@@ -33,10 +34,9 @@ from ontology.tests.factories import (
     VIRCommentFactory,
     VIRFactory,
 )
-from test_utils.base import BaseTestCase
 
 
-class BrowserTestLaWipeCompletenessTestCase(BaseTestCase):
+class BrowserTestLaWipeCompletenessTestCase(BaseScriptTestCase):
     def setUp(self):
         GroupFactory(
             name=BROWSER_TEST_LA_GROUP_NAME,
