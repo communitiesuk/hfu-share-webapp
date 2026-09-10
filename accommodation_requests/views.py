@@ -724,8 +724,8 @@ class AccommodationRequestDetailActionsView(
         can_confirm_accommodation = self.user_can_edit(
             group_types=[
                 GroupType.DEV,
-                # GroupType.LOCAL_AUTHORITY,
-                # GroupType.DEVOLVED_ADMINISTRATION,
+                GroupType.LOCAL_AUTHORITY,
+                GroupType.DEVOLVED_ADMINISTRATION,
             ]
         )
 
