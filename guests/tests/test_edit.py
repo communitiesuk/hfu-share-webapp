@@ -72,8 +72,8 @@ class GuestEditViewTests(TestSessionTokenMixin, BaseTestCase):
         self.assertEqual(response.status_code, http.client.OK)
         self.assertContains(response, "Guest record for")
         self.assertContains(response, "Initial Guest")
-        self.assertContains(response, 'id="id_first_name">\nInitial')
-        self.assertContains(response, 'id="id_last_name">\nGuest')
+        self.assertContains(response, 'value="Initial"')
+        self.assertContains(response, 'value="Guest"')
         self.assertContains(response, 'value="15/05/1990"')
         self.assertContains(response, 'value="Female" selected')
 
