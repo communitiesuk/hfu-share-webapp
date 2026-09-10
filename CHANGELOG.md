@@ -1,5 +1,33 @@
 # Changelog
 
+## [2.17.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.16.0...2.17.0) (2026-09-10)
+
+
+### Features
+
+* HFURB-4010 derive deduplication step headings and titles from the views ([#202](https://github.com/communitiesuk/hfu-share-webapp/issues/202)) ([10a1e72](https://github.com/communitiesuk/hfu-share-webapp/commit/10a1e72c309ba918a3ca8891f7e8e093f4013726))
+* HFURB-4010 make page titles unique per step with GOV.UK suffix ([#201](https://github.com/communitiesuk/hfu-share-webapp/issues/201)) ([ab8ffbd](https://github.com/communitiesuk/hfu-share-webapp/commit/ab8ffbd54e0404fb51ed18a166d1c415cf7c645c))
+* HFURB-4010 migrate all hardcoded page headings to view-declared identities ([#205](https://github.com/communitiesuk/hfu-share-webapp/issues/205)) ([630b6d3](https://github.com/communitiesuk/hfu-share-webapp/commit/630b6d3844b219afd0bc44d0f33b28c749961d23))
+* HFURB-4076 - enable primary sponsor and accommodation for users ([#173](https://github.com/communitiesuk/hfu-share-webapp/issues/173)) ([4929024](https://github.com/communitiesuk/hfu-share-webapp/commit/49290244671fc8aea97069608514afadadb914eb))
+
+
+### Bug Fixes
+
+* address some issues with the accessibility tests ([#171](https://github.com/communitiesuk/hfu-share-webapp/issues/171)) ([8d63573](https://github.com/communitiesuk/hfu-share-webapp/commit/8d63573453bd25832df1d7f44daaec0928a6391a))
+* browser test seeder private random number generator ([#175](https://github.com/communitiesuk/hfu-share-webapp/issues/175)) ([5d68c0d](https://github.com/communitiesuk/hfu-share-webapp/commit/5d68c0db612b4409e7a0d0c60b3fe6c61f8017be))
+* HFURB-4013 - make sure checkboxes in the filters use a fieldset with a legend rather than a label ([#189](https://github.com/communitiesuk/hfu-share-webapp/issues/189)) ([5adc633](https://github.com/communitiesuk/hfu-share-webapp/commit/5adc633fdf98332bc565ca15a0c63c9f5490aaab))
+* HFURB-4018 table sorting has correct styles and has aria attributes added ([#184](https://github.com/communitiesuk/hfu-share-webapp/issues/184)) ([ecab087](https://github.com/communitiesuk/hfu-share-webapp/commit/ecab0871fb08ea91602e3fc4939a07c75e2fadb2))
+* HFURB-4022 remove aria-label as it was confusing screen reader ([#188](https://github.com/communitiesuk/hfu-share-webapp/issues/188)) ([fba6faa](https://github.com/communitiesuk/hfu-share-webapp/commit/fba6faaefae3818aacfe0a45a4757e222ae18407))
+* HFURB-4098 remove intractability of submit button ([#181](https://github.com/communitiesuk/hfu-share-webapp/issues/181)) ([9cc33c4](https://github.com/communitiesuk/hfu-share-webapp/commit/9cc33c461635df54bc1a71d50e4ea5f5b5327182))
+* HFURB-4100 add aria-expanded tag to the filter table ([#182](https://github.com/communitiesuk/hfu-share-webapp/issues/182)) ([afd42e1](https://github.com/communitiesuk/hfu-share-webapp/commit/afd42e1eb5c97ad4373eb87113409fd90b5ad339))
+* HFURB-4127 update request access to use a secondary heading ([#191](https://github.com/communitiesuk/hfu-share-webapp/issues/191)) ([6bbdc6b](https://github.com/communitiesuk/hfu-share-webapp/commit/6bbdc6b8314c52320b3f5c2f95d442150919ff97))
+* HFURB-4128 make sure we use headings and labels in the request access form ([#194](https://github.com/communitiesuk/hfu-share-webapp/issues/194)) ([4497eed](https://github.com/communitiesuk/hfu-share-webapp/commit/4497eede6409b0673b845da8875b6e39147cef62))
+* HFURB-4129 update the filter heading to use h2 ([#195](https://github.com/communitiesuk/hfu-share-webapp/issues/195)) ([7d83899](https://github.com/communitiesuk/hfu-share-webapp/commit/7d838997ae03e3708ea19185dc275ca4b34b3a88))
+* HFURB-4131 replace layout table with summary list ([#197](https://github.com/communitiesuk/hfu-share-webapp/issues/197)) ([d7c97c4](https://github.com/communitiesuk/hfu-share-webapp/commit/d7c97c4523c94d40f30aafebc2a046082dcad34d))
+* HFURB-4132/4133 use summary list for read only fields ([#198](https://github.com/communitiesuk/hfu-share-webapp/issues/198)) ([5feda06](https://github.com/communitiesuk/hfu-share-webapp/commit/5feda06acac96928282a9542e1aef8a23dc74e13))
+* HFURB-4134 update title like text in dedupe flow to use h2 ([#199](https://github.com/communitiesuk/hfu-share-webapp/issues/199)) ([e2e821d](https://github.com/communitiesuk/hfu-share-webapp/commit/e2e821dfac23a8e0b17a9dd01e812357774300ea))
+* stop the browser test seeder importing test_utils, which is not in the image ([#177](https://github.com/communitiesuk/hfu-share-webapp/issues/177)) ([a7da1aa](https://github.com/communitiesuk/hfu-share-webapp/commit/a7da1aa30b306c527fed00b1413432b0584fca9b))
+
 ## [2.16.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.15.0...2.16.0) (2026-09-07)
 
 
