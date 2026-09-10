@@ -842,6 +842,7 @@ SEEDED_ID_START = f"{BROWSER_TEST_ID_PREFIX}-"
 DEDUPLICATION_PRINCIPALS = [
     (MvPerson, "person", ["guestduplicategroup__guests"]),
     (MvVolunteer, "sponsor", ["sponsorduplicategroup__sponsors"]),
+    (MvAccommodation, "accommodation", ["accommodationduplicategroup__accommodations"]),
 ]
 
 RECORDS_LINKED_TO_SEEDED_RECORDS = [
@@ -868,6 +869,7 @@ ID_ARRAY_FIELDS = {
         (MvAccommodationRequest, "sponsor_id"),
         (MvAccommodationRequest, "sponsor_withdrawn"),
     ],
+    MvAccommodation: [(MvAccommodationRequest, "accommodation_id")],
 }
 
 
