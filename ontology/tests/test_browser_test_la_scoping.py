@@ -1,10 +1,6 @@
 from django.db.models import QuerySet
 
-from accounts.enums import (
-    BROWSER_TEST_LTLA_NAMES,
-    BROWSER_TEST_SECOND_LTLA_NAME,
-    GroupType,
-)
+from accounts.enums import BROWSER_TEST_LTLA_NAMES, GroupType
 from accounts.models import User
 from accounts.tests.factories import GroupFactory, UserFactory
 from ontology.models import (
@@ -46,7 +42,7 @@ class BrowserTestLaScopingTestCase(LocalAuthorityPermissionsManagerBaseTestCase)
             ltla_name=BROWSER_TEST_LTLA_NAMES[0], utla_name=""
         )
         self.second_browser_test_object = VisaApplicationFactory(
-            ltla_name=BROWSER_TEST_SECOND_LTLA_NAME, utla_name=""
+            ltla_name=BROWSER_TEST_LTLA_NAMES[1], utla_name=""
         )
 
     def assert_get_for_user_returns(

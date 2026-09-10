@@ -6,7 +6,6 @@ from accounts.enums import (
     BROWSER_TEST_LA_GROUP_NAME,
     BROWSER_TEST_LTLA_NAMES,
     BROWSER_TEST_SECOND_LA_GROUP_NAME,
-    BROWSER_TEST_SECOND_LTLA_NAME,
     BROWSER_TEST_UTLA_NAME,
     GroupType,
 )
@@ -27,6 +26,6 @@ def create_browser_test_la_groups() -> list[Group]:
         )
         for name, ltla_name in (
             (BROWSER_TEST_LA_GROUP_NAME, BROWSER_TEST_LTLA_NAMES[0]),
-            (BROWSER_TEST_SECOND_LA_GROUP_NAME, BROWSER_TEST_SECOND_LTLA_NAME),
+            (BROWSER_TEST_SECOND_LA_GROUP_NAME, BROWSER_TEST_LTLA_NAMES[1]),
         )
     ]

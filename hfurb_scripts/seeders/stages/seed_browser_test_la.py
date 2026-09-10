@@ -11,11 +11,7 @@ from django.db.models import Q, QuerySet
 from django.utils import timezone
 from freezegun import freeze_time
 
-from accounts.enums import (
-    BROWSER_TEST_LA_GROUP_NAME,
-    BROWSER_TEST_LTLA_NAMES,
-    BROWSER_TEST_SECOND_LTLA_NAME,
-)
+from accounts.enums import BROWSER_TEST_LA_GROUP_NAME, BROWSER_TEST_LTLA_NAMES
 from accounts.models import User
 from deduplication.models import (
     AccommodationDuplicateGroup,
@@ -74,7 +70,7 @@ from ontology.tests.factories import CommentFactory
 BROWSER_TEST_ID_PREFIX = "browser-test"
 BROWSER_TEST_SEED = int(os.environ.get("BROWSER_TEST_SEED", 1313))
 BROWSER_TEST_REFERENCE_DATETIME = datetime(2025, 1, 1, 12, 0, 0)
-MULTI_LA_SECOND_LTLA = BROWSER_TEST_SECOND_LTLA_NAME
+MULTI_LA_SECOND_LTLA = BROWSER_TEST_LTLA_NAMES[1]
 
 
 ChecksStatus = MvAccommodationRequest.ChecksStatus
