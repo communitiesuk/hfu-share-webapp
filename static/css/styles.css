@@ -474,7 +474,21 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
 }
 
 /* Trial: detail layout switch. Remove with the layout trial. */
-.app-breadcrumbs-row .govuk-tag {
+/* Trial: detail layout switch. Boxed demo controls line on prototype pages. */
+.app-demo-controls {
+  background-color: var(--app-brand-colour);
+  color: var(--govuk-inverse-text-colour);
+  display: inline-block;
+  padding: 10px 15px;
+}
+
+.app-demo-controls .govuk-link:link,
+.app-demo-controls .govuk-link:visited {
+  color: var(--govuk-inverse-text-colour);
+}
+
+.app-breadcrumbs-row .govuk-tag,
+.app-tag--small {
   font-size: 0.875rem;
   line-height: 1.25;
 }
@@ -492,17 +506,6 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
   clip-path: inset(50%) !important;
   border: 0 !important;
   white-space: nowrap !important;
-}
-
-/* Trial: detail layout switch. Demo variant with a button in a summary card
-   header; centres the title against the taller button. */
-.app-summary-card-header-with-button {
-  align-items: center;
-}
-
-.app-summary-card-header-with-button .govuk-summary-card__title {
-  margin-bottom: 0;
-  margin-top: 0;
 }
 
 /* Tab content column, focused by detail-view-focus.js after side navigation. */
