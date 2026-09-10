@@ -103,8 +103,8 @@ class SponsorEditViewTests(TestSessionTokenMixin, BaseTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Sponsor and host record for")
         self.assertContains(response, "Scottish Sponsor")
-        self.assertContains(response, 'id="id_first_name">\nScottish')
-        self.assertContains(response, 'id="id_last_name">\nSponsor')
+        self.assertContains(response, 'value="Scottish"')
+        self.assertContains(response, 'value="Sponsor"')
         self.assertContains(response, 'value="15/05/1990"')
         self.assertContains(response, 'value="Female" selected')
 
@@ -116,8 +116,8 @@ class SponsorEditViewTests(TestSessionTokenMixin, BaseTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Sponsor and host record for")
         self.assertContains(response, "Initial Sponsor")
-        self.assertContains(response, 'id="id_first_name">\nInitial')
-        self.assertContains(response, 'id="id_last_name">\nSponsor')
+        self.assertContains(response, 'value="Initial"')
+        self.assertContains(response, 'value="Sponsor"')
         self.assertContains(response, 'value="15/05/1990"')
         self.assertContains(response, 'value="Female" selected')
 

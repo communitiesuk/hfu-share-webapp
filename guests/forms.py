@@ -59,12 +59,10 @@ class GuestBaseForm(ReadOnlyFieldsMixin, forms.ModelForm):
 class GuestEditForm(GuestBaseForm):
     first_name = forms.CharField(
         label="First Name",
-        widget=forms.Textarea(attrs={"required": True, "rows": 1}),
         error_messages={"required": "Please enter a valid name"},
     )
     last_name = forms.CharField(
         label="Last Name",
-        widget=forms.Textarea(attrs={"required": True, "rows": 1}),
         error_messages={"required": "Please enter a valid last name"},
     )
     date_of_birth = forms.DateField(

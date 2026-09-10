@@ -13,15 +13,11 @@ from webapp.widgets import DatePicker, MultiValueWidget
 class SponsorEditForm(ReadOnlyFieldsMixin, forms.ModelForm):
     first_name = forms.CharField(
         label="First Name",
-        widget=forms.Textarea(attrs={"rows": 1}),
-        required=True,
         error_messages={"required": "Please enter a valid first name"},
     )
 
     last_name = forms.CharField(
         label="Last Name",
-        widget=forms.Textarea(attrs={"rows": 1}),
-        required=True,
         error_messages={"required": "Please enter a valid last name"},
     )
 
