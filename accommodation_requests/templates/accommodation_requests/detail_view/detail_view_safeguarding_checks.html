@@ -28,16 +28,18 @@
                 {% endif %}
             </div>
         </div>
-        <p class="govuk-body-s app-demo-controls">
-            <strong class="govuk-tag govuk-tag--grey app-tag--small govuk-!-margin-right-1">Demo controls</strong>
-            Add check placement:
-            {% if request.GET.add_check == "button" %}
-                <a class="govuk-link" href="{{ request.path }}">Header link</a>
-                | <strong>Bottom button</strong>
-            {% else %}
-                <strong>Header link</strong>
-                | <a class="govuk-link" href="{{ request.path }}?add_check=button">Bottom button</a>
-            {% endif %}
-        </p>
     {% endif %}
 {% endblock selected_tab %}
+{% block demo_controls %}
+    <p class="govuk-body-s app-demo-controls">
+        <strong class="govuk-tag app-tag--small">Demo controls</strong>
+        Add check placement:
+        {% if request.GET.add_check == "button" %}
+            <a class="govuk-link" href="{{ request.path }}">Header link</a>
+            | <strong>Bottom button</strong>
+        {% else %}
+            <strong>Header link</strong>
+            | <a class="govuk-link" href="{{ request.path }}?add_check=button">Bottom button</a>
+        {% endif %}
+    </p>
+{% endblock demo_controls %}

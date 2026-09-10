@@ -649,15 +649,41 @@ class SafeguardingDetailViewMixin(DetailViewMixin):
     singular_name = "Escalated check"
     plural_name = "Escalated checks"
 
+    # Demo only: where the alerted status form sits in the new layout,
+    # "combined" on the central safeguarding tab or "tab" as its own
+    # side navigation section. Remembered in the session.
+    alerted_status_layouts = ("combined", "tab")
+
     @property
     def views_for_record(self):
         return (
             SafeguardingDetailOverviewView,
             SafeguardingDetailCentralSafeguardingView,
+            SafeguardingDetailAlertedStatusView,
             SafeguardingDetailSafeguardingChecksView,
             SafeguardingDetailLinkedRecordsView,
             SafeguardingDetailPropertiesView,
         )
+
+    @property
+    def alerted_status_layout(self) -> str:
+        session = getattr(self.request, "session", None)
+        if session is None:
+            return "combined"
+        requested = self.request.GET.get("alerted_status")
+        if requested in self.alerted_status_layouts:
+            session["alerted_status"] = requested
+        return session.get("alerted_status", "combined")
+
+    def should_show_tab_for_user(self, view_name: str) -> bool:
+        if view_name == "alerted-status":
+            return self.detail_layout == "new" and self.alerted_status_layout == "tab"
+        return True
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["alerted_status_layout"] = self.alerted_status_layout
+        return ctx
 
     def add_breadcrumbs(self, context) -> None:
         context["breadcrumbs"] = [
@@ -1432,6 +1458,22 @@ class SafeguardingDetailCentralSafeguardingView(
         _, _, notifications = self.get_details()
 
         return notifications
+
+
+class SafeguardingDetailAlertedStatusView(SafeguardingDetailCentralSafeguardingView):
+    view_name = "alerted-status"
+
+    def get_success_url(self) -> str:
+        return reverse(
+            "safeguarding:detail-alerted-status",
+            kwargs={
+                "pk": self.get_object().pk,
+                "referral_id": self.kwargs.get("referral_id"),
+            },
+        )
+
+    def get_cancel_url(self) -> str:
+        return self.get_success_url()
 
 
 class SafeguardingDetailCentralSafeguardingAlertDetailView(

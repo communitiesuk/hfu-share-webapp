@@ -3,6 +3,7 @@ from django.urls import path
 from .views import (
     DownloadEscalatedChecksCSVView,
     EscalatedChecksView,
+    SafeguardingDetailAlertedStatusView,
     SafeguardingDetailCentralSafeguardingAlertDetailView,
     SafeguardingDetailCentralSafeguardingView,
     SafeguardingDetailLinkedRecordsView,
@@ -22,6 +23,11 @@ urlpatterns = [
         "<str:pk>/overview/<str:referral_id>",
         SafeguardingDetailOverviewView.as_view(),
         name="detail-overview",
+    ),
+    path(
+        "<str:pk>/alerted-status/<str:referral_id>",
+        SafeguardingDetailAlertedStatusView.as_view(),
+        name="detail-alerted-status",
     ),
     path(
         "<str:pk>/safeguarding-checks/<str:referral_id>",

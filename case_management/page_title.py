@@ -136,6 +136,7 @@ def get_tab_title(resolver_match: ResolverMatch) -> str:
         "ReceivedPageView": "Requests received",
         "FilesView": "Files",
         "CentralSafeguarding": "Central safeguarding",
+        "AlertedStatus": "Alerted status",
     }
 
     func_path = resolver_match._func_path

@@ -476,10 +476,22 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
 /* Trial: detail layout switch. Remove with the layout trial. */
 /* Trial: detail layout switch. Boxed demo controls line on prototype pages. */
 .app-demo-controls {
+  align-items: center;
   background-color: var(--app-brand-colour);
   color: var(--govuk-inverse-text-colour);
-  display: inline-block;
+  column-gap: 6px;
+  display: flex;
+  flex-wrap: wrap;
   padding: 10px 15px;
+  width: fit-content;
+}
+
+.app-demo-controls .govuk-tag {
+  background-color: var(--govuk-template-background-colour);
+  color: var(--govuk-text-colour);
+  margin-bottom: 0;
+  margin-right: 8px;
+  margin-top: 0;
 }
 
 .app-demo-controls .govuk-link:link,

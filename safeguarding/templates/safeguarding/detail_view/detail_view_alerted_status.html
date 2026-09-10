@@ -1,0 +1,21 @@
+{% extends "webapp/components/record_tabs/record_overview_base.html" %}
+{% load crispy_forms_tags crispy_forms_gds %}
+{% block selected_tab %}
+    <div class="govuk-summary-card app-alerted-status-card">
+        <div class="govuk-summary-card__title-wrapper">
+            <h2 class="govuk-summary-card__title">Alerted status</h2>
+        </div>
+        <div class="govuk-summary-card__content">
+            {% include "safeguarding/detail_view/central_safeguarding/alerted_status_form.html" %}
+        </div>
+    </div>
+{% endblock selected_tab %}
+{% block demo_controls %}
+    <p class="govuk-body-s app-demo-controls">
+        <strong class="govuk-tag app-tag--small">Demo controls</strong>
+        Alerted status placement:
+        <a class="govuk-link"
+           href="{% url 'safeguarding:detail-central-safeguarding' object.pk referral_id %}?alerted_status=combined">Same tab</a>
+        | <strong>Separate section</strong>
+    </p>
+{% endblock demo_controls %}

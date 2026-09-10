@@ -1096,6 +1096,7 @@ class DetailViewMixin(DetailLayoutMixin, ABC):
     view_name_to_tab_text: dict[str, str] = {
         "overview": "Overview",
         "central-safeguarding": "Central safeguarding",
+        "alerted-status": "Alerted status",
         "safeguarding-checks": "Safeguarding checks",
         "actions": "Actions",
         "linked-records": "Linked records",

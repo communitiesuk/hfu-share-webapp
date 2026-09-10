@@ -26,13 +26,28 @@
                 {% include "safeguarding/detail_view/central_safeguarding/checks_list.html" %}
             </div>
         </div>
-        <div class="govuk-summary-card app-alerted-status-card">
-            <div class="govuk-summary-card__title-wrapper">
-                <h2 class="govuk-summary-card__title">Alerted status</h2>
+        {% if alerted_status_layout != "tab" %}
+            <div class="govuk-summary-card app-alerted-status-card">
+                <div class="govuk-summary-card__title-wrapper">
+                    <h2 class="govuk-summary-card__title">Alerted status</h2>
+                </div>
+                <div class="govuk-summary-card__content">
+                    {% include "safeguarding/detail_view/central_safeguarding/alerted_status_form.html" %}
+                </div>
             </div>
-            <div class="govuk-summary-card__content">
-                {% include "safeguarding/detail_view/central_safeguarding/alerted_status_form.html" %}
-            </div>
-        </div>
+        {% endif %}
     {% endif %}
 {% endblock selected_tab %}
+{% block demo_controls %}
+    <p class="govuk-body-s app-demo-controls">
+        <strong class="govuk-tag app-tag--small">Demo controls</strong>
+        Alerted status placement:
+        {% if alerted_status_layout == "tab" %}
+            <a class="govuk-link" href="{{ request.path }}?alerted_status=combined">Same tab</a>
+            | <strong>Separate section</strong>
+        {% else %}
+            <strong>Same tab</strong>
+            | <a class="govuk-link" href="{{ request.path }}?alerted_status=tab">Separate section</a>
+        {% endif %}
+    </p>
+{% endblock demo_controls %}
