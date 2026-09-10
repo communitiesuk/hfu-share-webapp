@@ -40,6 +40,6 @@ BROWSER_TEST_LTLA_NAMES = [
     "Bree (Browser test LTLA)",
 ]
 BROWSER_TEST_UTLA_NAME = "Hobbiton (Browser test UTLA)"
-BROWSER_TEST_LA_GROUP_NAME = "ltla_hobbiton_browser_test"
+BROWSER_TEST_FIRST_LA_GROUP_NAME = "ltla_hobbiton_browser_test"
 BROWSER_TEST_SECOND_LA_GROUP_NAME = "ltla_bree_browser_test"
 BROWSER_TEST_UTLA_GROUP_NAME = "utla_hobbiton_browser_test"

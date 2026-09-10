@@ -11,7 +11,7 @@ from django.db.models import Q, QuerySet
 from django.utils import timezone
 from freezegun import freeze_time
 
-from accounts.enums import BROWSER_TEST_LA_GROUP_NAME, BROWSER_TEST_LTLA_NAMES
+from accounts.enums import BROWSER_TEST_FIRST_LA_GROUP_NAME, BROWSER_TEST_LTLA_NAMES
 from accounts.models import User
 from deduplication.models import (
     AccommodationDuplicateGroup,
@@ -815,7 +815,7 @@ def _move_guests_off_closed_empty_ar(
 
 
 def _get_browser_test_author() -> User:
-    group = Group.objects.get(name=BROWSER_TEST_LA_GROUP_NAME)
+    group = Group.objects.get(name=BROWSER_TEST_FIRST_LA_GROUP_NAME)
 
     browser_test_email = os.environ.get("BROWSER_TEST_USER_EMAIL")
     if browser_test_email:
@@ -829,7 +829,7 @@ def _get_browser_test_author() -> User:
         raise ValueError(
             "No browser test user available: set BROWSER_TEST_USER_EMAIL to an "
             f"existing user's email or add a user to the "
-            f"{BROWSER_TEST_LA_GROUP_NAME} group"
+            f"{BROWSER_TEST_FIRST_LA_GROUP_NAME} group"
         )
     return author
 
