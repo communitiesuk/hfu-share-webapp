@@ -71,6 +71,7 @@ from webapp.mixins import (
     PermissionsMixin,
     SectionHeadingMixin,
     TableRendererMixin,
+    WizardPageTitleMixin,
 )
 from webapp.search import perform_search
 from webapp.utils import (
@@ -2248,6 +2249,7 @@ class UndoDeduplicationAccommodationRecordsRecordsRestoredStepView(
 
 # Form Wizards
 class SelectAndViewRecordsFormWizard(
+    WizardPageTitleMixin,
     PermissionsMixin,
     FormView,
     NamedUrlSessionWizardView,
@@ -2304,11 +2306,6 @@ class SelectAndViewRecordsFormWizard(
             return f"View selected record{plural}"
         return SELECT_AND_REVIEW_STEP_HEADINGS.get(step, "")
 
-    def render_to_response(self, context):
-        context["page_heading"] = self.get_step_heading(context)
-        self.request.step_title = context["page_heading"]
-        return super().render_to_response(context)
-
     def get(self, request, *args, **kwargs):
         if "reset" in request.GET:
             self.storage.reset()
@@ -2355,6 +2352,7 @@ class SelectAndViewRecordsFormWizard(
 
 
 class UndoDeduplicationRecordsFormWizard(
+    WizardPageTitleMixin,
     PermissionsMixin,
     FormView,
     NamedUrlSessionWizardView,
@@ -2372,11 +2370,6 @@ class UndoDeduplicationRecordsFormWizard(
         if step == UndoDeduplicationRecordsStep.UNDO_DEDUPLICATE_RECORDS:
             return f"Undo deduplicate {record_type} records"
         return "Deduplicated records restored"
-
-    def render_to_response(self, context):
-        context["page_heading"] = self.get_step_heading(context)
-        self.request.step_title = context["page_heading"]
-        return super().render_to_response(context)
 
     def get_step_url(self, step):
         kwargs = self.get_url_kwargs()
