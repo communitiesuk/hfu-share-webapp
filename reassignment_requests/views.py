@@ -2,7 +2,7 @@ import os
 from datetime import datetime, timedelta
 
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import HTML, Button, Div, Field, Layout
+from crispy_forms_gds.layout import HTML, Button, Div, Field, Fieldset, Layout
 from crispy_forms_gds.layout.constants import Size
 from django import forms
 from django.contrib.messages.views import SuccessMessageMixin
@@ -40,6 +40,7 @@ from webapp.constants import REASSIGNMENT_REQUEST_SEARCH_FIELDS
 from webapp.enhanced_sentry_logging import db_values, log_event, log_persistence_check
 from webapp.mixins import (
     FilterPanelMixin,
+    PageTitleMixin,
     PermissionsMixin,
 )
 from webapp.search import perform_search
@@ -135,7 +136,7 @@ class ReassignmentRequestsMadeFilter(FilterSet, FilterPanelMixin):
             for choice in ReassignmentRequest.Outcome.choices
             if choice[0] != "Needs Accommodation Request"
         ],
-        label="Status",
+        label="",
         widget=CheckboxSelectMultipleWithTags(
             label_to_tag_colour=reassignment_request_outcome_label_to_tag_colour
         ),
@@ -192,7 +193,12 @@ class ReassignmentRequestsMadeFilter(FilterSet, FilterPanelMixin):
             Field.text("search", label_size=Size.MEDIUM),
             Field.text("destination_ltla_name", small=True, label_size=Size.MEDIUM),
             Field("created_at", context={"legend_size": "govuk-fieldset__legend--m"}),
-            Field("outcome", context={"label_size": "govuk-fieldset__legend--m"}),
+            Fieldset(
+                "outcome",
+                legend="Status",
+                legend_size=Size.MEDIUM,
+                css_class="govuk-!-margin-top-5",
+            ),
         )
         return form
 
@@ -213,7 +219,7 @@ class ReassignmentRequestsReceivedFilter(FilterSet, FilterPanelMixin):
             for choice in ReassignmentRequest.Outcome.choices
             if choice[0] != "Needs Accommodation Request"
         ],
-        label="Status",
+        label="",
         widget=CheckboxSelectMultipleWithTags(
             label_to_tag_colour=reassignment_request_outcome_label_to_tag_colour
         ),
@@ -283,7 +289,12 @@ class ReassignmentRequestsReceivedFilter(FilterSet, FilterPanelMixin):
             Field.text("search", label_size=Size.MEDIUM),
             Field.text("source_ltla_name", small=True, label_size=Size.MEDIUM),
             Field("created_at", context={"legend_size": "govuk-fieldset__legend--m"}),
-            Field("outcome", context={"label_size": "govuk-fieldset__legend--m"}),
+            Fieldset(
+                "outcome",
+                legend="Status",
+                legend_size=Size.MEDIUM,
+                css_class="govuk-!-margin-top-5",
+            ),
         )
         return form
 
@@ -297,7 +308,14 @@ class ReassignmentRequestsReceivedFilter(FilterSet, FilterPanelMixin):
         ]
 
 
-class ReassignmentRequestsMadePageView(PermissionsMixin, SingleTableMixin, FilterView):
+class ReassignmentRequestsMadePageView(
+    PageTitleMixin,
+    PermissionsMixin,
+    SingleTableMixin,
+    FilterView,
+):
+    page_heading = "Requests to move guests to different local authorities"
+    heading_labels_title = False
     model = ReassignmentRequest
     group_type = [
         GroupType.LOCAL_AUTHORITY,
@@ -336,8 +354,10 @@ class ReassignmentRequestsMadePageView(PermissionsMixin, SingleTableMixin, Filte
 
 
 class ReassignmentRequestsReceivedPageView(
-    PermissionsMixin, SingleTableMixin, FilterView
+    PageTitleMixin, PermissionsMixin, SingleTableMixin, FilterView
 ):
+    page_heading = "Requests to move guests to different local authorities"
+    heading_labels_title = False
     model = ReassignmentRequest
     group_type = [
         GroupType.LOCAL_AUTHORITY,
@@ -432,11 +452,14 @@ class AcceptRejectReassignmentRequestForm(forms.Form):
 
 
 class ReassignmentRequestDetailView(
+    PageTitleMixin,
     PermissionsMixin,
     SuccessMessageMixin,
     FormView,
     SummaryListView,
 ):
+    page_heading = "Request to move guests to a different local authority"
+    heading_labels_title = False
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
@@ -894,11 +917,14 @@ class ReassignmentRequestDetailView(
 
 
 class CancelReassignmentRequestView(
+    PageTitleMixin,
     PermissionsMixin,
     SingleObjectMixin,
     SuccessMessageMixin,
     FormView,
 ):
+    page_heading = "Cancel request to move guests to a different local authority"
+    heading_labels_title = False
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,

@@ -66,7 +66,13 @@ from webapp.constants import (
     GUEST_SEARCH_FIELDS,
     visa_status_list,
 )
-from webapp.mixins import FilterPanelMixin, PermissionsMixin, TableRendererMixin
+from webapp.mixins import (
+    FilterPanelMixin,
+    PermissionsMixin,
+    SectionHeadingMixin,
+    TableRendererMixin,
+    WizardPageTitleMixin,
+)
 from webapp.search import perform_search
 from webapp.utils import (
     CustomDateColumn,
@@ -145,6 +151,19 @@ SELECT_AND_REVIEW_RECORDS_FORMS = [
     (SelectAndReviewRecordsStep.CHECK_AND_COMPLETE, CheckAndCompleteStepForm),
 ]
 
+SELECT_AND_REVIEW_STEP_HEADINGS = {
+    SelectAndReviewRecordsStep.REVIEW_SELECTED_RECORDS: (
+        "Deduplicate selected records"
+    ),
+    SelectAndReviewRecordsStep.SELECT_ACCOMMODATION_REQUEST: (
+        "Select accommodation request"
+    ),
+    SelectAndReviewRecordsStep.SELECT_CORRECT_DETAILS: "Select correct details",
+    SelectAndReviewRecordsStep.CHECK_AND_COMPLETE: (
+        "Check details and complete deduplication"
+    ),
+}
+
 SELECT_AND_REVIEW_FORM_TEMPLATES = {
     SelectAndReviewRecordsStep.SELECT_RECORD: "select_records_list_step.html",  # noqa: E501
     SelectAndReviewRecordsStep.VIEW_SELECTED_RECORDS: "view_selected_records_list_step.html",  # noqa: E501
@@ -176,6 +195,7 @@ UNDO_DEDUPLICATION_RECORDS_FORMS = [
     ),
 ]
 
+
 UNDO_DEDUPLICATION_FORM_TEMPLATES = {
     UndoDeduplicationRecordsStep.VIEW_DUPLICATE_RECORDS: "view_duplicate_records_list_step.html",  # noqa: E501
     UndoDeduplicationRecordsStep.UNDO_DEDUPLICATE_RECORDS: "undo_deduplicate_records_step.html",  # noqa: E501
@@ -185,7 +205,7 @@ UNDO_DEDUPLICATION_FORM_TEMPLATES = {
 
 ## DEDUPLICATION
 # Select object type
-class SelectRecordTypeView(PermissionsMixin, FormView):
+class SelectRecordTypeView(SectionHeadingMixin, PermissionsMixin, FormView):
     template_name = "select_duplicate_record_type.html"
     form_class = SelectRecordTypeForm
     group_type = list(FIX_DUPLICATE_RECORDS_ALLOWED_GROUP_TYPES)
@@ -558,7 +578,7 @@ class ManualGuestDeduplicationFilter(FilterSet, FilterPanelMixin):
 
     visa_status = MultipleChoiceFilter(
         choices=[(value.name, value.name) for value in visa_status_list],
-        label="Visa status",
+        label="",
         widget=CheckboxSelectMultipleWithTags(
             label_to_tag_colour=visa_status_to_tag_colour
         ),
@@ -628,7 +648,12 @@ class ManualGuestDeduplicationFilter(FilterSet, FilterPanelMixin):
                     "legend_size": "govuk-fieldset__legend--m",
                 },
             ),
-            Field("visa_status", context={"label_size": "govuk-fieldset__legend--m"}),
+            Fieldset(
+                "visa_status",
+                legend="Visa status",
+                legend_size=Size.MEDIUM,
+                css_class="govuk-!-margin-bottom-5",
+            ),
             Field(
                 "first_arrival_date",
                 context={
@@ -2224,6 +2249,7 @@ class UndoDeduplicationAccommodationRecordsRecordsRestoredStepView(
 
 # Form Wizards
 class SelectAndViewRecordsFormWizard(
+    WizardPageTitleMixin,
     PermissionsMixin,
     FormView,
     NamedUrlSessionWizardView,
@@ -2269,9 +2295,16 @@ class SelectAndViewRecordsFormWizard(
         kwargs = super().get_form_kwargs(step)
         return kwargs
 
-    def get_context_data(self, form, **kwargs):
-        context = super().get_context_data(form=form, **kwargs)
-        return context
+    def get_step_heading(self, context: dict) -> str:
+        step = self.steps.current
+        if step == SelectAndReviewRecordsStep.SELECT_RECORD:
+            if context.get("selected_ids"):
+                return "Select next record"
+            return f"Fix duplicate {context.get('type', '')} records"
+        if step == SelectAndReviewRecordsStep.VIEW_SELECTED_RECORDS:
+            plural = "s" if len(context.get("object_list") or []) > 1 else ""
+            return f"View selected record{plural}"
+        return SELECT_AND_REVIEW_STEP_HEADINGS.get(step, "")
 
     def get(self, request, *args, **kwargs):
         if "reset" in request.GET:
@@ -2319,6 +2352,7 @@ class SelectAndViewRecordsFormWizard(
 
 
 class UndoDeduplicationRecordsFormWizard(
+    WizardPageTitleMixin,
     PermissionsMixin,
     FormView,
     NamedUrlSessionWizardView,
@@ -2327,6 +2361,15 @@ class UndoDeduplicationRecordsFormWizard(
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+    def get_step_heading(self, context: dict) -> str:
+        step = self.steps.current
+        record_type = context.get("type", "")
+        if step == UndoDeduplicationRecordsStep.VIEW_DUPLICATE_RECORDS:
+            return f"View duplicate {record_type} records"
+        if step == UndoDeduplicationRecordsStep.UNDO_DEDUPLICATE_RECORDS:
+            return f"Undo deduplicate {record_type} records"
+        return "Deduplicated records restored"
 
     def get_step_url(self, step):
         kwargs = self.get_url_kwargs()

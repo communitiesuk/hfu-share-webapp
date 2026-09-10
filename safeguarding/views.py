@@ -4,7 +4,7 @@ import os
 from datetime import datetime, timedelta
 
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import Field, Layout
+from crispy_forms_gds.layout import Field, Fieldset, Layout
 from crispy_forms_gds.layout.constants import Size
 from django.contrib import messages
 from django.db.models import (
@@ -63,8 +63,10 @@ from webapp.mixins import (
     DetailViewMixin,
     FilterPanelMixin,
     GroupRequiredMixin,
+    PageTitleMixin,
     PermissionsMixin,
     PIISafeRecordNameMixin,
+    SectionHeadingMixin,
     UserActionsMixin,
 )
 from webapp.search import perform_search
@@ -423,7 +425,7 @@ class EscalatedChecksTableFilter(FilterPanelMixin, FilterSet):
     alerted_status = MultipleChoiceFilter(
         choices=SafeguardingReferral.AlertedStatus.choices,
         field_name="alerted_status",
-        label="Alerted status",
+        label="",
         lookup_expr="exact",
         widget=CheckboxSelectMultipleWithTags(
             label_to_tag_colour=alerted_status_to_tag_colour
@@ -433,7 +435,7 @@ class EscalatedChecksTableFilter(FilterPanelMixin, FilterSet):
     visa_status = MultipleChoiceFilter(
         choices=[(value.name, value.name) for value in visa_status_list_ordered],
         field_name="person__visa_status",
-        label="Visa status",
+        label="",
         lookup_expr="exact",
         widget=CheckboxSelectMultipleWithTags(
             label_to_tag_colour=visa_status_to_tag_colour
@@ -523,10 +525,18 @@ class EscalatedChecksTableFilter(FilterPanelMixin, FilterSet):
         form.helper = FormHelper()
         form.helper.layout = Layout(
             Field.text("search", label_size=Size.MEDIUM),
-            Field(
-                "alerted_status", context={"label_size": "govuk-fieldset__legend--m"}
+            Fieldset(
+                "alerted_status",
+                legend="Alerted status",
+                legend_size=Size.MEDIUM,
+                css_class="govuk-!-margin-bottom-5",
             ),
-            Field("visa_status", context={"label_size": "govuk-fieldset__legend--m"}),
+            Fieldset(
+                "visa_status",
+                legend="Visa status",
+                legend_size=Size.MEDIUM,
+                css_class="govuk-!-margin-bottom-5",
+            ),
             Field(
                 "latest_alert_date",
                 context={
@@ -562,7 +572,11 @@ class EscalatedChecksTableFilter(FilterPanelMixin, FilterSet):
 
 
 class EscalatedChecksView(
-    UserActionsMixin, GroupRequiredMixin, SingleTableMixin, FilterView
+    SectionHeadingMixin,
+    UserActionsMixin,
+    GroupRequiredMixin,
+    SingleTableMixin,
+    FilterView,
 ):
     group_type = [GroupType.HOME_OFFICE, GroupType.MHCLG, GroupType.DEV]
     model = SafeguardingReferral
@@ -1427,8 +1441,10 @@ class SafeguardingDetailCentralSafeguardingView(
 
 
 class SafeguardingDetailCentralSafeguardingAlertDetailView(
-    UserActionsMixin, GroupRequiredMixin, DetailView
+    PageTitleMixin, UserActionsMixin, GroupRequiredMixin, DetailView
 ):
+    page_heading = "Alert"
+    heading_labels_title = False
     group_type = [GroupType.HOME_OFFICE, GroupType.MHCLG, GroupType.DEV]
     template_name = "safeguarding/detail_view/central_safeguarding/check_detail.html"
     model = SafeguardingNotification

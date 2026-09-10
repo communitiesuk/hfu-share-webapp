@@ -47,6 +47,8 @@ from webapp.constants import (
     visa_status_some_issued,
 )
 from webapp.mixins import (
+    PageTitleMixin,
+    SectionHeadingMixin,
     UserActionsMixin,
 )
 from webapp.utils import (
@@ -346,12 +348,14 @@ class LandingPageView(UserActionsMixin, MultiTableMixin, TemplateView):
         return [table_pending, table_rejected, table_approved]
 
 
-class AccessibilityStatementView(TemplateView):
+class AccessibilityStatementView(PageTitleMixin, TemplateView):
     # pylint: disable=view-missing-access-control
+    page_heading = "Accessibility statement for Share Homes for Ukraine data (Share)"
+    heading_labels_title = False
     template_name = "webapp/pages/accessibility_statement/accessibility_statement.html"
 
 
-class CookiesView(TemplateView):
+class CookiesView(SectionHeadingMixin, TemplateView):
     # pylint: disable=view-missing-access-control
     template_name = "webapp/pages/cookies/cookies.html"
 

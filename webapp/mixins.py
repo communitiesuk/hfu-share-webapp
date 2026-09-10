@@ -1109,3 +1109,93 @@ class DetailViewMixin(ABC):
         )
 
         return context
+
+
+class PageTitleMixin:
+    """
+    Declares a view's page heading once, so the h1 and the browser title
+    share a single source.
+
+    Configuration:
+    - page_heading: the heading text. Override get_page_heading() instead
+      when the heading is dynamic (for example derived from a form label).
+    - heading_labels_title: when True (the default) the heading also becomes
+      the final label slot of the browser title. Set it to False when the
+      section title already identifies the page, or when the heading contains
+      record details that must stay out of the title (titles reach browser
+      history and analytics, so only PII-safe text belongs there).
+
+    Templates render the heading from the page_heading context variable,
+    usually via webapp/components/heading/heading.html.
+    """
+
+    request: HttpRequest
+    page_heading: str | None = None
+    heading_labels_title: bool = True
+
+    def get_page_heading(self) -> str | None:
+        return self.page_heading
+
+    def get_title_label(self) -> str | None:
+        if self.heading_labels_title:
+            return self.get_page_heading()
+        return None
+
+    def get_context_data(self, **kwargs) -> dict:
+        context = super().get_context_data(**kwargs)  # type: ignore[misc]
+        heading = self.get_page_heading()
+        if heading:
+            context.setdefault("page_heading", heading)
+        title_label = self.get_title_label()
+        if title_label:
+            self.request.step_title = title_label  # type: ignore[attr-defined]
+        return context
+
+
+class SectionHeadingMixin(PageTitleMixin):
+    """
+    For pages whose h1 is simply the section name (typically list pages):
+    the heading comes from the section title in case_management/page_title.py,
+    and nothing extra is added to the browser title, which already starts
+    with the section. Needs no configuration.
+    """
+
+    heading_labels_title = False
+
+    def get_page_heading(self) -> str | None:
+        from case_management.page_title import get_section_title
+
+        resolver_match = self.request.resolver_match
+        if resolver_match is None:
+            return None
+        return get_section_title(resolver_match)
+
+
+class WizardPageTitleMixin(PageTitleMixin):
+    """
+    Gives each step of a formtools wizard its own heading and browser title.
+
+    Configuration:
+    - step_headings: map of step name to heading text.
+    - get_step_heading(context): override instead when a step's heading
+      depends on the rendered context (selected records, pluralisation).
+
+    Headings are applied in render_to_response rather than get_context_data
+    because subclasses add their context keys after the mixin runs, and only
+    render_to_response sees the completed context.
+    """
+
+    steps: Any
+    step_headings: dict[str, str] = {}
+
+    def get_step_heading(self, context: dict) -> str | None:
+        return self.step_headings.get(self.steps.current)
+
+    def render_to_response(self, context: dict, **response_kwargs) -> HttpResponse:
+        heading = self.get_step_heading(context)
+        if heading:
+            context.setdefault("page_heading", heading)
+            self.request.step_title = context["page_heading"]  # type: ignore[attr-defined]
+        return super().render_to_response(  # type: ignore[misc]
+            context, **response_kwargs
+        )

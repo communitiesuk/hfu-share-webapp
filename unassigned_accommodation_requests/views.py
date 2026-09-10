@@ -45,6 +45,8 @@ from webapp.mixins import (
     FilterPanelMixin,
     PermissionsMixin,
     PIISafeRecordNameMixin,
+    SectionHeadingMixin,
+    WizardPageTitleMixin,
 )
 from webapp.search import perform_search
 from webapp.utils import CustomDateColumn
@@ -197,7 +199,7 @@ class UnassignedAccommodationRequestsFilter(FilterSet, FilterPanelMixin):
 
 
 class UnassignedAccommodationRequestsListView(
-    PermissionsMixin, SingleTableMixin, FilterView
+    SectionHeadingMixin, PermissionsMixin, SingleTableMixin, FilterView
 ):
     group_type = UNASSIGNED_ACCOMMODATION_REQUESTS_ALLOWED_GROUP_TYPES
     model = MvAccommodationRequest
@@ -321,12 +323,17 @@ ASSIGN_LOCAL_AUTHORITY_FORMS = [
 
 
 class AssignLocalAuthorityFormWizard(
+    WizardPageTitleMixin,
     PIISafeRecordNameMixin,
     PermissionsMixin,
     SingleObjectMixin,
     NamedUrlSessionWizardView,
 ):
     model = MvAccommodationRequest
+    step_headings = {
+        AssignLocalAuthorityFormSteps.REGION: "Select region",
+        AssignLocalAuthorityFormSteps.LOCAL_AUTHORITY: "Select local authority",
+    }
     group_type = UNASSIGNED_ACCOMMODATION_REQUESTS_ALLOWED_GROUP_TYPES
     template_name = (
         "unassigned_accommodation_requests/"

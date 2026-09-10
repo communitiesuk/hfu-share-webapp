@@ -8,7 +8,7 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-one-half">
             {% error_summary form %}
-            {% include "webapp/components/heading/heading.html" with page_heading="Select accommodation request" %}
+            {% include "webapp/components/heading/heading.html" with page_heading=page_heading %}
             <div class="govuk-warning-text">
                 <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
                 <strong class="govuk-warning-text__text">

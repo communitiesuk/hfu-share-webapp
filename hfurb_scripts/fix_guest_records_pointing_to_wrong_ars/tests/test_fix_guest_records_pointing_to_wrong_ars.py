@@ -2,15 +2,14 @@ from unittest import mock
 
 from django.db import DatabaseError
 
-from accounts.tests.base import TestSessionTokenMixin
 from hfurb_scripts.fix_guest_records_pointing_to_wrong_ars import run
+from hfurb_scripts.tests.base import BaseScriptTestCaseWithSession
 from ontology.models import MvAccommodationRequest, MvPerson
 from ontology.tests.factories import MvAccommodationRequestFactory, MvPersonFactory
-from test_utils.base import BaseTestCase
 
 
 @mock.patch("hfurb_scripts.fix_guest_records_pointing_to_wrong_ars.logger")
-class TestFixGuestRecordsPointingToWrongARs(TestSessionTokenMixin, BaseTestCase):
+class TestFixGuestRecordsPointingToWrongARs(BaseScriptTestCaseWithSession):
     def setUp(self):
         super().setUp()
 

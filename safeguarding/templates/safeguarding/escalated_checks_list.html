@@ -3,7 +3,7 @@
     <li class="govuk-breadcrumbs__list-item">Escalated checks</li>
 {% endblock breadcrumb_content %}
 {% block content %}
-    {% include "webapp/components/heading/heading.html" with page_heading="Escalated checks" %}
+    {% include "webapp/components/heading/heading.html" with page_heading=page_heading %}
     {% if user_can_download %}
         <div class="govuk-body">
             You can download the data on this table as well as other data, including sponsor details, guest details and deferral statuses.

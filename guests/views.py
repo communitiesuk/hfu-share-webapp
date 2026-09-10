@@ -52,8 +52,10 @@ from webapp.mixins import (
     InteractionTimelineEventsMixin,
     IsDuplicateMixin,
     MultiLABannerMixin,
+    PageTitleMixin,
     PermissionsMixin,
     PIISafeRecordNameMixin,
+    SectionHeadingMixin,
     UserActionsMixinProtocol,
 )
 from webapp.search import perform_search
@@ -221,7 +223,7 @@ class GuestsFilter(FilterSet, FilterPanelMixin):
 
     visa_status = MultipleChoiceFilter(
         choices=[(value.name, value.name) for value in visa_status_list],
-        label="Visa status",
+        label="",
         widget=CheckboxSelectMultipleWithTags(
             label_to_tag_colour=visa_status_to_tag_colour
         ),
@@ -268,7 +270,12 @@ class GuestsFilter(FilterSet, FilterPanelMixin):
                     "legend_size": "govuk-fieldset__legend--m",
                 },
             ),
-            Field("visa_status", context={"label_size": "govuk-fieldset__legend--m"}),
+            Fieldset(
+                "visa_status",
+                legend="Visa status",
+                legend_size=Size.MEDIUM,
+                css_class="govuk-!-margin-bottom-5",
+            ),
             Field(
                 "latest_arrival_date",
                 context={
@@ -310,7 +317,12 @@ class GuestsFilter(FilterSet, FilterPanelMixin):
         ]
 
 
-class GuestsListView(PermissionsMixin, SingleTableMixin, FilterView):
+class GuestsListView(
+    SectionHeadingMixin,
+    PermissionsMixin,
+    SingleTableMixin,
+    FilterView,
+):
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
@@ -746,8 +758,13 @@ class GuestDetailHistoryView(
 
 
 class GuestEditView(
-    PIISafeRecordNameMixin, PermissionsMixin, SuccessMessageMixin, UpdateView
+    PageTitleMixin,
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    SuccessMessageMixin,
+    UpdateView,
 ):
+    heading_labels_title = False
     model = MvPerson
     group_type = [
         GroupType.DEV,

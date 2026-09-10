@@ -1,21 +1,21 @@
 {% load filters %}
 <div class="govuk-form-group {% if label == "Visa status" %}govuk-visually-hidden{% endif %}">
-    <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">{{ label }}</legend>
-    <div class="govuk-hint govuk-!-margin-bottom-2">{{ help_text }}</div>
-    <p class="govuk-body">
-        {% if value|is_list %}
-            {% for item in formatted_value %}
-                {{ item }}
-                <br>
-                <br>
-            {% endfor %}
-        {% else %}
-            {{ formatted_value }}
-        {% endif %}
-    </p>
-    {% if value|is_list %}
-        {% for item in value %}<input type="hidden" name="{{ name }}" value="{{ item }}">{% endfor %}
-    {% else %}
-        <input type="hidden" name="{{ name }}" value="{{ value }}">
-    {% endif %}
+    <dl class="govuk-body">
+        <dt class="govuk-!-font-weight-bold govuk-!-margin-bottom-2">{{ label }}</dt>
+        <dd class="govuk-!-margin-left-0">
+            <div class="govuk-hint govuk-!-margin-bottom-2">{{ help_text }}</div>
+            {% if value|is_list %}
+                <ul class="govuk-list govuk-list--spaced">
+                    {% for item in formatted_value %}<li>{{ item }}</li>{% endfor %}
+                </ul>
+            {% else %}
+                {{ formatted_value }}
+            {% endif %}
+            {% if value|is_list %}
+                {% for item in value %}<input type="hidden" name="{{ name }}" value="{{ item }}">{% endfor %}
+            {% else %}
+                <input type="hidden" name="{{ name }}" value="{{ value }}">
+            {% endif %}
+        </dd>
+    </dl>
 </div>

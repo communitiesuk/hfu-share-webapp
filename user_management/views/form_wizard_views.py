@@ -15,7 +15,7 @@ from user_management.forms import (
 from user_management.templatetags.access_request_extras import (
     render_name_label_from_group_info,
 )
-from webapp.mixins import UserActionsMixin
+from webapp.mixins import PageTitleMixin, UserActionsMixin, WizardPageTitleMixin
 
 ACCESS_REQUEST_FORMS = [
     ("group_type", AccessRequestFormGroupTypeStep),
@@ -43,11 +43,8 @@ ACCESS_REQUEST_TEMPLATES = {
 
 
 ACCESS_REQUEST_FORM_TITLES = {
-    "group_type": "Select user group",
-    "da_group_type": "Select user group",
     "local_authority": "Local authority",
     "devolved_administration": "Devolved administration: central user",
-    "justification": "Tell us why you need access",
     "review": "Check your answers",
 }
 
@@ -107,9 +104,26 @@ ACCESS_REQUEST_FORMS_CONDITIONAL_DICT = {
 }
 
 
-class AccessRequestFormWizard(UserActionsMixin, SessionWizardView):  # pylint: disable=view-missing-access-control
+class AccessRequestFormWizard(  # pylint: disable=view-missing-access-control
+    WizardPageTitleMixin,
+    UserActionsMixin,
+    SessionWizardView,
+):
     def get_template_names(self):
         return [ACCESS_REQUEST_TEMPLATES[self.steps.current]]
+
+    def get_step_heading(self, context: dict) -> str | None:
+        title = context.get("title")
+        if title:
+            return str(title)
+        return self.get_step_question_label()
+
+    def get_step_question_label(self) -> str | None:
+        form_class = self.form_list[self.steps.current]
+        for field in form_class.base_fields.values():
+            if field.label:
+                return str(field.label)
+        return None
 
     # pylint: disable=arguments-differ
     def get_context_data(self, form, **kwargs):
@@ -256,7 +270,8 @@ class AccessRequestFormWizard(UserActionsMixin, SessionWizardView):  # pylint: d
         return redirect("user-management:access-request-confirmation")
 
 
-class AccessRequestFormConfirmationPageView(TemplateView):  # pylint: disable=view-missing-access-control
+class AccessRequestFormConfirmationPageView(PageTitleMixin, TemplateView):  # pylint: disable=view-missing-access-control
+    heading_labels_title = False
     model = AccessRequest
     template_name = (
         "user_management/access_request_form/access_request_form_confirmation.html"
@@ -265,6 +280,7 @@ class AccessRequestFormConfirmationPageView(TemplateView):  # pylint: disable=vi
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["breadcrumbs"] = ACCESS_REQUEST_FORM_BREADCRUMBS.get("confirmation")
+        self.request.step_title = "Request submitted"
         context["group_name"] = self.request.session.pop(
             "latest_access_request_group_name", None
         )

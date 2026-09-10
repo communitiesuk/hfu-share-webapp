@@ -2,7 +2,7 @@ import os
 from datetime import datetime, timedelta
 
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import Field, Layout, Size
+from crispy_forms_gds.layout import Field, Fieldset, Layout, Size
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
@@ -29,7 +29,13 @@ from user_management.templatetags.access_request_extras import (
 )
 from user_management.views.form_wizard_views import ACCESS_REQUEST_FORM_BREADCRUMBS
 from webapp.constants import ACCESS_REQUEST_SEARCH_FIELDS
-from webapp.mixins import FilterPanelMixin, PIISafeRecordNameMixin, UserActionsMixin
+from webapp.mixins import (
+    FilterPanelMixin,
+    PageTitleMixin,
+    PIISafeRecordNameMixin,
+    SectionHeadingMixin,
+    UserActionsMixin,
+)
 from webapp.search import perform_search
 from webapp.utils import CustomDateFromToRangeFilter, CustomDateTimeColumn
 from webapp.views import SummaryListRow, SummaryListView
@@ -129,6 +135,7 @@ class AccessRequestsFilter(FilterSet, FilterPanelMixin):
 
     status = MultipleChoiceFilter(
         choices=AccessRequest.Status.choices,
+        label="",
         widget=CheckboxSelectMultipleWithTags(
             label_to_tag_colour=access_request_status_label_to_tag_colour
         ),
@@ -153,9 +160,11 @@ class AccessRequestsFilter(FilterSet, FilterPanelMixin):
                 "created_at",
                 context={"legend_size": "govuk-fieldset__legend--m"},
             ),
-            Field(
+            Fieldset(
                 "status",
-                context={"label_size": "govuk-fieldset__legend--m"},
+                legend="Status",
+                legend_size=Size.MEDIUM,
+                css_class="govuk-!-margin-top-5",
             ),
         )
 
@@ -166,7 +175,12 @@ class AccessRequestsFilter(FilterSet, FilterPanelMixin):
         fields = ["search", "created_at", "status"]
 
 
-class AccessRequestsListView(AdminAccessRequiredMixin, SingleTableMixin, FilterView):
+class AccessRequestsListView(
+    SectionHeadingMixin,
+    AdminAccessRequiredMixin,
+    SingleTableMixin,
+    FilterView,
+):
     model = AccessRequest
     table_class = AccessRequestsTable
     filterset_class = AccessRequestsFilter
@@ -176,11 +190,13 @@ class AccessRequestsListView(AdminAccessRequiredMixin, SingleTableMixin, FilterV
 
 
 class AccessRequestsDetailsPage(
+    PageTitleMixin,
     PIISafeRecordNameMixin,
     UserActionsMixin,
     AdminAccessRequiredMixin,
     SessionWizardView,
 ):
+    heading_labels_title = False
     model = AccessRequest
     template_name = "user_management/access_requests/access_request_details_page.html"
 
@@ -312,8 +328,10 @@ class AccessRequestsDetailsPage(
         return redirect(f"{url}?status=PENDING&sort=-created_at")
 
 
-class AccessRequestYourRequestView(UserActionsMixin, SummaryListView):
+class AccessRequestYourRequestView(PageTitleMixin, UserActionsMixin, SummaryListView):
     # pylint: disable=view-missing-access-control
+    page_heading = "Your request"
+    heading_labels_title = False
     template_name = (
         "user_management/access_requests/access_requests_your_request_page.html"
     )

@@ -11,7 +11,7 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             {% error_summary form %}
-            {% include "webapp/components/heading/heading.html" with page_heading="Request to move guests to a different local authority" %}
+            {% include "webapp/components/heading/heading.html" with page_heading=page_heading %}
             {% include "webapp/components/record_tabs/record_summary_list.html" with fields=fields %}
         </div>
     </div>

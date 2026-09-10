@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from typing import Any
 
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import Field, Layout
+from crispy_forms_gds.layout import Field, Fieldset, Layout
 from crispy_forms_gds.layout.constants import Size
 from django.contrib import messages
 from django.db.models import QuerySet
@@ -56,8 +56,10 @@ from webapp.constants import (
 from webapp.mixins import (
     DetailViewMixin,
     FilterPanelMixin,
+    PageTitleMixin,
     PermissionsMixin,
     PIISafeRecordNameMixin,
+    SectionHeadingMixin,
 )
 from webapp.search import perform_search
 from webapp.utils import (
@@ -143,7 +145,7 @@ class VisaApplicationsTable(tables.Table):
 class VisaApplicationsTableFilter(FilterSet, FilterPanelMixin):
     visa_status = MultipleChoiceFilter(
         choices=[(value.name, value.name) for value in visa_status_list],
-        label="Visa status",
+        label="",
         widget=CheckboxSelectMultipleWithTags(
             label_to_tag_colour=visa_status_to_tag_colour
         ),
@@ -211,7 +213,12 @@ class VisaApplicationsTableFilter(FilterSet, FilterPanelMixin):
         form.helper = FormHelper()
         form.helper.layout = Layout(
             Field.text("search", label_size=Size.MEDIUM),
-            Field("visa_status", context={"label_size": "govuk-fieldset__legend--m"}),
+            Fieldset(
+                "visa_status",
+                legend="Visa status",
+                legend_size=Size.MEDIUM,
+                css_class="govuk-!-margin-bottom-5",
+            ),
             Field.text("ltla_name", small=True, label_size=Size.MEDIUM),
             Field(
                 "application_event_datetime",
@@ -237,7 +244,12 @@ class VisaApplicationsTableFilter(FilterSet, FilterPanelMixin):
         ]
 
 
-class VisaApplicationListView(PermissionsMixin, SingleTableMixin, FilterView):
+class VisaApplicationListView(
+    SectionHeadingMixin,
+    PermissionsMixin,
+    SingleTableMixin,
+    FilterView,
+):
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
@@ -828,7 +840,7 @@ class VIRFilter(FilterSet, FilterPanelMixin):
 
     request_status = MultipleChoiceFilter(
         choices=[(value.name, value.name) for value in vir_status_list],
-        label="VIR status",
+        label="",
         widget=CheckboxSelectMultipleWithTags(
             label_to_tag_colour=vir_status_to_tag_colour
         ),
@@ -836,7 +848,7 @@ class VIRFilter(FilterSet, FilterPanelMixin):
 
     visa_application__visa_status = MultipleChoiceFilter(
         choices=[(value.name, value.name) for value in visa_status_list],
-        label="Visa status",
+        label="",
         widget=CheckboxSelectMultipleWithTags(
             label_to_tag_colour=visa_status_to_tag_colour
         ),
@@ -904,12 +916,17 @@ class VIRFilter(FilterSet, FilterPanelMixin):
         form.helper = FormHelper()
         form.helper.layout = Layout(
             Field.text("search", label_size=Size.MEDIUM),
-            Field(
-                "request_status", context={"label_size": "govuk-fieldset__legend--m"}
+            Fieldset(
+                "request_status",
+                legend="VIR status",
+                legend_size=Size.MEDIUM,
+                css_class="govuk-!-margin-bottom-5",
             ),
-            Field(
+            Fieldset(
                 "visa_application__visa_status",
-                context={"label_size": "govuk-fieldset__legend--m"},
+                legend="Visa status",
+                legend_size=Size.MEDIUM,
+                css_class="govuk-!-margin-bottom-5",
             ),
             Field(
                 "requested_at",
@@ -935,7 +952,9 @@ class VIRFilter(FilterSet, FilterPanelMixin):
         }
 
 
-class VIRListView(PermissionsMixin, SingleTableMixin, FilterView):
+class VIRListView(PageTitleMixin, PermissionsMixin, SingleTableMixin, FilterView):
+    page_heading = "Visa Information Requests"
+    heading_labels_title = False
     group_type = [
         GroupType.DEV,
         GroupType.MHCLG,
@@ -974,7 +993,14 @@ class VIRListView(PermissionsMixin, SingleTableMixin, FilterView):
         return ctx
 
 
-class VIRCloseConfirmView(PermissionsMixin, SingleObjectMixin, FormView):
+class VIRCloseConfirmView(
+    PageTitleMixin,
+    PermissionsMixin,
+    SingleObjectMixin,
+    FormView,
+):
+    page_heading = "Close VIR"
+    heading_labels_title = False
     group_type = [
         GroupType.DEV,
         GroupType.HOME_OFFICE,
@@ -1026,7 +1052,14 @@ class VIRCloseConfirmView(PermissionsMixin, SingleObjectMixin, FormView):
         return self.render_to_response(context)
 
 
-class VIRReopenConfirmView(PermissionsMixin, SingleObjectMixin, FormView):
+class VIRReopenConfirmView(
+    PageTitleMixin,
+    PermissionsMixin,
+    SingleObjectMixin,
+    FormView,
+):
+    page_heading = "Re-open VIR"
+    heading_labels_title = False
     group_type = [
         GroupType.DEV,
         GroupType.HOME_OFFICE,

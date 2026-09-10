@@ -80,9 +80,12 @@ from webapp.mixins import (
     FilterPanelMixin,
     InteractionWithFilesTimelineEventsMixin,
     MultiLABannerMixin,
+    PageTitleMixin,
     PermissionsMixin,
     PIISafeRecordNameMixin,
+    SectionHeadingMixin,
     UserActionsMixinProtocol,
+    WizardPageTitleMixin,
 )
 from webapp.s3 import get_presigned_download_url, s3_file_exists
 from webapp.search import perform_search
@@ -238,7 +241,7 @@ class AccommodationRequestsTable(tables.Table):
 class AccommodationRequestsFilter(FilterSet, FilterPanelMixin):
     status = MultipleChoiceFilter(
         choices=MvAccommodationRequest.ChecksStatus.choices,
-        label="Status",
+        label="",
         field_name="checks_status",
         widget=CheckboxSelectMultipleWithTags(
             label_to_tag_colour=accommodation_checks_status_label_to_tag_colour
@@ -333,7 +336,12 @@ class AccommodationRequestsFilter(FilterSet, FilterPanelMixin):
                     "legend_size": "govuk-fieldset__legend--m",
                 },
             ),
-            Field("status", context={"label_size": "govuk-fieldset__legend--m"}),
+            Fieldset(
+                "status",
+                legend="Status",
+                legend_size=Size.MEDIUM,
+                css_class="govuk-!-margin-bottom-5",
+            ),
             Field.text("number_of_people", label_size=Size.MEDIUM),
             Field.text("ltla_name", small=True, label_size=Size.MEDIUM),
             Field.text("utla_name", small=True, label_size=Size.MEDIUM),
@@ -352,7 +360,12 @@ class AccommodationRequestsFilter(FilterSet, FilterPanelMixin):
         ]
 
 
-class AccommodationRequestsListView(PermissionsMixin, SingleTableMixin, FilterView):
+class AccommodationRequestsListView(
+    SectionHeadingMixin,
+    PermissionsMixin,
+    SingleTableMixin,
+    FilterView,
+):
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
@@ -711,8 +724,8 @@ class AccommodationRequestDetailActionsView(
         can_confirm_accommodation = self.user_can_edit(
             group_types=[
                 GroupType.DEV,
-                # GroupType.LOCAL_AUTHORITY,
-                # GroupType.DEVOLVED_ADMINISTRATION,
+                GroupType.LOCAL_AUTHORITY,
+                GroupType.DEVOLVED_ADMINISTRATION,
             ]
         )
 
@@ -960,8 +973,13 @@ class AccommodationRequestDetailHistoryView(
 
 
 class AccommodationRequestCloseForGuests(
-    PIISafeRecordNameMixin, PermissionsMixin, SingleObjectMixin, FormView
+    PageTitleMixin,
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    SingleObjectMixin,
+    FormView,
 ):
+    heading_labels_title = False
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
@@ -1063,8 +1081,13 @@ class AccommodationRequestCloseForGuests(
 
 
 class AccommodationRequestReopenRequestView(
-    PIISafeRecordNameMixin, PermissionsMixin, SingleObjectMixin, FormView
+    PageTitleMixin,
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    SingleObjectMixin,
+    FormView,
 ):
+    heading_labels_title = False
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
@@ -1193,8 +1216,13 @@ class AccommodationRequestUpdateSafeguardingChecksView(
 
 
 class AccommodationRequestWithdrawSponsorView(
-    PIISafeRecordNameMixin, PermissionsMixin, SingleObjectMixin, FormView
+    PageTitleMixin,
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    SingleObjectMixin,
+    FormView,
 ):
+    heading_labels_title = False
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
@@ -1288,12 +1316,18 @@ class AccommodationRequestWithdrawSponsorView(
 
 
 class RematchGuestsFormWizard(
+    WizardPageTitleMixin,
     PIISafeRecordNameMixin,
     PermissionsMixin,
     SingleObjectMixin,
     NamedUrlSessionWizardView,
 ):
     model = MvAccommodationRequest
+    step_headings = {
+        RematchGuestsFormSteps.GUESTS: "Select guests to move",
+        RematchGuestsFormSteps.SELECT_ACCOMMODATION: "Select accommodation",
+        RematchGuestsFormSteps.CONFIRMATION: "Check and confirm",
+    }
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
@@ -1588,12 +1622,20 @@ class RematchGuestsFormWizard(
 
 
 class ReassignGuestsFormWizard(
+    WizardPageTitleMixin,
     PIISafeRecordNameMixin,
     PermissionsMixin,
     SingleObjectMixin,
     NamedUrlSessionWizardView,
 ):
     model = MvAccommodationRequest
+    step_headings = {
+        ReassignGuestsFormSteps.GUESTS: "Select guests to move",
+        ReassignGuestsFormSteps.COUNTRY: "Select country",
+        ReassignGuestsFormSteps.LOCAL_AUTHORITY: "Select local authority",
+        ReassignGuestsFormSteps.REASON: "Reason for moving",
+        ReassignGuestsFormSteps.CONFIRMATION: "Check and confirm",
+    }
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
@@ -1738,12 +1780,19 @@ class ReassignGuestsFormWizard(
 
 
 class SelectPrimaryAccommodationAndHostWizard(
+    WizardPageTitleMixin,
     PIISafeRecordNameMixin,
     PermissionsMixin,
     SingleObjectMixin,
     NamedUrlSessionWizardView,
 ):
     model = MvAccommodationRequest
+    step_headings = {
+        SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION: (
+            "Select current accommodation"
+        ),
+        SelectPrimaryAccommodationAndHostSteps.HOST: "Select current host",
+    }
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
@@ -2004,8 +2053,16 @@ class RematchSelectAccommodationFormStepView(
 
 
 class MoveGuestsIsStayingInLaFormView(
-    PIISafeRecordNameMixin, PermissionsMixin, SingleObjectMixin, FormView
+    PageTitleMixin,
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    SingleObjectMixin,
+    FormView,
 ):
+    def get_page_heading(self) -> str | None:
+        label = self.form_class.base_fields["within_la"].label
+        return str(label) if label else None
+
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
