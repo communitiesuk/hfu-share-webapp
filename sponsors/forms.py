@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import HTML, Field, Layout
+from crispy_forms_gds.layout import HTML, Field, Fieldset, Layout
 from crispy_forms_gds.layout.constants import Size
 from django import forms
 
@@ -59,22 +59,26 @@ class SponsorEditForm(ReadOnlyFieldsMixin, forms.ModelForm):
     )
 
     phone_number = forms.Field(
-        label="Phone number (optional)",
+        label="",
+        help_text="Enter up to 5 phone numbers",
         required=False,
         widget=MultiValueWidget(
+            "Phone number",
             attrs={
                 "label": "phone number",
-            }
+            },
         ),
     )
 
     passport_details = forms.Field(
-        label="Passport number (optional)",
+        label="",
+        help_text="Enter up to 5 passport numbers",
         required=False,
         widget=MultiValueWidget(
+            "Passport number",
             attrs={
                 "label": "passport number",
-            }
+            },
         ),
     )
 
@@ -142,19 +146,15 @@ class SponsorEditForm(ReadOnlyFieldsMixin, forms.ModelForm):
                 legend_size=Size.SMALL,
                 label_size=Size.SMALL,
             ),
-            Field(
+            Fieldset(
                 "phone_number",
-                context={
-                    "label_size": "govuk-fieldset__legend--s",
-                    "hint": "Enter up to 5 phone numbers",
-                },
+                legend="Phone number (optional)",
+                legend_size=Size.SMALL,
             ),
-            Field(
+            Fieldset(
                 "passport_details",
-                context={
-                    "label_size": "govuk-fieldset__legend--s",
-                    "hint": "Enter up to 5 passport numbers",
-                },
+                legend="Passport number (optional)",
+                legend_size=Size.SMALL,
             ),
             Field(
                 "family_situation",
