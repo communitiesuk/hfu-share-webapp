@@ -68,12 +68,22 @@ class DownloadsViewGeneralTestCase(TestSessionTokenMixin, BaseTestCase):
 
         response = self.client.get(reverse("downloads:download-page"))
 
-        self.assertContains(response, 'aria-controls="conditional_download_type_0"')
-        self.assertContains(response, 'id="conditional_download_type_0"')
-        for position in range(1, 6):
-            self.assertNotContains(
-                response, f'aria-controls="conditional_download_type_{position}"'
+        html = response.content.decode()
+        soup = BeautifulSoup(html, "html.parser")
+
+        aria_controls_element = soup.select_one(
+            '[aria-controls="conditional_download_type"]'
+        )
+        aria_controled_element = soup.select_one("#conditional_download_type")
+
+        self.assertIsNotNone(aria_controls_element)
+        self.assertIsNotNone(aria_controled_element)
+
+        for position in range(2, 6):
+            postional_aria_controls_element = soup.select_one(
+                f'[aria-controls="conditional_download_type_{position}"]'
             )
+            self.assertIsNone(postional_aria_controls_element)
 
     def test_download_view_post_invalid_data(self):
         user = get_admin_user()
