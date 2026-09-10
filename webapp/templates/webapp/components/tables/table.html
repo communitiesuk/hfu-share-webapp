@@ -176,9 +176,8 @@
                                             ⋯
                                         {% else %}
                                             <a href="{% querystring table.prefixed_page_field=p %}"
-                                               class="govuk-link govuk-link--no-visited-state govuk-pagination__link {% if p == table.page.number %}govuk-pagination__item--current{% endif %}">
-                                                {{ p }}
-                                            </a>
+                                               class="govuk-link govuk-link--no-visited-state govuk-pagination__link {% if p == table.page.number %}govuk-pagination__item--current{% endif %}"
+                                               aria-label="Page {{ p }}">{{ p }}</a>
                                         {% endif %}
                                     </li>
                                 {% endfor %}
