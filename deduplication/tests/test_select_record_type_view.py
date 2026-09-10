@@ -23,14 +23,14 @@ class DeduplicationSponsorSelectedViewTests(TestSessionTokenMixin, BaseTestCase)
         response = self.client.get(reverse("deduplication:select-record-type"))
         self.assertEqual(
             response.context["TITLE"],
-            "Fix duplicate records - Share Homes for Ukraine data",
+            "Fix duplicate records - Share Homes for Ukraine data - GOV.UK",
         )
 
     def test_page_title_per_record_type(self):
         record_types_and_titles = [
             ("accommodations", "Fix duplicate accommodation records"),
             ("guests", "Fix duplicate guest records"),
-            ("sponsors", "Fix duplicate sponsor records"),
+            ("sponsors", "Fix duplicate sponsor and host records"),
         ]
         user = get_admin_user()
         self.client.force_login(user)
@@ -47,7 +47,7 @@ class DeduplicationSponsorSelectedViewTests(TestSessionTokenMixin, BaseTestCase)
                 )
                 self.assertEqual(
                     response.context["TITLE"],
-                    f"{expected_title} - Share Homes for Ukraine data",
+                    f"{expected_title} - Share Homes for Ukraine data - GOV.UK",
                 )
 
     def test_dev_user_can_access_view(self):

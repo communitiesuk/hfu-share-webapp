@@ -27,23 +27,25 @@ class SafeguardingPageTitlesTestCase(TestSessionTokenMixin, BaseTestCase):
         pages_and_titles = [
             (
                 "safeguarding:detail-overview",
-                f"Escalated checks: GP, Overview - {self.service_name}",
+                f"Escalated checks: GP, Overview - {self.service_name} - GOV.UK",
             ),
             (
                 "safeguarding:detail-central-safeguarding",
-                f"Escalated checks: GP, Central safeguarding - {self.service_name}",
+                f"Escalated checks: GP, Central safeguarding - "
+                f"{self.service_name} - GOV.UK",
             ),
             (
                 "safeguarding:detail-safeguarding-checks",
-                f"Escalated checks: GP, Safeguarding checks - {self.service_name}",
+                f"Escalated checks: GP, Safeguarding checks - "
+                f"{self.service_name} - GOV.UK",
             ),
             (
                 "safeguarding:detail-linked-records",
-                f"Escalated checks: GP, Linked records - {self.service_name}",
+                f"Escalated checks: GP, Linked records - {self.service_name} - GOV.UK",
             ),
             (
                 "safeguarding:detail-properties",
-                f"Escalated checks: GP, Properties - {self.service_name}",
+                f"Escalated checks: GP, Properties - {self.service_name} - GOV.UK",
             ),
         ]
 
@@ -76,7 +78,7 @@ class SafeguardingPageTitlesTestCase(TestSessionTokenMixin, BaseTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.context["TITLE"],
-            f"Escalated checks: G, Overview - {self.service_name}",
+            f"Escalated checks: G, Overview - {self.service_name} - GOV.UK",
         )
 
     def test_guest_with_missing_names(self):
@@ -93,5 +95,5 @@ class SafeguardingPageTitlesTestCase(TestSessionTokenMixin, BaseTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.context["TITLE"],
-            f"Escalated checks: Overview - {self.service_name}",
+            f"Escalated checks: Overview - {self.service_name} - GOV.UK",
         )
