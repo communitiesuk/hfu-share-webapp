@@ -98,6 +98,9 @@ UK Visas and Immigration (UKVI) messages are authored as `browser-test-ukvi`; LA
 Accommodation requests flagged with case comments (#1, #4, #11) each get 2 comments, drawn in order from a fixed list of 6 comment texts with fixed dates between June and September 2025, authored by the browser test user.
 
 
+
+
+
 ## All seeded records
 
 Every record the seeder creates, grouped by model, in creation order. Generated from a seeded local database with the default seed.
@@ -189,6 +192,7 @@ Every record the seeder creates, grouped by model, in creation order. Generated 
 | browser-test-person-00081 | Eileen Austin | Confirmed | browser-test-ar-00042 |
 | browser-test-person-00082 | Eileen AUSTIN | Confirmed |  |
 | browser-test-person-00083 | Abigail Richards | Confirmed | browser-test-ar-00043 |
+| browser-test-person-00084 | Eileen Austin | Confirmed | browser-test-ar-00042 |
 
 ### Sponsors (MvVolunteer)
 
@@ -239,69 +243,48 @@ Every record the seeder creates, grouped by model, in creation order. Generated 
 | browser-test-sponsor-00043 | June Evans | browser-test-ar-00042 |
 | browser-test-sponsor-00044 | Heather Hudson |  |
 | browser-test-sponsor-00045 | Heather hudson |  |
+| browser-test-sponsor-00046 | Heather Hudson | browser-test-ar-00043 |
 
 ### Accommodations (MvAccommodation)
 
 | Id | Address | LA | AR(s) |
 | --- | --- | --- | --- |
-| browser-test-accommodation-00001 | Flat 95
-Lee path, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00001 |
+| browser-test-accommodation-00001 | Flat 95 Lee path, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00001 |
 | browser-test-accommodation-00002 | 25 Barlow tunnel, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00002 |
-| browser-test-accommodation-00003 | Flat 65
-Hazel crossing, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00003 |
+| browser-test-accommodation-00003 | Flat 65 Hazel crossing, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00003 |
 | browser-test-accommodation-00004 | 1 Julian forge, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00004 |
-| browser-test-accommodation-00005 | Studio 83
-Evans canyon, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00005 |
+| browser-test-accommodation-00005 | Studio 83 Evans canyon, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00005 |
 | browser-test-accommodation-00006 | 582 Gerald throughway, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00006 |
-| browser-test-accommodation-00007 | Flat 82T
-Patrick wall, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00007 |
-| browser-test-accommodation-00008 | Flat 11s
-Williams meadow, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00008 |
-| browser-test-accommodation-00009 | Studio 3
-Anthony plaza, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00009 |
-| browser-test-accommodation-00010 | Flat 60
-Gary oval, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00010 |
+| browser-test-accommodation-00007 | Flat 82T Patrick wall, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00007 |
+| browser-test-accommodation-00008 | Flat 11s Williams meadow, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00008 |
+| browser-test-accommodation-00009 | Studio 3 Anthony plaza, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00009 |
+| browser-test-accommodation-00010 | Flat 60 Gary oval, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00010 |
 | browser-test-accommodation-00011 | 35 Amelia field, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00011 |
-| browser-test-accommodation-00012 | Flat 95
-Roy crest, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00012 |
-| browser-test-accommodation-00013 | Flat 4
-Irene river, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00013 |
-| browser-test-accommodation-00014 | Flat 32J
-Bates lodge, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00014 |
+| browser-test-accommodation-00012 | Flat 95 Roy crest, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00012 |
+| browser-test-accommodation-00013 | Flat 4 Irene river, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00013 |
+| browser-test-accommodation-00014 | Flat 32J Bates lodge, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00014 |
 | browser-test-accommodation-00015 | 1 Melanie isle, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00015 |
 | browser-test-accommodation-00016 | 756 Knight bridge, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00016 |
 | browser-test-accommodation-00017 | 79 Owen stream, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00017 |
 | browser-test-accommodation-00018 | 44 Clayton prairie, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00018 |
 | browser-test-accommodation-00019 | 10 Helen pass, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00019 |
-| browser-test-accommodation-00020 | Flat 76
-Jeffrey run, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00020 |
-| browser-test-accommodation-00021 | Flat 2
-Swift meadows, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00021 |
-| browser-test-accommodation-00022 | Flat 98y
-Rosie ridges, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00022 |
-| browser-test-accommodation-00023 | Studio 2
-Mason cliffs, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00023 |
-| browser-test-accommodation-00024 | Flat 86
-Moss corners, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00024 |
-| browser-test-accommodation-00025 | Flat 77u
-Jean island, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00025 |
-| browser-test-accommodation-00026 | Flat 01d
-Hill walks, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00026 |
-| browser-test-accommodation-00027 | Flat 69K
-Hunter burg, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00027 |
+| browser-test-accommodation-00020 | Flat 76 Jeffrey run, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00020 |
+| browser-test-accommodation-00021 | Flat 2 Swift meadows, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00021 |
+| browser-test-accommodation-00022 | Flat 98y Rosie ridges, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00022 |
+| browser-test-accommodation-00023 | Studio 2 Mason cliffs, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00023 |
+| browser-test-accommodation-00024 | Flat 86 Moss corners, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00024 |
+| browser-test-accommodation-00025 | Flat 77u Jean island, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00025 |
+| browser-test-accommodation-00026 | Flat 01d Hill walks, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00026 |
+| browser-test-accommodation-00027 | Flat 69K Hunter burg, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00027 |
 | browser-test-accommodation-00028 | 53 Walsh divide, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00028 |
 | browser-test-accommodation-00029 | 1 Warren dam, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00029 |
 | browser-test-accommodation-00030 | 6 Luke avenue, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00030 |
 | browser-test-accommodation-00031 | 78 Charlene cove, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00031 |
-| browser-test-accommodation-00032 | Flat 7
-Terry expressway, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00032 |
-| browser-test-accommodation-00033 | Flat 1
-Reece flat, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00033 |
-| browser-test-accommodation-00034 | Flat 98
-Pauline ports, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00034 |
+| browser-test-accommodation-00032 | Flat 7 Terry expressway, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00032 |
+| browser-test-accommodation-00033 | Flat 1 Reece flat, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00033 |
+| browser-test-accommodation-00034 | Flat 98 Pauline ports, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00034 |
 | browser-test-accommodation-00035 | 189 Davison springs, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00035 |
-| browser-test-accommodation-00036 | Flat 1
-Shirley ridges, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00036 |
+| browser-test-accommodation-00036 | Flat 1 Shirley ridges, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00036 |
 | browser-test-accommodation-00037 | 24 Ferguson pines, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00037 |
 | browser-test-accommodation-00038 | 57 Gibson pine, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00038 |
 | browser-test-accommodation-00039 | 8 Fowler trail, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00039 |
@@ -502,19 +485,34 @@ Shirley ridges, Hobbiton | Hobbiton (Browser test LTLA) | browser-test-ar-00036 
 | browser-test-check-00053 | DBS check and Sponsor suitable | Passed |  | browser-test-ar-00040 |
 | browser-test-check-00054 | Guests have arrived in their accommodation | Passed |  | browser-test-ar-00040 |
 
+### Interactions
+
+| Id | Type | AR | Guest |
+| --- | --- | --- | --- |
+| browser-test-interaction-00001 | Return to Ukraine | browser-test-ar-00010 |  |
+| browser-test-interaction-00002 | Rematch Required | browser-test-ar-00041 |  |
+| browser-test-interaction-00003 | DBS and sponsor suitable check | browser-test-ar-00007 |  |
+| browser-test-interaction-00004 | Record deduplicated | browser-test-ar-00042 |  |
+| browser-test-interaction-00005 | Record deduplicated |  | browser-test-person-00084 |
+| browser-test-interaction-00006 | Record deduplicated |  |  |
+| browser-test-interaction-00007 | Record deduplicated |  | browser-test-person-00081 |
+| browser-test-interaction-00008 | Record deduplicated |  | browser-test-person-00082 |
+| browser-test-interaction-00009 | Record deduplicated |  |  |
+| browser-test-interaction-00010 | Record deduplicated |  |  |
+
 ### Safeguarding notifications
 
 | Id | AR | Check |
 | --- | --- | --- |
-| 90c465bf-6f1c-4bbb-8701-de40988f19cb | browser-test-ar-00007 | browser-test-check-00008 |
+| browser-test-safeguarding-notification-00001 | browser-test-ar-00007 | browser-test-check-00008 |
 
 ### Reassignment requests
 
 | Id | Outcome | Destination LA | AR |
 | --- | --- | --- | --- |
-| browser-test-rr-00001 | Rejected | Isles of Scilly | browser-test-ar-00039 |
-| rr-18f74a82-5549-483a-ae3f-818715483340 | Accepted | Hobbiton (Browser test LTLA) | browser-test-ar-00041 |
-| rr-ab5f413d-003f-4891-ac8c-e6dca38298d7 | Pending | Isles of Scilly | browser-test-ar-00016 |
+| browser-test-rr-00001 | Pending | Isles of Scilly | browser-test-ar-00016 |
+| browser-test-rr-00002 | Accepted | Hobbiton (Browser test LTLA) | browser-test-ar-00041 |
+| browser-test-rr-00003 | Rejected | Isles of Scilly | browser-test-ar-00039 |
 
 ### Visa information request records
 

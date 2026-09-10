@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 from datetime import datetime, timedelta
@@ -7,8 +8,10 @@ from auditlog.models import LogEntry
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
+from django.core import serializers
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db import transaction
-from django.db.models import Q, QuerySet
+from django.db.models import F, Func, Q, QuerySet, Value
 from django.utils import timezone
 from freezegun import freeze_time
 
@@ -72,7 +75,11 @@ logger = logging.getLogger(__name__)
 
 BROWSER_TEST_ID_PREFIX = "browser-test"
 BROWSER_TEST_SEED = int(os.environ.get("BROWSER_TEST_SEED", 1313))
+# Seeding runs under a frozen clock so that date-relative values (dates of birth,
+# application dates, timestamps) come out the same on any day. Noon rather than
+# midnight so timezone conversion never shifts a date by a day.
 BROWSER_TEST_REFERENCE_DATETIME = datetime(2025, 1, 1, 12, 0, 0)
+# A real local authority nobody uses in dev, for scenarios that need a second LA.
 MULTI_LA_SECOND_LTLA = "Isles of Scilly"
 
 
@@ -80,8 +87,12 @@ ChecksStatus = MvAccommodationRequest.ChecksStatus
 Status = MvAccommodationRequest.Status
 AccommodationType = MvAccommodation.AccommodationType
 
-# one entry per seeded accommodation request; every checks status and AR
-# status must appear at least once
+# One entry per seeded accommodation request; every checks status and AR status
+# must appear at least once. Ids are assigned in creation order, so add new
+# scenarios at the end: inserting one in the middle renumbers every record after
+# it and breaks the browser tests that name those records (see
+# browser_tests/seed_scenarios.md for the catalog and the seeder tests for what
+# is asserted).
 AR_SCENARIOS: list[dict] = [
     {
         "checks_status": ChecksStatus.CHECKS_REQUIRED,
@@ -555,6 +566,7 @@ def _make_inbound_reassignment(author: User) -> str:
         approve=True,
         author=author,
         reason="Sponsorship placement broke down",
+        id_prefix=BROWSER_TEST_ID_PREFIX,
     )
     logger.info(
         "inbound reassignment: %s moved from %s to %s",
@@ -815,6 +827,117 @@ def _move_guests_off_closed_empty_ar(
     logger.info("closed empty: guests moved from %s to %s", ar.id, receiving_ar.id)
 
 
+SEEDED_ID_START = f"{BROWSER_TEST_ID_PREFIX}-"
+
+# Some seeded records are created by application code rather than by the seeder
+# (deduplicate() mints the principal records and their interactions, the
+# safeguarding form mints the escalated check), so they arrive with the app's own
+# ids. After seeding they are found through their links to seeded records and
+# renamed to browser-test ids, so the pipeline exclusions and the wipe can rely
+# on the prefix alone. Each row: model, id kind, fields linking it to seeded data.
+DEDUPLICATION_PRINCIPALS = [
+    (MvPerson, "person", ["guestduplicategroup__guests"]),
+    (MvVolunteer, "sponsor", ["sponsorduplicategroup__sponsors"]),
+    (MvAccommodation, "accommodation", ["accommodationduplicategroup__accommodations"]),
+]
+
+RECORDS_LINKED_TO_SEEDED_RECORDS = [
+    (
+        MvInteraction,
+        "interaction",
+        [
+            "linked_accommodation_request",
+            "linked_guest",
+            "linked_sponsor",
+            "linked_accommodation",
+        ],
+    ),
+    (DevCheckV2, "check", ["AR", "person", "sponsor", "accommodation"]),
+    (SafeguardingNotification, "safeguarding-notification", ["ar"]),
+    (SafeguardingReferral, "safeguarding-referral", ["person"]),
+]
+
+# Ids stored as text inside array fields are not relations, so Django cannot
+# find them for us; list every array that can hold a renamed record's id.
+ID_ARRAY_FIELDS = {
+    MvPerson: [(MvAccommodationRequest, "person_id")],
+    MvVolunteer: [
+        (MvAccommodationRequest, "sponsor_id"),
+        (MvAccommodationRequest, "sponsor_withdrawn"),
+    ],
+    MvAccommodation: [(MvAccommodationRequest, "accommodation_id")],
+}
+
+
+def _linked_to_seeded_records(link_fields: list[str]) -> Q:
+    linked = Q()
+    for field in link_fields:
+        linked |= Q(**{f"{field}__id__startswith": SEEDED_ID_START})
+    return linked
+
+
+def _stable_ordering_key(record) -> str:
+    # Renamed records are numbered in the order they are processed. Their
+    # original ids are random, so order by content to get the same numbering
+    # on every run.
+    fields = serializers.serialize("python", [record])[0]["fields"]
+    return json.dumps(fields, cls=DjangoJSONEncoder, sort_keys=True)
+
+
+def _repoint_references(model, old_id: str, new_id: str) -> None:
+    # Reverse relations (other tables pointing at this model) are auto-created
+    # and non-concrete. include_hidden brings in the many-to-many through tables,
+    # whose foreign keys are what actually need updating; the many-to-many
+    # fields themselves cannot be set with update(), so they are skipped.
+    for relation in model._meta.get_fields(include_hidden=True):
+        is_reference_to_this_model = relation.auto_created and not relation.concrete
+        if is_reference_to_this_model and not relation.many_to_many:
+            field = relation.field.name
+            relation.related_model._base_manager.filter(**{field: old_id}).update(
+                **{field: new_id}
+            )
+    for holder_model, array_field in ID_ARRAY_FIELDS.get(model, []):
+        holder_model._base_manager.filter(
+            **{f"{array_field}__contains": [old_id]}
+        ).update(
+            **{
+                array_field: Func(
+                    F(array_field),
+                    Value(old_id),
+                    Value(new_id),
+                    function="array_replace",
+                )
+            }
+        )
+    LogEntry.objects.filter(
+        content_type=ContentType.objects.get_for_model(model), object_pk=old_id
+    ).update(object_pk=new_id)
+
+
+def _rename_record(record, new_id: str) -> None:
+    model = type(record)
+    _repoint_references(model, record.id, new_id)
+    model._base_manager.filter(id=record.id).update(id=new_id)
+
+
+def _rename_unprefixed_records(records_table) -> None:
+    for model, id_kind, link_fields in records_table:
+        unprefixed = (
+            model._base_manager.filter(_linked_to_seeded_records(link_fields))
+            .exclude(id__startswith=SEEDED_ID_START)
+            .distinct()
+        )
+        for record in sorted(unprefixed, key=_stable_ordering_key):
+            _rename_record(record, record_id(id_kind, BROWSER_TEST_ID_PREFIX))
+
+
+def _give_app_created_records_browser_test_ids() -> None:
+    # Principals first: interactions link to them, and the link must already
+    # carry the prefix for those interactions to be found.
+    _rename_unprefixed_records(DEDUPLICATION_PRINCIPALS)
+    _rename_unprefixed_records(RECORDS_LINKED_TO_SEEDED_RECORDS)
+
+
 def _get_browser_test_author() -> User:
     group = Group.objects.get(name=BROWSER_TEST_LA_GROUP_NAME)
 
@@ -872,7 +995,7 @@ def seed_browser_test_la() -> None:
 
             match ar.checks_status:
                 case ChecksStatus.CLOSED_LEFT_PROGRAMME:
-                    mutate_closed_left_programme(ar)
+                    mutate_closed_left_programme(ar, BROWSER_TEST_ID_PREFIX)
                 case (
                     ChecksStatus.CHECKS_PARTIALLY_COMPLETED
                     | ChecksStatus.CHECKS_COMPLETED
@@ -887,6 +1010,7 @@ def seed_browser_test_la() -> None:
                     approve=False,
                     author=author,
                     reason="Guest has moved in with new partner",
+                    id_prefix=BROWSER_TEST_ID_PREFIX,
                 )
 
             for person in MvPerson.objects.filter(accommodation_request=ar):
@@ -937,6 +1061,7 @@ def seed_browser_test_la() -> None:
         examples["pending outbound reassignment"] = _labelled_ar(
             ars, "pending outbound reassignment"
         ).id
+        _give_app_created_records_browser_test_ids()
 
     logger.info(
         "Successfully reset %s browser test AccommodationRequest objects in %s.",
