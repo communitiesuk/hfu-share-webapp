@@ -42,7 +42,7 @@
                     This will create a new principal record with the information shown. The original {{ type }} records will be marked as duplicates and you will not be able to change them, unless you first undo the deduplication.
                 </strong>
             </div>
-            <form method="post">
+            <form method="post" novalidate>
                 {% csrf_token %}
                 {{ wizard.management_form }}
                 {% crispy form %}

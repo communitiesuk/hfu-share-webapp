@@ -1,8 +1,12 @@
 {% extends "base.html" %}
+{% load crispy_forms_gds %}
 {% block breadcrumb_content %}
     <li class="govuk-breadcrumbs__list-item">Accommodation requests</li>
 {% endblock breadcrumb_content %}
 {% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-half">{% error_summary filter.form %}</div>
+    </div>
     {% include "webapp/components/heading/heading.html" with page_heading=page_heading %}
     {% block accommodation_request_list_table %}
     {% endblock accommodation_request_list_table %}

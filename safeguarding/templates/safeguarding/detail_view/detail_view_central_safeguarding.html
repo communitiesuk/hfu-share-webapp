@@ -10,7 +10,7 @@
             {% include "safeguarding/detail_view/central_safeguarding/checks_list.html" %}
         </div>
         <div class="govuk-grid-column-one-third">
-            <form method="post">
+            <form method="post" novalidate>
                 {% csrf_token %}
                 {{ wizard.management_form }}
                 {% crispy form %}

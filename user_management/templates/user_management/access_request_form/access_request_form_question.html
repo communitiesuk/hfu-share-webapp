@@ -22,7 +22,7 @@
             {% if title %}
                 {% include "webapp/components/heading/heading.html" with page_heading=title %}
             {% endif %}
-            <form method="post">
+            <form method="post" novalidate>
                 {% csrf_token %}
                 {{ wizard.management_form }}
                 {% crispy wizard.form %}

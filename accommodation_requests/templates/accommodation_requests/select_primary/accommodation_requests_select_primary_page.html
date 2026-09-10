@@ -17,7 +17,7 @@
         <div class="govuk-grid-column-one-half">
             {% error_summary form %}
             {% include "webapp/components/heading/heading.html" with caption=caption page_heading=object.title %}
-            <form method="post">
+            <form method="post" novalidate>
                 {% csrf_token %}
                 {{ wizard.management_form }}
                 {% crispy form %}

@@ -29,7 +29,7 @@
                 <br>
                 Where the record details already match, these are shown for reference and no action is needed. The details will automatically appear in the new principal {{ type }} record.
             </div>
-            <form method="post">
+            <form method="post" novalidate>
                 {% csrf_token %}
                 {{ wizard.management_form }}
                 {% crispy form %}

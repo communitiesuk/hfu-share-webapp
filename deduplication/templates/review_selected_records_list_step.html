@@ -28,7 +28,7 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-one-half">
             <p class="govuk-body govuk-!-margin-bottom-5">Click 'Continue' to proceed or 'Cancel' to keep the records separate.</p>
-            <form class="govuk-button-group" method="post">
+            <form class="govuk-button-group" method="post" novalidate>
                 {% csrf_token %}
                 {{ wizard.management_form }}
                 {% crispy form %}

@@ -195,7 +195,8 @@ class RejectedAccessRequestsTable(tables.Table):
         )
 
         return format_html(
-            '<form method="post" action={action_url} style="display: inline;">'
+            '<form method="post" action={action_url} style="display: inline;" '
+            "novalidate>"
             '<input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}">'
             '<button type="submit" class="govuk-link govuk-link--no-visited-state">'
             "Remove"

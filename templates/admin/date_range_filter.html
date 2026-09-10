@@ -3,7 +3,7 @@
     <summary>{% trans "By" %} {{ spec.title }}</summary>
     <ul>
         <li>
-            <form method="get">
+            <form method="get" novalidate>
                 {# Preserve all existing query params except this filter's own date params, p, and o #}
                 {% for key, value in request.GET.items %}
                     {% if key != spec.lookup_kwarg_gte and key != spec.lookup_kwarg_lte and key != 'p' and key != 'o' %}
