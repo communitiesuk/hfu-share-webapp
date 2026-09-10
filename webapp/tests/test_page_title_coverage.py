@@ -40,7 +40,6 @@ SECTION_TITLE_ONLY_ALLOWLIST = {
     "user_management.views.access_requests_views.AccessRequestYourRequestView",
     "user_management.views.access_requests_views.AccessRequestsDetailsPage",
     "user_management.views.form_wizard_views.AccessRequestFormConfirmationPageView",
-    "user_management.views.form_wizard_views.AccessRequestFormWizard",
     "user_management.views.groups_views.GroupDetailsView",
     "user_management.views.groups_views.GroupRemoveUserView",
     "user_management.views.intro_views.AccessRequestIntroView",
