@@ -1112,6 +1112,23 @@ class DetailViewMixin(ABC):
 
 
 class PageTitleMixin:
+    """
+    Declares a view's page heading once, so the h1 and the browser title
+    share a single source.
+
+    Configuration:
+    - page_heading: the heading text. Override get_page_heading() instead
+      when the heading is dynamic (for example derived from a form label).
+    - heading_labels_title: when True (the default) the heading also becomes
+      the final label slot of the browser title. Set it to False when the
+      section title already identifies the page, or when the heading contains
+      record details that must stay out of the title (titles reach browser
+      history and analytics, so only PII-safe text belongs there).
+
+    Templates render the heading from the page_heading context variable,
+    usually via webapp/components/heading/heading.html.
+    """
+
     request: HttpRequest
     page_heading: str | None = None
     heading_labels_title: bool = True
@@ -1136,6 +1153,13 @@ class PageTitleMixin:
 
 
 class SectionHeadingMixin(PageTitleMixin):
+    """
+    For pages whose h1 is simply the section name (typically list pages):
+    the heading comes from the section title in case_management/page_title.py,
+    and nothing extra is added to the browser title, which already starts
+    with the section. Needs no configuration.
+    """
+
     heading_labels_title = False
 
     def get_page_heading(self) -> str | None:
@@ -1148,6 +1172,19 @@ class SectionHeadingMixin(PageTitleMixin):
 
 
 class WizardPageTitleMixin(PageTitleMixin):
+    """
+    Gives each step of a formtools wizard its own heading and browser title.
+
+    Configuration:
+    - step_headings: map of step name to heading text.
+    - get_step_heading(context): override instead when a step's heading
+      depends on the rendered context (selected records, pluralisation).
+
+    Headings are applied in render_to_response rather than get_context_data
+    because subclasses add their context keys after the mixin runs, and only
+    render_to_response sees the completed context.
+    """
+
     steps: Any
     step_headings: dict[str, str] = {}
 
