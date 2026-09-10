@@ -1,0 +1,17 @@
+{% if attachments and attachments|length > 0 %}
+    <table class="govuk-table">
+        <tbody class="govuk-table__body" style="border-top: 1px solid #b1b4b6">
+            {% for attachment in attachments %}
+                <tr class="govuk-table__row">
+                    <td class="govuk-table__cell">{{ attachment.name }}</td>
+                    <td class="govuk-table__cell">
+                        <a href="{{ attachment.url }}"
+                           class="govuk-link govuk-link--no-visited-state">Download file<span class="govuk-visually-hidden">{{ attachment.name }}</span></a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p class="govuk-body">No files uploaded.</p>
+{% endif %}

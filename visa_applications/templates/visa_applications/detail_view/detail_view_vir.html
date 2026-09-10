@@ -1,31 +1,77 @@
 {% extends "webapp/components/record_tabs/record_overview_base.html" %}
 {% load crispy_forms_filters crispy_forms_tags crispy_forms_gds visa_application_extras %}
 {% block selected_tab %}
-    {% if virs|length == 0 %}
-        <h2 class="govuk-heading-l">Start a VIR</h2>
-        <form method="post">
-            {% csrf_token %}
-            {% crispy start_vir_form %}
-        </form>
-    {% else %}
-        <h2 class="govuk-heading-l">VIR comments</h2>
-        {% with latest_vir=virs|first %}
-            {% include "visa_applications/detail_view/vir/vir_request_details_table.html" with latest_vir=latest_vir %}
-            {% if add_comment_form %}
-                <form method="post">
-                    {% csrf_token %}
-                    {% crispy add_comment_form %}
-                </form>
-            {% endif %}
-            {% if user_can_reopen_vir %}
-                <a href="{% url 'visa-applications:reopen-vir-confirm' latest_vir.visa_application.visa_application_id %}"
-                   class="govuk-button">Re-open<span class="govuk-visually-hidden">visa information request</span></a>
-            {% endif %}
-            {% with latest_comments=conversations|get_item:latest_vir.visa_information_request_id %}
-                {% include "visa_applications/detail_view/vir/vir_comments_list.html" with comments=latest_comments %}
+    {% if detail_layout == "classic" %}
+        {% if virs|length == 0 %}
+            <h2 class="govuk-heading-l">Start a VIR</h2>
+            <form method="post">
+                {% csrf_token %}
+                {% crispy start_vir_form %}
+            </form>
+        {% else %}
+            <h2 class="govuk-heading-l">VIR comments</h2>
+            {% with latest_vir=virs|first %}
+                {% include "visa_applications/detail_view/vir/vir_request_details_table.html" with latest_vir=latest_vir %}
+                {% if add_comment_form %}
+                    <form method="post">
+                        {% csrf_token %}
+                        {% crispy add_comment_form %}
+                    </form>
+                {% endif %}
+                {% if user_can_reopen_vir %}
+                    <a href="{% url 'visa-applications:reopen-vir-confirm' latest_vir.visa_application.visa_application_id %}"
+                       class="govuk-button">Re-open<span class="govuk-visually-hidden">visa information request</span></a>
+                {% endif %}
+                {% with latest_comments=conversations|get_item:latest_vir.visa_information_request_id %}
+                    {% include "visa_applications/detail_view/vir/vir_comments_list.html" with comments=latest_comments %}
+                {% endwith %}
             {% endwith %}
-        {% endwith %}
-        <a href="{% url 'visa-applications:visa-information-requests' %}"
-           class="govuk-button govuk-button--secondary govuk-!-margin-top-5">Back to visa information request list</a>
+            <a href="{% url 'visa-applications:visa-information-requests' %}"
+               class="govuk-button govuk-button--secondary govuk-!-margin-top-5">Back to visa information request list</a>
+        {% endif %}
+    {% else %}
+        <div class="govuk-summary-card">
+            {% if virs|length == 0 %}
+                <div class="govuk-summary-card__title-wrapper">
+                    <h2 class="govuk-summary-card__title">Start a VIR</h2>
+                </div>
+                <div class="govuk-summary-card__content">
+                    <form method="post">
+                        {% csrf_token %}
+                        {% crispy start_vir_form %}
+                    </form>
+                </div>
+            {% else %}
+                <div class="govuk-summary-card__title-wrapper">
+                    <h2 class="govuk-summary-card__title">VIR comments</h2>
+                </div>
+                <div class="govuk-summary-card__content govuk-body">
+                    {% with latest_vir=virs|first %}
+                        {% include "visa_applications/detail_view/vir/vir_request_details_table.html" with latest_vir=latest_vir %}
+                        {% if add_comment_form %}
+                            <form method="post">
+                                {% csrf_token %}
+                                {% crispy add_comment_form %}
+                            </form>
+                        {% endif %}
+                        {% if user_can_reopen_vir %}
+                            <a href="{% url 'visa-applications:reopen-vir-confirm' latest_vir.visa_application.visa_application_id %}"
+                               class="govuk-button">Re-open<span class="govuk-visually-hidden">visa information request</span></a>
+                        {% endif %}
+                        {% with latest_comments=conversations|get_item:latest_vir.visa_information_request_id %}
+                            {% include "visa_applications/detail_view/vir/vir_comments_list.html" with comments=latest_comments %}
+                        {% endwith %}
+                    {% endwith %}
+                </div>
+            {% endif %}
+        </div>
     {% endif %}
 {% endblock selected_tab %}
+{% block back_button %}
+    {% if detail_layout == "new" and virs|length > 0 %}
+        <a href="{% url 'visa-applications:visa-information-requests' %}"
+           class="govuk-button govuk-button--secondary">Back to visa information request list</a>
+    {% else %}
+        {{ block.super }}
+    {% endif %}
+{% endblock back_button %}
