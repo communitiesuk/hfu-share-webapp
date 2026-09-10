@@ -24,7 +24,11 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django_filters import MultipleChoiceFilter
 
 from accounts.enums import GroupType
-from accounts.mixins import GroupRequiredMixin, user_in_any_group_names
+from accounts.mixins import (
+    GroupRequiredMixin,
+    user_in_any_group_names,
+    user_in_any_group_types,
+)
 from case_management.settings import FILE_DOWNLOAD_S3_BUCKET_NAME
 from deduplication.models import (
     AccommodationDuplicateGroup,
@@ -1008,7 +1012,8 @@ class Tab(TypedDict):
 class DetailLayoutMixin:
     """
     Temporary, for the new record layout rollout: the early adopters group
-    defaults to the new detail layout, everyone else to the classic one.
+    plus the Home Office and MHCLG group types default to the new detail
+    layout, everyone else to the classic one.
     detail_layout_switch_enabled additionally shows a banner line above the
     detail pages letting any user switch layout for themselves, remembered in
     the session. Delete this class, its entry in DetailViewMixin's bases and
@@ -1018,15 +1023,18 @@ class DetailLayoutMixin:
     request: HttpRequest
 
     detail_layouts = ("classic", "new")
-    detail_layout_group = "local_authority_early_adopters"
+    detail_layout_groups = ["local_authority_early_adopters"]
+    detail_layout_group_types = [GroupType.HOME_OFFICE, GroupType.MHCLG]
     detail_layout_switch_enabled = False
 
     @property
     def detail_layout_default(self) -> str:
         user = getattr(self.request, "user", None)
-        if user is not None and user_in_any_group_names(
-            user, [self.detail_layout_group]
-        ):
+        if user is None:
+            return "classic"
+        if user_in_any_group_names(user, self.detail_layout_groups):
+            return "new"
+        if user_in_any_group_types(user, self.detail_layout_group_types):
             return "new"
         return "classic"
 
