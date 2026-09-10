@@ -2,10 +2,13 @@ import logging
 
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_not_required
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponseRedirect
 from django.utils.http import url_has_allowed_host_and_scheme
+
+from webapp.mixins import SectionHeadingMixin
 
 from .authentication import Authentication
 from .exceptions import FlowError
@@ -73,3 +76,8 @@ def entra_callback(request: HttpRequest):
         return HttpResponseRedirect(next_url)
 
     raise PermissionDenied("You are not allowed to access this application.")
+
+
+class GdsLoginView(SectionHeadingMixin, auth_views.LoginView):
+    # pylint: disable=view-missing-access-control
+    pass

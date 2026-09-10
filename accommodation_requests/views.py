@@ -83,6 +83,7 @@ from webapp.mixins import (
     PageTitleMixin,
     PermissionsMixin,
     PIISafeRecordNameMixin,
+    SectionHeadingMixin,
     UserActionsMixinProtocol,
     WizardPageTitleMixin,
 )
@@ -359,7 +360,12 @@ class AccommodationRequestsFilter(FilterSet, FilterPanelMixin):
         ]
 
 
-class AccommodationRequestsListView(PermissionsMixin, SingleTableMixin, FilterView):
+class AccommodationRequestsListView(
+    SectionHeadingMixin,
+    PermissionsMixin,
+    SingleTableMixin,
+    FilterView,
+):
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
@@ -967,8 +973,13 @@ class AccommodationRequestDetailHistoryView(
 
 
 class AccommodationRequestCloseForGuests(
-    PIISafeRecordNameMixin, PermissionsMixin, SingleObjectMixin, FormView
+    PageTitleMixin,
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    SingleObjectMixin,
+    FormView,
 ):
+    heading_labels_title = False
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
@@ -1070,8 +1081,13 @@ class AccommodationRequestCloseForGuests(
 
 
 class AccommodationRequestReopenRequestView(
-    PIISafeRecordNameMixin, PermissionsMixin, SingleObjectMixin, FormView
+    PageTitleMixin,
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    SingleObjectMixin,
+    FormView,
 ):
+    heading_labels_title = False
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
@@ -1200,8 +1216,13 @@ class AccommodationRequestUpdateSafeguardingChecksView(
 
 
 class AccommodationRequestWithdrawSponsorView(
-    PIISafeRecordNameMixin, PermissionsMixin, SingleObjectMixin, FormView
+    PageTitleMixin,
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    SingleObjectMixin,
+    FormView,
 ):
+    heading_labels_title = False
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,

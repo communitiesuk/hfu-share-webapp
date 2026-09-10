@@ -69,6 +69,7 @@ from webapp.constants import (
 from webapp.mixins import (
     FilterPanelMixin,
     PermissionsMixin,
+    SectionHeadingMixin,
     TableRendererMixin,
     WizardPageTitleMixin,
 )
@@ -204,7 +205,7 @@ UNDO_DEDUPLICATION_FORM_TEMPLATES = {
 
 ## DEDUPLICATION
 # Select object type
-class SelectRecordTypeView(PermissionsMixin, FormView):
+class SelectRecordTypeView(SectionHeadingMixin, PermissionsMixin, FormView):
     template_name = "select_duplicate_record_type.html"
     form_class = SelectRecordTypeForm
     group_type = list(FIX_DUPLICATE_RECORDS_ALLOWED_GROUP_TYPES)

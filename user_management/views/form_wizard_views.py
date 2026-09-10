@@ -15,7 +15,7 @@ from user_management.forms import (
 from user_management.templatetags.access_request_extras import (
     render_name_label_from_group_info,
 )
-from webapp.mixins import UserActionsMixin, WizardPageTitleMixin
+from webapp.mixins import PageTitleMixin, UserActionsMixin, WizardPageTitleMixin
 
 ACCESS_REQUEST_FORMS = [
     ("group_type", AccessRequestFormGroupTypeStep),
@@ -270,7 +270,8 @@ class AccessRequestFormWizard(  # pylint: disable=view-missing-access-control
         return redirect("user-management:access-request-confirmation")
 
 
-class AccessRequestFormConfirmationPageView(TemplateView):  # pylint: disable=view-missing-access-control
+class AccessRequestFormConfirmationPageView(PageTitleMixin, TemplateView):  # pylint: disable=view-missing-access-control
+    heading_labels_title = False
     model = AccessRequest
     template_name = (
         "user_management/access_request_form/access_request_form_confirmation.html"

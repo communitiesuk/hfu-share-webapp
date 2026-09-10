@@ -9,7 +9,7 @@
 {% block content %}
     <div>
         {% error_summary form %}
-        {% include "webapp/components/heading/heading.html" with page_heading="Download data" %}
+        {% include "webapp/components/heading/heading.html" with page_heading=page_heading %}
         <div class="govuk-hint">
             You can choose which type of data to download. Your file will include all records you have access to.
         </div>

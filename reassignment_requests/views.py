@@ -40,6 +40,7 @@ from webapp.constants import REASSIGNMENT_REQUEST_SEARCH_FIELDS
 from webapp.enhanced_sentry_logging import db_values, log_event, log_persistence_check
 from webapp.mixins import (
     FilterPanelMixin,
+    PageTitleMixin,
     PermissionsMixin,
 )
 from webapp.search import perform_search
@@ -307,7 +308,14 @@ class ReassignmentRequestsReceivedFilter(FilterSet, FilterPanelMixin):
         ]
 
 
-class ReassignmentRequestsMadePageView(PermissionsMixin, SingleTableMixin, FilterView):
+class ReassignmentRequestsMadePageView(
+    PageTitleMixin,
+    PermissionsMixin,
+    SingleTableMixin,
+    FilterView,
+):
+    page_heading = "Requests to move guests to different local authorities"
+    heading_labels_title = False
     model = ReassignmentRequest
     group_type = [
         GroupType.LOCAL_AUTHORITY,
@@ -346,8 +354,10 @@ class ReassignmentRequestsMadePageView(PermissionsMixin, SingleTableMixin, Filte
 
 
 class ReassignmentRequestsReceivedPageView(
-    PermissionsMixin, SingleTableMixin, FilterView
+    PageTitleMixin, PermissionsMixin, SingleTableMixin, FilterView
 ):
+    page_heading = "Requests to move guests to different local authorities"
+    heading_labels_title = False
     model = ReassignmentRequest
     group_type = [
         GroupType.LOCAL_AUTHORITY,
@@ -442,11 +452,14 @@ class AcceptRejectReassignmentRequestForm(forms.Form):
 
 
 class ReassignmentRequestDetailView(
+    PageTitleMixin,
     PermissionsMixin,
     SuccessMessageMixin,
     FormView,
     SummaryListView,
 ):
+    page_heading = "Request to move guests to a different local authority"
+    heading_labels_title = False
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
@@ -904,11 +917,14 @@ class ReassignmentRequestDetailView(
 
 
 class CancelReassignmentRequestView(
+    PageTitleMixin,
     PermissionsMixin,
     SingleObjectMixin,
     SuccessMessageMixin,
     FormView,
 ):
+    page_heading = "Cancel request to move guests to a different local authority"
+    heading_labels_title = False
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,

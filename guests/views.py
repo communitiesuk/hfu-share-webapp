@@ -52,8 +52,10 @@ from webapp.mixins import (
     InteractionTimelineEventsMixin,
     IsDuplicateMixin,
     MultiLABannerMixin,
+    PageTitleMixin,
     PermissionsMixin,
     PIISafeRecordNameMixin,
+    SectionHeadingMixin,
     UserActionsMixinProtocol,
 )
 from webapp.search import perform_search
@@ -315,7 +317,12 @@ class GuestsFilter(FilterSet, FilterPanelMixin):
         ]
 
 
-class GuestsListView(PermissionsMixin, SingleTableMixin, FilterView):
+class GuestsListView(
+    SectionHeadingMixin,
+    PermissionsMixin,
+    SingleTableMixin,
+    FilterView,
+):
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
@@ -751,8 +758,13 @@ class GuestDetailHistoryView(
 
 
 class GuestEditView(
-    PIISafeRecordNameMixin, PermissionsMixin, SuccessMessageMixin, UpdateView
+    PageTitleMixin,
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    SuccessMessageMixin,
+    UpdateView,
 ):
+    heading_labels_title = False
     model = MvPerson
     group_type = [
         GroupType.DEV,
