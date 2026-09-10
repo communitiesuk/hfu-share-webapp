@@ -4,7 +4,7 @@
     <head>
         <meta charset="utf-8">
         <title>
-            {% if form.errors %}Error:{% endif %}
+            {% if form.errors or filter.form.errors %}Error:{% endif %}
         {{ TITLE }}</title>
         <meta name="viewport"
               content="width=device-width, initial-scale=1, viewport-fit=cover">
