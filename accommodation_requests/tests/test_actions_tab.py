@@ -8,7 +8,7 @@ from ontology.tests.factories import (
     MvPersonFactory,
     ReassignmentRequestFactory,
 )
-from user_management.tests.base import get_admin_user, get_la_user
+from user_management.tests.base import get_admin_user, get_da_user, get_la_user
 
 
 class AccommodationRequestCloseTestCase(
@@ -312,6 +312,10 @@ class ConfirmCurrentAccommodationActionTestCase(
             checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
             ltla_name=["ltla_somerset"],
         )
+        self.single_la_da_ar = AccReqFactory(
+            title="Single LA DA acc req",
+            ltla_name=["Aberdeenshire"],
+        )
         self.multi_la_ar = AccReqFactory(
             title="Multi LA acc req",
             checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
@@ -332,6 +336,36 @@ class ConfirmCurrentAccommodationActionTestCase(
             reverse(
                 "accommodation-requests:select-primary",
                 args=[self.single_la_ar.pk],
+            )
+            + "?reset=true",
+        )
+
+    def test_action_shows_start_link_to_wizard_for_la_user_on_single_la_ar(self):
+        self.client.force_login(get_la_user())
+        response = self.client.get(self._get_actions_url(self.single_la_ar))
+
+        self.assertContains(response, "Confirm current accommodation and host")
+        self.assertContains(response, "Start")
+        self.assertContains(
+            response,
+            reverse(
+                "accommodation-requests:select-primary",
+                args=[self.single_la_ar.pk],
+            )
+            + "?reset=true",
+        )
+
+    def test_action_shows_start_link_to_wizard_for_da_user_on_single_la_ar(self):
+        self.client.force_login(get_da_user())
+        response = self.client.get(self._get_actions_url(self.single_la_da_ar))
+
+        self.assertContains(response, "Confirm current accommodation and host")
+        self.assertContains(response, "Start")
+        self.assertContains(
+            response,
+            reverse(
+                "accommodation-requests:select-primary",
+                args=[self.single_la_da_ar.pk],
             )
             + "?reset=true",
         )
