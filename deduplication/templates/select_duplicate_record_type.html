@@ -6,9 +6,6 @@
 {% endblock breadcrumb_content %}
 {% block form %}
     {% include "webapp/components/heading/heading.html" with page_heading=page_heading %}
-    <p class="govuk-body">
-        <strong>Select the type of record you want to fix</strong>
-    </p>
     <form method="post">
         {% csrf_token %}
         {% crispy form %}

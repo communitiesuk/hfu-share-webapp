@@ -35,14 +35,14 @@ class SelectRecordTypeForm(forms.Form):
             ("Sponsors and hosts", "Sponsors and hosts"),
         ]
         self.fields["object_choice"] = ChoiceField(
-            label="",
+            label="Select the type of record you want to fix",
             choices=choices,
             widget=RadioSelect(),
         )
         home_url = reverse("webapp:landing-page")
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Field("object_choice"),
+            Field.radios("object_choice", legend_size=Size.SMALL),
             HTML(
                 '<p class="govuk-body">'
                 "Continue to find records using filter and search, "

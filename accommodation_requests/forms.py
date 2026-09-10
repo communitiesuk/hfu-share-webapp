@@ -1,7 +1,7 @@
 import uuid
 
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import HTML, Button, Div, Field, Layout, Size
+from crispy_forms_gds.layout import HTML, Button, Div, Field, Fieldset, Layout, Size
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db import transaction
@@ -656,6 +656,7 @@ class CloseAccommodationRequestForm(forms.Form):
 
 class ReopenAccommodationRequestForm(forms.Form):
     confirmation = forms.BooleanField(
+        widget=forms.CheckboxInput(),
         label="Yes, reopen this accommodation request",
         help_text="Please confirm you want to reopen this request.",
         error_messages={
@@ -667,8 +668,11 @@ class ReopenAccommodationRequestForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            HTML.h2("Are you sure you want to reopen this accommodation request?"),
-            Field.checkboxes("confirmation"),
+            Fieldset(
+                Field.checkboxes("confirmation"),
+                legend="Are you sure you want to reopen this accommodation request?",
+                legend_size=Size.LARGE,
+            ),
             Div(
                 Button("submit", "Reopen accommodation request"),
                 HTML(
@@ -887,8 +891,13 @@ class MoveGuestsConfirmationStep(forms.Form):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
-                HTML.h2(headline),
-                Field.checkboxes("confirm_guests_moved", legend_size=Size.LARGE),
+                Fieldset(
+                    Field.checkboxes(
+                        "confirm_guests_moved",
+                    ),
+                    legend=headline,
+                    legend_size=Size.LARGE,
+                ),
                 Div(
                     Button.primary("move_guests", button_text),
                     HTML(
