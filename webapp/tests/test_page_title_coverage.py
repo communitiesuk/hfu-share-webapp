@@ -48,8 +48,6 @@ def class_based_views():
 def has_page_identity(view_class) -> bool:
     if issubclass(view_class, PageTitleMixin):
         return True
-    if hasattr(view_class, "get_step_heading"):
-        return True
     stub_match = cast(
         ResolverMatch, SimpleNamespace(_func_path=dotted_path(view_class))
     )
@@ -73,8 +71,9 @@ class PageTitleCoverageTest(SimpleTestCase):
             missing,
             [],
             "\n\nThese views declare no page identity for the browser title. "
-            "Give each a PageTitleMixin page_heading (or get_step_heading for "
-            "wizards), or add it to NON_PAGE_VIEWS if the "
+            "Give each a PageTitleMixin page_heading (or WizardPageTitleMixin "
+            "step_headings for wizards), or add it to "
+            "NON_PAGE_VIEWS if the "
             "section title alone identifies the page:\n" + "\n".join(missing),
         )
 
