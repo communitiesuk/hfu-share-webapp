@@ -158,7 +158,7 @@ class ReassignmentRequestsMadeFilter(FilterSet, FilterPanelMixin):
         ),
         distinct=True,
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "Date of request from date must be before date to.",
         },
     )
 
@@ -241,7 +241,7 @@ class ReassignmentRequestsReceivedFilter(FilterSet, FilterPanelMixin):
         ),
         distinct=True,
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "Date of request from date must be before date to.",
         },
     )
 

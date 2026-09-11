@@ -44,6 +44,7 @@ class AccommodationEditForm(ReadOnlyFieldsMixin, forms.ModelForm):
             }
         ),
         required=False,
+        error_messages={"invalid": "Availability start date must be a real date"},
     )
 
     availability_end_date = forms.DateField(
@@ -55,6 +56,7 @@ class AccommodationEditForm(ReadOnlyFieldsMixin, forms.ModelForm):
             }
         ),
         required=False,
+        error_messages={"invalid": "Availability end date must be a real date"},
     )
 
     wheelchair_accessible = forms.BooleanField(

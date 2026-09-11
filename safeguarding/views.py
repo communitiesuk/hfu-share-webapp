@@ -457,7 +457,7 @@ class EscalatedChecksTableFilter(FilterPanelMixin, FilterSet):
             },
         ),
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "First shared to UKVI from date must be before date to.",
         },
     )
 
@@ -476,7 +476,7 @@ class EscalatedChecksTableFilter(FilterPanelMixin, FilterSet):
             },
         ),
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "Latest alert from date must be before date to.",
         },
     )
 
@@ -495,7 +495,7 @@ class EscalatedChecksTableFilter(FilterPanelMixin, FilterSet):
             },
         ),
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "Date of birth from date must be before date to.",
         },
     )
 

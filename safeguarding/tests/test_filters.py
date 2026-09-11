@@ -80,7 +80,7 @@ class EscalatedChecksFilterTestCase(BaseTestCase):
         filter_set = EscalatedChecksTableFilter(
             queryset=SafeguardingReferral.objects.all(),
             data={
-                "date_of_birth_0": "1989-01-01",
+                "date_of_birth": "1989-01-01",
                 "date_of_birth_1": "1991-01-01",
             },
         )
@@ -96,7 +96,7 @@ class EscalatedChecksFilterTestCase(BaseTestCase):
         filter_set = EscalatedChecksTableFilter(
             queryset=SafeguardingReferral.objects.all(),
             data={
-                "date_of_birth_0": "1984-01-01",
+                "date_of_birth": "1984-01-01",
                 "date_of_birth_1": "1986-01-01",
             },
         )
@@ -140,7 +140,7 @@ class EscalatedChecksFilterTestCase(BaseTestCase):
         filter_set = EscalatedChecksTableFilter(
             queryset=SafeguardingReferral.objects.all(),
             data={
-                "created_at_0": "2024-01-01",
+                "created_at": "2024-01-01",
                 "created_at_1": "2024-08-01",
             },
         )
@@ -198,7 +198,7 @@ class EscalatedChecksFilterTestCase(BaseTestCase):
         filter_set = EscalatedChecksTableFilter(
             queryset=qs,
             data={
-                "latest_alert_date_0": "2024-01-01",
+                "latest_alert_date": "2024-01-01",
                 "latest_alert_date_1": "2024-12-31",
             },
         )
@@ -211,7 +211,7 @@ class EscalatedChecksFilterTestCase(BaseTestCase):
         filter_set = EscalatedChecksTableFilter(
             queryset=qs,
             data={
-                "latest_alert_date_0": "2025-01-01",
+                "latest_alert_date": "2025-01-01",
                 "latest_alert_date_1": "2025-12-31",
             },
         )
@@ -224,7 +224,7 @@ class EscalatedChecksFilterTestCase(BaseTestCase):
         filter_set = EscalatedChecksTableFilter(
             queryset=qs,
             data={
-                "latest_alert_date_0": "2024-01-01",
+                "latest_alert_date": "2024-01-01",
                 "latest_alert_date_1": "2025-12-31",
             },
         )

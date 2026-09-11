@@ -74,7 +74,10 @@ class GuestEditForm(GuestBaseForm):
                 f"{(datetime.today() - timedelta(days=4000)).strftime('%-d/%-m/%Y')}.",
             }
         ),
-        error_messages={"required": "Please enter a valid date of birth"},
+        error_messages={
+            "required": "Please enter a valid date of birth",
+            "invalid": "Date of birth must be a real date",
+        },
     )
     gender = forms.ChoiceField(
         choices=GENDERS,

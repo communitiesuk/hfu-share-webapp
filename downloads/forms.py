@@ -27,18 +27,6 @@ class DownloadType(StrEnum):
 
 
 class DownloadsTypeForm(forms.Form):
-    date_to = forms.DateField(
-        required=False,
-        label="Date to",
-        widget=DatePicker(
-            attrs={
-                "required": False,
-                "hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
-            }
-        ),
-    )
-
     date_from = forms.DateField(
         required=False,
         label="Date from",
@@ -49,6 +37,20 @@ class DownloadsTypeForm(forms.Form):
                 f"{(datetime.today() - timedelta(days=1600)).strftime('%-d/%-m/%Y')}.",
             }
         ),
+        error_messages={"invalid": "From date must be a real date."},
+    )
+
+    date_to = forms.DateField(
+        required=False,
+        label="Date to",
+        widget=DatePicker(
+            attrs={
+                "required": False,
+                "hint": f"For example, "
+                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
+            }
+        ),
+        error_messages={"invalid": "To date must be a real date."},
     )
 
     download_type = forms.ChoiceField(

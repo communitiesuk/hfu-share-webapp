@@ -76,7 +76,7 @@ class VisaApplicationFilterTestCase(BaseTestCase):
         filter_set = VisaApplicationsTableFilter(
             queryset=VisaApplication.objects.all(),
             data={
-                "application_event_datetime_0": "2023-01-31",
+                "application_event_datetime": "2023-01-31",
                 "application_event_datetime_1": "2023-01-01",
             },
         )
@@ -87,7 +87,7 @@ class VisaApplicationFilterTestCase(BaseTestCase):
             filter_set.errors,
         )
         self.assertIn(
-            "'Date from' must be before 'Date to'.",
+            "Application from date must be before date to.",
             filter_set.errors["application_event_datetime"],
         )
 
@@ -95,7 +95,7 @@ class VisaApplicationFilterTestCase(BaseTestCase):
         filter_set = VisaApplicationsTableFilter(
             queryset=VisaApplication.objects.all(),
             data={
-                "visa_decision_date_0": "2023-01-31",
+                "visa_decision_date": "2023-01-31",
                 "visa_decision_date_1": "2023-01-01",
             },
         )
@@ -106,6 +106,6 @@ class VisaApplicationFilterTestCase(BaseTestCase):
             filter_set.errors,
         )
         self.assertIn(
-            "'Date from' must be before 'Date to'.",
+            "Decision from date must be before date to.",
             filter_set.errors["visa_decision_date"],
         )

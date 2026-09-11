@@ -175,7 +175,9 @@ class GuestEditViewTests(TestSessionTokenMixin, BaseTestCase):
         self.assertEqual(response.status_code, http.client.OK)
         errors = response.context["form"].errors
         self.assertEqual(errors["first_name"][0], "Please enter a valid name")
-        self.assertEqual(errors["date_of_birth"][0], "Enter a valid date.")
+        self.assertEqual(
+            errors["date_of_birth"][0], "Date of birth must be a real date"
+        )
 
         self.guest.refresh_from_db()
         self.assertEqual(self.guest.first_name, "Initial")
