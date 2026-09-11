@@ -85,7 +85,7 @@ class FilterReassignmentRequestsReceivedTestCase(BaseTestCase):
         filter_set = ReassignmentRequestsReceivedFilter(
             queryset=ReassignmentRequest.objects.all(),
             data={
-                "created_at_0": "2025-08-01",
+                "created_at": "2025-08-01",
                 "created_at_1": "2025-08-31",
             },
         )

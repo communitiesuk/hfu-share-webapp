@@ -54,6 +54,11 @@ class RangeInput(MultiWidget):
 class StackedRangeInput(RangeInput):
     template_name = "webapp/widgets/stackedrangeinput.html"
 
+    def __init__(self, attrs=None, sub_widget=TextInput):
+        super().__init__(attrs, sub_widget)
+
+        self.widgets_names = ["", "_1"]
+
 
 class InlineRangeInput(RangeInput):
     template_name = "webapp/widgets/inlinerangeinput.html"

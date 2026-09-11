@@ -106,7 +106,7 @@ class UamsFilter(FilterSet, FilterPanelMixin):
             },
         ),
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "Sponsor date of birth from date must be before date to.",
         },
     )
 
@@ -124,7 +124,7 @@ class UamsFilter(FilterSet, FilterPanelMixin):
             },
         ),
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "Created at from date must be before date to.",
         },
     )
 

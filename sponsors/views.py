@@ -130,7 +130,7 @@ class SponsorsFilter(FilterSet, FilterPanelMixin):
         ),
         distinct=True,
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "Date of birth from date must be before date to.",
         },
     )
 
@@ -156,7 +156,7 @@ class SponsorsFilter(FilterSet, FilterPanelMixin):
         ),
         distinct=True,
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "Date added from date must be before date to.",
         },
     )
 
