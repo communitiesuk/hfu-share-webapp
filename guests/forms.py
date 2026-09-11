@@ -83,10 +83,11 @@ class GuestEditForm(GuestBaseForm):
         required=False,
     )
     email = forms.Field(
-        label="Email address",
+        label="",
+        help_text="Enter up to 5 email addresses.",
         required=True,
         widget=MultiValueWidget(
-            attrs={"label": "email", "required": True, "input_type": "email"}
+            "Email address", attrs={"label": "email", "input_type": "email"}
         ),
         error_messages={
             "required": "Please enter an email address",
@@ -94,14 +95,16 @@ class GuestEditForm(GuestBaseForm):
         },
     )
     phone = forms.Field(
-        label="Phone number (optional)",
+        label="",
+        help_text="Enter up to 5 phone numbers.",
         required=False,
-        widget=MultiValueWidget(attrs={"label": "phone number"}),
+        widget=MultiValueWidget("Phone number", attrs={"label": "phone number"}),
     )
     passport_id = forms.Field(
-        label="Passport number",
+        label="",
+        help_text="Enter up to 5 passport numbers.",
         required=True,
-        widget=MultiValueWidget(attrs={"label": "passport number", "required": True}),
+        widget=MultiValueWidget("Passport number", attrs={"label": "passport number"}),
     )
     disability_flag = forms.BooleanField(
         label="Yes",
@@ -131,26 +134,20 @@ class GuestEditForm(GuestBaseForm):
                 "gender",
                 context={"label_size": "govuk-fieldset__legend--s"},
             ),
-            Field(
+            Fieldset(
                 "email",
-                context={
-                    "label_size": "govuk-fieldset__legend--s",
-                    "hint": "Enter up to 5 email addresses",
-                },
+                legend="Email address",
+                legend_size=Size.SMALL,
             ),
-            Field(
+            Fieldset(
                 "phone",
-                context={
-                    "label_size": "govuk-fieldset__legend--s",
-                    "hint": "Enter up to 5 phone numbers",
-                },
+                legend="Phone number (optional)",
+                legend_size=Size.SMALL,
             ),
-            Field(
+            Fieldset(
                 "passport_id",
-                context={
-                    "label_size": "govuk-fieldset__legend--s",
-                    "hint": "Enter up to 5 passport numbers",
-                },
+                legend="Passport number",
+                legend_size=Size.SMALL,
             ),
             Fieldset(
                 Field.checkboxes("disability_flag", legend_size=Size.SMALL),

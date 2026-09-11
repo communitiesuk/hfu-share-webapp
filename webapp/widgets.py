@@ -113,7 +113,8 @@ class SearchableSelectLazy(Select):
 class MultiValueWidget(Widget):
     template_name = "webapp/widgets/multi_value_text_input.html"
 
-    def __init__(self, attrs=None, max_values=5):
+    def __init__(self, field_label, attrs=None, max_values=5):
+        self.field_label = field_label
         default_attrs = {"class": "array-input-widget", "input_type": "text"}
         self.max_values = max_values
         if attrs:
@@ -125,6 +126,7 @@ class MultiValueWidget(Widget):
         context["widget"]["values"] = value or [""]
         context["widget"]["name"] = name
         context["widget"]["max_values"] = self.max_values
+        context["widget"]["field_label"] = self.field_label
         return context
 
     def value_from_datadict(self, data, files, name):
