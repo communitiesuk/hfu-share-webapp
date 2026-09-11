@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.18.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.17.0...2.18.0) (2026-09-11)
+
+
+### Features
+
+* add new browser test ltla ([#192](https://github.com/communitiesuk/hfu-share-webapp/issues/192)) ([9e3d71b](https://github.com/communitiesuk/hfu-share-webapp/commit/9e3d71b87e09769f2feba397b1d78cd2ab3aecf2))
+
+
+### Bug Fixes
+
+* HFURB-4081 - update alt text for MHCLG logo ([#208](https://github.com/communitiesuk/hfu-share-webapp/issues/208)) ([c41d397](https://github.com/communitiesuk/hfu-share-webapp/commit/c41d397e4103b7a8f301417c4e034870f7ef2901))
+* HFURB-4089 replace gds templates to exclude the number prefix for the first item in radio and checkbox questions ([#200](https://github.com/communitiesuk/hfu-share-webapp/issues/200)) ([7e06b7f](https://github.com/communitiesuk/hfu-share-webapp/commit/7e06b7fba12c98d663c3ff3853937b342366b07a))
+* HFURB-4095 add label to multi inputs and add back missing hints ([#211](https://github.com/communitiesuk/hfu-share-webapp/issues/211)) ([6a6ca50](https://github.com/communitiesuk/hfu-share-webapp/commit/6a6ca508abe6d5d2f9e90e8018d12485c383b4bc))
+* HFURB-4110 add error summary to pages where it was missing and novalidate to forms to disable browser validation ([#206](https://github.com/communitiesuk/hfu-share-webapp/issues/206)) ([6f26ca5](https://github.com/communitiesuk/hfu-share-webapp/commit/6f26ca5e37d412b1bf8831346d94cb09f5034f38))
+* HFURB-4154 make sure boolean fields use fieldset and legend ([#212](https://github.com/communitiesuk/hfu-share-webapp/issues/212)) ([537f21d](https://github.com/communitiesuk/hfu-share-webapp/commit/537f21db7c87aeac31ed428e7a3ac1248cce724d))
+* HFURB-4155 add aria-label to the pagination numbers ([#209](https://github.com/communitiesuk/hfu-share-webapp/issues/209)) ([fda5ae1](https://github.com/communitiesuk/hfu-share-webapp/commit/fda5ae190d1b5ad5aed30ccfd48bc01b6e5e1550))
+* replace text areas that were one line line with a normal text field ([#207](https://github.com/communitiesuk/hfu-share-webapp/issues/207)) ([33b4537](https://github.com/communitiesuk/hfu-share-webapp/commit/33b45377191a1709cb5f0c14981aaca2ee462181))
+
 ## [2.17.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.16.0...2.17.0) (2026-09-10)
 
 
