@@ -1,14 +1,14 @@
 import http.client
 from datetime import datetime, timezone
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from django.contrib.admin import AdminSite
 from django.db import DatabaseError
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
-from ontology.admin import MvPersonAdmin
-from ontology.models import MvPerson
+from ontology.admin import MvPersonAdmin, MvVolunteerAdmin
+from ontology.models import MvPerson, MvVolunteer
 from ontology.tests.base import (
     MvPersonBaseTestCase,
     UamsBaseTestCase,
@@ -161,3 +161,77 @@ class MvPersonAdminReadOnlyModelsTestCase(TestSessionTokenMixin, MvPersonBaseTes
             "1 failed due to errors."
         )
         mock_message.assert_called_once_with({}, expected_summary)
+
+
+class MvVolunteerAdminActionTestCase(BaseTestCase):
+    def setUp(self):
+        self.request = Mock()
+        self.admin = MvVolunteerAdmin(MvVolunteer, AdminSite())
+        self.admin.message_user = Mock()
+
+    def test_redact_personal_information(self):
+        queryset = MvVolunteer.objects.none()
+        self.admin.redact_personal_information(self.request, queryset)
+        self.admin.message_user.assert_called_once_with(
+            self.request, "Successfully redacted personal information."
+        )
+
+    def test_redact_personal_information_text_fields(self):
+        volunteer = MvVolunteerFactory(
+            first_name="Jane",
+            last_name="Doe",
+            full_name="Jane Doe",
+            email="jane.doe@example.com",
+            family_situation="Single parent with child",
+            sex="Female",
+        )
+        queryset = MvVolunteer.objects.filter(pk=volunteer.pk)
+        self.admin.redact_personal_information(self.request, queryset)
+        volunteer.refresh_from_db()
+
+        self.assertEqual(volunteer.first_name, "REDACTED")
+        self.assertEqual(volunteer.last_name, "REDACTED")
+        self.assertEqual(volunteer.full_name, "REDACTED")
+        self.assertEqual(volunteer.email, "REDACTED")
+        self.assertEqual(volunteer.family_situation, "REDACTED")
+        self.assertEqual(volunteer.sex, "REDACTED")
+
+    def test_redact_personal_information_int_and_date_fields(self):
+        volunteer = MvVolunteerFactory(
+            age=35,
+            date_of_birth="1990-01-01",
+        )
+        queryset = MvVolunteer.objects.filter(pk=volunteer.pk)
+        self.admin.redact_personal_information(self.request, queryset)
+        volunteer.refresh_from_db()
+
+        self.assertIsNone(volunteer.age)
+        self.assertIsNone(volunteer.date_of_birth)
+
+    def test_redact_personal_information_array_fields(self):
+        volunteer = MvVolunteerFactory(
+            national_identity_card_number=["ID-123456"],
+            nationality=["British"],
+            other_nationalities=["French"],
+            passport_details=["PASS-98765"],
+            phone_number=["+447000000000"],
+            residential_postcodes=["SW1A 1AA"],
+        )
+        queryset = MvVolunteer.objects.filter(pk=volunteer.pk)
+        self.admin.redact_personal_information(self.request, queryset)
+        volunteer.refresh_from_db()
+
+        self.assertIsNone(volunteer.national_identity_card_number)
+        self.assertIsNone(volunteer.nationality)
+        self.assertIsNone(volunteer.other_nationalities)
+        self.assertIsNone(volunteer.passport_details)
+        self.assertIsNone(volunteer.phone_number)
+        self.assertIsNone(volunteer.residential_postcodes)
+
+    def test_redact_personal_information_preserves_control_fields(self):
+        volunteer = MvVolunteerFactory(is_sponsor=True)
+        queryset = MvVolunteer.objects.filter(pk=volunteer.pk)
+        self.admin.redact_personal_information(self.request, queryset)
+        volunteer.refresh_from_db()
+
+        self.assertTrue(volunteer.is_sponsor)
