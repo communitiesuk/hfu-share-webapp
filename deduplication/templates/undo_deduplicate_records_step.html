@@ -44,7 +44,7 @@
             <p class="govuk-body">
                 <strong>Are you sure you want to delete this {{ type }} record and restore the original records?</strong>
             </p>
-            <form class="govuk-button-group" method="post">
+            <form class="govuk-button-group" method="post" novalidate>
                 {% csrf_token %}
                 {{ wizard.management_form }}
                 {% crispy form %}

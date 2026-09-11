@@ -72,7 +72,7 @@
                             {% endwith %}
                             {% if user.is_authenticated %}
                                 <li class="govuk-service-navigation__item" style="margin-left: auto;">
-                                    <form action="{% url 'accounts:logout' %}" method="post">
+                                    <form action="{% url 'accounts:logout' %}" method="post" novalidate>
                                         {% csrf_token %}
                                         <button type="submit"
                                                 class="govuk-link govuk-link--no-visited-state govuk-service-navigation__link"

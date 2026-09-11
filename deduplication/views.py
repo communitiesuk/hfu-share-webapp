@@ -425,7 +425,7 @@ class ManualSponsorDeduplicationTable(dj_tables.Table):
             )
         )
         return format_html(
-            '<form method="post">'
+            '<form method="post" novalidate>'
             "{management_form}"
             "{hidden_sponsor_inputs}"
             '<input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}"/>'
@@ -723,7 +723,7 @@ class ManualGuestDeduplicationTable(dj_tables.Table):
             )
         )
         return format_html(
-            '<form method="post">'
+            '<form method="post" novalidate>'
             "{management_form}"
             "{hidden_guest_inputs}"
             '<input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}"/>'
@@ -900,7 +900,7 @@ class ManualAccommodationDeduplicationTable(dj_tables.Table, TableRendererMixin)
             )
         )
         return format_html(
-            '<form method="post">'
+            '<form method="post" novalidate>'
             "{management_form}"
             "{hidden_accommodation_inputs}"
             '<input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}"/>'
@@ -1018,7 +1018,7 @@ class ManualViewSelectedSponsorsTable(dj_tables.Table):
 
     def render_remove(self, value, record):
         return format_html(
-            '<form method="post">'
+            '<form method="post" novalidate>'
             "{management_form}"
             '<input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}"/>'
             '<input type="hidden" '
@@ -1124,7 +1124,7 @@ class ManualViewSelectedGuestsTable(dj_tables.Table):
 
     def render_remove(self, value, record):
         return format_html(
-            '<form method="post">'
+            '<form method="post" novalidate>'
             "{management_form}"
             '<input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}"/>'
             '<input type="hidden" name="review-selected-records-guest_record_to_remove"'
@@ -1229,7 +1229,7 @@ class ManualViewSelectedAccommodationsTable(dj_tables.Table, TableRendererMixin)
 
     def render_remove(self, value, record):
         return format_html(
-            '<form method="post">'
+            '<form method="post" novalidate>'
             "{management_form}"
             '<input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}"/>'
             '<input type="hidden" '

@@ -3,7 +3,7 @@
 {% block selected_tab %}
     {% if virs|length == 0 %}
         <h2 class="govuk-heading-l">Start a VIR</h2>
-        <form method="post">
+        <form method="post" novalidate>
             {% csrf_token %}
             {% crispy start_vir_form %}
         </form>
@@ -12,7 +12,7 @@
         {% with latest_vir=virs|first %}
             {% include "visa_applications/detail_view/vir/vir_request_details_table.html" with latest_vir=latest_vir %}
             {% if add_comment_form %}
-                <form method="post">
+                <form method="post" novalidate>
                     {% csrf_token %}
                     {% crispy add_comment_form %}
                 </form>

@@ -14,7 +14,7 @@
             You can choose which type of data to download. Your file will include all records you have access to.
         </div>
         <div class="govuk-!-padding-top-5" id="form-content">
-            <form method="post">
+            <form method="post" novalidate>
                 {% csrf_token %}
                 {% crispy form %}
             </form>

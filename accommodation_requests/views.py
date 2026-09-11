@@ -1944,7 +1944,7 @@ class AccommodationTable(tables.Table):
 
     def render_select(self, value, record):
         return format_html(
-            '<form method="post">'
+            '<form method="post" novalidate>'
             "{management_form}"
             '<input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}"/>'
             '<input type="hidden" name="select_accommodation-accommodation" '
