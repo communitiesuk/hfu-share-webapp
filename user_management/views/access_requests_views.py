@@ -129,7 +129,7 @@ class AccessRequestsFilter(FilterSet, FilterPanelMixin):
             },
         ),
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "Request from date must be before date to.",
         },
     )
 

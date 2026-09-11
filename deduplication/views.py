@@ -299,7 +299,7 @@ class ManualSponsorDeduplicationFilter(FilterSet, FilterPanelMixin):
         ),
         distinct=True,
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "Date of birth from date must be before date to.",
         },
     )
 
@@ -331,7 +331,7 @@ class ManualSponsorDeduplicationFilter(FilterSet, FilterPanelMixin):
         ),
         distinct=True,
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "Date added from date must be before date to.",
         },
     )
 
@@ -572,7 +572,7 @@ class ManualGuestDeduplicationFilter(FilterSet, FilterPanelMixin):
         ),
         distinct=True,
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "Date of birth from date must be before date to.",
         },
     )
 
@@ -600,7 +600,7 @@ class ManualGuestDeduplicationFilter(FilterSet, FilterPanelMixin):
         ),
         distinct=True,
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "First arrival from date must be before date to.",
         },
     )
 
@@ -620,7 +620,8 @@ class ManualGuestDeduplicationFilter(FilterSet, FilterPanelMixin):
         ),
         distinct=True,
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "Latest visa application from date "
+            "must be before date to.",
         },
     )
 

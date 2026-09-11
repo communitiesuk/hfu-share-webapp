@@ -165,7 +165,7 @@ class VisaApplicationsTableFilter(FilterSet, FilterPanelMixin):
             },
         ),
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "Application from date must be before date to.",
         },
     )
 
@@ -183,7 +183,7 @@ class VisaApplicationsTableFilter(FilterSet, FilterPanelMixin):
             },
         ),
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "Decision from date must be before date to.",
         },
     )
 
@@ -870,7 +870,7 @@ class VIRFilter(FilterSet, FilterPanelMixin):
         ),
         distinct=True,
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "VIR start from date must be before date to.",
         },
     )
 

@@ -30,7 +30,10 @@ class SponsorEditForm(ReadOnlyFieldsMixin, forms.ModelForm):
             }
         ),
         required=True,
-        error_messages={"required": "Please enter a valid date of birth"},
+        error_messages={
+            "required": "Please enter a valid date of birth",
+            "invalid": "Date of birth must be a real date",
+        },
     )
 
     GENDERS = (

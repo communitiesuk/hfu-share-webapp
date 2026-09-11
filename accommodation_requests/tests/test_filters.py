@@ -105,3 +105,22 @@ class AccommodationRequestFilterTestCase(BaseTestCase):
         self.assertNotIn(self.cancelled.id, accomodation_request_ids)
         self.assertIn(self.closed_empty.id, accomodation_request_ids)
         self.assertNotIn(self.closed_left.id, accomodation_request_ids)
+
+    def test_invalid_date_of_application_range(self):
+        filter_set = AccommodationRequestsFilter(
+            queryset=AccReq.objects.all(),
+            data={
+                "date_of_application": "2023-01-31",
+                "date_of_application_1": "2023-01-01",
+            },
+        )
+
+        self.assertFalse(filter_set.is_valid())
+        self.assertIn(
+            "date_of_application",
+            filter_set.errors,
+        )
+        self.assertIn(
+            "Date of application from date must be before date to",
+            filter_set.errors["date_of_application"],
+        )
