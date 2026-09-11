@@ -12,7 +12,7 @@ from django.db.models import Q, QuerySet
 from django.utils import timezone
 from freezegun import freeze_time
 
-from accounts.enums import BROWSER_TEST_LA_GROUP_NAME, BROWSER_TEST_LTLA_NAMES
+from accounts.enums import BROWSER_TEST_FIRST_LA_GROUP_NAME, BROWSER_TEST_LTLA_NAMES
 from accounts.models import User
 from deduplication.models import (
     AccommodationDuplicateGroup,
@@ -73,7 +73,7 @@ logger = logging.getLogger(__name__)
 BROWSER_TEST_ID_PREFIX = "browser-test"
 BROWSER_TEST_SEED = int(os.environ.get("BROWSER_TEST_SEED", 1313))
 BROWSER_TEST_REFERENCE_DATETIME = datetime(2025, 1, 1, 12, 0, 0)
-MULTI_LA_SECOND_LTLA = "Isles of Scilly"
+MULTI_LA_SECOND_LTLA = BROWSER_TEST_LTLA_NAMES[1]
 
 
 ChecksStatus = MvAccommodationRequest.ChecksStatus
@@ -291,9 +291,9 @@ def _delete_with_audit_logs(label: str, queryset: QuerySet) -> None:
 
 
 def wipe_browser_test_la_data() -> None:
-    name = BROWSER_TEST_LTLA_NAMES[0]
+    names = BROWSER_TEST_LTLA_NAMES
 
-    ars = MvAccommodationRequest.objects.filter(ltla_name__overlap=[name])
+    ars = MvAccommodationRequest.objects.filter(ltla_name__overlap=names)
     ar_ids = list(ars.values_list("id", flat=True))
     person_ids = [pid for ar in ars for pid in (ar.person_id or [])]
     sponsor_ids = [sid for ar in ars for sid in (ar.sponsor_id or [])]
@@ -304,12 +304,12 @@ def wipe_browser_test_la_data() -> None:
     ]
     uam_refs += list(
         SponsorshipCertificationForm.objects.filter(
-            ltla_name__overlap=[name]
+            ltla_name__overlap=names
         ).values_list("reference", flat=True)
     )
 
     reassignments = ReassignmentRequest.objects.filter(
-        Q(source_ltla_name__overlap=[name]) | Q(destination_ltla_name=name)
+        Q(source_ltla_name__overlap=names) | Q(destination_ltla_name__in=names)
     )
     reassignment_ids = list(reassignments.values_list("pk", flat=True))
 
@@ -344,7 +344,7 @@ def wipe_browser_test_la_data() -> None:
     ]
 
     virs = VisaInformationRequest.objects.filter(
-        Q(ltla_name=name) | Q(visa_application__ltla_name=name)
+        Q(ltla_name__in=names) | Q(visa_application__ltla_name__in=names)
     )
 
     interactions = MvInteraction.objects.filter(
@@ -439,12 +439,12 @@ def wipe_browser_test_la_data() -> None:
         SponsorshipCertificationForm.objects.filter(reference__in=uam_refs),
     )
     _delete_with_audit_logs(
-        "visa applications", VisaApplication.objects.filter(ltla_name=name)
+        "visa applications", VisaApplication.objects.filter(ltla_name__in=names)
     )
     _delete_with_audit_logs(
         "export tool objects",
         ExportToolObject.objects.get_queryset_without_annotations().filter(
-            ltla_name__overlap=[name]
+            ltla_name__overlap=names
         ),
     )
     _delete_with_audit_logs("people", MvPerson.objects.filter(id__in=person_ids))
@@ -452,9 +452,14 @@ def wipe_browser_test_la_data() -> None:
     _delete_with_audit_logs("groups", MvGroup.objects.filter(id__in=group_ids))
     _delete_with_audit_logs("sponsors", MvVolunteer.objects.filter(id__in=sponsor_ids))
     _delete_with_audit_logs(
-        "accommodations", MvAccommodation.objects.filter(id__in=accommodation_ids)
+        "accommodations",
+        MvAccommodation.objects.filter(
+            Q(id__in=accommodation_ids) | Q(ltla_name__in=names)
+        ),
     )
-    _delete_with_audit_logs("postcodes", MvUkPostcode.objects.filter(ltla_name=name))
+    _delete_with_audit_logs(
+        "postcodes", MvUkPostcode.objects.filter(ltla_name__in=names)
+    )
 
     # strays whose linkage was severed by app actions: catch by id prefix
     for model in [
@@ -816,7 +821,7 @@ def _move_guests_off_closed_empty_ar(
 
 
 def _get_browser_test_author() -> User:
-    group = Group.objects.get(name=BROWSER_TEST_LA_GROUP_NAME)
+    group = Group.objects.get(name=BROWSER_TEST_FIRST_LA_GROUP_NAME)
 
     browser_test_email = os.environ.get("BROWSER_TEST_USER_EMAIL")
     if browser_test_email:
@@ -830,7 +835,7 @@ def _get_browser_test_author() -> User:
         raise ValueError(
             "No browser test user available: set BROWSER_TEST_USER_EMAIL to an "
             f"existing user's email or add a user to the "
-            f"{BROWSER_TEST_LA_GROUP_NAME} group"
+            f"{BROWSER_TEST_FIRST_LA_GROUP_NAME} group"
         )
     return author
 

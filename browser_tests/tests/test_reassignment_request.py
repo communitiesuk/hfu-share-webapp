@@ -6,8 +6,9 @@ from ..seeded_data import SeededAccommodationRequest
 from .base import BrowserTest
 
 DESTINATION_COUNTRY = "England"
-DESTINATION_LA_SEARCH_TEXT = "Isles of Scilly"
-DESTINATION_LA_OPTION_LABEL = "Isles of Scilly (LTLA)"
+DESTINATION_LA_NAME = "Bree (Browser test LTLA)"
+DESTINATION_LA_OPTION_LABEL = "ltla_bree_browser_test"
+DESTINATION_LA_SEARCH_TEXT = "bree"
 
 ACCOMMODATION_REQUEST = SeededAccommodationRequest(
     id="browser-test-ar-00006",
@@ -79,7 +80,7 @@ class TestReassignmentRequestJourney(BrowserTest):
         # Confirmation step
         for guest_full_name in ACCOMMODATION_REQUEST.guest_full_names:
             home_page.assert_page_contains_text(guest_full_name)
-        home_page.assert_page_contains_text(DESTINATION_LA_SEARCH_TEXT)
+        home_page.assert_page_contains_text(DESTINATION_LA_NAME)
 
         home_page.check_field("Yes, send the request")
         home_page.click_button("Send request")
@@ -97,4 +98,4 @@ class TestReassignmentRequestJourney(BrowserTest):
         home_page.assert_has_heading(
             "Request to move guests to a different local authority"
         )
-        home_page.assert_page_contains_text(DESTINATION_LA_SEARCH_TEXT)
+        home_page.assert_page_contains_text(DESTINATION_LA_NAME)
