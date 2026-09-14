@@ -1,5 +1,6 @@
-import re
+from typing import Tuple
 
+from bs4 import BeautifulSoup
 from django.urls import reverse
 
 from accounts.enums import GroupType
@@ -14,64 +15,63 @@ from user_management.tests.base import (
 )
 
 
-def link_exists(text, html):
-    pattern = (
-        rf'class="[^"]*govuk-service-navigation__link[^"]*"[^>]*>{re.escape(text)}</a>'
-    )
-    return re.search(pattern, html, re.DOTALL | re.IGNORECASE) is not None
-
-
 class NavBarLinkVisibilityTests(TestSessionTokenMixin, BaseTestCase):
+    def assert_links_exist(self, soup: BeautifulSoup, *links: Tuple[str, ...]):
+        for navigation_link, expected_text in zip(
+            soup.select(
+                "a.govuk-service-navigation__link",
+            ),
+            links,
+            strict=True,
+        ):
+            self.assertEqual(navigation_link.text.strip(), expected_text)
+
     def test_la_user_sees_expected_links(self):
         user = get_la_user()
         self.client.force_login(user)
         response = self.client.get(reverse("webapp:landing-page"))
-        html = response.content.decode()
-        # LA users should see these links
-        self.assertTrue(link_exists("Accommodation requests", html))
-        self.assertTrue(link_exists("Accommodation", html))
-        self.assertTrue(link_exists("Guests", html))
-        self.assertTrue(link_exists("Sponsors and hosts", html))
-        self.assertTrue(link_exists("Visa applications", html))
-        self.assertTrue(link_exists("Download data", html))
-        self.assertTrue(link_exists("Request access", html))
+        soup = BeautifulSoup(response.content.decode("utf-8"), "html.parser")
 
-        # Shouldn't see these links
-        self.assertFalse(link_exists("Deduplicate records", html))
+        # LA users should see these links
+        self.assert_links_exist(
+            soup,
+            "Visa applications",
+            "Guests",
+            "Sponsors and hosts",
+            "Accommodation",
+            "Accommodation requests",
+            "Download data",
+            "Request access",
+        )
 
     def test_admin_user_sees_all_links(self):
         user = get_admin_user()
         self.client.force_login(user)
         response = self.client.get(reverse("webapp:landing-page"))
-        html = response.content.decode()
-        # DEV users should see all links
-        self.assertTrue(link_exists("Accommodation requests", html))
-        self.assertTrue(link_exists("Accommodation", html))
-        self.assertTrue(link_exists("Guests", html))
-        self.assertTrue(link_exists("Sponsors and hosts", html))
-        self.assertTrue(link_exists("Visa applications", html))
-        self.assertTrue(link_exists("Download data", html))
-        self.assertTrue(link_exists("Request access", html))
+        soup = BeautifulSoup(response.content.decode("utf-8"), "html.parser")
 
-        # Shouldn't see these links
-        self.assertFalse(link_exists("Deduplicate records", html))
+        # DEV users should see all links
+        self.assert_links_exist(
+            soup,
+            "Visa applications",
+            "Guests",
+            "Sponsors and hosts",
+            "Accommodation",
+            "Accommodation requests",
+            "Download data",
+            "Request access",
+        )
 
     def test_user_with_no_access_only_sees_request(self):
         user = get_user_with_no_access()
         self.client.force_login(user)
         response = self.client.get(reverse("webapp:landing-page"))
-        html = response.content.decode()
+        soup = BeautifulSoup(response.content.decode("utf-8"), "html.parser")
 
-        self.assertTrue(link_exists("Request access", html))
-
-        # Should not see any other links
-        self.assertFalse(link_exists("Accommodation requests", html))
-        self.assertFalse(link_exists("Accommodation", html))
-        self.assertFalse(link_exists("Guests", html))
-        self.assertFalse(link_exists("Sponsors and hosts", html))
-        self.assertFalse(link_exists("Visa applications", html))
-        self.assertFalse(link_exists("Deduplicate records", html))
-        self.assertFalse(link_exists("Download data", html))
+        self.assert_links_exist(
+            soup,
+            "Request access",
+        )
 
     def test_ukvi_user_sees_expected_links(self):
         user = get_user_with_groups(
@@ -81,18 +81,18 @@ class NavBarLinkVisibilityTests(TestSessionTokenMixin, BaseTestCase):
         )
         self.client.force_login(user)
         response = self.client.get(reverse("webapp:landing-page"))
-        html = response.content.decode()
+        soup = BeautifulSoup(response.content.decode("utf-8"), "html.parser")
         # UKVI users (HOME_OFFICE) should see these links
-        self.assertTrue(link_exists("Accommodation requests", html))
-        self.assertTrue(link_exists("Accommodation", html))
-        self.assertTrue(link_exists("Guests", html))
-        self.assertTrue(link_exists("Sponsors and hosts", html))
-        self.assertTrue(link_exists("Visa applications", html))
-        self.assertTrue(link_exists("Request access", html))
-        self.assertTrue(link_exists("Download data", html))
-
-        # Should not see these links
-        self.assertFalse(link_exists("Deduplicate records", html))
+        self.assert_links_exist(
+            soup,
+            "Visa applications",
+            "Guests",
+            "Sponsors and hosts",
+            "Accommodation",
+            "Accommodation requests",
+            "Download data",
+            "Request access",
+        )
 
     def test_devolved_admin_user_sees_expected_links(self):
         user = get_user_with_groups(
@@ -100,35 +100,35 @@ class NavBarLinkVisibilityTests(TestSessionTokenMixin, BaseTestCase):
         )
         self.client.force_login(user)
         response = self.client.get(reverse("webapp:landing-page"))
-        html = response.content.decode()
+        soup = BeautifulSoup(response.content.decode("utf-8"), "html.parser")
         # Should see these links
-        self.assertTrue(link_exists("Accommodation requests", html))
-        self.assertTrue(link_exists("Accommodation", html))
-        self.assertTrue(link_exists("Guests", html))
-        self.assertTrue(link_exists("Sponsors and hosts", html))
-        self.assertTrue(link_exists("Visa applications", html))
-        self.assertTrue(link_exists("Download data", html))
-        self.assertTrue(link_exists("Request access", html))
-
-        # Shouldn't see these links
-        self.assertFalse(link_exists("Deduplicate records", html))
+        self.assert_links_exist(
+            soup,
+            "Visa applications",
+            "Guests",
+            "Sponsors and hosts",
+            "Accommodation",
+            "Accommodation requests",
+            "Download data",
+            "Request access",
+        )
 
     def test_mhclg_user_sees_expected_links(self):
         user = get_user_with_groups([UserGroup(name="mhclg", type=GroupType.MHCLG)])
         self.client.force_login(user)
         response = self.client.get(reverse("webapp:landing-page"))
-        html = response.content.decode()
+        soup = BeautifulSoup(response.content.decode("utf-8"), "html.parser")
         # Should see these links
-        self.assertTrue(link_exists("Accommodation requests", html))
-        self.assertTrue(link_exists("Accommodation", html))
-        self.assertTrue(link_exists("Guests", html))
-        self.assertTrue(link_exists("Sponsors and hosts", html))
-        self.assertTrue(link_exists("Visa applications", html))
-        self.assertTrue(link_exists("Request access", html))
-        self.assertTrue(link_exists("Download data", html))
-
-        # Should not see these links
-        self.assertFalse(link_exists("Deduplicate records", html))
+        self.assert_links_exist(
+            soup,
+            "Visa applications",
+            "Guests",
+            "Sponsors and hosts",
+            "Accommodation",
+            "Accommodation requests",
+            "Download data",
+            "Request access",
+        )
 
     def test_service_support_user_sees_expected_links(self):
         user = get_user_with_groups(
@@ -136,18 +136,18 @@ class NavBarLinkVisibilityTests(TestSessionTokenMixin, BaseTestCase):
         )
         self.client.force_login(user)
         response = self.client.get(reverse("webapp:landing-page"))
-        html = response.content.decode()
+        soup = BeautifulSoup(response.content.decode("utf-8"), "html.parser")
         # Should see these links
-        self.assertTrue(link_exists("Accommodation requests", html))
-        self.assertTrue(link_exists("Accommodation", html))
-        self.assertTrue(link_exists("Guests", html))
-        self.assertTrue(link_exists("Sponsors and hosts", html))
-        self.assertTrue(link_exists("Visa applications", html))
-        self.assertTrue(link_exists("Download data", html))
-        self.assertTrue(link_exists("Request access", html))
-
-        # Shouldn't see these links
-        self.assertFalse(link_exists("Deduplicate records", html))
+        self.assert_links_exist(
+            soup,
+            "Visa applications",
+            "Guests",
+            "Sponsors and hosts",
+            "Accommodation",
+            "Accommodation requests",
+            "Download data",
+            "Request access",
+        )
 
     def test_links_shown_on_page_without_user_actions_mixin(self):
         user = get_la_user()
@@ -155,25 +155,49 @@ class NavBarLinkVisibilityTests(TestSessionTokenMixin, BaseTestCase):
         response = self.client.get(
             reverse("user-management:access-request-confirmation")
         )
-        html = response.content.decode()
+        soup = BeautifulSoup(response.content.decode("utf-8"), "html.parser")
 
-        self.assertTrue(link_exists("Guests", html))
-        self.assertTrue(link_exists("Accommodation requests", html))
-        self.assertTrue(link_exists("Sponsors and hosts", html))
-        self.assertTrue(link_exists("Visa applications", html))
-        self.assertTrue(link_exists("Request access", html))
+        self.assert_links_exist(
+            soup,
+            "Visa applications",
+            "Guests",
+            "Sponsors and hosts",
+            "Accommodation",
+            "Accommodation requests",
+            "Download data",
+            "Request access",
+        )
 
     def test_group_change_updates_links_without_logging_in_again(self):
         user = get_user_with_no_access()
         self.client.force_login(user)
-        html = self.client.get(reverse("webapp:landing-page")).content.decode()
-        self.assertFalse(link_exists("Guests", html))
+        soup = BeautifulSoup(
+            self.client.get(reverse("webapp:landing-page")).content.decode("utf-8"),
+            "html.parser",
+        )
+
+        self.assert_links_exist(
+            soup,
+            "Request access",
+        )
 
         la_user = get_la_user()
         user.groups.set(la_user.groups.all())
 
-        html = self.client.get(reverse("webapp:landing-page")).content.decode()
-        self.assertTrue(link_exists("Guests", html))
+        soup = BeautifulSoup(
+            self.client.get(reverse("webapp:landing-page")).content.decode("utf-8"),
+            "html.parser",
+        )
+        self.assert_links_exist(
+            soup,
+            "Visa applications",
+            "Guests",
+            "Sponsors and hosts",
+            "Accommodation",
+            "Accommodation requests",
+            "Download data",
+            "Request access",
+        )
 
     def test_multi_group_user_sees_expected_links(self):
         user = get_user_with_groups(
@@ -184,15 +208,15 @@ class NavBarLinkVisibilityTests(TestSessionTokenMixin, BaseTestCase):
         )
         self.client.force_login(user)
         response = self.client.get(reverse("webapp:landing-page"))
-        html = response.content.decode()
+        soup = BeautifulSoup(response.content.decode("utf-8"), "html.parser")
         # Should see these links
-        self.assertTrue(link_exists("Accommodation requests", html))
-        self.assertTrue(link_exists("Accommodation", html))
-        self.assertTrue(link_exists("Guests", html))
-        self.assertTrue(link_exists("Sponsors and hosts", html))
-        self.assertTrue(link_exists("Visa applications", html))
-        self.assertTrue(link_exists("Request access", html))
-        self.assertTrue(link_exists("Download data", html))
-
-        # Shouldn't see these links
-        self.assertFalse(link_exists("Deduplicate records", html))
+        self.assert_links_exist(
+            soup,
+            "Visa applications",
+            "Guests",
+            "Sponsors and hosts",
+            "Accommodation",
+            "Accommodation requests",
+            "Download data",
+            "Request access",
+        )

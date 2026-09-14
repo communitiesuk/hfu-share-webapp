@@ -1,0 +1,11 @@
+<li class="govuk-service-navigation__item{% if app_name == navigation_item_app_name %} govuk-service-navigation__item--active{% endif %}">
+    <a href="{% url navigation_item_url_pattern %}"
+       class="govuk-service-navigation__link"
+       {% if app_name == navigation_item_app_name %}aria-current="true"{% endif %}>
+        {% if app_name == navigation_item_app_name %}
+            <strong class="govuk-service-navigation__active-fallback">{{ navigation_item_text }}</strong>
+        {% else %}
+            {{ navigation_item_text }}
+        {% endif %}
+    </a>
+</li>

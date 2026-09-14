@@ -9,79 +9,50 @@
     </div>
     {% if available_links or user.is_authenticated %}
         <section aria-label="Service information"
-                 class="govuk-service-navigation app-brand-border-bottom"
+                 class="govuk-service-navigation app-surface-border-bottom"
                  data-module="govuk-service-navigation">
-            <div class="govuk-width-container">
+            <div class="govuk-width-container govuk-service-navigation__inlining-container">
                 <div class="govuk-service-navigation__container">
                     <nav aria-label="Menu" class="govuk-service-navigation__wrapper">
                         <button type="button"
                                 class="govuk-service-navigation__toggle govuk-js-service-navigation-toggle"
                                 aria-controls="navigation"
-                                hidden>Menu</button>
+                                hidden
+                                aria-hidden="true">Menu</button>
                         <ul class="govuk-service-navigation__list" id="navigation">
                             {% with app_name=request.resolver_match.app_name %}
                                 {% if available_links.visa_applications %}
-                                    <li class="govuk-service-navigation__item{% if app_name == 'visa-applications' %} govuk-service-navigation__item--active{% endif %}">
-                                        <a href="{% url 'visa-applications:visa-applications' %}"
-                                           class="govuk-service-navigation__link"
-                                           {% if app_name == 'visa-applications' %}aria-current="true"{% endif %}>Visa applications</a>
-                                    </li>
+                                    {% include "webapp/components/service_header_nav_bar/service_navigation_link.html" with navigation_item_app_name="visa-applications" navigation_item_url_pattern="visa-applications:visa-applications" navigation_item_text="Visa applications" %}
                                 {% endif %}
                                 {% if available_links.guests %}
-                                    <li class="govuk-service-navigation__item {% if app_name == 'guests' %}govuk-service-navigation__item--active{% endif %}">
-                                        <a href="{% url 'guests:guests' %}"
-                                           class="govuk-service-navigation__link"
-                                           {% if app_name == 'guests' %}aria-current="true"{% endif %}>Guests</a>
-                                    </li>
+                                    {% include "webapp/components/service_header_nav_bar/service_navigation_link.html" with navigation_item_app_name="guests" navigation_item_url_pattern="guests:guests" navigation_item_text="Guests" %}
                                 {% endif %}
                                 {% if available_links.sponsors_hosts %}
-                                    <li class="govuk-service-navigation__item {% if app_name == 'sponsors' %}govuk-service-navigation__item--active{% endif %}">
-                                        <a href="{% url 'sponsors:sponsors' %}"
-                                           class="govuk-service-navigation__link"
-                                           {% if app_name == 'sponsors' %}aria-current="true"{% endif %}>Sponsors and hosts</a>
-                                    </li>
+                                    {% include "webapp/components/service_header_nav_bar/service_navigation_link.html" with navigation_item_app_name="sponsors" navigation_item_url_pattern="sponsors:sponsors" navigation_item_text="Sponsors and hosts" %}
                                 {% endif %}
                                 {% if available_links.accommodation %}
-                                    <li class="govuk-service-navigation__item {% if app_name == 'accommodations' %}govuk-service-navigation__item--active{% endif %}">
-                                        <a href="{% url 'accommodations:accommodations' %}"
-                                           class="govuk-service-navigation__link"
-                                           {% if app_name == 'accommodations' %}aria-current="true"{% endif %}>Accommodation</a>
-                                    </li>
+                                    {% include "webapp/components/service_header_nav_bar/service_navigation_link.html" with navigation_item_app_name="accommodations" navigation_item_url_pattern="accommodations:accommodations" navigation_item_text="Accommodation" %}
                                 {% endif %}
                                 {% if available_links.accommodation_requests %}
-                                    <li class="govuk-service-navigation__item {% if app_name == 'accommodation-requests' %}govuk-service-navigation__item--active{% endif %}">
-                                        <a href="{% url 'accommodation-requests:accommodation-requests' %}"
-                                           class="govuk-service-navigation__link"
-                                           {% if app_name == 'accommodation-requests' %}aria-current="true"{% endif %}>Accommodation requests</a>
-                                    </li>
+                                    {% include "webapp/components/service_header_nav_bar/service_navigation_link.html" with navigation_item_app_name="accommodation-requests" navigation_item_url_pattern="accommodation-requests:accommodation-requests" navigation_item_text="Accommodation requests" %}
                                 {% endif %}
                                 {% if available_links.download_data %}
-                                    <li class="govuk-service-navigation__item {% if app_name == 'downloads' %}govuk-service-navigation__item--active{% endif %}">
-                                        <a href="{% url 'downloads:download-page' %}"
-                                           class="govuk-service-navigation__link"
-                                           {% if app_name == 'downloads' %}aria-current="true"{% endif %}>Download data</a>
-                                    </li>
+                                    {% include "webapp/components/service_header_nav_bar/service_navigation_link.html" with navigation_item_app_name="downloads" navigation_item_url_pattern="downloads:download-page" navigation_item_text="Download data" %}
                                 {% endif %}
                                 {% if user.is_authenticated %}
-                                    <li class="govuk-service-navigation__item {% if app_name == 'user-management' %}govuk-service-navigation__item--active{% endif %}">
-                                        <a href="{% url 'user-management:access-request-intro' %}"
-                                           class="govuk-service-navigation__link"
-                                           {% if app_name == 'user-management' %}aria-current="true"{% endif %}>Request access</a>
-                                    </li>
+                                    {% include "webapp/components/service_header_nav_bar/service_navigation_link.html" with navigation_item_app_name="user-management" navigation_item_url_pattern="user-management:access-request-intro" navigation_item_text="Request access" %}
                                 {% endif %}
                             {% endwith %}
-                            {% if user.is_authenticated %}
-                                <li class="govuk-service-navigation__item" style="margin-left: auto;">
-                                    <form action="{% url 'accounts:logout' %}" method="post" novalidate>
-                                        {% csrf_token %}
-                                        <button type="submit"
-                                                class="govuk-link govuk-link--no-visited-state govuk-service-navigation__link"
-                                                data-module="govuk-button">Sign out</button>
-                                    </form>
-                                </li>
-                            {% endif %}
                         </ul>
                     </nav>
+                </div>
+                <div class="govuk-service-navigation__item">
+                    <form action="{% url 'accounts:logout' %}" method="post" novalidate>
+                        {% csrf_token %}
+                        <button type="submit"
+                                class="govuk-link govuk-link--no-visited-state govuk-service-navigation__link"
+                                data-module="govuk-button">Sign out</button>
+                    </form>
                 </div>
             </div>
         </section>

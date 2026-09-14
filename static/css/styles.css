@@ -77,12 +77,12 @@ th.orderable.govuk-table__header:last-child {
   --app-band-colour: var(--govuk-template-background-colour);
 }
 
-.app-brand-border-bottom {
-  border-bottom-color: var(--app-surface-colour);
-}
-
 .app-brand-border-top {
   border-top-color: var(--app-brand-colour);
+}
+
+.app-surface-border-bottom {
+  border-bottom-color: var(--app-surface-colour);
 }
 
 /* App-wide overrides of the GOV.UK layout classes */
