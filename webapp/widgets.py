@@ -12,8 +12,8 @@ RANGE_INPUT_ATTR_MAPPING: dict[str, str] = {
     "input_size": "size",
     "from_label": "label",
     "to_label": "label",
-    "from_hint": "hint",
-    "to_hint": "hint",
+    "from_help_text": "help_text",
+    "to_help_text": "help_text",
     "unit_hint": "unit_hint",
 }
 

@@ -37,26 +37,20 @@ class AccommodationEditForm(ReadOnlyFieldsMixin, forms.ModelForm):
 
     availability_start_date = forms.DateField(
         label="Availability start date (optional)",
-        widget=DatePicker(
-            attrs={
-                "hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
-            }
-        ),
+        help_text=f"For example, "
+        f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
+        widget=DatePicker(),
         required=False,
-        error_messages={"invalid": "Availability start date must be a real date"},
+        error_messages={"invalid": "Enter a valid date for 'Availability start date'"},
     )
 
     availability_end_date = forms.DateField(
         label="Availability end date (optional)",
-        widget=DatePicker(
-            attrs={
-                "hint": f"For example, "
-                f"{(datetime.today() + timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
-            }
-        ),
+        help_text=f"For example, "
+        f"{(datetime.today() + timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
+        widget=DatePicker(),
         required=False,
-        error_messages={"invalid": "Availability end date must be a real date"},
+        error_messages={"invalid": "Enter a valid date for 'Availability end date'"},
     )
 
     wheelchair_accessible = forms.BooleanField(

@@ -121,6 +121,6 @@ class AccommodationRequestFilterTestCase(BaseTestCase):
             filter_set.errors,
         )
         self.assertIn(
-            "Date of application from date must be before date to",
+            "'Date of application from' must be before 'Date of application to'",
             filter_set.errors["date_of_application"],
         )

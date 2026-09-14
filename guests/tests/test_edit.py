@@ -176,7 +176,7 @@ class GuestEditViewTests(TestSessionTokenMixin, BaseTestCase):
         errors = response.context["form"].errors
         self.assertEqual(errors["first_name"][0], "Please enter a valid name")
         self.assertEqual(
-            errors["date_of_birth"][0], "Date of birth must be a real date"
+            errors["date_of_birth"][0], "Enter a valid date for 'Date of birth'"
         )
 
         self.guest.refresh_from_db()

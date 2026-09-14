@@ -1,5 +1,4 @@
 import os
-from datetime import datetime, timedelta
 
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import Field, Fieldset, Layout, Size
@@ -37,7 +36,11 @@ from webapp.mixins import (
     UserActionsMixin,
 )
 from webapp.search import perform_search
-from webapp.utils import CustomDateFromToRangeFilter, CustomDateTimeColumn
+from webapp.utils import (
+    CustomDateFromToRangeFilter,
+    CustomDateTimeColumn,
+    date_hint_text,
+)
 from webapp.views import SummaryListRow, SummaryListView
 from webapp.widgets import CheckboxSelectMultipleWithTags, DatePicker, StackedRangeInput
 
@@ -120,16 +123,14 @@ class AccessRequestsFilter(FilterSet, FilterPanelMixin):
         widget=StackedRangeInput(
             sub_widget=DatePicker,
             attrs={
-                "from_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=600)).strftime('%-d/%-m/%Y')}.",
-                "to_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
+                "from_help_text": date_hint_text(600),
+                "to_help_text": date_hint_text(20),
                 "from_label": "Date from",
                 "to_label": "Date to",
             },
         ),
         error_messages={
-            "invalid_range": "Request from date must be before date to.",
+            "invalid_range": "'Request date from' must be before 'Request date to'",
         },
     )
 

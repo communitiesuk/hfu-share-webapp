@@ -1,5 +1,4 @@
 import os
-from datetime import datetime, timedelta
 
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import HTML, Button, Div, Field, Fieldset, Layout
@@ -47,7 +46,12 @@ from webapp.search import perform_search
 from webapp.templatetags.reassignment_request_extras import (
     reassignment_request_outcome_label_to_tag_colour,
 )
-from webapp.utils import CustomDateColumn, CustomDateFromToRangeFilter, LazyChoiceFilter
+from webapp.utils import (
+    CustomDateColumn,
+    CustomDateFromToRangeFilter,
+    LazyChoiceFilter,
+    date_hint_text,
+)
 from webapp.views import (
     SummaryListRow,
     SummaryListView,
@@ -148,17 +152,16 @@ class ReassignmentRequestsMadeFilter(FilterSet, FilterPanelMixin):
         widget=StackedRangeInput(
             sub_widget=DatePicker,
             attrs={
-                "from_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=600)).strftime('%-d/%-m/%Y')}.",
-                "to_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=600)).strftime('%-d/%-m/%Y')}.",
+                "from_help_text": date_hint_text(600),
+                "to_help_text": date_hint_text(600),
                 "from_label": "Date from",
                 "to_label": "Date to",
             },
         ),
         distinct=True,
         error_messages={
-            "invalid_range": "Date of request from date must be before date to.",
+            "invalid_range": "'Date of request from' must be before "
+            "'Date of request to'",
         },
     )
 
@@ -231,17 +234,16 @@ class ReassignmentRequestsReceivedFilter(FilterSet, FilterPanelMixin):
         widget=StackedRangeInput(
             sub_widget=DatePicker,
             attrs={
-                "from_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
-                "to_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
+                "from_help_text": date_hint_text(20),
+                "to_help_text": date_hint_text(20),
                 "from_label": "Date from",
                 "to_label": "Date to",
             },
         ),
         distinct=True,
         error_messages={
-            "invalid_range": "Date of request from date must be before date to.",
+            "invalid_range": "'Date of request from' must be before "
+            "'Date of request to'",
         },
     )
 

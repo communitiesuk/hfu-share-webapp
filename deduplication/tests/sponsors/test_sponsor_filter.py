@@ -114,7 +114,7 @@ class SponsorFilterDateOfBirthTestCase(BaseTestCase):
             filter_set.errors,
         )
         self.assertIn(
-            "Date of birth from date must be before date to.",
+            "'Date of birth from' must be before 'Date of birth to'.",
             filter_set.errors["date_of_birth"],
         )
 
@@ -179,7 +179,7 @@ class SponsorFilterCreatedDateTestCase(BaseTestCase):
             filter_set.errors,
         )
         self.assertIn(
-            "Date added from date must be before date to.",
+            "'Date added from' must be before 'Date added to'.",
             filter_set.errors["created_date"],
         )
 

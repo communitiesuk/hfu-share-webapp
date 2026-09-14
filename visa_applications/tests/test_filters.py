@@ -87,7 +87,7 @@ class VisaApplicationFilterTestCase(BaseTestCase):
             filter_set.errors,
         )
         self.assertIn(
-            "Application from date must be before date to.",
+            "'Application date from' must be before 'Application date to'",
             filter_set.errors["application_event_datetime"],
         )
 
@@ -106,6 +106,6 @@ class VisaApplicationFilterTestCase(BaseTestCase):
             filter_set.errors,
         )
         self.assertIn(
-            "Decision from date must be before date to.",
+            "'Decision date from' must be before 'Decision date to'",
             filter_set.errors["visa_decision_date"],
         )

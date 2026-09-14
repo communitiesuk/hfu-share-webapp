@@ -1,7 +1,10 @@
 <div style="display: flex; flex-direction: column; gap: 32px">
     {% for sub_widget in widget.subwidgets %}
         <div style="display: flex; flex-direction: column">
-            <label for="{{ sub_widget.attrs.id }}" class="govuk-label govuk-label--s">{{ sub_widget.attrs.label }}</label>
+            <label for="id_{{ sub_widget.name }}" class="govuk-label govuk-label--s">{{ sub_widget.attrs.label }}</label>
+            {% if sub_widget.attrs.help_text %}
+                <div id="{{ sub_widget.name }}_hint" class="govuk-hint">{{ sub_widget.attrs.help_text|safe }}</div>
+            {% endif %}
             <div style="display: flex;
                         flex-direction: row;
                         align-items: baseline;

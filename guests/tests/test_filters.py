@@ -129,7 +129,7 @@ class GuestFilterDateOfBirthTestCase(BaseTestCase):
             filter_set.errors,
         )
         self.assertIn(
-            "Date of birth from date must be before date to.",
+            "'Date of birth from' must be before 'Date of birth to'.",
             filter_set.errors["date_of_birth"],
         )
 
@@ -194,7 +194,7 @@ class GuestFilterFirstArrivalDateTestCase(BaseTestCase):
             filter_set.errors,
         )
         self.assertIn(
-            "First arrival from date must be before date to.",
+            "'First arrival date from' must be before 'First arrival date to'.",
             filter_set.errors["first_arrival_date"],
         )
 
@@ -259,7 +259,7 @@ class GuestFilterLastArrivalDateTestCase(BaseTestCase):
             filter_set.errors,
         )
         self.assertIn(
-            "Latest arrival from date must be before date to.",
+            "'Latest arrival date from' must be before 'Latest arrival date to'.",
             filter_set.errors["latest_arrival_date"],
         )
 
@@ -324,7 +324,8 @@ class GuestFilterLatestVisaApplicationDateTestCase(BaseTestCase):
             filter_set.errors,
         )
         self.assertIn(
-            "Latest visa application from date must be before date to.",
+            "'Latest visa application date from' must be before "
+            "'Latest visa application date to'.",
             filter_set.errors["visa_application_date_maximum"],
         )
 

@@ -29,28 +29,20 @@ class DownloadType(StrEnum):
 class DownloadsTypeForm(forms.Form):
     date_from = forms.DateField(
         required=False,
-        label="Date from",
-        widget=DatePicker(
-            attrs={
-                "required": False,
-                "hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=1600)).strftime('%-d/%-m/%Y')}.",
-            }
-        ),
-        error_messages={"invalid": "From date must be a real date."},
+        label="Date from (optional)",
+        help_text=f"For example, "
+        f"{(datetime.today() - timedelta(days=1600)).strftime('%-d/%-m/%Y')}.",
+        widget=DatePicker(),
+        error_messages={"invalid": "Enter a valid date for 'Date from'."},
     )
 
     date_to = forms.DateField(
         required=False,
-        label="Date to",
-        widget=DatePicker(
-            attrs={
-                "required": False,
-                "hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
-            }
-        ),
-        error_messages={"invalid": "To date must be a real date."},
+        label="Date to (optional)",
+        help_text=f"For example, "
+        f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
+        widget=DatePicker(),
+        error_messages={"invalid": "Enter a valid date for 'Date to'."},
     )
 
     download_type = forms.ChoiceField(
@@ -156,7 +148,7 @@ class DownloadsTypeForm(forms.Form):
             if df and dt and df > dt:
                 self.add_error(
                     "date_to",
-                    "The end date must be the same as or later than the start date.",
+                    "'Date from' must be before 'Date to'.",
                 )
         else:
             cleaned["date_from"] = None

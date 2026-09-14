@@ -1,7 +1,6 @@
 import math
 import os
 import uuid
-from datetime import datetime, timedelta
 from typing import Any
 
 from crispy_forms_gds.helper import FormHelper
@@ -67,6 +66,7 @@ from webapp.utils import (
     CustomDateFromToRangeFilter,
     CustomDateTimeColumn,
     LazyChoiceFilter,
+    date_hint_text,
 )
 from webapp.views import SummaryListView, SummaryListViewBase
 from webapp.widgets import (
@@ -156,16 +156,15 @@ class VisaApplicationsTableFilter(FilterSet, FilterPanelMixin):
         widget=StackedRangeInput(
             sub_widget=DatePicker,
             attrs={
-                "from_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=1600)).strftime('%-d/%-m/%Y')}.",
-                "to_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
+                "from_help_text": date_hint_text(1600),
+                "to_help_text": date_hint_text(20),
                 "from_label": "Date from",
                 "to_label": "Date to",
             },
         ),
         error_messages={
-            "invalid_range": "Application from date must be before date to.",
+            "invalid_range": "'Application date from' must be before "
+            "'Application date to'",
         },
     )
 
@@ -174,16 +173,14 @@ class VisaApplicationsTableFilter(FilterSet, FilterPanelMixin):
         widget=StackedRangeInput(
             sub_widget=DatePicker,
             attrs={
-                "from_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=1600)).strftime('%-d/%-m/%Y')}.",
-                "to_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
+                "from_help_text": date_hint_text(1600),
+                "to_help_text": date_hint_text(20),
                 "from_label": "Date from",
                 "to_label": "Date to",
             },
         ),
         error_messages={
-            "invalid_range": "Decision from date must be before date to.",
+            "invalid_range": "'Decision date from' must be before 'Decision date to'",
         },
     )
 
@@ -860,17 +857,15 @@ class VIRFilter(FilterSet, FilterPanelMixin):
         widget=StackedRangeInput(
             sub_widget=DatePicker,
             attrs={
-                "from_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=10000)).strftime('%-d/%-m/%Y')}.",
-                "to_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
+                "from_help_text": date_hint_text(10000),
+                "to_help_text": date_hint_text(20),
                 "from_label": "Date from",
                 "to_label": "Date to",
             },
         ),
         distinct=True,
         error_messages={
-            "invalid_range": "VIR start from date must be before date to.",
+            "invalid_range": "'VIR start date from' must be before 'VIR start date to'",
         },
     )
 
