@@ -257,3 +257,18 @@ class MvVolunteerAdminActionTestCase(BaseTestCase):
         volunteer.refresh_from_db()
 
         self.assertTrue(volunteer.is_sponsor)
+
+    def test_action_is_only_available_to_superusers(self):
+        staff_request = Mock()
+        staff_request.user.is_superuser = False
+
+        self.assertFalse(
+            self.admin.has_redact_personal_information_permission(staff_request)
+        )
+
+        super_request = Mock()
+        super_request.user.is_superuser = True
+
+        self.assertTrue(
+            self.admin.has_redact_personal_information_permission(super_request)
+        )
