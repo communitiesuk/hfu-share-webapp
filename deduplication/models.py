@@ -1485,6 +1485,8 @@ class GuestDuplicateGroup(models.Model):
             **principal_record_values,
         )
 
+        new_principal.title = new_principal.get_full_name()
+
         # save to get a pk
         new_principal.save()
 
