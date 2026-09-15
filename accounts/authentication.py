@@ -12,7 +12,7 @@ from django.http import HttpRequest
 
 from case_management.settings import sentry_sdk
 
-from .exceptions import EntraAuthException, FlowError, TokenError
+from .exceptions import EntraAuthException, FlowError, StateMismatchError, TokenError
 from .models import User
 
 
@@ -46,6 +46,8 @@ class Authentication:
         flow = self.request.session.pop(self.auth_flow_session_key, {})
         if not flow:
             raise FlowError("Flow cannot be extracted from session")
+
+        self._handle_state_mismatch(flow.get("state"), self.request.GET.get("state"))
 
         token = self.msal_app.acquire_token_by_auth_code_flow(
             auth_code_flow=flow, auth_response=self.request.GET
@@ -141,6 +143,14 @@ class Authentication:
         if self.request.session.get("token_cache"):  # pragma: no branch
             self._cache.deserialize(self.request.session["token_cache"])
         return self._cache
+
+    def _handle_state_mismatch(
+        self, flow_state: Optional[str], response_state: Optional[str]
+    ) -> None:
+        if flow_state != response_state:
+            raise StateMismatchError(
+                "State in the auth response does not match the stored flow"
+            )
 
     def _get_user_profile(self, token: str, fields: Optional[dict] = None):
         params = {"$select": ",".join(fields)} if fields else None

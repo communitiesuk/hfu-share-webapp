@@ -11,9 +11,10 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from webapp.mixins import SectionHeadingMixin
 
 from .authentication import Authentication
-from .exceptions import FlowError
+from .exceptions import FlowError, StateMismatchError
 
 LOGIN_REDIRECT_SESSION_KEY = "login_redirect_url"
+AUTH_FAILED_MESSAGE = "Unable to complete the authentication process."
 logger = logging.getLogger(__name__)
 
 
@@ -56,12 +57,13 @@ def entra_logout(request: HttpRequest):
 def entra_callback(request: HttpRequest):
     try:
         token = Authentication(request).get_token_from_flow()
+    except StateMismatchError as error:
+        logger.warning(error)
+        raise PermissionDenied(AUTH_FAILED_MESSAGE) from error
     except FlowError as error:
         logger.error(error)
         request.session.flush()
-        raise PermissionDenied(
-            "Unable to complete the authentication process."
-        ) from error
+        raise PermissionDenied(AUTH_FAILED_MESSAGE) from error
 
     user = authenticate(request, token=token)
     if user:

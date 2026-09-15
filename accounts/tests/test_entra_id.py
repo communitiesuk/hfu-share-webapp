@@ -2,10 +2,13 @@ from unittest.mock import ANY, patch
 
 from django.conf import settings
 from django.contrib.auth import SESSION_KEY
+from django.contrib.sessions.middleware import SessionMiddleware
 from django.http import HttpResponseForbidden
+from django.test import RequestFactory
 from django.urls import reverse
 
-from accounts.exceptions import FlowError
+from accounts.authentication import Authentication
+from accounts.exceptions import FlowError, StateMismatchError
 from accounts.tests.base import TestSessionTokenMixin
 from accounts.views import LOGIN_REDIRECT_SESSION_KEY
 from test_utils.base import BaseTestCase
@@ -47,6 +50,21 @@ class EntraIdMissingSessionTokenTestCase(BaseTestCase):
     ):
         mock_get_token_from_flow.side_effect = FlowError(
             "Flow cannot be extracted from session"
+        )
+
+        with self.settings(ENTRA_ID_ENABLED=True):
+            response = self.client.get(reverse("accounts:callback"))
+
+        self.assertEqual(response.status_code, 403)
+        self.assertTemplateUsed(response, "403.html")
+        self.assertContains(response, "Access Denied", status_code=403)
+
+    @patch("accounts.views.Authentication.get_token_from_flow")
+    def test_entra_callback_renders_access_denied_page_if_state_mismatched(
+        self, mock_get_token_from_flow
+    ):
+        mock_get_token_from_flow.side_effect = StateMismatchError(
+            "State in the auth response does not match the stored flow"
         )
 
         with self.settings(ENTRA_ID_ENABLED=True):
@@ -219,3 +237,54 @@ class EntraIdSessionTokenTestCase(TestSessionTokenMixin, BaseTestCase):
                 f"{settings.ENTRA_AUTH['AUTHORITY']}/oauth2/v2.0/logout?",
                 fetch_redirect_response=False,
             )
+
+
+class EntraIdStateMismatchTestCase(TestSessionTokenMixin, BaseTestCase):
+    @patch("accounts.views.Authentication.get_token_from_flow")
+    def test_entra_callback_does_not_log_out_an_existing_user(
+        self, mock_get_token_from_flow
+    ):
+        mock_get_token_from_flow.side_effect = StateMismatchError("state mismatch")
+        entra_user = get_admin_user()
+        self.client.force_login(entra_user)
+
+        with self.settings(ENTRA_ID_ENABLED=True):
+            self.client.get(reverse("accounts:callback"))
+
+        self.assertEqual(self.client.session[SESSION_KEY], str(entra_user.pk))
+
+
+class GetTokenFromFlowStateTestCase(BaseTestCase):
+    def _get_authentication(self, flow, query):
+        request = RequestFactory().get(reverse("accounts:callback"), query)
+        SessionMiddleware(lambda _request: None).process_request(request)
+        request.session["auth_flow"] = flow
+        return Authentication(request)
+
+    @patch("accounts.authentication.Authentication.msal_app")
+    def test_raises_if_the_response_state_does_not_match_the_flow(self, mock_msal_app):
+        authentication = self._get_authentication(
+            flow={"state": "the-state-we-issued"},
+            query={"state": "a-different-state", "code": "some-code"},
+        )
+
+        with self.assertRaises(StateMismatchError):
+            authentication.get_token_from_flow()
+
+        mock_msal_app.acquire_token_by_auth_code_flow.assert_not_called()
+
+    @patch("accounts.authentication.Authentication.msal_app")
+    def test_exchanges_the_code_when_the_state_matches(self, mock_msal_app):
+        mock_msal_app.acquire_token_by_auth_code_flow.return_value = {
+            "access_token": "an-access-token",
+            "id_token_claims": {},
+        }
+        authentication = self._get_authentication(
+            flow={"state": "the-state-we-issued"},
+            query={"state": "the-state-we-issued", "code": "some-code"},
+        )
+
+        token = authentication.get_token_from_flow()
+
+        self.assertEqual(token["access_token"], "an-access-token")
+        mock_msal_app.acquire_token_by_auth_code_flow.assert_called_once()
