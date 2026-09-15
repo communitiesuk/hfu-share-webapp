@@ -6,7 +6,7 @@ authors = ["Homes for Ukraine <homesforukraine@communities.gov.uk>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.13"
+python = "^3.14"
 Django = "^5.2.14"
 asgiref = "^3.8.1"
 django-debug-toolbar = "^4.4.6"
@@ -75,7 +75,7 @@ disable = ["all"]  # Disable all rules by default
 enable = ["W1350", "W1351", "W1353"]  # Only enable our custom rules
 
 [tool.ruff]
-target-version = "py313"
+target-version = "py314"
 line-length = 88
 indent-width = 4
 

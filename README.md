@@ -18,7 +18,7 @@ For general development, the instructions below are sufficient for running the a
 
 ### Requirements
 
->- Python >= 3.13 (https://www.python.org/downloads/)
+>- Python >= 3.14 (https://www.python.org/downloads/)
 >- Poetry (https://python-poetry.org/)
 >- Docker (https://docs.docker.com/get-started/get-docker/)
 >- Docker compose (https://docs.docker.com/compose/install/)
