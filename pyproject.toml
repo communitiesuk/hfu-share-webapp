@@ -75,7 +75,7 @@ disable = ["all"]  # Disable all rules by default
 enable = ["W1350", "W1351", "W1353"]  # Only enable our custom rules
 
 [tool.ruff]
-target-version = "py314"
+target-version = "py313"
 line-length = 88
 indent-width = 4
 
