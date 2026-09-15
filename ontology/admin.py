@@ -410,7 +410,10 @@ class MvVolunteerAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
     def get_queryset(self, request):
         return MvVolunteer.objects_including_archived.all()
 
-    @admin.action(description="Redact personal information")
+    @admin.action(
+        description="Redact personal information",
+        permissions=["redact_personal_information"],
+    )
     def redact_personal_information(self, request, queryset):
         queryset.update(
             first_name="REDACTED",
@@ -430,6 +433,9 @@ class MvVolunteerAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
         )
 
         self.message_user(request, "Successfully redacted personal information.")
+
+    def has_redact_personal_information_permission(self, request):
+        return request.user.is_superuser
 
 
 class MvInteractionAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
