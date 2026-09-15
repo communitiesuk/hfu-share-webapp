@@ -2,7 +2,6 @@ from typing import Callable
 
 from django.forms import MultiWidget, TextInput
 from django.forms.widgets import ChoiceWidget, DateInput, Select, Widget
-from django.template.loader import render_to_string
 
 
 class DatePicker(DateInput):
@@ -79,27 +78,6 @@ class CheckboxSelectMultipleWithTags(ChoiceWidget):
                     f"govuk-tag--{self.label_to_tag_colour(option['label'])}"
                 )
         return context
-
-
-class ConditionalRadioWidget(Widget):
-    template_name = "webapp/widgets/conditional_radio.html"
-
-    def __init__(self, attrs=None, choices=(), conditional_inputs=None):
-        super().__init__(attrs)
-        self.choices = list(choices)
-        self.conditional_inputs = conditional_inputs or {}
-
-    def get_context(self, name, value, attrs):
-        return {
-            "name": name,
-            "value": value,
-            "choices": self.choices,
-            "conditional_inputs": self.conditional_inputs,
-        }
-
-    def render(self, name, value, attrs=None, renderer=None):
-        context = self.get_context(name, value, attrs)
-        return render_to_string(self.template_name, context)
 
 
 class SearchableSelect(Select):

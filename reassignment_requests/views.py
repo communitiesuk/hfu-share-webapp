@@ -402,7 +402,7 @@ class AcceptRejectReassignmentRequestForm(forms.Form):
         ],
         widget=forms.RadioSelect,
         required=True,
-        label="",
+        label="Do you accept or reject this move request?",
     )
     comments = forms.CharField(
         widget=forms.Textarea(),
@@ -422,10 +422,10 @@ class AcceptRejectReassignmentRequestForm(forms.Form):
         self.helper.layout = Layout(
             Field.radios(
                 "action",
-                legend_size=Size.LARGE,
+                legend_size=Size.MEDIUM,
             ),
             Field.textarea(
-                "comments", label_size=Size.LARGE, rows=5, max_characters=500
+                "comments", label_size=Size.MEDIUM, rows=5, max_characters=500
             ),
             Div(
                 Button("submit", "Confirm"),
