@@ -31,7 +31,7 @@ from django_filters import (
     NumberFilter,
 )
 from django_filters.views import FilterView
-from django_tables2 import Column, LazyPaginator, SingleTableMixin, tables
+from django_tables2 import Column, SingleTableMixin, tables
 from formtools.wizard.views import NamedUrlSessionWizardView
 
 from accommodation_requests.forms import (
@@ -81,6 +81,7 @@ from webapp.mixins import (
     InteractionWithFilesTimelineEventsMixin,
     MultiLABannerMixin,
     PageTitleMixin,
+    PaginatorClassMixin,
     PermissionsMixin,
     PIISafeRecordNameMixin,
     SectionHeadingMixin,
@@ -364,6 +365,7 @@ class AccommodationRequestsListView(
     SectionHeadingMixin,
     PermissionsMixin,
     SingleTableMixin,
+    PaginatorClassMixin,
     FilterView,
 ):
     group_type = [
@@ -378,7 +380,6 @@ class AccommodationRequestsListView(
     table_class = AccommodationRequestsTable
     filterset_class = AccommodationRequestsFilter
     table_pagination = {"per_page": os.environ.get("PAGINATION_PAGE_SIZE")}
-    paginator_class = LazyPaginator
     template_name = "accommodation_requests/accommodation_requests_list_page.html"
 
     def get_queryset(self):

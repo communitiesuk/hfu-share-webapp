@@ -21,7 +21,6 @@ from django_filters import BooleanFilter, CharFilter, FilterSet, MultipleChoiceF
 from django_filters.views import FilterView
 from django_tables2 import (
     Column,
-    LazyPaginator,
     MultiTableMixin,
     SingleTableMixin,
     SingleTableView,
@@ -68,6 +67,7 @@ from webapp.constants import (
 )
 from webapp.mixins import (
     FilterPanelMixin,
+    PaginatorClassMixin,
     PermissionsMixin,
     SectionHeadingMixin,
     TableRendererMixin,
@@ -457,13 +457,12 @@ class ManualSponsorDeduplicationTable(dj_tables.Table):
 
 
 class SelectAndReviewRecordsSponsorListStepView(
-    PermissionsMixin, SingleTableMixin, FilterView
+    PermissionsMixin, SingleTableMixin, PaginatorClassMixin, FilterView
 ):
     model = MvVolunteer
     table_class = ManualSponsorDeduplicationTable
     filterset_class = ManualSponsorDeduplicationFilter
     table_pagination = {"per_page": os.environ.get("PAGINATION_PAGE_SIZE")}
-    paginator_class = LazyPaginator
     template_name = "select_records_list_step.html"
 
     def __init__(self, **kwargs):
@@ -762,13 +761,12 @@ class ManualGuestDeduplicationTable(dj_tables.Table):
 
 
 class SelectAndReviewRecordsGuestListStepView(
-    PermissionsMixin, SingleTableMixin, FilterView
+    PermissionsMixin, SingleTableMixin, PaginatorClassMixin, FilterView
 ):
     model = MvPerson
     table_class = ManualGuestDeduplicationTable
     filterset_class = ManualGuestDeduplicationFilter
     table_pagination = {"per_page": os.environ.get("PAGINATION_PAGE_SIZE")}
-    paginator_class = LazyPaginator
     template_name = "select_records_list_step.html"
 
     def __init__(self, **kwargs):
@@ -923,13 +921,12 @@ class ManualAccommodationDeduplicationTable(dj_tables.Table, TableRendererMixin)
 
 
 class SelectAndReviewRecordsAccommodationListStepView(
-    PermissionsMixin, SingleTableMixin, FilterView
+    PermissionsMixin, SingleTableMixin, PaginatorClassMixin, FilterView
 ):
     model = MvAccommodation
     table_class = ManualAccommodationDeduplicationTable
     filterset_class = ManualAccommodationDeduplicationFilter
     table_pagination = {"per_page": os.environ.get("PAGINATION_PAGE_SIZE")}
-    paginator_class = LazyPaginator
     template_name = "select_records_list_step.html"
 
     def __init__(self, **kwargs):

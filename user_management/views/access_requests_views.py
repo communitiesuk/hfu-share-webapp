@@ -16,7 +16,7 @@ from django_filters import (
     MultipleChoiceFilter,
 )
 from django_filters.views import FilterView
-from django_tables2 import Column, LazyPaginator, SingleTableMixin, tables
+from django_tables2 import Column, SingleTableMixin, tables
 from formtools.wizard.views import SessionWizardView
 
 from accounts.enums import GroupType
@@ -32,6 +32,7 @@ from webapp.constants import ACCESS_REQUEST_SEARCH_FIELDS
 from webapp.mixins import (
     FilterPanelMixin,
     PageTitleMixin,
+    PaginatorClassMixin,
     PIISafeRecordNameMixin,
     SectionHeadingMixin,
     UserActionsMixin,
@@ -179,13 +180,13 @@ class AccessRequestsListView(
     SectionHeadingMixin,
     AdminAccessRequiredMixin,
     SingleTableMixin,
+    PaginatorClassMixin,
     FilterView,
 ):
     model = AccessRequest
     table_class = AccessRequestsTable
     filterset_class = AccessRequestsFilter
     table_pagination = {"per_page": os.environ.get("PAGINATION_PAGE_SIZE")}
-    paginator_class = LazyPaginator
     template_name = "user_management/access_requests/access_requests_list_page.html"
 
 

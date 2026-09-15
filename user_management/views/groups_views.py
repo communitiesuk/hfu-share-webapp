@@ -8,7 +8,7 @@ from django.views.generic import FormView
 from django_filters.filters import CharFilter
 from django_filters.rest_framework import FilterSet
 from django_filters.views import FilterView
-from django_tables2 import LazyPaginator, SingleTableMixin, tables
+from django_tables2 import SingleTableMixin, tables
 
 from accounts.mixins import AdminAccessRequiredMixin
 from accounts.models import AccessRequest, User
@@ -20,6 +20,7 @@ from webapp.constants import GROUP_SEARCH_FIELDS
 from webapp.mixins import (
     FilterPanelMixin,
     PageTitleMixin,
+    PaginatorClassMixin,
     PIISafeRecordNameMixin,
     SectionHeadingMixin,
     UserActionsMixin,
@@ -78,13 +79,13 @@ class GroupListView(
     SectionHeadingMixin,
     AdminAccessRequiredMixin,
     SingleTableMixin,
+    PaginatorClassMixin,
     FilterView,
 ):
     model = GroupProxy
     table_class = GroupsTable
     filterset_class = GroupsFilter
     template_name = "user_management/groups/groups_list_page.html"
-    paginator_class = LazyPaginator
     ordering = ["name"]
 
 

@@ -23,7 +23,6 @@ from django_filters import (
 from django_filters.views import FilterView
 from django_tables2 import (
     Column,
-    LazyPaginator,
     SingleTableMixin,
     tables,
 )
@@ -41,6 +40,7 @@ from webapp.enhanced_sentry_logging import db_values, log_event, log_persistence
 from webapp.mixins import (
     FilterPanelMixin,
     PageTitleMixin,
+    PaginatorClassMixin,
     PermissionsMixin,
 )
 from webapp.search import perform_search
@@ -312,6 +312,7 @@ class ReassignmentRequestsMadePageView(
     PageTitleMixin,
     PermissionsMixin,
     SingleTableMixin,
+    PaginatorClassMixin,
     FilterView,
 ):
     page_heading = "Requests to move guests to different local authorities"
@@ -325,7 +326,6 @@ class ReassignmentRequestsMadePageView(
     ]
 
     table_class = ReassignmentRequestsMadeTable
-    paginator_class = LazyPaginator
     filterset_class = ReassignmentRequestsMadeFilter
     table_pagination = {"per_page": os.environ.get("PAGINATION_PAGE_SIZE")}
     template_name = "reassignment_requests/reassignment_requests_tab_page.html"
@@ -354,7 +354,7 @@ class ReassignmentRequestsMadePageView(
 
 
 class ReassignmentRequestsReceivedPageView(
-    PageTitleMixin, PermissionsMixin, SingleTableMixin, FilterView
+    PageTitleMixin, PermissionsMixin, SingleTableMixin, PaginatorClassMixin, FilterView
 ):
     page_heading = "Requests to move guests to different local authorities"
     heading_labels_title = False
@@ -368,7 +368,6 @@ class ReassignmentRequestsReceivedPageView(
 
     table_class = ReassignmentRequestsReceivedTable
     filterset_class = ReassignmentRequestsReceivedFilter
-    paginator_class = LazyPaginator
     table_pagination = {"per_page": os.environ.get("PAGINATION_PAGE_SIZE")}
     template_name = "reassignment_requests/reassignment_requests_tab_page.html"
 

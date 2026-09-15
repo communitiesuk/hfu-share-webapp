@@ -33,7 +33,6 @@ from django_filters import CharFilter, FilterSet, MultipleChoiceFilter
 from django_filters.views import FilterView
 from django_tables2 import (
     Column,
-    LazyPaginator,
     SingleTableMixin,
     tables,
 )
@@ -64,6 +63,7 @@ from webapp.mixins import (
     FilterPanelMixin,
     GroupRequiredMixin,
     PageTitleMixin,
+    PaginatorClassMixin,
     PermissionsMixin,
     PIISafeRecordNameMixin,
     SectionHeadingMixin,
@@ -576,6 +576,7 @@ class EscalatedChecksView(
     UserActionsMixin,
     GroupRequiredMixin,
     SingleTableMixin,
+    PaginatorClassMixin,
     FilterView,
 ):
     group_type = [GroupType.HOME_OFFICE, GroupType.MHCLG, GroupType.DEV]
@@ -583,7 +584,6 @@ class EscalatedChecksView(
     table_class = EscalatedChecksTable
     filterset_class = EscalatedChecksTableFilter
     table_pagination = {"per_page": os.environ.get("PAGINATION_PAGE_SIZE")}
-    paginator_class = LazyPaginator
     template_name = "safeguarding/escalated_checks_list.html"
 
     def get_queryset(self):
