@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+from ontology.models import MvPerson
 from ontology.tests.factories import (
     MvAccommodationFactory,
     MvAccommodationRequestFactory,
@@ -157,3 +158,21 @@ class MvAccommodationRequestSplitGuestsTest(BaseTestCase):
         self.assertEqual(
             accommodation_request.group.primary_contact_last_name, "Johnson"
         )
+
+    def test_split_guests_flags_moved_guests_as_edited_in_app(self):
+        guest1 = MvPersonFactory(first_name="Guest1")
+        guest2 = MvPersonFactory(first_name="Guest2")
+
+        accommodation_request = MvAccommodationRequestFactory(
+            person_id=[guest1.id, guest2.id],
+        )
+
+        MvPerson.objects.filter(id__in=[guest1.id, guest2.id]).update(
+            edited_in_app=False
+        )
+
+        accommodation_request.split_guests([guest2.id])
+
+        guest2.refresh_from_db()
+
+        self.assertTrue(guest2.edited_in_app)

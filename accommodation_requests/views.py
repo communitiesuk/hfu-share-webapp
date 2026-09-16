@@ -1030,7 +1030,7 @@ class AccommodationRequestCloseForGuests(
         reason = form.cleaned_data["reason"]
         comment = form.cleaned_data["comment"]
 
-        if selected_guests and accommodation_request.number_of_people != len(
+        if selected_guests and len(accommodation_request.person_id or []) != len(
             selected_guests
         ):
             accommodation_request = accommodation_request.split_guests(selected_guests)
@@ -1436,7 +1436,7 @@ class RematchGuestsFormWizard(
 
         try:
             with transaction.atomic():
-                if ar.number_of_people != len(guests_to_move):
+                if len(ar.person_id or []) != len(guests_to_move):
                     pre_split_ar = ar
                     pre_split_person_id = list(pre_split_ar.person_id or [])
                     ar = ar.split_guests(guest_ids)

@@ -189,7 +189,9 @@ class MvGroup(models.Model):
         new_group.save()
 
         # Update persons to point to the new group
-        MvPerson.objects.filter(id__in=guest_ids).update(group_id=new_group.id)
+        MvPerson.objects.filter(id__in=guest_ids).update(
+            group_id=new_group.id, edited_in_app=True
+        )
 
         new_group.refresh_data()
         self.refresh_data()

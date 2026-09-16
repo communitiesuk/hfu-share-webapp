@@ -1051,3 +1051,35 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
         # Check AR's location is updated
         self.assertIsNone(ar.ltla_code_id)
         self.assertIsNone(ar.utla_code_id)
+
+    @patch("reassignment_requests.views.sentry_sdk.metrics.count")
+    def test_accept_full_reassignment_with_stale_number_of_people(self, _metrics):
+        ar = MvAccommodationRequestFactory(
+            number_of_people=3,
+            person_id=[self.guest_a.id, self.guest_b.id],
+            ltla_name=["ltla_somerset"],
+            utla_name=["utla_somerset"],
+            accommodation_id=[],
+        )
+
+        request = self.pending_request_somerset_source_multiple_guests
+        request.accommodation_request = ar
+        request.save()
+
+        ar_count_before = MvAccommodationRequest.objects.count()
+
+        self.client.force_login(self.user)
+
+        response = self.client.post(
+            reverse("reassignment-requests:detail-received", kwargs={"pk": request.pk}),
+            {"action": "accept", "comments": "Approved for transfer"},
+            follow=True,
+        )
+
+        self.assertContains(response, "You have approved the request to move")
+
+        self.assertEqual(MvAccommodationRequest.objects.count(), ar_count_before)
+
+        ar.refresh_from_db()
+        self.assertEqual(ar.ltla_name, [request.destination_ltla_name])
+        self.assertEqual(ar.person_id, [self.guest_a.id, self.guest_b.id])
