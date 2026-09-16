@@ -121,7 +121,8 @@ class UamsFilter(FilterSet, FilterPanelMixin):
             },
         ),
         error_messages={
-            "invalid_range": "Created at from date must be before date to.",
+            "invalid_range": "'Created at date from' must be before "
+            "'Created at date to'.",
         },
     )
 
