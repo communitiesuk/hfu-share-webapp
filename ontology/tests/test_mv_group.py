@@ -351,8 +351,8 @@ class MvGroupSplitMethodsTest(BaseTestCase):
     def test_split_group_flags_moved_persons_as_edited_in_app(self):
         original_group = MvGroupFactory(id="original-group")
 
-        MvPersonFactory(id="person-1", group=original_group, age=25)
-        MvPersonFactory(id="person-2", group=original_group, age=30)
+        moving_person = MvPersonFactory(id="person-1", group=original_group, age=25)
+        staying_person = MvPersonFactory(id="person-2", group=original_group, age=30)
 
         MvPerson.objects.filter(id__in=["person-1", "person-2"]).update(
             edited_in_app=False
@@ -360,6 +360,8 @@ class MvGroupSplitMethodsTest(BaseTestCase):
 
         original_group.split_group(["person-1"])
 
-        moved_person = MvPerson.objects.get(id="person-1")
+        moving_person.refresh_from_db()
+        staying_person.refresh_from_db()
 
-        self.assertTrue(moved_person.edited_in_app)
+        self.assertTrue(moving_person.edited_in_app)
+        self.assertFalse(staying_person.edited_in_app)
