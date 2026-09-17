@@ -62,6 +62,7 @@ class SponsorEditForm(ReadOnlyFieldsMixin, forms.ModelForm):
             "Phone number",
             attrs={
                 "label": "phone number",
+                "required": False,
             },
         ),
     )
@@ -74,6 +75,7 @@ class SponsorEditForm(ReadOnlyFieldsMixin, forms.ModelForm):
             "Passport number",
             attrs={
                 "label": "passport number",
+                "required": False,
             },
         ),
     )

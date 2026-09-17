@@ -36,25 +36,25 @@
 }
 
 th.orderable.govuk-table__header:last-child {
-    padding-right: 10px;
+  padding-right: 10px;
 }
 
 .scrollable-table {
-    padding: 0 16px;
-    max-height: 1000px;
-    overflow-y: auto;
+  padding: 0 16px;
+  max-height: 1000px;
+  overflow-y: auto;
 }
 
 .scrollable-table thead th {
-    position: sticky;
-    top: 0;
-    z-index: 1;
-    background-color: var(--govuk-body-background-colour);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: var(--govuk-body-background-colour);
 }
 
 .scrollable-table tbody th {
-    position: sticky;
-    left: 0;
+  position: sticky;
+  left: 0;
 }
 
 .app-band {
@@ -107,7 +107,7 @@ th.orderable.govuk-table__header:last-child {
 }
 
 .max-width-none {
-    max-width: none;
+  max-width: none;
 }
 
 .app-tag--nowrap {
@@ -134,11 +134,11 @@ th.orderable.govuk-table__header:last-child {
 }
 
 .moj-filter__tag::after {
-    background-image: url("/static/moj-frontend/assets/images/icon-tag-remove-cross.svg");
+  background-image: url("/static/moj-frontend/assets/images/icon-tag-remove-cross.svg");
 }
 
 .moj-filter__tag:hover::after {
-    background-image: url("/static/moj-frontend/assets/images/icon-tag-remove-cross-white.svg");
+  background-image: url("/static/moj-frontend/assets/images/icon-tag-remove-cross-white.svg");
 }
 
 button.govuk-link {
@@ -160,8 +160,8 @@ Required to make drop down arrow visible
 see https://github.com/alphagov/accessible-autocomplete/issues/351
 */
 .autocomplete__dropdown-arrow-down {
-    z-index: 0 !important;
-    pointer-events: none;
+  z-index: 0 !important;
+  pointer-events: none;
 }
 
 .custom-govuk-side-card h1 {
@@ -227,13 +227,13 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
    If JS is disabled there will be no analytics anyway
 */
 .govuk-cookie-banner {
-    display: none;
+  display: none;
 }
 
 /* Reduces bottom padding to allow rows in wrapped list */
 @media (min-width: 40.0625em) {
   .govuk-frontend-supported .govuk-tabs.tabs--tight .govuk-tabs__list-item.govuk-tabs__list-item--selected {
-      padding: 14px 19px 11px !important;
+    padding: 14px 19px 11px !important;
   }
 }
 
@@ -345,7 +345,7 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
 
 @media(max-width: 48.0525em) {
   .app-card-group {
-    margin-bottom:30px
+    margin-bottom: 30px
   }
 }
 
@@ -359,7 +359,7 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
 
 @media(max-width: 48.0525em) {
   .app-card-group__item {
-    flex:0 0 100%
+    flex: 0 0 100%
   }
 }
 
@@ -369,7 +369,7 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
 
 @media(max-width: 48.0525em) {
   .app-card-group__item .app-card {
-    margin-bottom:15px
+    margin-bottom: 15px
   }
 
   .app-card-group__item:last-child .app-card {
@@ -379,10 +379,11 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
 
 /*Card badge*/
 .app-card-badge-circle.app-card-badge--active {
-    background-color: var(--govuk-error-colour);
+  background-color: var(--govuk-error-colour);
 }
+
 .app-card-badge-circle.app-card-badge--inactive {
-    background-color: var(--govuk-secondary-text-colour);
+  background-color: var(--govuk-secondary-text-colour);
 }
 
 .app-card-badge-circle {
@@ -444,10 +445,151 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
   color: var(--govuk-secondary-text-colour)
 }
 
+.app--display-inline {
+  display: inline;
+}
+
+.app-text--white-space-normal {
+  white-space: normal;
+}
+
+.app-text--white-space-nowrap {
+  white-space: nowrap;
+}
+
+.app-link--disabled {
+  color: var(--govuk-border-colour) !important;
+  pointer-events: none;
+}
+
+.app-margin--left-auto {
+  margin-left: auto;
+}
+
+.app-border--top-colour-grey {
+  border-top: 1px solid var(--govuk-border-colour);
+}
+
+.app-text--align-left {
+  text-align: left;
+}
+
+.app-text--align-right {
+  text-align: right;
+}
+
+.app-table--container {
+  overflow-x: auto;
+  overflow-y: visible;
+}
+
+.app-table--td {
+  vertical-align: top;
+  text-align: left
+}
+
+.app-table-pagination--justify-center {
+  justify-content: center;
+}
+
+.app-table--tag {
+  display: flex;
+  justify-content: space-between;
+}
+
+.app-width--25 {
+  width: 25%;
+}
+
+.app-width--45 {
+  width: 45%;
+}
+
+.app-max-width--100 {
+  max-width: 100%;
+}
+
+.app-display--flex {
+  display: flex;
+}
+
 .app-display--block {
   display: block;
 }
 
+.app-display--inline-block {
+  display: inline-block;
+}
+
 .app-display--none {
   display: none;
+}
+
+.app-align-items--center {
+  align-items: center;
+}
+
+.app-filter {
+  width: 400px;
+  margin-right: 16px;
+}
+
+.app-guidance-and-support--border-top {
+  border-top: 8px solid var(--app-brand-colour);
+}
+
+.app-heading-inner-wrapper {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.app-safeguarding-check {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.app-table-container {
+  min-width: 0;
+  flex-grow: 1;
+}
+
+.app-checkbox-with-tags--label {
+  max-width: 80% !important;
+}
+
+.app-inline-range-input--container {
+  display: flex;
+  flex-direction: row;
+  gap: 32px;
+}
+
+.app-inline-range-date-input--container {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.app-inline-range-input--item-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.app-inline-range-input--widget-container {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.app-multi-value--item {
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px
+}
+
+.app-flex--1 {
+  flex: 1;
 }

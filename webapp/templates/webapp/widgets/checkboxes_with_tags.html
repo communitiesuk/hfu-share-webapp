@@ -9,8 +9,7 @@
                        {% if option.attrs.checked %}checked="checked"{% endif %}
                        type="checkbox"
                        value="{{ option.value }}">
-                <label class="govuk-label govuk-checkboxes__label"
-                       style="max-width: 80%"
+                <label class="govuk-label govuk-checkboxes__label app-checkbox-with-tags--label"
                        for="{{ option.attrs.id }}">
                     <strong class="govuk-tag {{ option.label_tag_colour_class }} app-tag--nowrap">{{ option.label }}</strong>
                 </label>

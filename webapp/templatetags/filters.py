@@ -54,10 +54,10 @@ def linked_record_link(value, linked_from, linked_as):
     if data.status_type and data.status:
         tag_colour = status_to_tag_colour(data.status_type, data.status) or "grey"
         return format_html(
-            '<div style="display: flex; justify-content: space-between">'
+            '<div class="app-table--tag">'
             + '<a class="govuk-link" href="{}">{}</a>'
-            + '<strong class="govuk-tag govuk-tag--{}"'
-            + ' style="white-space: nowrap; max-width: 100%">{}</strong>'
+            + '<strong class="govuk-tag govuk-tag--{} app-tag--nowrap"'
+            + ">{}</strong>"
             + "</div>",
             url,
             data.title,

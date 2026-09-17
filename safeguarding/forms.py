@@ -47,15 +47,14 @@ class CentralSafeguardingAlertedStatusForm(forms.Form):
                 ),
                 HTML(
                     '<a href="{{ cancel_url }}" class="govuk-link '
-                    'govuk-link--no-visited-state govuk-body"'
+                    "govuk-link--no-visited-state govuk-body"
                     + (
-                        ' tabindex="-1" aria-disabled="true" '
-                        'style="color:#b1b4b6;pointer-events:none;"'
+                        ' app-link--disabled" tabindex="-1" aria-disabled="true"'
                         if not user_can_edit
-                        else ""
+                        else '"'
                     )
                     + ">Cancel</a>"
                 ),
-                style="display: flex; gap: 16px; align-items: baseline",
+                css_class="govuk-button-group",
             ),
         )

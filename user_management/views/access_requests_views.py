@@ -27,7 +27,7 @@ from user_management.templatetags.access_request_extras import (
     render_name_label_from_group_info,
 )
 from user_management.views.form_wizard_views import ACCESS_REQUEST_FORM_BREADCRUMBS
-from webapp.constants import ACCESS_REQUEST_SEARCH_FIELDS
+from webapp.constants import ACCESS_REQUEST_SEARCH_FIELDS, APP_TABLE_TD_CLASSES
 from webapp.mixins import (
     FilterPanelMixin,
     PageTitleMixin,
@@ -55,14 +55,15 @@ class AccessRequestsTable(tables.Table):
     )
     justification = Column(verbose_name="Why access is required")
     created_at = CustomDateTimeColumn(
-        verbose_name="Request date", attrs={"td": {"style": "white-space: nowrap;"}}
+        verbose_name="Request date",
+        attrs={"td": {"class": f"{APP_TABLE_TD_CLASSES} app-text--white-space-nowrap"}},
     )
     status = Column(verbose_name="Status")
 
     def render_requester(self, record: AccessRequest):
         if record.requester.first_name and record.requester.last_name:
             return format_html(
-                '<div style="white-space: nowrap">'
+                '<div class="app-text--white-space-nowrap">'
                 '<a class="govuk-link" href="{}">{} {}</a></div>'
                 "<div>({})</div>",
                 reverse(
