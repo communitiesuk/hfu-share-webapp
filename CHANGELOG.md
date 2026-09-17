@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.19.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.18.0...2.19.0) (2026-09-17)
+
+
+### Features
+
+* HFURB-4171 update the webapp to use GOV.UK Frontend v6.5.0 ([#215](https://github.com/communitiesuk/hfu-share-webapp/issues/215)) ([cef1b0f](https://github.com/communitiesuk/hfu-share-webapp/commit/cef1b0fc10a766ff5da4824c42869f2b5e347273))
+
+
+### Bug Fixes
+
+* correctly calculates a partial split during rematch/reassign and sets edited_in_app to True for split guests (HFURB-4190) ([#223](https://github.com/communitiesuk/hfu-share-webapp/issues/223)) ([57c3d67](https://github.com/communitiesuk/hfu-share-webapp/commit/57c3d676299066b42026f70654a2affd010d46a0))
+* generate title on principal record after guest dedupe ([#221](https://github.com/communitiesuk/hfu-share-webapp/issues/221)) ([d921d10](https://github.com/communitiesuk/hfu-share-webapp/commit/d921d109806b27b1ea71160a9edd9fb25b48454a))
+* HFURB-4108 update error messages for date fields ([#214](https://github.com/communitiesuk/hfu-share-webapp/issues/214)) ([6a3249d](https://github.com/communitiesuk/hfu-share-webapp/commit/6a3249d583405c9431ef2335611143c9cb3e17de))
+* HFURB-4154 add legends for radio questions that did not have any ([#218](https://github.com/communitiesuk/hfu-share-webapp/issues/218)) ([0fd2933](https://github.com/communitiesuk/hfu-share-webapp/commit/0fd293317a55130082715d8d7c4f4d25490afacc))
+* update the download data browser tests ([#224](https://github.com/communitiesuk/hfu-share-webapp/issues/224)) ([ea02795](https://github.com/communitiesuk/hfu-share-webapp/commit/ea02795de0c7ee7050282ab69d760b3445d887b3))
+
 ## [2.18.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.17.0...2.18.0) (2026-09-15)
 
 
