@@ -577,9 +577,8 @@ class ReassignmentRequestDetailView(
                     ar = reassignment_request.accommodation_request
 
                     # determine if all AR guests are moved or just partial
-                    is_partial = (
-                        reassignment_request.guests.count()
-                        != reassignment_request.accommodation_request.number_of_people
+                    is_partial = reassignment_request.guests.count() != len(
+                        ar.person_id or []
                     )
 
                     if is_partial:

@@ -2441,3 +2441,87 @@ class RematchGuestsFormWizardTestCase(
             return_value=None,
         ):
             wizard.get_form_kwargs(RematchGuestsFormSteps.CONFIRMATION)
+
+    def test_rematch_of_all_guests_with_stale_number_of_people(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        accommodation_request = AccReqFactory(
+            title="Two guest acc req",
+            checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
+            number_of_people=1,
+            person_id=[self.guest.pk, self.guest_2.pk],
+            primary_accommodation=self.accommodation_one,
+            accommodation_id=[self.accommodation_one.pk],
+            ltla_name=[self.ltla_name],
+            utla_name=[self.utla_name],
+        )
+
+        ar_count_before = MvAccommodationRequest.objects.count()
+
+        self.client.post(
+            reverse(
+                "accommodation-requests:move-guests",
+                kwargs={"pk": accommodation_request.pk},
+            ),
+            {"within_la": "yes"},
+            follow=True,
+        )
+
+        self.client.post(
+            reverse(
+                "accommodation-requests:rematch-guests-step",
+                kwargs={
+                    "pk": accommodation_request.pk,
+                    "step": RematchGuestsFormSteps.GUESTS,
+                },
+            ),
+            {
+                "guests-guests": [self.guest.pk, self.guest_2.pk],
+                f"rematch_guests_form_wizard_{accommodation_request.pk}"
+                f"-current_step": RematchGuestsFormSteps.GUESTS,
+            },
+            follow=True,
+        )
+
+        self.client.post(
+            reverse(
+                "accommodation-requests:rematch-guests-step",
+                kwargs={
+                    "pk": accommodation_request.pk,
+                    "step": RematchGuestsFormSteps.SELECT_ACCOMMODATION,
+                },
+            ),
+            {
+                "select_accommodation-accommodation": self.accommodation_two.pk,
+                f"rematch_guests_form_wizard_{accommodation_request.pk}"
+                f"-current_step": RematchGuestsFormSteps.SELECT_ACCOMMODATION,
+            },
+            follow=True,
+        )
+
+        self.client.post(
+            reverse(
+                "accommodation-requests:rematch-guests-step",
+                kwargs={
+                    "pk": accommodation_request.pk,
+                    "step": RematchGuestsFormSteps.CONFIRMATION,
+                },
+            ),
+            {
+                "confirmation-confirm_guests_moved": "on",
+                f"rematch_guests_form_wizard_{accommodation_request.pk}"
+                f"-current_step": RematchGuestsFormSteps.CONFIRMATION,
+            },
+            follow=True,
+        )
+
+        self.assertEqual(MvAccommodationRequest.objects.count(), ar_count_before)
+
+        accommodation_request.refresh_from_db()
+        self.assertEqual(
+            accommodation_request.primary_accommodation.pk, self.accommodation_two.pk
+        )
+        self.assertEqual(
+            accommodation_request.person_id, [self.guest.pk, self.guest_2.pk]
+        )
