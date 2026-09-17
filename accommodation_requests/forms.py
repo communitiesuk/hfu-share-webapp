@@ -620,7 +620,7 @@ class CloseAccommodationRequestForm(forms.Form):
                     "Cancel"
                     "</a>"
                 ),
-                style="display: flex; gap: 16px; align-items: baseline",
+                css_class="govuk-button-group",
             ),
         )
         if len(guest_list) > 1:

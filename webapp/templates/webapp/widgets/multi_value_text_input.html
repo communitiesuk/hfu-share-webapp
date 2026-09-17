@@ -1,13 +1,9 @@
 <div class="array-input-group"
      data-name="{{ widget.name }}"
      data-max="{{ widget.max_values }}"
-     data-required="{% if widget.attrs.required is not defined or widget.attrs.required %}true{% else %}false{% endif %}">
+     data-required="{% if widget.attrs.required == False %}false{% else %}true{% endif %}">
     {% for val in widget.values %}
-        <div class="array-input-item"
-             style="display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    margin-bottom: 10px">
+        <div class="array-input-item app-multi-value--item app-display--flex">
             <label class="array-input-item-label govuk-visually-hidden"
                    for="id_{{ widget.name }}{% if forloop.counter0 > 0 %}-{{ forloop.counter0 }}{% endif %}">
                 {{ widget.field_label }} <span class="array-input-item-label--counter">{{ forloop.counter }}</span>
@@ -16,21 +12,15 @@
                    name="{{ widget.name }}-{{ forloop.counter0 }}"
                    id="id_{{ widget.name }}{% if forloop.counter0 > 0 %}-{{ forloop.counter0 }}{% endif %}"
                    value="{{ val }}"
-                   class="form-control d-inline-block govuk-input"
-                   style="flex: 1" />
+                   class="form-control d-inline-block govuk-input app-flex--1" />
             <a href="#"
-               class="remove-array-item govuk-link"
-               style="white-space: nowrap">Remove
+               class="remove-array-item govuk-link app-text--white-space-nowrap">Remove
                 {% if widget.attrs.label %}<span class="govuk-visually-hidden">{{ widget.attrs.label }}</span>{% endif %}
             </a>
         </div>
     {% endfor %}
     <!-- Hidden template item to clone -->
-    <div class="array-input-item array-input-template"
-         style="display: none;
-                align-items: center;
-                gap: 10px;
-                margin-bottom: 10px">
+    <div class="array-input-item array-input-template app-multi-value--item app-display--none">
         <label class="array-input-item-label govuk-visually-hidden"
                for="id_{{ widget.name }}-template">
             {{ widget.field_label }} <span class="array-input-item-label--counter">{{ forloop.counter }}</span>
@@ -39,17 +29,14 @@
                name=""
                id="id_{{ widget.name }}-template"
                value=""
-               class="form-control d-inline-block govuk-input"
-               style="flex: 1" />
+               class="form-control d-inline-block govuk-input app-multi-value--input" />
         <a href="#"
-           class="remove-array-item govuk-link"
-           style="white-space: nowrap">Remove
+           class="remove-array-item govuk-link app-text--white-space-nowrap">Remove
             {% if widget.attrs.label %}<span class="govuk-visually-hidden">{{ widget.attrs.label }}</span>{% endif %}
         </a>
     </div>
     <a href="#"
-       class="add-array-item govuk-link"
-       {% if widget.values|length >= widget.max_values %}style="display: none;"{% endif %}>
+       class="add-array-item govuk-link{% if widget.values|length >= widget.max_values %} app-display--none{% endif %}">
         Add
         {% if widget.attrs.label %}{{ widget.attrs.label }}{% endif %}
     </a>
@@ -81,14 +68,14 @@
 
       // Add button
       if (addLink) {
-        addLink.style.display = items.length < max ? 'inline-block' : 'none';
+        updateElementVisibility(addLink, items.length < max)
       }
 
       // Remove button visibility
       items.forEach((item) => {
         const removeLink = item.querySelector('.remove-array-item');
         if (removeLink) {
-          removeLink.style.display = (isRequired && items.length === 1) ? 'none' : 'inline-block';
+          updateElementVisibility(removeLink, !(isRequired && items.length === 1))
         }
       });
     }
@@ -106,8 +93,8 @@
         if (items.length >= max) return;
 
         const clone = template.cloneNode(true);
-        clone.classList.remove('array-input-template');
-        clone.style.display = 'flex';
+        clone.classList.remove('array-input-template', 'app-display--none');
+        clone.classList.add('app-display--flex');
         clone.querySelector('input').value = '';
         container.insertBefore(clone, addLink);
         updateIndices(container);
@@ -126,6 +113,16 @@
 
       container.dataset.initialized = "true";
       updateIndices(container);
+    }
+
+    function updateElementVisibility(element, isVisible) {
+      if (isVisible) {
+        element.classList.add('app-display--block')
+        element.classList.remove('app-display--none')
+      } else {
+        element.classList.add('app-display--none')
+        element.classList.remove('app-display--block')
+      }
     }
 
     document.addEventListener('DOMContentLoaded', function () {
