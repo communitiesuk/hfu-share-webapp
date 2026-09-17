@@ -174,5 +174,7 @@ class MvAccommodationRequestSplitGuestsTest(BaseTestCase):
         accommodation_request.split_guests([guest2.id])
 
         guest2.refresh_from_db()
+        guest1.refresh_from_db()
 
         self.assertTrue(guest2.edited_in_app)
+        self.assertFalse(guest1.edited_in_app)
