@@ -79,6 +79,13 @@ def test_parallel():
         sys.exit(error.returncode)
 
 
+def seed_users():
+    from hfurb_scripts.seeders import seed_custom_users, seed_group  # noqa: E402
+
+    seed_group()
+    seed_custom_users()
+
+
 def test_browser():
     suite = os.environ.get("BROWSER_TEST_SUITE", "default")
     marker = (
@@ -91,6 +98,10 @@ def test_browser():
 
 def test_browser_accessibility():
     _run_browser_tests("browser and accessibility")
+
+
+def test_browser_and_accessibility():
+    _run_browser_tests("browser or accessibility")
 
 
 def _run_browser_tests(marker: str):
