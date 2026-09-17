@@ -88,12 +88,6 @@ class ReassignmentRequestsDBErrorTestCase(ReassignmentRequestsBaseTestCase):
         self._assert_rollback(ar_count, interaction_count)
 
     def test_db_error_on_split_guests(self):
-        self.pending_request_somerset_source_multiple_guests_ar.person_id = [
-            self.guest_a.id,
-            self.guest_b.id,
-            self.guest_c.id,
-        ]
-        self.pending_request_somerset_source_multiple_guests_ar.save()
         ar_count = MvAccommodationRequest.objects.count()
         interaction_count = MvInteraction.objects.count()
         with patch(
