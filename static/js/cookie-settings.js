@@ -20,11 +20,11 @@ const submitSettingsForm = function (event) {
 
     // Show settings confirmation message
     const $confirmationMessage = document.querySelector('.cookie-settings__confirmation')
-    $confirmationMessage.style.display = 'block'
+    updateElementVisibility($confirmationMessage, true)
     $confirmationMessage.focus()
     // Hide the form
     const $cookieSettingsForm = document.querySelector('.cookie-settings__form-wrapper')
-    $cookieSettingsForm.style.display = 'none'
+    updateElementVisibility($cookieSettingsForm, false)
 
     return false
   }
@@ -51,7 +51,7 @@ const initSettingsForm = () => {
   }
   // Hide cookie banner if on the page
   const $cookieBanner = document.querySelector('.govuk-cookie-banner')
-  $cookieBanner.style.display = 'none'
+  updateElementVisibility($cookieBanner, false)
 
   // Populate form with existing consent choice if present
   setInitialFormValues()

@@ -443,3 +443,11 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
 .govuk-\!-secondary-text-colour {
   color: var(--govuk-secondary-text-colour)
 }
+
+.app-display--block {
+  display: block;
+}
+
+.app-display--none {
+  display: none;
+}

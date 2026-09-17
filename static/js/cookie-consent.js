@@ -95,6 +95,17 @@ const getAnalyticsId = function () {
   }
 }
 
+const updateElementVisibility = function (element, isVisible) {
+  if (isVisible) {
+    element.classList.add('app-display--block')
+    element.classList.remove('app-display--none')
+    element.removeAttribute('hidden')
+  } else {
+    element.classList.add('app-display--none')
+    element.classList.remove('app-display--block')
+  }
+}
+
 const CookieBanner = function ($module) {
   this.$module = $module
 }
@@ -134,20 +145,20 @@ CookieBanner.prototype.showCookieMessage = function () {
 
   if (this.$module) {
     if (existingConsent === 'unknown') {
-      this.$module.style.display = 'block'
+      updateElementVisibility(this.$module, true)
     } else {
       if (existingConsent === 'false') {
         // Ensure any GA cookies are removed
         expireGoogleAnalyticsCookies()
       }
-      this.$module.style.display = 'none'
+      updateElementVisibility(this.$module, false)
     }
   }
 }
 
 CookieBanner.prototype.hideCookieMessage = function (event) {
   if (this.$module) {
-    this.$module.style.display = 'none'
+    updateElementVisibility(this.$module, false)
   }
 
   if (event.target) {
@@ -166,12 +177,12 @@ CookieBanner.prototype.showConfirmationMessage = function (analyticsConsent) {
   this.$rejectedConfirmationMessage = document.querySelector('#rejected-confirmation')
 
   // Show/hide accepted/rejected messages
-  this.$rejectedConfirmationMessage.style.display = analyticsConsent ? 'none' : 'block'
-  this.$acceptedConfirmationMessage.style.display = analyticsConsent ? 'block' : 'none'
+  updateElementVisibility(this.$rejectedConfirmationMessage, !analyticsConsent)
+  updateElementVisibility(this.$acceptedConfirmationMessage, analyticsConsent)
   // Show confirmation message container
-  this.$module.cookieBannerConfirmationMessage.style.display = 'block'
+  updateElementVisibility(this.$module.cookieBannerConfirmationMessage, true)
   // Hide consent div
-  this.$module.cookieBanner.style.display = 'none'
+  updateElementVisibility(this.$module.cookieBanner, false)
 }
 
 
