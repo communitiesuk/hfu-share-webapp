@@ -23,14 +23,14 @@ class SponsorEditForm(ReadOnlyFieldsMixin, forms.ModelForm):
 
     date_of_birth = forms.DateField(
         label="Date of Birth",
-        widget=DatePicker(
-            attrs={
-                "hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=11000)).strftime('%-d/%-m/%Y')}.",
-            }
-        ),
+        help_text=f"For example, "
+        f"{(datetime.today() - timedelta(days=11000)).strftime('%-d/%-m/%Y')}.",
+        widget=DatePicker(),
         required=True,
-        error_messages={"required": "Please enter a valid date of birth"},
+        error_messages={
+            "required": "Please enter a valid date of birth",
+            "invalid": "Enter a valid date for 'Date of birth'",
+        },
     )
 
     GENDERS = (

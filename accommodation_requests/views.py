@@ -1,7 +1,6 @@
 import logging
 import os
 import uuid
-from datetime import datetime, timedelta
 from enum import StrEnum
 from typing import Any
 
@@ -93,7 +92,12 @@ from webapp.templatetags.checks_status_extras import (
     accommodation_checks_status_label_to_tag_colour,
 )
 from webapp.templatetags.timeline_extras import TimelineEventType
-from webapp.utils import CustomDateColumn, CustomDateFromToRangeFilter, LazyChoiceFilter
+from webapp.utils import (
+    CustomDateColumn,
+    CustomDateFromToRangeFilter,
+    LazyChoiceFilter,
+    date_hint_text,
+)
 from webapp.views import (
     Action,
     ActionsListView,
@@ -254,17 +258,16 @@ class AccommodationRequestsFilter(FilterSet, FilterPanelMixin):
         widget=StackedRangeInput(
             sub_widget=DatePicker,
             attrs={
-                "from_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=1600)).strftime('%-d/%-m/%Y')}.",
-                "to_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
+                "from_help_text": date_hint_text(1600),
+                "to_help_text": date_hint_text(20),
                 "from_label": "Date from",
                 "to_label": "Date to",
             },
         ),
         distinct=True,
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "'Date of application from' must be before "
+            "'Date of application to'",
         },
     )
 

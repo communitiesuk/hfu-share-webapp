@@ -67,14 +67,13 @@ class GuestEditForm(GuestBaseForm):
     )
     date_of_birth = forms.DateField(
         label="Date of Birth",
-        widget=DatePicker(
-            attrs={
-                "required": True,
-                "hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=4000)).strftime('%-d/%-m/%Y')}.",
-            }
-        ),
-        error_messages={"required": "Please enter a valid date of birth"},
+        help_text=f"For example, "
+        f"{(datetime.today() - timedelta(days=4000)).strftime('%-d/%-m/%Y')}.",
+        widget=DatePicker(),
+        error_messages={
+            "required": "Please enter a valid date of birth",
+            "invalid": "Enter a valid date for 'Date of birth'",
+        },
     )
     gender = forms.ChoiceField(
         choices=GENDERS,

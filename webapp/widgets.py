@@ -12,8 +12,8 @@ RANGE_INPUT_ATTR_MAPPING: dict[str, str] = {
     "input_size": "size",
     "from_label": "label",
     "to_label": "label",
-    "from_hint": "hint",
-    "to_hint": "hint",
+    "from_help_text": "help_text",
+    "to_help_text": "help_text",
     "unit_hint": "unit_hint",
 }
 
@@ -52,6 +52,11 @@ class RangeInput(MultiWidget):
 
 class StackedRangeInput(RangeInput):
     template_name = "webapp/widgets/stackedrangeinput.html"
+
+    def __init__(self, attrs=None, sub_widget=TextInput):
+        super().__init__(attrs, sub_widget)
+
+        self.widgets_names = ["", "_1"]
 
 
 class InlineRangeInput(RangeInput):
