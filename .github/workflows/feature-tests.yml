@@ -1,0 +1,69 @@
+name: Run Feature Tests
+
+on:
+  workflow_call:
+    inputs:
+      session_id:
+        description: The session ID to allow restoring from the cache
+        type: string
+        required: false
+
+jobs:
+  tests:
+    name: Feature tests
+    runs-on: ubuntu-latest
+    env:
+      DB_HOST: 'localhost'
+      DB_USERNAME: 'postgres'
+      DB_PASSWORD: 'postgres'
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+      - name: Setup Python and Poetry + Restore Poetry cache
+        uses: ./.github/actions/setup-python-poetry
+        with:
+          role-session-name: BuildAndTest-Tests-${{ inputs.session_id }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          aws-role-to-assume: ${{ secrets.AWS_TESTING_ROLE_TO_ASSUME }}
+          aws-codeartifact-account-id: ${{ secrets.AWS_CODEARTIFACT_ACCOUNT_ID }}
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7  # v5.0.4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('poetry.lock') }}
+
+      - name: Install Chrome driver
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: |
+          poetry run playwright install --with-deps chromium
+
+      - name: Set up environment
+        run: |
+          cp .env.dev .env
+          echo "BROWSER_TEST_USER_EMAIL=browser_tester@example.com" >> .env
+          echo "BROWSER_TEST_USER_PASSWORD=super-secret-password" >> .env
+          echo "BROWSER_TEST_URL=http://localhost:8010/" >> .env
+
+      - name: Bring up docker contianer
+        run: |
+          docker compose up -d
+
+      - name: Wait for migrations
+        run: |
+          timeout 60 bash -c '
+            until docker compose exec -T web python manage.py migrate --check; do
+              sleep 2
+            done
+          '
+
+      - name: Seed users
+        run: |
+          poetry run seed-users
+
+      - name: Test
+        run: |
+          poetry run test-browser-and-accessibility
