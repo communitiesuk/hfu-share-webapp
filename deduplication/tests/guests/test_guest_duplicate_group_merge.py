@@ -985,7 +985,7 @@ class GuestDuplicateGroupDeduplicationTestCase(BaseTestCase):
             self.duplicate_group.principal_record.previous_group_leaving_times
         )
 
-    def test_should_not_set_title(
+    def test_should_set_title_from_selected_name(
         self,
     ):
         user = get_admin_user()
@@ -1004,9 +1004,10 @@ class GuestDuplicateGroupDeduplicationTestCase(BaseTestCase):
         self.duplicate_group.save()
 
         self.duplicate_group.deduplicate(
-            principal_record_values={"first_name": "bob"}, user=user
+            principal_record_values={"first_name": "bob", "last_name": "smith"},
+            user=user,
         )
-        self.assertIsNone(self.duplicate_group.principal_record.title)
+        self.assertEqual("bob smith", self.duplicate_group.principal_record.title)
 
     def test_should_not_set_travelling_to_uk(
         self,
