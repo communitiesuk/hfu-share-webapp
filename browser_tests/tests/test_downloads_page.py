@@ -41,15 +41,15 @@ class TestDownloadPage(BrowserTest):
             (
                 "invalid date",
                 "invalid date",
-                "Enter a valid date.",
-                "Enter a valid date.",
+                "Enter a valid date for 'Date from'.",
+                "Enter a valid date for 'Date to'.",
             ),
-            ("29/02/2026", "29/03/2026", "Enter a valid date.", None),
+            ("29/02/2026", "29/03/2026", "Enter a valid date for 'Date from'.", None),
             (
                 "29/05/2026",
                 "29/03/2026",
                 None,
-                "The end date must be the same as or later than the start date.",
+                "'Date from' must be before 'Date to'.",
             ),
         ),
     )
