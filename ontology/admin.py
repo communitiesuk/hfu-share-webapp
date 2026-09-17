@@ -431,7 +431,10 @@ class MvVolunteerAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
             phone_number=None,
             residential_postcodes=None,
         )
+        user = request.user
+        record_ids = list(queryset.values_list("pk", flat=True))
 
+        logger.info("User ID %s has redacted the records: %s", user.pk, record_ids)
         self.message_user(request, "Successfully redacted personal information.")
 
     def has_redact_personal_information_permission(self, request):

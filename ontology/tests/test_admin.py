@@ -190,6 +190,23 @@ class MvVolunteerAdminActionTestCase(BaseTestCase):
         self.request = Mock()
         self.admin = MvVolunteerAdmin(MvVolunteer, AdminSite())
         self.admin.message_user = Mock()
+        self.volunteer = MvVolunteerFactory(
+            first_name="Jane",
+            last_name="Doe",
+            full_name="Jane Doe",
+            email="jane.doe@example.com",
+            family_situation="Single parent with child",
+            sex="Female",
+            age=35,
+            date_of_birth="1990-01-01",
+            national_identity_card_number=["ID-123456"],
+            nationality=["British"],
+            other_nationalities=["French"],
+            passport_details=["PASS-98765"],
+            phone_number=["+447000000000"],
+            residential_postcodes=["SW1A 1AA"],
+            is_sponsor=True,
+        )
 
     def test_redact_personal_information(self):
         queryset = MvVolunteer.objects.none()
@@ -272,3 +289,15 @@ class MvVolunteerAdminActionTestCase(BaseTestCase):
         self.assertTrue(
             self.admin.has_redact_personal_information_permission(super_request)
         )
+
+    def test_redact_personal_information_action_is_logged(self):
+        user = self.request.user
+        queryset = MvVolunteer.objects.filter(pk=self.volunteer.pk)
+        record_ids = list(queryset.values_list("pk", flat=True))
+
+        with patch("ontology.admin.logger") as mock_logger:
+            self.admin.redact_personal_information(self.request, queryset)
+            mock_logger.info.assert_called_once()
+            mock_logger.info.assert_called_with(
+                "User ID %s has redacted the records: %s", user.pk, record_ids
+            )
