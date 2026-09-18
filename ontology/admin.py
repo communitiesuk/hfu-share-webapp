@@ -223,7 +223,6 @@ class MvPersonAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
 
     @admin.action(description="Update selected guest titles")
     def update_guest_titles_action(self, request, queryset):
-        success_count = 0
         updated_record_ids = []
         already_correct_count = 0
         error_count = 0
@@ -233,7 +232,6 @@ class MvPersonAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
                 result = process_update_guest_titles(person)
 
                 if result:
-                    success_count += 1
                     updated_record_ids.append(person.pk)
                 else:
                     already_correct_count += 1
@@ -250,7 +248,6 @@ class MvPersonAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
 
         summary = (
             f"Guest title processing complete: "
-            f"{success_count} updated successfully, "
             f"{len(updated_record_ids)} updated successfully, "
             f"{already_correct_count} already correct (skipped), "
             f"{error_count} failed due to errors."
