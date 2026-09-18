@@ -103,6 +103,7 @@ const updateElementVisibility = function (element, isVisible) {
   } else {
     element.classList.add('app-display--none')
     element.classList.remove('app-display--block')
+    element.setAttribute('hidden', 'hidden')
   }
 }
 

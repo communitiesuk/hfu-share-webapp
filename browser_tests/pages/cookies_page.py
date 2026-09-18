@@ -14,6 +14,44 @@ class CookiesPage(SharePage):
     def context(self) -> BrowserContext:
         return self.page.context
 
+    @property
+    def cookie_banner(self) -> Locator:
+        return self.page.locator(".govuk-cookie-banner")
+
+    @property
+    def cookies_on_share(self) -> Locator:
+        return self.cookie_banner.locator("#cookies-on-share")
+
+    @property
+    def cookies_confirmation(self) -> Locator:
+        return self.cookie_banner.locator("#confirmation")
+
+    @property
+    def cookies_confirmation_accepted(self) -> Locator:
+        return self.cookies_confirmation.locator("#accepted-confirmation")
+
+    @property
+    def cookies_confirmation_rejected(self) -> Locator:
+        return self.cookies_confirmation.locator("#rejected-confirmation")
+
+    @property
+    def cookie_settings_choices(self) -> Locator:
+        return self.main_page.locator(".cookie-settings-form")
+
+    @property
+    def cookie_setting_confirmation(self) -> Locator:
+        return self.main_page.locator(".cookie-settings__confirmation")
+
+    @property
+    def google_analytics_id(self) -> Optional[str]:
+        return self.cookie_banner.get_attribute("data-analytics-id")
+
+    def set_ga_cookies(self):
+        self.ga_id_cookie_name = f"_ga_{self.google_analytics_id.replace('G-', '')}"
+
+        self.set_cookie(self.ga_cookie_name, "_ga-value")
+        self.set_cookie(self.ga_id_cookie_name, "_ga_id-value")
+
     def click_cookie_button(self, button_text: str):
         self.click_button(button_text, self.cookie_banner)
 
@@ -81,41 +119,3 @@ class CookiesPage(SharePage):
             expect(radio_button).to_be_checked()
         else:
             expect(radio_button).not_to_be_checked()
-
-    @property
-    def cookie_banner(self) -> Locator:
-        return self.page.locator(".govuk-cookie-banner")
-
-    @property
-    def cookies_on_share(self) -> Locator:
-        return self.cookie_banner.locator("#cookies-on-share")
-
-    @property
-    def cookies_confirmation(self) -> Locator:
-        return self.cookie_banner.locator("#confirmation")
-
-    @property
-    def cookies_confirmation_accepted(self) -> Locator:
-        return self.cookies_confirmation.locator("#accepted-confirmation")
-
-    @property
-    def cookies_confirmation_rejected(self) -> Locator:
-        return self.cookies_confirmation.locator("#rejected-confirmation")
-
-    @property
-    def cookie_settings_choices(self) -> Locator:
-        return self.main_page.locator(".cookie-settings-form")
-
-    @property
-    def cookie_setting_confirmation(self) -> Locator:
-        return self.main_page.locator(".cookie-settings__confirmation")
-
-    def set_ga_cookies(self):
-        self.ga_id_cookie_name = f"_ga_{self.google_analytics_id.replace('G-', '')}"
-
-        self.set_cookie(self.ga_cookie_name, "_ga-value")
-        self.set_cookie(self.ga_id_cookie_name, "_ga_id-value")
-
-    @property
-    def google_analytics_id(self) -> Optional[str]:
-        return self.cookie_banner.get_attribute("data-analytics-id")
