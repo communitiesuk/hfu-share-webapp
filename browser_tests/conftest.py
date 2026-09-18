@@ -25,10 +25,11 @@ def _verify_config():
 
 
 def _run_seed_browser_test_la(*args: str) -> None:
-    subprocess.run(
-        [sys.executable, str(MANAGE_PY), "seed_browser_test_la", *args],
-        check=True,
-    )
+    if not os.getenv("SKIP_BROWSER_TEST_SEED"):
+        subprocess.run(
+            [sys.executable, str(MANAGE_PY), "seed_browser_test_la", *args],
+            check=True,
+        )
 
 
 def pytest_sessionstart(session):

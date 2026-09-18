@@ -60,12 +60,12 @@ format = "scripts:format_code"
 lint = "scripts:lint"
 lint-shell = "scripts:lint_shell"
 seed-db = "scripts:seed_db"
-seed-users = "scripts:seed_users"
+seed-groups = "scripts:seed_groups"
+seed-browser-test-users = "scripts:seed_browser_test_users"
 test = "scripts:test"
 test-parallel = "scripts:test_parallel"
 test-browser = "scripts:test_browser"
 test-browser-accessibility = "scripts:test_browser_accessibility"
-test-browser-and-accessibility = "scripts:test_browser_and_accessibility"
 
 [build-system]
 requires = ["poetry-core"]

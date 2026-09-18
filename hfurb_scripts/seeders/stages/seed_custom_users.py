@@ -41,11 +41,42 @@ def seed_user(user_data: UserData, password: str, user_model: UserModel):
     print(f"Added user {email} to group {group_name}")
 
 
+def seed_browser_test_users():
+    User = get_user_model()
+    browser_test_user_email = os.environ.get("BROWSER_TEST_USER_EMAIL")
+    browser_test_user_password = os.environ.get("BROWSER_TEST_USER_PASSWORD")
+
+    with transaction.atomic():
+        if browser_test_user_email and browser_test_user_password:
+            seed_user(
+                {
+                    "email": browser_test_user_email,
+                    "group_name": "ltla_hobbiton_browser_test",
+                },
+                browser_test_user_password,
+                User,
+            )
+        else:
+            print("Skipping creation of browser test user")
+            for key, value in (
+                (
+                    "BROWSER_TEST_USER_EMAIL",
+                    browser_test_user_email,
+                ),
+                (
+                    "BROWSER_TEST_USER_PASSWORD",
+                    browser_test_user_password,
+                ),
+            ):
+                if not value:
+                    print(f"ENV variable {key} was not set")
+
+    print("Browser test users seeding completed.")
+
+
 def seed_custom_users():
     User = get_user_model()
     password = os.environ.get("LOCAL_USER_PASSWORD")
-    browser_test_user_email = os.environ.get("BROWSER_TEST_USER_EMAIL")
-    browser_test_user_password = os.environ.get("BROWSER_TEST_USER_PASSWORD")
 
     users_to_create = [
         {
@@ -81,29 +112,5 @@ def seed_custom_users():
     with transaction.atomic():
         for user_data in users_to_create:
             seed_user(user_data, password, User)
-
-        if browser_test_user_email and browser_test_user_password:
-            seed_user(
-                {
-                    "email": browser_test_user_email,
-                    "group_name": "ltla_hobbiton_browser_test",
-                },
-                browser_test_user_password,
-                User,
-            )
-        else:
-            print("Skipping creation of browser test user")
-            for key, value in (
-                (
-                    "BROWSER_TEST_USER_EMAIL",
-                    browser_test_user_email,
-                ),
-                (
-                    "BROWSER_TEST_USER_PASSWORD",
-                    browser_test_user_password,
-                ),
-            ):
-                if not value:
-                    print(f"ENV variable {key} was not set")
 
     print("Custom users seeding completed.")

@@ -16,6 +16,11 @@ jobs:
       DB_HOST: 'localhost'
       DB_USERNAME: 'postgres'
       DB_PASSWORD: 'postgres'
+      BROWSER_TEST_USER_PASSWORD: 'super-secret-password'
+      BROWSER_TEST_URL: 'http://localhost:8010'
+      BROWSER_TEST_LA_USER_EMAIL: 'browser_tester@example.com'
+      BROWSER_TEST_ACCESSIBILITY_USER_EMAIL: 'browser_accessibility_tester@example.com'
+      SKIP_BROWSER_TEST_SEED: 'true'
 
     steps:
       - name: Check out code
@@ -44,18 +49,25 @@ jobs:
       - name: Set up environment
         run: |
           cp .env.dev .env
-          echo "BROWSER_TEST_USER_EMAIL=browser_tester@example.com" >> .env
-          echo "BROWSER_TEST_USER_PASSWORD=super-secret-password" >> .env
-          echo "BROWSER_TEST_URL=http://localhost:8010/" >> .env
+          echo "GOOGLE_ANALYTICS_ID=G-12345" >> .env
+          echo "GOOGLE_ANALYTICS_ENABLED=Enabled" >> .env
 
-      - name: Bring up docker contianer
+      - name: Bring up docker container
         run: |
           docker compose up -d --wait
 
-      - name: Seed users
+      - name: Seed browser test users
         run: |
-          poetry run seed-users
+          poetry run seed-groups
+          BROWSER_TEST_USER_EMAIL=$BROWSER_TEST_LA_USER_EMAIL poetry run seed-browser-test-users
+          BROWSER_TEST_USER_EMAIL=$BROWSER_TEST_ACCESSIBILITY_USER_EMAIL poetry run seed-browser-test-users
+          BROWSER_TEST_USER_EMAIL=$BROWSER_TEST_LA_USER_EMAIL poetry run python manage.py seed_browser_test_la --seed
 
-      - name: Test
-        run: |
-          poetry run test-browser-and-accessibility
+      - parallel:
+          - name: Browser tests
+            run: |
+              BROWSER_TEST_USER_EMAIL=$BROWSER_TEST_LA_USER_EMAIL poetry run test-browser
+
+          - name: Browser accessibility tests
+            run: |
+              BROWSER_TEST_USER_EMAIL=$BROWSER_TEST_ACCESSIBILITY_USER_EMAIL poetry run test-browser-accessibility
