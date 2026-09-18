@@ -21,7 +21,7 @@ def _setup_cookies_and_check_banner_is_visible(cookies_page: CookiesPage):
     cookies_page.assert_cookie_is_set(cookies_page.ga_id_cookie_name)
 
 
-def _setup_cookies_and_navifate_to_cookies_page(cookies_page: CookiesPage):
+def _setup_cookies_and_navigate_to_cookies_page(cookies_page: CookiesPage):
     cookies_page.set_ga_cookies()
 
     cookies_page.assert_cookie_banner_visibility(True)
@@ -105,7 +105,7 @@ class TestCookies(BrowserTest):
         cookies_page.assert_cookie_is_not_set(cookies_page.ga_id_cookie_name)
 
     def test_can_accept_cookies_via_settings(self, cookies_page: CookiesPage):
-        _setup_cookies_and_navifate_to_cookies_page(cookies_page)
+        _setup_cookies_and_navigate_to_cookies_page(cookies_page)
 
         cookies_page.check_field("Yes")
         cookies_page.click_button("Save cookie settings")
@@ -143,7 +143,7 @@ class TestCookies(BrowserTest):
         cookies_page.assert_cookie_is_set(cookies_page.ga_id_cookie_name)
 
     def test_can_reject_cookies_via_settings(self, cookies_page: CookiesPage):
-        _setup_cookies_and_navifate_to_cookies_page(cookies_page)
+        _setup_cookies_and_navigate_to_cookies_page(cookies_page)
 
         cookies_page.check_field("No")
         cookies_page.click_button("Save cookie settings")
@@ -183,7 +183,7 @@ class TestCookies(BrowserTest):
     def test_can_reject_cookies_via_settings_by_only_submitting(
         self, cookies_page: CookiesPage
     ):
-        _setup_cookies_and_navifate_to_cookies_page(cookies_page)
+        _setup_cookies_and_navigate_to_cookies_page(cookies_page)
 
         cookies_page.click_button("Save cookie settings")
 
