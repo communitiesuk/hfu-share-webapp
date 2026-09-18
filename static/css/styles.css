@@ -81,6 +81,14 @@ th.orderable.govuk-table__header:last-child {
   border-top-color: var(--app-brand-colour);
 }
 
+.app-surface-border-top {
+  border-top-color: var(--app-surface-colour);
+}
+
+.app-brand-border-bottom {
+  border-bottom-color: var(--app-brand-colour);
+}
+
 .app-surface-border-bottom {
   border-bottom-color: var(--app-surface-colour);
 }
@@ -442,4 +450,8 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
 
 .govuk-\!-secondary-text-colour {
   color: var(--govuk-secondary-text-colour)
+}
+
+.app-max-width-100 {
+  max-width: 100%;
 }
