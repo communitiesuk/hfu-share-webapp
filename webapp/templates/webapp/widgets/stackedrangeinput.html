@@ -1,14 +1,11 @@
-<div style="display: flex; flex-direction: column; gap: 32px">
+<div class="app-inline-range-date-input--container">
     {% for sub_widget in widget.subwidgets %}
-        <div style="display: flex; flex-direction: column">
+        <div class="app-inline-range-input--item-container">
             <label for="id_{{ sub_widget.name }}" class="govuk-label govuk-label--s">{{ sub_widget.attrs.label }}</label>
             {% if sub_widget.attrs.help_text %}
                 <div id="{{ sub_widget.name }}_hint" class="govuk-hint">{{ sub_widget.attrs.help_text|safe }}</div>
             {% endif %}
-            <div style="display: flex;
-                        flex-direction: row;
-                        align-items: baseline;
-                        gap: 0.5rem">
+            <div class="app-inline-range-input--widget-container">
                 {% include sub_widget.template_name with widget=sub_widget %}
                 <span class="govuk-hint">{{ widget.attrs.unit_hint }}</span>
             </div>

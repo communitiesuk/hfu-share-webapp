@@ -475,8 +475,7 @@ class AccommodationRequestDetailOverviewView(
         ):
             sponsors = format_html(
                 (
-                    '<strong class="govuk-tag {tag_colour_class}" '
-                    'style="display:inline">'
+                    '<strong class="govuk-tag {tag_colour_class} app--display-inline">'
                     "{tag_text}"
                     "</strong>"
                 ),

@@ -115,8 +115,8 @@ class VisaApplicationsTable(tables.Table):
     def render_title(self, record, value):
         return format_html(
             (
-                '<a class="govuk-body-s govuk-link"'
-                'style="white-space: normal" href="{}">'
+                '<a class="govuk-body-s govuk-link app-text--white-space-normal" '
+                ' href="{}">'
                 "{}"
                 "</a>"
             ),
@@ -792,8 +792,8 @@ class VIRTable(tables.Table):
     def render_name(self, record, value):
         return format_html(
             (
-                '<a class="govuk-body-s govuk-link"'
-                'style="white-space: normal" href="{}">'
+                '<a class="govuk-body-s govuk-link app-text--white-space-normal" '
+                'href="{}">'
                 "{}"
                 "</a>"
             ),

@@ -33,9 +33,7 @@
     {% if table.empty_text and not table.data %}
         <p class="govuk-body govuk-!-margin-top-2">{{ table.empty_text }}</p>
     {% else %}
-        <div class="ui container table-container"
-             style="overflow-x: auto;
-                    overflow-y: visible">
+        <div class="ui container table-container app-table--container">
             {% block table %}
                 <table {% render_attrs table.attrs class="govuk-table" %}>
                     {% block table.thead %}
@@ -105,9 +103,7 @@
                                     <tr {{ row.attrs.as_html }} class="govuk-table__row">
                                         {% for column, cell in row.items %}
                                             <td {{ column.attrs.td.as_html }}
-                                                class="govuk-table__cell govuk-body-s govuk-!-margin-0"
-                                                style="vertical-align: top;
-                                                       text-align: left">
+                                                class="govuk-table__cell govuk-body-s govuk-!-margin-0 app-table--td">
                                                 {% for value in cell|ensure_list %}
                                                     {% if column.localize == None %}
                                                         {{ value }}
@@ -144,8 +140,7 @@
         </div>
         {% block pagination %}
             {% if table.page and table.paginator.num_pages > 1 %}
-                <nav class="govuk-pagination govuk-!-margin-top-4"
-                     style="justify-content: center"
+                <nav class="govuk-pagination govuk-!-margin-top-4 app-table-pagination--justify-center"
                      aria-label="Table pagination">
                     {% if table.page.has_previous %}
                         {% block pagination.previous %}

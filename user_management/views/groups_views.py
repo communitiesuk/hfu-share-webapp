@@ -116,7 +116,7 @@ class GroupDetailsView(
 
         return format_html_join(
             "",
-            '<div style="display: flex; justify-content: space-between;">'
+            '<div class="app-table--tag">'
             '<a href="{}" class="govuk-link govuk-link--no-underline">{}</a>'
             '<a href="{}" class="govuk-link govuk-link--no-visited-state">Remove'
             '<span class="govuk-visually-hidden"> {}</span></a>'
@@ -158,7 +158,7 @@ class GroupRemoveUserForm(forms.Form):
                     f"Cancel"
                     f"</a>"
                 ),
-                style="display: flex; gap: 16px; align-items: baseline",
+                css_class="govuk-button-group",
             )
         )
 

@@ -293,9 +293,15 @@ UAMS_SEARCH_FIELDS: list[str] = [
     "reference",
 ]
 
-ACCESS_REQUEST_TABLE_COLUMN_ATTRS = {"td": {"style": "width: 25%;"}}
+APP_TABLE_TD_CLASSES = "govuk-table__cell govuk-body-s govuk-!-margin-0 app-table--td"
 
-SELECT_ACCOMMODATION_TABLE_COLUMN_ATTRS = {"td": {"style": "width: 45%;"}}
+ACCESS_REQUEST_TABLE_COLUMN_ATTRS = {
+    "td": {"class": f"{APP_TABLE_TD_CLASSES} app-width--25"}
+}
+
+SELECT_ACCOMMODATION_TABLE_COLUMN_ATTRS = {
+    "td": {"class": f"{APP_TABLE_TD_CLASSES} app-width--45"}
+}
 
 ACCOMMODATION_ALLOWED_GROUP_TYPES = {
     GroupType.LOCAL_AUTHORITY,

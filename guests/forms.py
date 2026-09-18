@@ -97,7 +97,9 @@ class GuestEditForm(GuestBaseForm):
         label="",
         help_text="Enter up to 5 phone numbers.",
         required=False,
-        widget=MultiValueWidget("Phone number", attrs={"label": "phone number"}),
+        widget=MultiValueWidget(
+            "Phone number", attrs={"label": "phone number", "required": False}
+        ),
     )
     passport_id = forms.Field(
         label="",
