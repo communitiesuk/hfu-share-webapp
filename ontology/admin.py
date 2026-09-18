@@ -250,6 +250,7 @@ class MvPersonAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
 
         summary = (
             f"Guest title processing complete: "
+            f"{success_count} updated successfully, "
             f"{len(updated_record_ids)} updated successfully, "
             f"{already_correct_count} already correct (skipped), "
             f"{error_count} failed due to errors."
