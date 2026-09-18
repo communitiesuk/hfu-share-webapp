@@ -33,7 +33,7 @@ repos:
       - id: djlint-reformat-django
       - id: djlint-django
 -   repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.32.1
+    rev: 0.38.0
     hooks:
       - id: check-github-workflows
         name: "Check GitHub Workflows"
