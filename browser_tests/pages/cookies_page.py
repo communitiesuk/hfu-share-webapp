@@ -1,7 +1,10 @@
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
+from playwright._impl._api_structures import SetCookieParam
 from playwright.sync_api import BrowserContext, Cookie, Locator, expect
+
+from test_utils.helpers import browser_test_url_is_local
 
 from .share_page import SharePage
 
@@ -80,19 +83,20 @@ class CookiesPage(SharePage):
         self.assert_element_visibility(self.cookie_setting_confirmation, isShown)
 
     def set_cookie(self, cookie_name: str, cookie_value: str):
-        self.context.add_cookies(
-            [
-                {
-                    "name": cookie_name,
-                    "value": cookie_value,
-                    "url": f"{self.base_url}/",
-                    "expires": (
-                        datetime.now(tz=timezone.utc) + timedelta(365)
-                    ).timestamp(),
-                    "sameSite": "Strict",
-                }
-            ]
-        )
+        cookie_settings: SetCookieParam = {
+            "name": cookie_name,
+            "value": cookie_value,
+            "expires": (datetime.now(tz=timezone.utc) + timedelta(365)).timestamp(),
+            "sameSite": "Strict",
+        }
+
+        if browser_test_url_is_local():
+            cookie_settings["url"] = f"{self.base_url}/"
+        else:
+            cookie_settings["domain"] = ".communities.gov.uk"
+            cookie_settings["path"] = "/"
+
+        self.context.add_cookies([cookie_settings])
 
     def assert_cookie_is_set(self, cookie_name: str):
         assert self._find_cookie(cookie_name) is not None
