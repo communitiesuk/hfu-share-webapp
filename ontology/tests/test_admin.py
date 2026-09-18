@@ -185,6 +185,7 @@ class MvPersonAdminReadOnlyModelsTestCase(TestSessionTokenMixin, MvPersonBaseTes
         self.assertIn(str(updated_guest.pk), logs.output[0])
         self.assertNotIn(str(already_correct_guest.pk), logs.output[0])
 
+
 class MvVolunteerAdminActionTestCase(BaseTestCase):
     def setUp(self):
         self.request = Mock()
