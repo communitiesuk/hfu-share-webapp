@@ -50,15 +50,7 @@ jobs:
 
       - name: Bring up docker contianer
         run: |
-          docker compose up -d
-
-      - name: Wait for migrations
-        run: |
-          timeout 60 bash -c '
-            until docker compose exec -T web python manage.py migrate --check; do
-              sleep 2
-            done
-          '
+          docker compose up -d --wait
 
       - name: Seed users
         run: |
