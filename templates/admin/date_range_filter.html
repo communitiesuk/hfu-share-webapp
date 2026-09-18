@@ -1,4 +1,8 @@
-{% load i18n %}
+{% load i18n static %}
+{% block extrahead %}
+    <link rel="stylesheet"
+          href="{% static 'css/admin/date-range-styles.css' %}">
+{% endblock extrahead %}
 <details data-filter-title="{{ spec.title }}" open>
     <summary>{% trans "By" %} {{ spec.title }}</summary>
     <ul>
@@ -10,34 +14,25 @@
                         <input type="hidden" name="{{ key }}" value="{{ value }}">
                     {% endif %}
                 {% endfor %}
-                <div style="display: flex;
-                            flex-direction: column;
-                            gap: 4px;
-                            padding: 4px 0">
-                    <div style="display: flex; align-items: center; gap: 4px;">
-                        <label style="min-width: 2.5em; color: #6c757d;">{% trans "From" %}</label>
+                <div class="admin-app-date-range--wrapper">
+                    <div class="admin-app-date-range-date--wrapper">
+                        <label class="admin-app-date-range-date--label">{% trans "From" %}</label>
                         <input type="date"
                                name="{{ spec.lookup_kwarg_gte }}"
                                value="{{ spec.form.start.value }}"
-                               style="flex: 1">
+                               class="admin-app-date-range-date--input">
                     </div>
-                    <div style="display: flex; align-items: center; gap: 4px;">
-                        <label style="min-width: 2.5em; color: #6c757d;">{% trans "To" %}</label>
+                    <div class="admin-app-date-range-date--wrapper">
+                        <label class="admin-app-date-range-date--label">{% trans "To" %}</label>
                         <input type="date"
                                name="{{ spec.lookup_kwarg_lte }}"
                                value="{{ spec.form.end.value }}"
-                               style="flex: 1">
+                               class="admin-app-date-range-date--input">
                     </div>
-                    <div style="display: flex;
-                                justify-content: flex-end;
-                                gap: 4px;
-                                margin-top: 4px">
-                        <button type="submit" class="button default" style="padding: 2px 8px;">{% trans "Apply" %}</button>
+                    <div class="admin-app-date-range-button--wrapper">
+                        <button type="submit" class="button default admin-app-date-range--button">{% trans "Apply" %}</button>
                         <a href="{{ spec.remove_query_string }}"
-                           class="button"
-                           style="padding: 2px 8px;
-                                  text-decoration: none;
-                                  color: #fff">{% trans "Reset" %}</a>
+                           class="button admin-app-date-range-button--range">{% trans "Reset" %}</a>
                     </div>
                 </div>
             </form>

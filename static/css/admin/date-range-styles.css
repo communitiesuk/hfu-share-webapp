@@ -1,0 +1,38 @@
+.admin-app-date-range--wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 4px 0;
+}
+
+.admin-app-date-range-date--wrapper {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.admin-app-date-range-date--label {
+    min-width: 2.5em;
+    color: #6c757d;
+}
+
+.admin-app-date-range-date--input {
+    flex: 1;
+}
+
+.admin-app-date-range-button--wrapper {
+    display: flex;
+    justify-content: flex-end;
+    gap: 4px;
+    margin-top: 4px;
+}
+
+.admin-app-date-range--button {
+    padding: 2px 8px;
+}
+
+.admin-app-date-range-button--range {
+    padding: 2px 8px;
+    text-decoration: none;
+    color: #fff;
+}
