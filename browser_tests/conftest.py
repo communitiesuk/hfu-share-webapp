@@ -3,13 +3,13 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import Type
-from urllib.parse import urlparse
 
 import pytest
 from dotenv import load_dotenv
 from playwright.sync_api import Page
 
 from browser_tests.pages import CookiesPage, HomePage, SafeguardingPage, SharePage
+from test_utils.helpers import browser_test_url_is_local
 
 from .test_users import USER_TYPES, BrowserTestUserFactory
 
@@ -24,13 +24,6 @@ def _verify_config():
         )
 
 
-def _browser_test_url_is_local() -> bool:
-    return urlparse(os.environ["BROWSER_TEST_URL"]).hostname in (
-        "localhost",
-        "127.0.0.1",
-    )
-
-
 def _run_seed_browser_test_la(*args: str) -> None:
     subprocess.run(
         [sys.executable, str(MANAGE_PY), "seed_browser_test_la", *args],
@@ -42,7 +35,7 @@ def pytest_sessionstart(session):
     load_dotenv()
     _verify_config()
 
-    if _browser_test_url_is_local():
+    if browser_test_url_is_local():
         _run_seed_browser_test_la("--seed")
 
 
