@@ -405,9 +405,40 @@ class MvVolunteerAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
     ]
     search_fields = ["full_name", "email", "application_unique_application_number"]
     list_filter = ["sponsor_type", "is_sponsor", "notional_data", "is_principal"]
+    actions = ["redact_personal_information"]
 
     def get_queryset(self, request):
         return MvVolunteer.objects_including_archived.all()
+
+    @admin.action(
+        description="Redact personal information",
+        permissions=["redact_personal_information"],
+    )
+    def redact_personal_information(self, request, queryset):
+        queryset.update(
+            first_name="REDACTED",
+            last_name="REDACTED",
+            full_name="REDACTED",
+            email="REDACTED",
+            family_situation="REDACTED",
+            sex="REDACTED",
+            age=None,
+            date_of_birth=None,
+            national_identity_card_number=None,
+            nationality=None,
+            other_nationalities=None,
+            passport_details=None,
+            phone_number=None,
+            residential_postcodes=None,
+        )
+        user = request.user
+        record_ids = list(queryset.values_list("pk", flat=True))
+
+        logger.info("User ID %s has redacted the records: %s", user.pk, record_ids)
+        self.message_user(request, "Successfully redacted personal information.")
+
+    def has_redact_personal_information_permission(self, request):
+        return request.user.is_superuser
 
 
 class MvInteractionAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):

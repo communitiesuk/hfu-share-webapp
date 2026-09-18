@@ -7,8 +7,8 @@ from django.db import DatabaseError
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
-from ontology.admin import MvPersonAdmin
-from ontology.models import MvPerson
+from ontology.admin import MvPersonAdmin, MvVolunteerAdmin
+from ontology.models import MvPerson, MvVolunteer
 from ontology.tests.base import (
     MvPersonBaseTestCase,
     UamsBaseTestCase,
@@ -184,3 +184,86 @@ class MvPersonAdminReadOnlyModelsTestCase(TestSessionTokenMixin, MvPersonBaseTes
         )
         self.assertIn(str(updated_guest.pk), logs.output[0])
         self.assertNotIn(str(already_correct_guest.pk), logs.output[0])
+
+
+class MvVolunteerAdminActionTestCase(BaseTestCase):
+    def setUp(self):
+        self.request = Mock()
+        self.admin = MvVolunteerAdmin(MvVolunteer, AdminSite())
+        self.admin.message_user = Mock()
+        self.volunteer = MvVolunteerFactory(
+            first_name="Jane",
+            last_name="Doe",
+            full_name="Jane Doe",
+            email="jane.doe@example.com",
+            family_situation="Single parent with child",
+            sex="Female",
+            age=35,
+            date_of_birth="1990-01-01",
+            national_identity_card_number=["ID-123456"],
+            nationality=["British"],
+            other_nationalities=["French"],
+            passport_details=["PASS-98765"],
+            phone_number=["+447000000000"],
+            residential_postcodes=["SW1A 1AA"],
+            is_sponsor=True,
+        )
+
+    def test_redact_personal_information(self):
+        queryset = MvVolunteer.objects.filter(pk=self.volunteer.pk)
+        self.admin.redact_personal_information(self.request, queryset)
+        self.volunteer.refresh_from_db()
+
+        self.assertEqual(self.volunteer.first_name, "REDACTED")
+        self.assertEqual(self.volunteer.last_name, "REDACTED")
+        self.assertEqual(self.volunteer.full_name, "REDACTED")
+        self.assertEqual(self.volunteer.email, "REDACTED")
+        self.assertEqual(self.volunteer.family_situation, "REDACTED")
+        self.assertEqual(self.volunteer.sex, "REDACTED")
+
+        self.assertIsNone(self.volunteer.age)
+        self.assertIsNone(self.volunteer.date_of_birth)
+        self.assertIsNone(self.volunteer.national_identity_card_number)
+        self.assertIsNone(self.volunteer.nationality)
+        self.assertIsNone(self.volunteer.other_nationalities)
+        self.assertIsNone(self.volunteer.passport_details)
+        self.assertIsNone(self.volunteer.phone_number)
+        self.assertIsNone(self.volunteer.residential_postcodes)
+
+        self.admin.message_user.assert_called_once_with(
+            self.request, "Successfully redacted personal information."
+        )
+
+    def test_redact_personal_information_preserves_control_fields(self):
+        queryset = MvVolunteer.objects.filter(pk=self.volunteer.pk)
+        self.admin.redact_personal_information(self.request, queryset)
+        self.volunteer.refresh_from_db()
+
+        self.assertTrue(self.volunteer.is_sponsor)
+
+    def test_action_is_only_available_to_superusers(self):
+        staff_request = Mock()
+        staff_request.user.is_superuser = False
+
+        self.assertFalse(
+            self.admin.has_redact_personal_information_permission(staff_request)
+        )
+
+        super_request = Mock()
+        super_request.user.is_superuser = True
+
+        self.assertTrue(
+            self.admin.has_redact_personal_information_permission(super_request)
+        )
+
+    def test_redact_personal_information_action_is_logged(self):
+        user = self.request.user
+        queryset = MvVolunteer.objects.filter(pk=self.volunteer.pk)
+        record_ids = list(queryset.values_list("pk", flat=True))
+
+        with patch("ontology.admin.logger") as mock_logger:
+            self.admin.redact_personal_information(self.request, queryset)
+            mock_logger.info.assert_called_once()
+            mock_logger.info.assert_called_with(
+                "User ID %s has redacted the records: %s", user.pk, record_ids
+            )
