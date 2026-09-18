@@ -1,6 +1,6 @@
 import http.client
 from datetime import datetime, timezone
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from django.contrib.admin import AdminSite
 from django.db import DatabaseError
@@ -147,12 +147,13 @@ class ArchivedMvVolunteerAdminAccessTest(
 class MvPersonAdminReadOnlyModelsTestCase(TestSessionTokenMixin, MvPersonBaseTestCase):
     def test_db_error_on_guest_title_update(self):
         person_admin = MvPersonAdmin(MvPerson, AdminSite())
+        request = Mock()
 
         with patch(
             "ontology.admin.process_update_guest_titles", side_effect=DatabaseError
         ):
             with patch.object(person_admin, "message_user") as mock_message:
-                person_admin.update_guest_titles_action({}, [MvPerson()])
+                person_admin.update_guest_titles_action(request, [MvPerson()])
 
         expected_summary = (
             "Guest title processing complete: "
@@ -160,4 +161,26 @@ class MvPersonAdminReadOnlyModelsTestCase(TestSessionTokenMixin, MvPersonBaseTes
             "0 already correct (skipped), "
             "1 failed due to errors."
         )
-        mock_message.assert_called_once_with({}, expected_summary)
+        mock_message.assert_called_once_with(request, expected_summary)
+
+    def test_logs_user_and_updated_record_ids_on_guest_title_update(self):
+        person_admin = MvPersonAdmin(MvPerson, AdminSite())
+        user = get_admin_user()
+        request = Mock(user=user)
+        updated_guest = MvPersonFactory(first_name="Guest", last_name="One", title="")
+        already_correct_guest = MvPersonFactory(
+            first_name="Guest", last_name="Two", title="Guest Two"
+        )
+
+        with patch.object(person_admin, "message_user"):
+            with self.assertLogs("ontology.admin", level="INFO") as logs:
+                person_admin.update_guest_titles_action(
+                    request, [updated_guest, already_correct_guest]
+                )
+
+        self.assertIn(
+            f"User ID {user.pk} has updated the titles of the records:",
+            logs.output[0],
+        )
+        self.assertIn(str(updated_guest.pk), logs.output[0])
+        self.assertNotIn(str(already_correct_guest.pk), logs.output[0])
