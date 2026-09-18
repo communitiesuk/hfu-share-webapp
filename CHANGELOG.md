@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.20.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.19.0...2.20.0) (2026-09-18)
+
+
+### Features
+
+* add logging to update_guest_titles_action ([#230](https://github.com/communitiesuk/hfu-share-webapp/issues/230)) ([fbf348d](https://github.com/communitiesuk/hfu-share-webapp/commit/fbf348d06b2e1821efc1c5d3a8b2a7bd2931634c))
+* HFURB-4055 remove inline styles from the cookie JS and add browser tests ([#227](https://github.com/communitiesuk/hfu-share-webapp/issues/227)) ([b0e089d](https://github.com/communitiesuk/hfu-share-webapp/commit/b0e089d3493cf140b927e0d9b177cce6144c1e90))
+
+
+### Bug Fixes
+
+* HFURB-2380 - update pagination to match the GDS design and recommendations ([#220](https://github.com/communitiesuk/hfu-share-webapp/issues/220)) ([b530524](https://github.com/communitiesuk/hfu-share-webapp/commit/b5305243c4e2575e94c2cb24af1a7a234a604f83))
+* HFURB-4055 move inline admin scripts into style sheets ([#232](https://github.com/communitiesuk/hfu-share-webapp/issues/232)) ([c7909cc](https://github.com/communitiesuk/hfu-share-webapp/commit/c7909cc287b1411df1ffeef7b8581bf751c1ed5d))
+* make sure to set cookies with the correct domain when in dev ([#233](https://github.com/communitiesuk/hfu-share-webapp/issues/233)) ([7e28c86](https://github.com/communitiesuk/hfu-share-webapp/commit/7e28c8640445ae4cfec5481cb541fcf73b43dbbc))
+
 ## [2.19.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.18.0...2.19.0) (2026-09-17)
 
 
