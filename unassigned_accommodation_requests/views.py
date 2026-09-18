@@ -26,7 +26,6 @@ from django_filters import (
 from django_filters.views import FilterView
 from django_tables2 import (
     Column,
-    LazyPaginator,
     SingleTableMixin,
     tables,
 )
@@ -43,6 +42,7 @@ from webapp.constants import (
 )
 from webapp.mixins import (
     FilterPanelMixin,
+    PaginatorClassMixin,
     PermissionsMixin,
     PIISafeRecordNameMixin,
     SectionHeadingMixin,
@@ -200,14 +200,17 @@ class UnassignedAccommodationRequestsFilter(FilterSet, FilterPanelMixin):
 
 
 class UnassignedAccommodationRequestsListView(
-    SectionHeadingMixin, PermissionsMixin, SingleTableMixin, FilterView
+    SectionHeadingMixin,
+    PermissionsMixin,
+    SingleTableMixin,
+    PaginatorClassMixin,
+    FilterView,
 ):
     group_type = UNASSIGNED_ACCOMMODATION_REQUESTS_ALLOWED_GROUP_TYPES
     model = MvAccommodationRequest
     table_class = UnassignedAccommodationRequestsTable
     filterset_class = UnassignedAccommodationRequestsFilter
     table_pagination = {"per_page": os.environ.get("PAGINATION_PAGE_SIZE")}
-    paginator_class = LazyPaginator
     template_name = "unassigned_accommodation_requests/unassigned_accommodation_requests_list_page.html"  # noqa: E501
 
     def get_queryset(self):

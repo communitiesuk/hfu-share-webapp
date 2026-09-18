@@ -20,7 +20,6 @@ from django_filters import (
 from django_filters.views import FilterView
 from django_tables2 import (
     Column,
-    LazyPaginator,
     SingleTableMixin,
     tables,
 )
@@ -40,6 +39,7 @@ from webapp.mixins import (
     IsDuplicateMixin,
     MultiLABannerMixin,
     PageTitleMixin,
+    PaginatorClassMixin,
     PermissionsMixin,
     PIISafeRecordNameMixin,
     SectionHeadingMixin,
@@ -231,6 +231,7 @@ class SponsorsListView(
     SectionHeadingMixin,
     PermissionsMixin,
     SingleTableMixin,
+    PaginatorClassMixin,
     FilterView,
 ):
     group_type = [
@@ -245,7 +246,6 @@ class SponsorsListView(
     table_class = SponsorsTable
     filterset_class = SponsorsFilter
     table_pagination = {"per_page": os.environ.get("PAGINATION_PAGE_SIZE")}
-    paginator_class = LazyPaginator
     template_name = "sponsors/sponsors_list_page.html"
 
     def get_queryset(self):

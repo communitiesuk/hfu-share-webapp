@@ -1,4 +1,5 @@
 {% load django_tables2 %}
+{% load pagination_extras %}
 {% if paginated_objs and paginated_objs.paginator.num_pages > 1 %}
     <nav class="govuk-pagination govuk-!-margin-top-4"
          style="justify-content: center"
@@ -26,9 +27,9 @@
         {% if paginated_objs.has_previous or paginated_objs.has_next %}
             {% block pagination.range %}
                 <ul class="govuk-pagination__list">
-                    {% for p in paginated_objs|table_page_range:paginated_objs.paginator %}
-                        <li class="govuk-pagination__item{% if p == paginated_objs.number %} govuk-pagination__item--current{% endif %}{% if p == '...' %} govuk-pagination__item--ellipsis{% endif %}">
-                            {% if p == '...' %}
+                    {% for p in paginated_objs|govuk_page_range:paginated_objs.paginator %}
+                        <li class="govuk-pagination__item{% if p == paginated_objs.number %} govuk-pagination__item--current{% endif %}{% if p == '...' or p == paginated_objs.paginator.ELLIPSIS %} govuk-pagination__item--ellipsis{% endif %}">
+                            {% if p == '...' or p == paginated_objs.paginator.ELLIPSIS %}
                                 ⋯
                             {% else %}
                                 <a href="?page={{ p }}"

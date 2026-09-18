@@ -21,7 +21,6 @@ from django_filters import CharFilter, FilterSet, MultipleChoiceFilter
 from django_filters.views import FilterView
 from django_tables2 import (
     Column,
-    LazyPaginator,
     SingleTableMixin,
     tables,
 )
@@ -56,6 +55,7 @@ from webapp.mixins import (
     DetailViewMixin,
     FilterPanelMixin,
     PageTitleMixin,
+    PaginatorClassMixin,
     PermissionsMixin,
     PIISafeRecordNameMixin,
     SectionHeadingMixin,
@@ -245,6 +245,7 @@ class VisaApplicationListView(
     SectionHeadingMixin,
     PermissionsMixin,
     SingleTableMixin,
+    PaginatorClassMixin,
     FilterView,
 ):
     group_type = [
@@ -260,7 +261,6 @@ class VisaApplicationListView(
     filterset_class = VisaApplicationsTableFilter
     template_name = "visa_applications/visa_applications.html"
     paginate_by = os.environ.get("PAGINATION_PAGE_SIZE")
-    paginator_class = LazyPaginator
 
     def get_queryset(self):
         fields_needed = [

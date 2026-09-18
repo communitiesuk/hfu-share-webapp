@@ -21,7 +21,6 @@ from django_filters import (
 from django_filters.views import FilterView
 from django_tables2 import (
     Column,
-    LazyPaginator,
     SingleTableMixin,
     SingleTableView,
     tables,
@@ -52,6 +51,7 @@ from webapp.mixins import (
     IsDuplicateMixin,
     MultiLABannerMixin,
     PageTitleMixin,
+    PaginatorClassMixin,
     PermissionsMixin,
     PIISafeRecordNameMixin,
     SectionHeadingMixin,
@@ -316,6 +316,7 @@ class GuestsListView(
     SectionHeadingMixin,
     PermissionsMixin,
     SingleTableMixin,
+    PaginatorClassMixin,
     FilterView,
 ):
     group_type = [
@@ -330,7 +331,6 @@ class GuestsListView(
     table_class = GuestsTable
     filterset_class = GuestsFilter
     table_pagination = {"per_page": os.environ.get("PAGINATION_PAGE_SIZE")}
-    paginator_class = LazyPaginator
     template_name = "guests/guests_list_page.html"
 
     def get_queryset(self):
@@ -873,7 +873,9 @@ class RedactedVisaApplicationsTable(tables.Table):
         order_by = ("-application_event_datetime",)
 
 
-class GuestVisaApplicationsListView(PermissionsMixin, SingleTableView):
+class GuestVisaApplicationsListView(
+    PermissionsMixin, SingleTableView, PaginatorClassMixin
+):
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
@@ -885,7 +887,6 @@ class GuestVisaApplicationsListView(PermissionsMixin, SingleTableView):
     model = VisaApplication
     table_class = RedactedVisaApplicationsTable
     table_pagination = {"per_page": os.environ.get("PAGINATION_PAGE_SIZE")}
-    paginator_class = LazyPaginator
     template_name = (
         "guests/detail_view/detail_view_linked_records_visa_application_list.html"
     )

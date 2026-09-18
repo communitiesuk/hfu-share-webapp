@@ -1,7 +1,7 @@
 {% load django_tables2 %}
 {% load static %}
 {% load i18n l10n %}
-{% load filters %}
+{% load filters pagination_extras %}
 <script nonce="{{request.csp_nonce}}">
     document.addEventListener('DOMContentLoaded', () => {
         const selectAllCheckbox = document.getElementById('select-all')
@@ -170,9 +170,9 @@
                     {% if table.page.has_previous or table.page.has_next %}
                         {% block pagination.range %}
                             <ul class="govuk-pagination__list">
-                                {% for p in table.page|table_page_range:table.paginator %}
-                                    <li class="govuk-pagination__item{% if p == table.page.number %} govuk-pagination__item--current{% endif %}{% if p == '...' %} govuk-pagination__item--ellipsis{% endif %}">
-                                        {% if p == '...' %}
+                                {% for p in table.page|govuk_page_range:table.paginator %}
+                                    <li class="govuk-pagination__item{% if p == table.page.number %} govuk-pagination__item--current{% endif %}{% if p == '...' or p == table.paginator.ELLIPSIS %} govuk-pagination__item--ellipsis{% endif %}">
+                                        {% if p == '...' or p == table.paginator.ELLIPSIS %}
                                             ⋯
                                         {% else %}
                                             <a href="{% querystring table.prefixed_page_field=p %}"

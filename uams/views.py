@@ -14,7 +14,6 @@ from django_filters import CharFilter, FilterSet
 from django_filters.views import FilterView
 from django_tables2 import (
     Column,
-    LazyPaginator,
     SingleTableMixin,
     tables,
 )
@@ -30,6 +29,7 @@ from webapp.constants import UAMS_SEARCH_FIELDS
 from webapp.mixins import (
     DetailViewMixin,
     FilterPanelMixin,
+    PaginatorClassMixin,
     PermissionsMixin,
     PIISafeRecordNameMixin,
     SectionHeadingMixin,
@@ -155,7 +155,13 @@ class UamsFilter(FilterSet, FilterPanelMixin):
         ]
 
 
-class UamsListView(SectionHeadingMixin, PermissionsMixin, SingleTableMixin, FilterView):
+class UamsListView(
+    SectionHeadingMixin,
+    PermissionsMixin,
+    SingleTableMixin,
+    PaginatorClassMixin,
+    FilterView,
+):
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
@@ -168,7 +174,6 @@ class UamsListView(SectionHeadingMixin, PermissionsMixin, SingleTableMixin, Filt
     table_class = UamsTable
     filterset_class = UamsFilter
     table_pagination = {"per_page": os.environ.get("PAGINATION_PAGE_SIZE")}
-    paginator_class = LazyPaginator
     template_name = "uams/uams_list_page.html"
 
     def get_queryset(self):

@@ -9,7 +9,7 @@ from django.utils.html import format_html, format_html_join
 from django.views.generic import FormView
 from django_filters import CharFilter, FilterSet
 from django_filters.views import FilterView
-from django_tables2 import Column, LazyPaginator, SingleTableMixin, tables
+from django_tables2 import Column, SingleTableMixin, tables
 
 from accounts.mixins import AdminAccessRequiredMixin
 from accounts.models import AccessRequest, User
@@ -21,6 +21,7 @@ from webapp.constants import USERS_SEARCH_FIELDS
 from webapp.mixins import (
     FilterPanelMixin,
     PageTitleMixin,
+    PaginatorClassMixin,
     PIISafeRecordNameMixin,
     SectionHeadingMixin,
     UserActionsMixin,
@@ -79,13 +80,13 @@ class UserListView(
     SectionHeadingMixin,
     AdminAccessRequiredMixin,
     SingleTableMixin,
+    PaginatorClassMixin,
     FilterView,
 ):
     model = User
     table_class = UsersTable
     filterset_class = UsersFilter
     table_pagination = {"per_page": os.environ.get("PAGINATION_PAGE_SIZE")}
-    paginator_class = LazyPaginator
     template_name = "user_management/users/users_list_page.html"
     ordering = ["full_name_or_email"]
 

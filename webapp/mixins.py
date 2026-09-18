@@ -20,6 +20,7 @@ from django.utils import timezone
 from django.utils.datastructures import MultiValueDict
 from django.utils.html import format_html, format_html_join
 from django_filters import MultipleChoiceFilter
+from django_tables2 import LazyPaginator
 
 from accounts.enums import GroupType
 from accounts.mixins import GroupRequiredMixin
@@ -1199,3 +1200,16 @@ class WizardPageTitleMixin(PageTitleMixin):
         return super().render_to_response(  # type: ignore[misc]
             context, **response_kwargs
         )
+
+
+class PaginatorClassMixin:
+    @property
+    def paginator_class(self):
+        if self.user_can_edit(
+            group_types=[
+                GroupType.DEV,
+            ]
+        ):
+            return Paginator
+
+        return LazyPaginator
