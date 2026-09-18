@@ -2,14 +2,14 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+from typing import Type
 from urllib.parse import urlparse
 
 import pytest
 from dotenv import load_dotenv
 from playwright.sync_api import Page
 
-from browser_tests.pages.home_page import HomePage
-from browser_tests.pages.safeguarding_page import SafeguardingPage
+from browser_tests.pages import CookiesPage, HomePage, SafeguardingPage, SharePage
 
 from .test_users import USER_TYPES, BrowserTestUserFactory
 
@@ -47,37 +47,18 @@ def pytest_sessionstart(session):
 
 
 @pytest.fixture
-def home_page_factory(page: Page):
-    def create(user_type):
-        home_page = HomePage(page, BrowserTestUserFactory.create(user_type))
-        return home_page
+def page_factory(page: Page):
+    def create(share_page_class: Type[SharePage], user_type: str):
+        share_page = share_page_class(page, BrowserTestUserFactory.create(user_type))
+        return share_page
 
     return create
 
 
-@pytest.fixture
-def safeguarding_page_factory(page: Page):
-    def create(user_type):
-        safeguarding_page = SafeguardingPage(
-            page, BrowserTestUserFactory.create(user_type)
-        )
-        return safeguarding_page
-
-    return create
-
-
-def create_home_page_fixture(user_type: str):
+def create_page_fixture(share_page_class: Type[SharePage], user_type: str):
     @pytest.fixture
-    def fixture(home_page_factory):
-        return home_page_factory(user_type)
-
-    return fixture
-
-
-def create_safeguarding_page_fixture(user_type: str):
-    @pytest.fixture
-    def fixture(safeguarding_page_factory):
-        return safeguarding_page_factory(user_type)
+    def fixture(page_factory):
+        return page_factory(share_page_class, user_type)
 
     return fixture
 
@@ -85,7 +66,10 @@ def create_safeguarding_page_fixture(user_type: str):
 for user_type in USER_TYPES:
     fixture_param = f"_with_{user_type}_user" if user_type != "default" else ""
 
-    globals()[f"home_page{fixture_param}"] = create_home_page_fixture(user_type)
-    globals()[f"safeguarding_page{fixture_param}"] = create_safeguarding_page_fixture(
-        user_type
+    globals()[f"home_page{fixture_param}"] = create_page_fixture(HomePage, user_type)
+    globals()[f"safeguarding_page{fixture_param}"] = create_page_fixture(
+        SafeguardingPage, user_type
+    )
+    globals()[f"cookies_page{fixture_param}"] = create_page_fixture(
+        CookiesPage, user_type
     )

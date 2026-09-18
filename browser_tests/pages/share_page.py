@@ -106,8 +106,10 @@ class SharePage:
     def enter_text_into_date_field(self, label: str, date: datetime):
         self.main_page.get_by_label(label).fill(date.strftime("%d/%m/%Y"))
 
-    def click_button(self, button_text: str):
-        self.main_page.get_by_role("button", name=button_text).click()
+    def click_button(self, button_text: str, element: Optional[Locator] = None):
+        (self.main_page if element is None else element).get_by_role(
+            "button", name=button_text
+        ).click()
 
     def search(self, text: str) -> None:
         show_filters_button = self.main_page.get_by_role("button", name="Show filters")
@@ -120,6 +122,11 @@ class SharePage:
         (self.main_page if element is None else element).get_by_role(
             "link", name=link_text
         ).click()
+
+    def click_navigation_link(self, link_text: str):
+        self.click_link(
+            link_text, element=self.page.locator(".govuk-service-navigation ")
+        )
 
     def click_breadcrumb_link(self, link_text: str):
         self.click_link(link_text, element=self.page.locator(".govuk-breadcrumbs"))
@@ -209,3 +216,9 @@ class SharePage:
     @property
     def notification_banner(self) -> Locator:
         return self.main_page.locator("div.govuk-notification-banner")
+
+    def assert_element_visibility(self, element: Locator, isShown: bool):
+        if isShown:
+            expect(element).to_be_visible()
+        else:
+            expect(element).to_be_hidden()
