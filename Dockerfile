@@ -1,4 +1,4 @@
-FROM python:3.13.15-alpine3.24@sha256:7415fbc3c9e4979cc717d92377ab2bc7b2b4a2af1ac03cc52b5f3f88efedaf3a
+FROM python:3.13.15-alpine3.24@sha256:8a6c5efbf700a149072e3e0c39678a093a675a60e7fa607f6c9011f335b0b24b
 
 # Add curl for healthchecks
 RUN apk add --update --no-cache curl=8.22.0-r0
