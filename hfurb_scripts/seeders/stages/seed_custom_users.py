@@ -6,6 +6,11 @@ from django.contrib.auth.models import Group
 from django.db import transaction
 
 from accounts.models import User as UserModel
+from browser_tests.test_users import (
+    MissingBrowserTestUserEnvVarsException,
+    UserType,
+    create_browser_test_user,
+)
 
 
 class UserData(TypedDict):
@@ -43,33 +48,34 @@ def seed_user(user_data: UserData, password: str, user_model: UserModel):
 
 def seed_browser_test_users():
     User = get_user_model()
-    browser_test_user_email = os.environ.get("BROWSER_TEST_USER_EMAIL")
-    browser_test_user_password = os.environ.get("BROWSER_TEST_USER_PASSWORD")
+
+    used_emails = []
 
     with transaction.atomic():
-        if browser_test_user_email and browser_test_user_password:
-            seed_user(
-                {
-                    "email": browser_test_user_email,
-                    "group_name": "ltla_hobbiton_browser_test",
-                },
-                browser_test_user_password,
-                User,
-            )
-        else:
-            print("Skipping creation of browser test user")
-            for key, value in (
-                (
-                    "BROWSER_TEST_USER_EMAIL",
-                    browser_test_user_email,
-                ),
-                (
-                    "BROWSER_TEST_USER_PASSWORD",
-                    browser_test_user_password,
-                ),
-            ):
-                if not value:
-                    print(f"ENV variable {key} was not set")
+        for user_type in UserType:
+            try:
+                browser_test_user = create_browser_test_user(user_type)
+
+                if browser_test_user.email in used_emails:
+                    print(
+                        "Skipping creation of browser test user for "
+                        f"'{user_type.name}' as user already exists"
+                    )
+                    continue
+
+                used_emails.append(browser_test_user.email)
+
+                seed_user(
+                    {
+                        "email": browser_test_user.email,
+                        "group_name": "ltla_hobbiton_browser_test",
+                    },
+                    browser_test_user.password,
+                    User,
+                )
+            except MissingBrowserTestUserEnvVarsException as e:
+                print(f"Skipping creation of browser test user for: {user_type.name}")
+                print(e)
 
     print("Browser test users seeding completed.")
 

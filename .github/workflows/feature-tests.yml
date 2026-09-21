@@ -16,10 +16,11 @@ jobs:
       DB_HOST: 'localhost'
       DB_USERNAME: 'postgres'
       DB_PASSWORD: 'postgres'
-      BROWSER_TEST_USER_PASSWORD: 'super-secret-password'
       BROWSER_TEST_URL: 'http://localhost:8010'
-      BROWSER_TEST_LA_USER_EMAIL: 'browser_tester@example.com'
+      BROWSER_TEST_USER_EMAIL: 'browser_tester@example.com'
+      BROWSER_TEST_USER_PASSWORD: 'super-secret-password'
       BROWSER_TEST_ACCESSIBILITY_USER_EMAIL: 'browser_accessibility_tester@example.com'
+      BROWSER_TEST_ACCESSIBILITY_USER_PASSWORD: 'super-secret-password'
       SKIP_BROWSER_TEST_SEED: 'true'
 
     steps:
@@ -59,15 +60,14 @@ jobs:
       - name: Seed browser test users
         run: |
           poetry run seed-groups
-          BROWSER_TEST_USER_EMAIL=$BROWSER_TEST_LA_USER_EMAIL poetry run seed-browser-test-users
-          BROWSER_TEST_USER_EMAIL=$BROWSER_TEST_ACCESSIBILITY_USER_EMAIL poetry run seed-browser-test-users
-          BROWSER_TEST_USER_EMAIL=$BROWSER_TEST_LA_USER_EMAIL poetry run python manage.py seed_browser_test_la --seed
+          poetry run seed-browser-test-users
+          poetry run python manage.py seed_browser_test_la --seed
 
       - parallel:
           - name: Browser tests
             run: |
-              BROWSER_TEST_USER_EMAIL=$BROWSER_TEST_LA_USER_EMAIL poetry run test-browser
+              poetry run test-browser
 
           - name: Browser accessibility tests
             run: |
-              BROWSER_TEST_USER_EMAIL=$BROWSER_TEST_ACCESSIBILITY_USER_EMAIL poetry run test-browser-accessibility
+              poetry run test-browser-accessibility
