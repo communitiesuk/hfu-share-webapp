@@ -7,8 +7,10 @@ from django.db.models import Q
 from django.test import override_settings
 
 from accounts.enums import (
-    BROWSER_TEST_LA_GROUP_NAME,
+    BROWSER_TEST_FIRST_LA_GROUP_NAME,
     BROWSER_TEST_LTLA_NAMES,
+    BROWSER_TEST_SECOND_LA_GROUP_NAME,
+    BROWSER_TEST_UTLA_NAME,
     GroupType,
 )
 from accounts.tests.factories import GroupFactory, UserFactory
@@ -46,14 +48,25 @@ SEEDED_MODELS = [
 class BrowserTestSeededIdsTestCase(BaseTestCase):
     @classmethod
     def setUpTestData(cls):
-        group = GroupFactory(
-            name=BROWSER_TEST_LA_GROUP_NAME,
-            groupinfo__ltla_name=BROWSER_TEST_LTLA_NAMES[0],
-            groupinfo__utla_name="Hobbiton (Browser test UTLA)",
-            groupinfo__da_name="England",
-            groupinfo__group_type=GroupType.LOCAL_AUTHORITY_BROWSER_TEST,
-        )
-        UserFactory().groups.add(group)
+        for name, ltla_name in (
+            (
+                BROWSER_TEST_FIRST_LA_GROUP_NAME,
+                BROWSER_TEST_LTLA_NAMES[0],
+            ),
+            (
+                BROWSER_TEST_SECOND_LA_GROUP_NAME,
+                BROWSER_TEST_LTLA_NAMES[1],
+            ),
+        ):
+            group = GroupFactory(
+                name=name,
+                groupinfo__ltla_name=ltla_name,
+                groupinfo__utla_name=BROWSER_TEST_UTLA_NAME,
+                groupinfo__da_name="England",
+                groupinfo__group_type=GroupType.LOCAL_AUTHORITY_BROWSER_TEST,
+            )
+            UserFactory().groups.add(group)
+
         seed_browser_test_la()
 
     def test_records_created_through_application_code_get_browser_test_ids(self):
