@@ -77,7 +77,7 @@ class AccessRequestFormGroupTypeStep(forms.Form):
                         {"cancel_url": reverse("webapp:landing-page")},
                     )
                 ),
-                style="display: flex; gap: 16px; align-items: baseline",
+                css_class="govuk-button-group",
             ),
         )
 
@@ -250,7 +250,7 @@ class AccessRequestApprovalForm(forms.Form):
                         {"cancel_url": reverse("user-management:access-requests")},
                     )
                 ),
-                style="display: flex; gap: 16px; align-items: baseline",
+                css_class="govuk-button-group",
             ),
         )
 

@@ -54,7 +54,7 @@
 
             showFilterLink.addEventListener('click', function(e) {
                 e.preventDefault();
-                const currentlyOpen = filterContainer.style.display === 'block';
+                const currentlyOpen = filterContainer.classList.contains('app-display--block');
                 if (currentlyOpen) {
                     reassignmentRequestsTabsContent.classList.remove('govuk-grid-column-two-thirds');
                     reassignmentRequestsTabsContent.classList.add('govuk-grid-column-three-quarters');

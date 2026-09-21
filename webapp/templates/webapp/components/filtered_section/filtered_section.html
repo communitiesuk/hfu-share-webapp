@@ -2,7 +2,7 @@
 {% load filters %}
 <div>
     {% if filter %}
-        <div style="display: flex; align-items: center;">
+        <div class="app-display--flex app-align-items--center">
             <a id="show-filter-link"
                class="govuk-button govuk-button--secondary"
                role="button"
@@ -15,7 +15,7 @@
             {% endblock extra_buttons %}
         </div>
     {% endif %}
-    <div style="display: flex;">
+    <div class="app-display--flex">
         {% if filter %}
             <div>
                 <form action="" method="get" id="filter-form" novalidate>
@@ -24,10 +24,7 @@
                            name="show_filters_panel"
                            value="{{ filter.show_filters_panel|yesno:'True,False' }}">
                     <div id="filter-container"
-                         style="display: {{ filter.show_filters_panel|yesno:"block,none" }};
-                                width: 400px;
-                                margin-right: 16px"
-                         class="moj-filter">
+                         class="moj-filter app-filter app-display--{{ filter.show_filters_panel|yesno:"block,none" }}">
                         <div class="moj-filter__header">
                             <div class="moj-filter__header-title">
                                 <h2 class="govuk-heading-m">Filters</h2>
@@ -79,14 +76,16 @@
     class Filter {
         optionSets = {
             open: {
-                filterContainerStyle: "block",
+                filterContainerClassAdd: "block",
+                filterContainerClassRemove: "none",
                 showFilterLinkText: "Hide filters",
                 showFilterAriaExpandedStatus: true,
                 inputValue: "True",
                 localStorageValue: "true",
             },
             hidden: {
-                filterContainerStyle: "none",
+                filterContainerClassAdd: "none",
+                filterContainerClassRemove: "block",
                 showFilterLinkText: "Show filters",
                 showFilterAriaExpandedStatus: false,
                 inputValue: "False",
@@ -134,7 +133,8 @@
         showHideFilter(open) {
             const optionSet = open ? this.optionSets.open : this.optionSets.hidden;
 
-            this.filterContainer.style.display = optionSet.filterContainerStyle;
+            this.filterContainer.classList.add(`app-display--${optionSet.filterContainerClassAdd}`)
+            this.filterContainer.classList.remove(`app-display--${optionSet.filterContainerClassRemove}`)
             this.showFilterLink.textContent = optionSet.showFilterLinkText;
             this.showFilterLink.setAttribute("aria-expanded", optionSet.showFilterAriaExpandedStatus);
             if (this.input) this.input.value = optionSet.inputValue;

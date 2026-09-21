@@ -843,8 +843,8 @@ class RedactedVisaApplicationsTable(tables.Table):
         if record.user_can_view:
             return format_html(
                 (
-                    '<a class="govuk-body-s govuk-link"'
-                    'style="white-space: normal" href="{}">'
+                    '<a class="govuk-body-s govuk-link app-text--white-space-normal "'
+                    'href="{}">'
                     "{}"
                     "</a>"
                 ),

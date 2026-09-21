@@ -40,6 +40,7 @@ from user_management.templatetags.access_request_extras import (
 )
 from webapp.constants import (
     ACCESS_REQUEST_TABLE_COLUMN_ATTRS,
+    APP_TABLE_TD_CLASSES,
     UNASSIGNED_ACCOMMODATION_REQUESTS_ALLOWED_GROUP_TYPES,
     VisaStatus,
     no_visa_status,
@@ -177,7 +178,7 @@ class RejectedAccessRequestsTable(tables.Table):
         empty_values=(),
         attrs={
             "th": {"visually_hidden_header": True},
-            "td": {"style": "text-align: right;"},
+            "td": {"class": f"{APP_TABLE_TD_CLASSES} app-table--align-right"},
         },
     )
 
@@ -195,7 +196,7 @@ class RejectedAccessRequestsTable(tables.Table):
         )
 
         return format_html(
-            '<form method="post" action={action_url} style="display: inline;" '
+            '<form method="post" action={action_url} classs="app--display-inline" '
             "novalidate>"
             '<input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}">'
             '<button type="submit" class="govuk-link govuk-link--no-visited-state">'
@@ -630,7 +631,7 @@ class TagAction(Action):
         super().__init__(
             label=label,
             value=format_html(
-                '<strong class="govuk-tag {tag_colour_class}" style="max-width: 100%">'
+                '<strong class="govuk-tag {tag_colour_class} app-max-width--100">'
                 "{tag_text}"
                 "</strong>",
                 tag_colour_class=tag_colour_class,
