@@ -19,7 +19,7 @@ from accounts.models import AccessRequest, GroupInfo
 from user_management.templatetags.access_request_extras import (
     render_name_label_from_group_info,
 )
-from webapp.layout import ConditionalRadiosWithLegend
+from webapp.layout import ConditionalRadiosWithLegend, Link
 from webapp.widgets import SearchableSelect
 
 GROUP_TYPE_HINTS = {
@@ -71,12 +71,7 @@ class AccessRequestFormGroupTypeStep(forms.Form):
             Field.radios("group_type", legend_size=Size.EXTRA_LARGE, legend_tag="h1"),
             Div(
                 Button("button", "Next"),
-                HTML(
-                    render_to_string(
-                        "user_management/access_request_form/buttons/cancel_link.html",
-                        {"cancel_url": reverse("webapp:landing-page")},
-                    )
-                ),
+                Link.cancel(href=reverse("webapp:landing-page")),
                 css_class="govuk-button-group",
             ),
         )
@@ -244,12 +239,7 @@ class AccessRequestApprovalForm(forms.Form):
             ),
             Div(
                 Button("submit", "Confirm"),
-                HTML(
-                    render_to_string(
-                        "user_management/access_request_form/buttons/cancel_link.html",
-                        {"cancel_url": reverse("user-management:access-requests")},
-                    )
-                ),
+                Link.cancel(),
                 css_class="govuk-button-group",
             ),
         )

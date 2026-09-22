@@ -1,5 +1,5 @@
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import HTML, Button, Div, Field, Layout, Size
+from crispy_forms_gds.layout import Button, Div, Field, Layout, Size
 from django import forms
 
 from accounts.enums import GroupType
@@ -7,6 +7,7 @@ from accounts.models import GroupInfo
 from user_management.templatetags.access_request_extras import (
     render_name_label_from_group_info,
 )
+from webapp.layout import Link
 from webapp.widgets import SearchableSelect
 
 
@@ -36,12 +37,7 @@ class AssignLocalAuthorityFormSelectRegionStep(forms.Form):
             Field.radios("region", legend_size=Size.LARGE),
             Div(
                 Button.primary("button", "Continue"),
-                HTML(
-                    '<a href="{{ cancel_url }}"'
-                    'class="govuk-link govuk-link--no-visited-state govuk-body">'
-                    "Cancel"
-                    "</a>"
-                ),
+                Link.cancel(),
                 css_class="govuk-button-group",
             ),
         )
@@ -81,12 +77,7 @@ class AssignLocalAuthorityFormSelectLocalAuthorityStep(forms.Form):
             Field.text("local_authority", label_size=Size.LARGE),
             Div(
                 Button.primary("button", "Assign"),
-                HTML(
-                    '<a href="{{ cancel_url }}"'
-                    'class="govuk-link govuk-link--no-visited-state govuk-body">'
-                    "Cancel"
-                    "</a>"
-                ),
+                Link.cancel(),
                 css_class="govuk-button-group",
             ),
         )

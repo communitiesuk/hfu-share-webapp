@@ -1,12 +1,13 @@
 from datetime import datetime, timedelta
 
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import HTML, Field, Fieldset, Fluid, Layout
+from crispy_forms_gds.layout import HTML, Button, Div, Field, Fieldset, Fluid, Layout
 from crispy_forms_gds.layout.constants import Size
 from django import forms
 from django.urls import reverse
 
 from ontology.models import MvAccommodation, MvUkPostcode
+from webapp.layout import Link
 from webapp.mixins import ReadOnlyFieldsMixin
 from webapp.widgets import DatePicker, SearchableSelectLazy
 
@@ -105,12 +106,10 @@ class AccommodationEditForm(ReadOnlyFieldsMixin, forms.ModelForm):
             ),
             HTML(self.render_readonly_field("Upper tier LA", "utla_name")),
             HTML(self.render_readonly_field("Lower tier LA", "ltla_name")),
-            HTML(
-                '<div class="govuk-button-group">'
-                '    <button type="submit" class="govuk-button">Update</button>'
-                '    <a class="govuk-link govuk-link--no-visited-state"\n'
-                '       href="{{ cancel_url }}">Cancel</a>'
-                "</div>"
+            Div(
+                Button.primary("submit", "Update"),
+                Link.cancel(),
+                css_class="govuk-button-group",
             ),
         )
 
