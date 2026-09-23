@@ -1,25 +1,12 @@
 import os
-from dataclasses import dataclass
-from enum import Enum
-from typing import List, Literal
+from typing import List
 
+from accounts.enums import BROWSER_TEST_FIRST_LA_GROUP_NAME
 
-class MissingBrowserTestUserEnvVarsException(Exception):
-    pass
-
-
-class UserType(Enum):
-    DEFAULT = ""
-    ACCESSIBILITY = "ACCESSIBILITY_"
-
-
-AttributeType = Literal["email", "password"]
-
-
-@dataclass(frozen=True)
-class BrowserTestUser:
-    email: str
-    password: str
+from .enums import UserType
+from .exceptions import MissingBrowserTestUserEnvVarsException
+from .models import BrowserTestUser
+from .types import AttributeType
 
 
 def _get_browser_test_credentials_env_var_names(
@@ -58,7 +45,7 @@ def _missing_env_variable_message(
     )
 
 
-def create_browser_test_user(user_type: UserType) -> BrowserTestUser:
+def build_browser_test_user(user_type: UserType) -> BrowserTestUser:
     email = _get_browser_test_credential_from_env_vars("email", user_type)
     password = _get_browser_test_credential_from_env_vars("password", user_type)
 
@@ -78,4 +65,6 @@ def create_browser_test_user(user_type: UserType) -> BrowserTestUser:
     assert email is not None
     assert password is not None
 
-    return BrowserTestUser(email=email, password=password)
+    return BrowserTestUser(
+        email=email, group_name=BROWSER_TEST_FIRST_LA_GROUP_NAME, password=password
+    )

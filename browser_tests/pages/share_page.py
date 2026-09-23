@@ -4,7 +4,7 @@ from typing import Optional, Tuple, cast
 
 from playwright.sync_api import Locator, Page, expect
 
-from ..test_users import BrowserTestUser
+from hfurb_scripts.seeders.users import BrowserTestUser
 
 
 class SharePage:

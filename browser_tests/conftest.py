@@ -9,9 +9,8 @@ from dotenv import load_dotenv
 from playwright.sync_api import Page
 
 from browser_tests.pages import CookiesPage, HomePage, SafeguardingPage, SharePage
+from hfurb_scripts.seeders.users import UserType, build_browser_test_user
 from test_utils.helpers import browser_test_url_is_local
-
-from .test_users import UserType, create_browser_test_user
 
 MANAGE_PY = Path(__file__).resolve().parent.parent / "manage.py"
 
@@ -43,7 +42,7 @@ def pytest_sessionstart(session):
 @pytest.fixture
 def page_factory(page: Page):
     def create(share_page_class: Type[SharePage], user_type: UserType):
-        share_page = share_page_class(page, create_browser_test_user(user_type))
+        share_page = share_page_class(page, build_browser_test_user(user_type))
         return share_page
 
     return create
