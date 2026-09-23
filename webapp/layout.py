@@ -66,8 +66,8 @@ class Link(BaseLink):
     field_classes = "govuk-link"
 
     @staticmethod
-    def cancel(text: str = "Cancel", href: str = "{{ cancel_url }}", **kwargs):
-        return Link(text, href, no_visited_state=True, **kwargs)
+    def cancel(text: str = "Cancel", **kwargs):
+        return Link(text, "{{ cancel_url }}", no_visited_state=True, **kwargs)
 
     def __init__(
         self,

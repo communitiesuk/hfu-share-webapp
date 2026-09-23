@@ -12,7 +12,6 @@ from crispy_forms_gds.layout import (
 from django import forms
 from django.core.exceptions import ValidationError
 from django.template.loader import render_to_string
-from django.urls import reverse
 
 from accounts.enums import GroupType
 from accounts.models import AccessRequest, GroupInfo
@@ -71,7 +70,7 @@ class AccessRequestFormGroupTypeStep(forms.Form):
             Field.radios("group_type", legend_size=Size.EXTRA_LARGE, legend_tag="h1"),
             Div(
                 Button("button", "Next"),
-                Link.cancel(href=reverse("webapp:landing-page")),
+                Link.cancel(),
                 css_class="govuk-button-group",
             ),
         )
