@@ -23,8 +23,7 @@
         <link rel="apple-touch-icon"
               href="{% static 'gds/assets/images/govuk-icon-180.png' %}">
         <link rel="manifest" href="{% static 'gds/assets/manifest.json' %}">
-        <link rel="stylesheet"
-              href="{% static 'gds/govuk-frontend-6.5.0.min.css' %}">
+        <link rel="stylesheet" href="{% static GOVUK_CSS_PATH %}">
         <link rel="stylesheet" href="{% static 'moj-frontend/all.min.css' %}">
         <link rel="stylesheet" href="{% static 'css/styles.css' %}">
         <link rel="stylesheet"
@@ -74,11 +73,11 @@
             </main>
         </div>
         {% include "webapp/components/footer/footer.html" %}
-        <script type="module" src="{% static 'gds/govuk-frontend-6.5.0.min.js' %}"></script>
+        <script type="module" src="{% static GOVUK_JS_PATH %}"></script>
         <script type="module" nonce="{{request.csp_nonce}}">
             import {
               initAll
-            } from "{% static 'gds/govuk-frontend-6.5.0.min.js' %}"
+            } from "{% static GOVUK_JS_PATH %}"
             initAll()
         </script>
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"

@@ -144,6 +144,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "case_management.context_processors.app_context",
+                "case_management.context_processors.govuk_assets",
                 "webapp.context_processors.available_links",
             ],
         },
@@ -246,6 +247,11 @@ STORAGES = {
         "BACKEND": "django.contrib.staticfiles.storage.ManifestStaticFilesStorage",
     },
 }
+
+# Frontend versions
+GOVUK_FRONTEND_VERSION = (
+    (BASE_DIR / "static" / "gds" / "VERSION.txt").read_text().strip()
+)
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
