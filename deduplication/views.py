@@ -231,6 +231,11 @@ class SelectRecordTypeView(SectionHeadingMixin, PermissionsMixin, FormView):
 
         return redirect(redirect_url)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["cancel_url"] = reverse("webapp:landing-page")
+        return context
+
 
 # Select records for deduplication
 def _get_selected_ltla_list(selected_record_ids: List[str], object_type) -> List[str]:
@@ -2387,7 +2392,6 @@ class UndoDeduplicationRecordsFormWizard(
     def get_form_kwargs(self, step=None):
         kwargs = super().get_form_kwargs(step)
         kwargs["record_id"] = self.kwargs["id"]
-        kwargs["cancel_url"] = self.get_cancel_url()
         return kwargs
 
     def get(self, *args, **kwargs):
@@ -2495,6 +2499,12 @@ class SelectAndReviewSponsorRecordsFormWizard(SelectAndViewRecordsFormWizard):
             ]
             self.get_view_selected_records_step_view().request = self.request
             context |= self.get_view_selected_records_step_view().get_context_data()
+            context["select_another_record_disabled"] = (
+                "disabled" if context["object_list"].count() > 1 else ""
+            )
+            context["confirm_selection_disabled"] = (
+                "disabled" if context["object_list"].count() < 2 else ""
+            )
 
         if self.steps.current == SelectAndReviewRecordsStep.REVIEW_SELECTED_RECORDS:
             self.get_review_selected_records_step_view().selected_sponsor_ids = [
@@ -2910,6 +2920,12 @@ class SelectAndReviewGuestRecordsFormWizard(SelectAndViewRecordsFormWizard):
             ]
             self.get_view_selected_records_step_view().request = self.request
             context |= self.get_view_selected_records_step_view().get_context_data()
+            context["select_another_record_disabled"] = (
+                "disabled" if context["object_list"].count() > 1 else ""
+            )
+            context["confirm_selection_disabled"] = (
+                "disabled" if context["object_list"].count() < 2 else ""
+            )
 
         if self.steps.current == SelectAndReviewRecordsStep.REVIEW_SELECTED_RECORDS:
             self.get_review_selected_records_step_view().selected_guest_ids = [
@@ -3347,6 +3363,12 @@ class SelectAndReviewAccommodationRecordsFormWizard(SelectAndViewRecordsFormWiza
             ]
             self.get_view_selected_records_step_view().request = self.request
             context |= self.get_view_selected_records_step_view().get_context_data()
+            context["select_another_record_disabled"] = (
+                "disabled" if context["object_list"].count() > 1 else ""
+            )
+            context["confirm_selection_disabled"] = (
+                "disabled" if context["object_list"].count() < 2 else ""
+            )
 
         if self.steps.current == SelectAndReviewRecordsStep.REVIEW_SELECTED_RECORDS:
             self.get_review_selected_records_step_view().selected_accommodation_ids = [

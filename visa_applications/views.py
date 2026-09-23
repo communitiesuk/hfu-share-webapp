@@ -1013,7 +1013,7 @@ class VIRCloseConfirmView(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["return_url"] = reverse(
+        context["cancel_url"] = reverse(
             "visa-applications:detail-vir", args=[self.object.pk]
         )
         return context
@@ -1072,7 +1072,7 @@ class VIRReopenConfirmView(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["return_url"] = reverse(
+        context["cancel_url"] = reverse(
             "visa-applications:detail-vir", args=[self.object.pk]
         )
         return context

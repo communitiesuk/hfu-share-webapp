@@ -305,6 +305,7 @@ class AccessRequestsDetailsPage(
 
         context["access_request_summary"] = request_summary
         context["access_review_summary"] = review_summary
+        context["cancel_url"] = reverse("user-management:access-requests")
         return context
 
     def done(self, form_list, **kwargs):

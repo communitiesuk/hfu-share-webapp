@@ -1,9 +1,10 @@
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import HTML, Button, Div, Field, Layout, Size
+from crispy_forms_gds.layout import Button, Div, Field, Layout, Size
 from django import forms
 from django.forms import ChoiceField, RadioSelect
 
 from ontology.models import SafeguardingReferral
+from webapp.layout import Link
 
 
 class CentralSafeguardingAlertedStatusForm(forms.Form):
@@ -32,6 +33,7 @@ class CentralSafeguardingAlertedStatusForm(forms.Form):
         ]
         if alerted_status:
             self.fields["alerted_status"].initial = alerted_status
+
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Field.radios(
@@ -39,21 +41,20 @@ class CentralSafeguardingAlertedStatusForm(forms.Form):
                 legend_size=Size.MEDIUM,
             ),
             Div(
-                Button(
+                Button.primary(
                     "submit",
                     "Save",
                     css_class="govuk-button",
                     disabled=not user_can_edit,
                 ),
-                HTML(
-                    '<a href="{{ cancel_url }}" class="govuk-link '
-                    "govuk-link--no-visited-state govuk-body"
-                    + (
-                        ' app-link--disabled" tabindex="-1" aria-disabled="true"'
-                        if not user_can_edit
-                        else '"'
-                    )
-                    + ">Cancel</a>"
+                Link.cancel(
+                    **{
+                        "css_class": "app-link--disabled",
+                        "tabindex": "-1",
+                        "aria_disabled": "true",
+                    }
+                    if not user_can_edit
+                    else {}
                 ),
                 css_class="govuk-button-group",
             ),

@@ -1,5 +1,5 @@
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import HTML, Button, Div, Field, Layout, Size
+from crispy_forms_gds.layout import Button, Div, Field, Layout, Size
 from django import forms
 from django.contrib import messages
 from django.urls import reverse
@@ -17,6 +17,7 @@ from user_management.templatetags.access_request_extras import (
     render_name_label_from_group,
 )
 from webapp.constants import GROUP_SEARCH_FIELDS
+from webapp.layout import Link
 from webapp.mixins import (
     FilterPanelMixin,
     PageTitleMixin,
@@ -145,19 +146,13 @@ class GroupDetailsView(
 
 
 class GroupRemoveUserForm(forms.Form):
-    def __init__(self, *args, group_pk=None, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
                 Button.warning("submit", "Yes - remove this person"),
-                HTML(
-                    f'<a href="{
-                        reverse("user-management:group-details", args=[group_pk])
-                    }" class="govuk-link govuk-link--no-visited-state govuk-body">'
-                    f"Cancel"
-                    f"</a>"
-                ),
+                Link.cancel(),
                 css_class="govuk-button-group",
             )
         )
@@ -175,6 +170,9 @@ class GroupRemoveUserView(
         context["user"] = User.objects.get(pk=self.kwargs["user_pk"])
         context["group_name"] = render_name_label_from_group(
             GroupProxy.objects.get(pk=self.kwargs["group_pk"])
+        )
+        context["cancel_url"] = reverse(
+            "user-management:group-details", args=[self.kwargs["group_pk"]]
         )
         return context
 
@@ -197,8 +195,3 @@ class GroupRemoveUserView(
             self.request, f"{user.full_name_or_email} removed from this group."
         )
         return super().form_valid(form)
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["group_pk"] = self.kwargs["group_pk"]
-        return kwargs

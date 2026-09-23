@@ -1,7 +1,7 @@
 import os
 
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import HTML, Button, Div, Field, Fieldset, Layout
+from crispy_forms_gds.layout import Button, Div, Field, Fieldset, Layout
 from crispy_forms_gds.layout.constants import Size
 from django import forms
 from django.contrib.messages.views import SuccessMessageMixin
@@ -36,6 +36,7 @@ from ontology.models.MvPerson import MvPerson
 from reassignment_requests.forms import CancelReassignmentRequestForm
 from webapp.constants import REASSIGNMENT_REQUEST_SEARCH_FIELDS
 from webapp.enhanced_sentry_logging import db_values, log_event, log_persistence_check
+from webapp.layout import Link
 from webapp.mixins import (
     FilterPanelMixin,
     PageTitleMixin,
@@ -429,13 +430,8 @@ class AcceptRejectReassignmentRequestForm(forms.Form):
                 "comments", label_size=Size.MEDIUM, rows=5, max_characters=500
             ),
             Div(
-                Button("submit", "Confirm"),
-                HTML(
-                    '<a href="{{ cancel_url }}"'
-                    'class="govuk-link govuk-link--no-visited-state govuk-body">'
-                    "Cancel"
-                    "</a>"
-                ),
+                Button.primary("submit", "Confirm"),
+                Link.cancel(),
                 css_class="govuk-button-group",
             ),
         )

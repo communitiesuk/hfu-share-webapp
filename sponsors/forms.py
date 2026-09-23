@@ -1,11 +1,12 @@
 from datetime import datetime, timedelta
 
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import HTML, Field, Fieldset, Layout
+from crispy_forms_gds.layout import HTML, Button, Div, Field, Fieldset, Layout
 from crispy_forms_gds.layout.constants import Size
 from django import forms
 
 from ontology.models import MvVolunteer
+from webapp.layout import Link
 from webapp.mixins import ReadOnlyFieldsMixin
 from webapp.widgets import DatePicker, MultiValueWidget
 
@@ -162,11 +163,9 @@ class SponsorEditForm(ReadOnlyFieldsMixin, forms.ModelForm):
             ),
             HTML(self.render_readonly_field("Host", "is_eoi")),
             HTML(self.render_readonly_field("Sponsor", "is_sponsor")),
-            HTML(
-                '<div class="govuk-button-group">'
-                '    <button type="submit" class="govuk-button">Update</button>'
-                '    <a class="govuk-link govuk-link--no-visited-state"\n'
-                '       href="{{ cancel_url }}">Cancel</a>'
-                "</div>"
+            Div(
+                Button.primary("submit", "Update"),
+                Link.cancel(),
+                css_class="govuk-button-group",
             ),
         )
