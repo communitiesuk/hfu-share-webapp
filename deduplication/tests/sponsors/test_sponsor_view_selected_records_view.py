@@ -104,24 +104,17 @@ class DeduplicationSponsorSelectedViewTests(TestSessionTokenMixin, BaseTestCase)
 
         self.assertContains(
             response,
-            "<button "
-            'class="govuk-button govuk-button--secondary"'
-            'name="wizard_goto_step"'
-            'type="submit"'
+            '<button class="govuk-button govuk-button--secondary" '
+            'data-module="govuk-button" name="wizard_goto_step" type="submit" '
             'value="select-record">'
-            "Select another record"
-            "</button>",
+            "Select another record</button>",
             html=True,
         )
 
         self.assertContains(
             response,
-            "<button "
-            'class="govuk-button"'
-            'type="submit"'
-            "disabled>"
-            "Confirm selection"
-            "</button>",
+            '<button type="submit" class="govuk-button" '
+            'data-module="govuk-button" disabled>Confirm selection</button>',
             html=True,
         )
 
@@ -516,19 +509,16 @@ class DeduplicationSponsorSelectedViewTests(TestSessionTokenMixin, BaseTestCase)
 
         self.assertContains(
             response,
-            "<button "
-            'class="govuk-button govuk-button--secondary"'
-            'name="wizard_goto_step"'
-            'type="submit"'
-            'value="select-record"'
-            "disabled>"
-            "Select another record"
-            "</button>",
+            '<button class="govuk-button govuk-button--secondary" '
+            'data-module="govuk-button" name="wizard_goto_step" type="submit" '
+            'value="select-record" disabled>'
+            "Select another record</button>",
             html=True,
         )
 
         self.assertContains(
             response,
-            '<button class="govuk-button" type="submit">Confirm selection</button>',
+            '<button type="submit" class="govuk-button" '
+            'data-module="govuk-button">Confirm selection</button>',
             html=True,
         )

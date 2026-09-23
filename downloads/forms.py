@@ -5,6 +5,7 @@ from crispy_forms_gds.choices import Choice
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import (
     HTML,
+    Button,
     ConditionalQuestion,
     Div,
     Field,
@@ -116,29 +117,13 @@ class DownloadsTypeForm(forms.Form):
                 legend_size=Size.MEDIUM,
             ),
             Div(
-                HTML(
-                    '<p class="govuk-body">'
+                HTML.p(
                     "Your data will be downloaded to your device in a comma separated"
                     " value (CSV) file."
-                    "</p>"
-                    '<div class="govuk-warning-text">'
-                    '    <span class="govuk-warning-text__icon" aria-hidden="true">'
-                    "    !"
-                    "    </span>"
-                    '    <strong class="govuk-warning-text__text">'
-                    '        <span class="govuk-visually-hidden">Warning</span>'
-                    "        Stay on this page until your download is complete."
-                    "    </strong>"
-                    "</div>"
                 ),
+                HTML.warning("Stay on this page until your download is complete."),
             ),
-            HTML(
-                f'<div class="govuk-button-group">'
-                f'    <button type="submit" class="govuk-button"'
-                f"{'' if user_can_download else ' disabled'}"
-                f">Download data</button>"
-                "</div>"
-            ),
+            Button.primary("submit", "Download data", disabled=not user_can_download),
         )
 
     def clean(self):

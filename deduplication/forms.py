@@ -42,10 +42,9 @@ class SelectRecordTypeForm(forms.Form):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Field.radios("object_choice", legend_size=Size.SMALL),
-            HTML(
-                '<p class="govuk-body">'
+            HTML.p(
                 "Continue to find records using filter and search, "
-                "and deduplicate them.</p>"
+                "and deduplicate them."
             ),
             Div(
                 Button.primary("submit", "Continue"),
@@ -93,8 +92,9 @@ class ViewSelectedRecordsStepForm(forms.Form):
             Div(
                 HTML(
                     render_to_string(
-                        "buttons/select_another_record.html",
+                        "buttons/go_back_step.html",
                         {
+                            "text": "Select another record",
                             "value": "{{ wizard.steps.prev }}",
                             "button_disabled": "{{ select_another_record_disabled }}",
                         },
@@ -944,17 +944,18 @@ class CheckAndCompleteStepForm(forms.Form):
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            HTML(
-                '<div class="govuk-button-group">'
-                '<button type="submit"class="govuk-button">'
-                "Yes, confirm and deduplicate</button>"
-                '<button type="submit"class="govuk-button govuk-button--secondary"'
-                'name="wizard_goto_step"'
-                'type="submit"'
-                'value="{{ wizard.steps.prev }}">'
-                "No, go back to select correct information"
-                "</button>"
-                "</div>"
+            Div(
+                Button.primary("submit", "Yes, confirm and deduplicate"),
+                HTML(
+                    render_to_string(
+                        "buttons/go_back_step.html",
+                        {
+                            "text": "No, go back to select correct information",
+                            "value": "{{ wizard.steps.prev }}",
+                        },
+                    )
+                ),
+                css_class="govuk-button-group",
             ),
         )
 
