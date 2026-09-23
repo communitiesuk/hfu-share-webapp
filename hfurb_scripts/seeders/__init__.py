@@ -17,7 +17,10 @@ django.setup()
 from .stages.group import seed_group  # noqa: E402
 from .stages.initial_data import seed_initial_data  # noqa: E402
 from .stages.seed_browser_test_la import seed_browser_test_la  # noqa: E402
-from .stages.seed_custom_users import seed_custom_users  # noqa: E402
+from .stages.seed_custom_users import (  # noqa: E402
+    seed_browser_test_users,
+    seed_custom_users,
+)
 from .stages.seed_duplicates import seed_duplicates  # noqa: E402
 from .stages.superuser import seed_superuser  # noqa: E402
 
@@ -26,6 +29,7 @@ def run():
     seed_group()
     seed_superuser()
     seed_custom_users()
+    seed_browser_test_users()
     seed_initial_data()
     seed_duplicates()
     seed_browser_test_la()
