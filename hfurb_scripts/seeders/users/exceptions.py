@@ -1,0 +1,2 @@
+class MissingBrowserTestUserEnvVarsException(Exception):
+    pass
