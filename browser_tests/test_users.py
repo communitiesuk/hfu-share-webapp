@@ -22,7 +22,9 @@ class BrowserTestUser:
     password: str
 
 
-def _get_env_vars(attribute_type: AttributeType, user_type: UserType) -> List[str]:
+def _get_browser_test_credentials_env_var_names(
+    attribute_type: AttributeType, user_type: UserType
+) -> List[str]:
     env_vars = [f"BROWSER_TEST_{user_type.value}USER_{attribute_type.upper()}"]
 
     # Accessibility user can use the default browser user if not defined
@@ -32,32 +34,41 @@ def _get_env_vars(attribute_type: AttributeType, user_type: UserType) -> List[st
     return env_vars
 
 
-def _get_env_value(attribute_type: AttributeType, user_type: UserType) -> str | None:
-    for env_var in _get_env_vars(attribute_type, user_type):
+def _get_browser_test_credential_from_env_vars(
+    attribute_type: AttributeType, user_type: UserType
+) -> str | None:
+    for env_var in _get_browser_test_credentials_env_var_names(
+        attribute_type, user_type
+    ):
         if value := os.environ.get(env_var):
             return value
 
     return None
 
 
-def _missing_env_message(
+def _missing_env_variable_message(
     attribute: AttributeType,
     user_type: UserType,
 ) -> str:
-    return f"Must define one of {', '.join(_get_env_vars(attribute, user_type))}"
+    return (
+        "Must define one of "
+        f"{
+            ', '.join(_get_browser_test_credentials_env_var_names(attribute, user_type))
+        }"
+    )
 
 
 def create_browser_test_user(user_type: UserType) -> BrowserTestUser:
-    email = _get_env_value("email", user_type)
-    password = _get_env_value("password", user_type)
+    email = _get_browser_test_credential_from_env_vars("email", user_type)
+    password = _get_browser_test_credential_from_env_vars("password", user_type)
 
     missing = []
 
     if email is None:
-        missing.append(_missing_env_message("email", user_type))
+        missing.append(_missing_env_variable_message("email", user_type))
 
     if password is None:
-        missing.append(_missing_env_message("password", user_type))
+        missing.append(_missing_env_variable_message("password", user_type))
 
     if missing:
         raise MissingBrowserTestUserEnvVarsException(
