@@ -58,6 +58,7 @@ from webapp.constants import (
     ESCALATED_CHECKS_SEARCH_FIELDS,
     visa_status_list_ordered,
 )
+from webapp.layout import render_app_visa_status_tag
 from webapp.mixins import (
     DetailViewMixin,
     FilterPanelMixin,
@@ -389,10 +390,7 @@ class EscalatedChecksTable(tables.Table):
         if not person:
             return ""
 
-        return render_to_string(
-            "webapp/components/visa_status_tag/visa_status_tag.html",
-            {"visa_status": person.visa_status},
-        )
+        return render_app_visa_status_tag(person.visa_status)
 
     def render_alerted_status(self, record: SafeguardingReferral):
         return render_to_string(

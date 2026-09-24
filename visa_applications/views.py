@@ -51,6 +51,7 @@ from webapp.constants import (
     vir_status_list,
     visa_status_list,
 )
+from webapp.layout import render_app_visa_status_tag
 from webapp.mixins import (
     DetailViewMixin,
     FilterPanelMixin,
@@ -107,10 +108,7 @@ class VisaApplicationsTable(tables.Table):
     gwf = Column(verbose_name="Global web form number (GWF)")
 
     def render_visa_status(self, value):
-        return render_to_string(
-            "webapp/components/visa_status_tag/visa_status_tag.html",
-            {"visa_status": value},
-        )
+        return render_app_visa_status_tag(value)
 
     def render_title(self, record, value):
         return format_html(
@@ -784,10 +782,7 @@ class VIRTable(tables.Table):
     )
 
     def render_visa_status(self, value):
-        return render_to_string(
-            "webapp/components/visa_status_tag/visa_status_tag.html",
-            {"visa_status": value},
-        )
+        return render_app_visa_status_tag(value)
 
     def render_name(self, record, value):
         return format_html(

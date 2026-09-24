@@ -22,7 +22,7 @@ from ontology.models import (
     VisaApplication,
 )
 from webapp.formatting import format_date_value
-from webapp.layout import ButtonAsLink, Link
+from webapp.layout import ButtonAsLink, Link, render_app_visa_status_tag, render_app_concatenated_text
 from webapp.mixins import ReadOnlyFieldsMixin
 
 
@@ -728,16 +728,7 @@ class SelectCorrectDetailsStepForm(ReadOnlyFieldsMixin, forms.Form):
                             for an in (record.application_number or [])
                         ],
                         "formatted_value": [
-                            format_html(
-                                "{} {}",
-                                an,
-                                mark_safe(
-                                    render_to_string(
-                                        "webapp/components/visa_status_tag/visa_status_tag.html",
-                                        {"visa_status": vs},
-                                    )
-                                ),
-                            )
+                            render_app_concatenated_text(an, render_app_visa_status_tag(vs))
                             for an, vs in application_numbers_with_visa_status
                         ],
                         "name": self["application_numbers"].html_name,

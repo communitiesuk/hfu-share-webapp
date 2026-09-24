@@ -1,0 +1,5 @@
+<a href="{{ link.href }}"
+   class="{{ link.classes }}"
+   {% if link.opens_in_new_tab %}rel="noreferrer noopener" target="_blank"{% endif %}>{{ link.text }}
+    {% if link.opens_in_new_tab %}<span class="govuk-visually-hidden">&nbs;(opens in new tab)</span>{% endif %}
+</a>

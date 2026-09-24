@@ -20,7 +20,7 @@
 {% elif value|is_bool %}
     {{ value|yesno:"Yes,No" }}
 {% elif "visa status" in label|lower and value is not None %}
-    {% include "webapp/components/visa_status_tag/visa_status_tag.html" with visa_status=value %}
+    HELLO 
 {% elif value is not None and value != "" %}
     {{ value }}
 {% else %}

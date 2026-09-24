@@ -9,7 +9,6 @@ from django.db.models import Q
 from django.forms import CheckboxInput
 from django.http import HttpResponse, JsonResponse
 from django.urls import reverse, reverse_lazy
-from django.utils.html import format_html
 from django.views import View
 from django.views.generic import DetailView, UpdateView
 from django_filters import (
@@ -32,6 +31,11 @@ from ontology.models import (
 from webapp.constants import (
     ACCOMMODATION_SEARCH_FIELDS,
     FIX_DUPLICATE_RECORDS_ALLOWED_GROUP_TYPES,
+)
+from webapp.layout import (
+    render_app_record_link,
+    render_app_undo_deduplication_link,
+    render_govuk_link,
 )
 from webapp.mixins import (
     AuditLogTimelineEventsMixin,
@@ -66,14 +70,10 @@ class AccommodationTable(tables.Table, TableRendererMixin):
     utla_name = Column(verbose_name="Upper tier LA")
 
     def render_full_address(self, record: MvAccommodation, value):
-        dup_text = "Duplicate" if not record.is_principal else ""
-        return format_html(
-            '<a class="govuk-body-s govuk-link" href="{url}">{value}</a>'
-            '<div class="govuk-hint govuk-!-font-size-16 govuk-!-margin-top-1'
-            ' govuk-!-margin-bottom-0">{dup_text}</div>',
-            url=reverse("accommodations:detail-overview", args=[record.id]),
-            value=value,
-            dup_text=dup_text,
+        return render_app_record_link(
+            record,
+            value,
+            reverse("accommodations:detail-overview", args=[record.id]),
         )
 
     class Meta:
@@ -381,12 +381,9 @@ class AccommodationDetailActionsView(
             merged_accommodations = dup_group.accommodations.all()
 
             merged_accommodations_names = [
-                format_html(
-                    '<a class="govuk-link" href="{url}">{value}</a>',
-                    url=reverse(
-                        "accommodations:detail-overview", args=[accommodation.id]
-                    ),
-                    value=accommodation.full_address,
+                render_govuk_link(
+                    accommodation.full_address,
+                    reverse("accommodations:detail-overview", args=[accommodation.id]),
                 )
                 for accommodation in merged_accommodations
             ]
@@ -431,20 +428,13 @@ class AccommodationDetailActionsView(
                 actions.append(
                     LinkAction(
                         label="Undo deduplication",
-                        text="This deduplication cannot yet be undone due to a "
-                        "further deduplication. To restore this record, first undo the "
-                        "deduplication from the "
-                        f"{
-                            format_html(
-                                '<a href={}>actions tab for {}.</a><br></br>',
-                                reverse(
-                                    'accommodations:detail-actions',
-                                    args=[further_dup_group.principal_record.pk],
-                                ),
-                                further_dup_group.principal_record.full_address,
-                            )
-                        }"
-                        "A full deduplication history is in the history tab.",
+                        text=render_app_undo_deduplication_link(
+                            further_dup_group.principal_record.full_address,
+                            reverse(
+                                "accommodations:detail-actions",
+                                args=[further_dup_group.principal_record.pk],
+                            ),
+                        ),
                     )
                 )
         return actions

@@ -43,6 +43,7 @@ from webapp.constants import (
     GUEST_SEARCH_FIELDS,
     visa_status_list,
 )
+from webapp.layout import render_app_visa_status_tag
 from webapp.mixins import (
     AuditLogTimelineEventsMixin,
     DetailViewMixin,
@@ -106,10 +107,7 @@ class GuestsTable(tables.Table):
         return value[0] if value else ""
 
     def render_visa_status(self, value):
-        return render_to_string(
-            "webapp/components/visa_status_tag/visa_status_tag.html",
-            {"visa_status": value},
-        )
+        return render_app_visa_status_tag(value)
 
     class Meta:
         model = MvPerson
@@ -818,10 +816,7 @@ class RedactedVisaApplicationsTable(tables.Table):
     )
 
     def render_visa_status(self, value):
-        return render_to_string(
-            "webapp/components/visa_status_tag/visa_status_tag.html",
-            {"visa_status": value},
-        )
+        return render_app_visa_status_tag(value)
 
     def render_gwf(self, record, value):
         if not record.user_can_view:

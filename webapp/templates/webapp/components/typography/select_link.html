@@ -1,0 +1,11 @@
+<form method="post" novalidate>
+    {{ management_form }}
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}" />
+    <input type="hidden"
+           name="{{ form_name }}"
+           id="id_{{ form_name }}"
+           value="{{ form_value }}" />
+    <button type="submit" name="submit" class="govuk-link">
+        Select <span class="govuk-visually-hidden">{{ record_name }}</span>
+    </button>
+</form>
