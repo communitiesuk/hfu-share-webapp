@@ -10,7 +10,6 @@ from django.contrib import messages
 from django.db.models import QuerySet
 from django.forms.widgets import CheckboxSelectMultiple
 from django.shortcuts import redirect
-from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html
@@ -61,6 +60,10 @@ from webapp.mixins import (
     SectionHeadingMixin,
 )
 from webapp.search import perform_search
+from webapp.templatetags.tag_renderers import (
+    render_app_vir_status_tag,
+    render_app_visa_status_tag,
+)
 from webapp.utils import (
     CustomDateColumn,
     CustomDateFromToRangeFilter,
@@ -107,10 +110,7 @@ class VisaApplicationsTable(tables.Table):
     gwf = Column(verbose_name="Global web form number (GWF)")
 
     def render_visa_status(self, value):
-        return render_to_string(
-            "webapp/components/visa_status_tag/visa_status_tag.html",
-            {"visa_status": value},
-        )
+        return render_app_visa_status_tag(value)
 
     def render_title(self, record, value):
         return format_html(
@@ -784,10 +784,7 @@ class VIRTable(tables.Table):
     )
 
     def render_visa_status(self, value):
-        return render_to_string(
-            "webapp/components/visa_status_tag/visa_status_tag.html",
-            {"visa_status": value},
-        )
+        return render_app_visa_status_tag(value)
 
     def render_name(self, record, value):
         return format_html(
@@ -805,12 +802,7 @@ class VIRTable(tables.Table):
         )
 
     def render_vir_status(self, record):
-        value = record.request_status
-        label = VisaInformationRequest.RequestStatus(value).label
-        return render_to_string(
-            "webapp/components/vir_status_tag/vir_status_tag.html",
-            {"vir_status": value, "vir_status_label": label},
-        )
+        return render_app_vir_status_tag(record.request_status)
 
     class Meta:
         template_name = "webapp/components/tables/table.html"

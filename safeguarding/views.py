@@ -71,6 +71,17 @@ from webapp.mixins import (
 )
 from webapp.search import perform_search
 from webapp.templatetags.alerted_status_extras import alerted_status_to_tag_colour
+from webapp.templatetags.tag_renderers import (
+    render_app_accommodation_checks_status_tag,
+    render_app_accommodation_request_status_tag,
+    render_app_adverse_rematch_status_tag,
+    render_app_alerted_status_tag,
+    render_app_is_principal_tag,
+    render_app_is_uam_tag,
+    render_app_safeguarding_status_tag,
+    render_app_visa_status_tag,
+    render_app_will_notify_la_central_case_flag_tag,
+)
 from webapp.utils import (
     CustomDateColumn,
     CustomDateFromToRangeFilter,
@@ -389,16 +400,10 @@ class EscalatedChecksTable(tables.Table):
         if not person:
             return ""
 
-        return render_to_string(
-            "webapp/components/visa_status_tag/visa_status_tag.html",
-            {"visa_status": person.visa_status},
-        )
+        return render_app_visa_status_tag(person.visa_status)
 
     def render_alerted_status(self, record: SafeguardingReferral):
-        return render_to_string(
-            "webapp/components/alerted_status_tag/alerted_status_tag.html",
-            {"alerted_status": record.alerted_status},
-        )
+        return render_app_alerted_status_tag(record.alerted_status)
 
     class Meta:
         model = SafeguardingReferral
@@ -1147,30 +1152,16 @@ class SafeguardingDetailPropertiesView(
     )
 
     def render_accommodation_request__status(self, value):
-        return render_to_string(
-            "webapp/components/"
-            "accommodation_request_status/accommodation_request_status.html",
-            {"accommodation_request_status": value},
-        )
+        return render_app_accommodation_request_status_tag(value)
 
     def render_accommodation_request__checks_status(self, value):
-        return render_to_string(
-            "webapp/components/checks_status_tag/accommodation_checks_status_tag.html",
-            {"accommodation_checks_status": value},
-        )
+        return render_app_accommodation_checks_status_tag(value)
 
     def render_accommodation_request__safeguarding_status(self, value):
-        return render_to_string(
-            "webapp/components/safeguarding_status_tag/safeguarding_status_tag.html",
-            {"accommodation_safeguarding_status": value},
-        )
+        return render_app_safeguarding_status_tag(value)
 
     def render_accommodation_request__linked_adverse_rematch(self, value):
-        return render_to_string(
-            "webapp/components/"
-            "adverse_rematch_status_tag/adverse_rematch_status_tag.html",
-            {"adverse_rematch_status": value},
-        )
+        return render_app_adverse_rematch_status_tag(value)
 
     def render_accommodation_request__central_case_flag(self, value):
         return render_to_string(
@@ -1179,16 +1170,10 @@ class SafeguardingDetailPropertiesView(
         )
 
     def render_accommodation_request__is_uam(self, value):
-        return render_to_string(
-            "webapp/components/is_uam_tag/is_uam_tag.html",
-            {"is_uam": value},
-        )
+        return render_app_is_uam_tag(value)
 
     def render_accommodation_request__is_principal(self, value):
-        return render_to_string(
-            "webapp/components/is_principal_tag/is_principal_tag.html",
-            {"is_principal": value},
-        )
+        return render_app_is_principal_tag(value)
 
     def render_accommodation_request__linked_adverse_hit(self, value):
         return render_to_string(
@@ -1197,12 +1182,7 @@ class SafeguardingDetailPropertiesView(
         )
 
     def render_accommodation_request__will_notify_la_central_case_flag(self, value):
-        return render_to_string(
-            "webapp/components/"
-            "will_notify_la_central_case_flag_tag/"
-            "will_notify_la_central_case_flag_tag.html",
-            {"will_notify_la_central_case_flag": value},
-        )
+        return render_app_will_notify_la_central_case_flag_tag(value)
 
     class Meta:
         fields = [

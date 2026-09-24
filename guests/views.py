@@ -8,7 +8,6 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Q
 from django.forms.widgets import CheckboxInput, CheckboxSelectMultiple
 from django.shortcuts import get_object_or_404, redirect
-from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from django.utils.html import escape, format_html
 from django.views.generic import DetailView, UpdateView
@@ -58,6 +57,7 @@ from webapp.mixins import (
     UserActionsMixinProtocol,
 )
 from webapp.search import perform_search
+from webapp.templatetags.tag_renderers import render_app_visa_status_tag
 from webapp.utils import (
     CustomDateColumn,
     CustomDateFromToRangeFilter,
@@ -106,10 +106,7 @@ class GuestsTable(tables.Table):
         return value[0] if value else ""
 
     def render_visa_status(self, value):
-        return render_to_string(
-            "webapp/components/visa_status_tag/visa_status_tag.html",
-            {"visa_status": value},
-        )
+        return render_app_visa_status_tag(value)
 
     class Meta:
         model = MvPerson
@@ -818,10 +815,7 @@ class RedactedVisaApplicationsTable(tables.Table):
     )
 
     def render_visa_status(self, value):
-        return render_to_string(
-            "webapp/components/visa_status_tag/visa_status_tag.html",
-            {"visa_status": value},
-        )
+        return render_app_visa_status_tag(value)
 
     def render_gwf(self, record, value):
         if not record.user_can_view:

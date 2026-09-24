@@ -1,3 +1,4 @@
+{% load tag_renderers %}
 {% for group, options, index in widget.optgroups %}
     <div class="govuk-checkboxes govuk-checkboxes--small"
          data-module="govuk-checkboxes">
@@ -11,7 +12,7 @@
                        value="{{ option.value }}">
                 <label class="govuk-label govuk-checkboxes__label app-checkbox-with-tags--label"
                        for="{{ option.attrs.id }}">
-                    <strong class="govuk-tag {{ option.label_tag_colour_class }} app-tag--nowrap">{{ option.label }}</strong>
+                    {% render_govuk_tag text=option.label colour=option.label_tag_colour css_class='app-tag--nowrap' %}
                 </label>
             </div>
         {% endfor %}

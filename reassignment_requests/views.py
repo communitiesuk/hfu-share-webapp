@@ -8,7 +8,6 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.db import DatabaseError, transaction
 from django.forms import ValidationError
 from django.http import HttpResponse
-from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html
@@ -47,6 +46,9 @@ from webapp.search import perform_search
 from webapp.templatetags.reassignment_request_extras import (
     reassignment_request_outcome_label_to_tag_colour,
 )
+from webapp.templatetags.tag_renderers import (
+    render_app_reassignment_request_outcome_tag,
+)
 from webapp.utils import (
     CustomDateColumn,
     CustomDateFromToRangeFilter,
@@ -84,9 +86,8 @@ class ReassignmentRequestsMadeTable(tables.Table):
         )
 
     def render_outcome(self, record: ReassignmentRequest):
-        return render_to_string(
-            "webapp/components/reassignment_request/reassignment_request_outcome_tag.html",
-            {"outcome": ReassignmentRequest.Outcome(record.outcome.capitalize())},
+        return render_app_reassignment_request_outcome_tag(
+            ReassignmentRequest.Outcome(record.outcome.capitalize())
         )
 
     class Meta:
@@ -116,9 +117,8 @@ class ReassignmentRequestsReceivedTable(tables.Table):
         )
 
     def render_outcome(self, record: ReassignmentRequest):
-        return render_to_string(
-            "webapp/components/reassignment_request/reassignment_request_outcome_tag.html",
-            {"outcome": ReassignmentRequest.Outcome(record.outcome.capitalize())},
+        return render_app_reassignment_request_outcome_tag(
+            ReassignmentRequest.Outcome(record.outcome.capitalize())
         )
 
     def render_source_ltla_name(self, record: ReassignmentRequest):

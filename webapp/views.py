@@ -52,6 +52,7 @@ from webapp.mixins import (
     SectionHeadingMixin,
     UserActionsMixin,
 )
+from webapp.templatetags.tag_renderers import render_govuk_tag
 from webapp.utils import (
     CustomDateTimeColumn,
 )
@@ -91,10 +92,9 @@ class ExampleTable(tables.Table):
     Q44g_full_name = Column(verbose_name="Accommodation request")
 
     def render_visa_status(self, value):
-        return format_html(
-            '<strong class="govuk-tag govuk-tag--{}">{}</strong>',
-            "green" if value == "Issued" else "red",
+        return render_govuk_tag(
             value,
+            "green" if value == "Issued" else "red",
         )
 
     class Meta:
@@ -625,18 +625,10 @@ class TagAction(Action):
     For use with ActionsListView, represents a (disabled) action with a tag indicator.
     """
 
-    def __init__(
-        self, label: str, tag_text: str, tag_colour_class: str = "govuk-tag--grey"
-    ):
+    def __init__(self, label: str, tag_text: str, tag_colour_class: str = "grey"):
         super().__init__(
             label=label,
-            value=format_html(
-                '<strong class="govuk-tag {tag_colour_class} app-max-width--100">'
-                "{tag_text}"
-                "</strong>",
-                tag_colour_class=tag_colour_class,
-                tag_text=tag_text,
-            ),
+            value=render_govuk_tag(tag_text, tag_colour_class, "app-max-width--100"),
         )
 
 

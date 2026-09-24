@@ -11,6 +11,7 @@ from accounts.models import AccessRequest
 from ontology.utils import LinkedRecordData
 from webapp.constants import status_to_tag_colour
 from webapp.formatting import format_date_value
+from webapp.templatetags.tag_renderers import render_govuk_tag
 
 register = template.Library()
 
@@ -56,13 +57,11 @@ def linked_record_link(value, linked_from, linked_as):
         return format_html(
             '<div class="app-table--tag">'
             + '<a class="govuk-link" href="{}">{}</a>'
-            + '<strong class="govuk-tag govuk-tag--{} app-tag--nowrap"'
-            + ">{}</strong>"
+            + "{}"
             + "</div>",
             url,
             data.title,
-            tag_colour,
-            data.status,
+            render_govuk_tag(data.status, tag_colour, "app-tag--nowrap"),
         )
     return format_html('<a class="govuk-link" href="{}">{}</a>', url, data.title)
 

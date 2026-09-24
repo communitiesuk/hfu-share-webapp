@@ -1,4 +1,4 @@
-{% load filters safeguarding_checks_extras %}
+{% load filters safeguarding_checks_extras tag_renderers %}
 <div class="govuk-body-m govuk-!-margin-top-1 govuk-!-margin-bottom-2 app-safeguarding-check">
     <span>{{ associated_entity }}</span>
     {% if user_can_add_update and check and obj %}
@@ -7,13 +7,13 @@
     {% endif %}
 </div>
 {% if not safeguarding_check_status|safeguarding_check_status_is_not_started %}
-    <strong class="govuk-tag govuk-tag--{{ safeguarding_check_status|safeguarding_check_status_to_tag_colour }} govuk-!-margin-bottom-1 app-tag--nowrap">
-    {% endif %}
+    {{ safeguarding_check_status|render_app_safeguarding_check_status_tag }}
+{% else %}
     {{ safeguarding_check_status|safeguarding_check_status_to_tag_text }}
-    {% if not safeguarding_check_status|safeguarding_check_status_is_not_started %}</strong>{% endif %}
+{% endif %}
 {% if check_subtype %}
     {% if display_check_subtype_as_tag %}
-        <strong class="govuk-tag govuk-tag--grey govuk-!-margin-bottom-1 app-tag--nowrap">{{ check_subtype }}</strong>
+        {% render_govuk_tag text=check_subtype colour='grey' css_class='govuk-!-margin-bottom-1 app-tag--nowrap' %}
     {% else %}
         <div class="govuk-hint govuk-!-margin-top-3 govuk-!-margin-bottom-1">{{ check_subtype }}</div>
     {% endif %}

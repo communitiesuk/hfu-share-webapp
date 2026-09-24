@@ -4,7 +4,6 @@ from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import Field, Fieldset, Layout, Size
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
-from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html
@@ -37,6 +36,7 @@ from webapp.mixins import (
     UserActionsMixin,
 )
 from webapp.search import perform_search
+from webapp.templatetags.tag_renderers import render_app_access_request_status_tag
 from webapp.utils import (
     CustomDateFromToRangeFilter,
     CustomDateTimeColumn,
@@ -84,10 +84,7 @@ class AccessRequestsTable(tables.Table):
         )
 
     def render_status(self, record: AccessRequest):
-        return render_to_string(
-            "webapp/components/access_request/access_request_status_tag.html",
-            {"status": AccessRequest.Status(record.status)},
-        )
+        return render_app_access_request_status_tag(AccessRequest.Status(record.status))
 
     def render_group_type(self, record: AccessRequest):
         group_type = GroupType(record.group_type)
@@ -228,9 +225,8 @@ class AccessRequestsDetailsPage(
         request_summary = {
             "status": {
                 "question": "Status",
-                "answer": render_to_string(
-                    "webapp/components/access_request/access_request_status_tag.html",
-                    {"status": AccessRequest.Status(access_request.status)},
+                "answer": render_app_access_request_status_tag(
+                    AccessRequest.Status(access_request.status)
                 ),
             },
             "request_date": {

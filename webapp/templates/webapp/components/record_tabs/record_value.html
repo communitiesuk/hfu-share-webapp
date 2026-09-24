@@ -1,4 +1,4 @@
-{% load filters %}
+{% load filters tag_renderers %}
 {% if value|is_list %}
     {% if value|length > 1 %}
         <ul class="govuk-list govuk-list--bullet">
@@ -20,7 +20,7 @@
 {% elif value|is_bool %}
     {{ value|yesno:"Yes,No" }}
 {% elif "visa status" in label|lower and value is not None %}
-    {% include "webapp/components/visa_status_tag/visa_status_tag.html" with visa_status=value %}
+    {{ value|render_app_visa_status_tag }}
 {% elif value is not None and value != "" %}
     {{ value }}
 {% else %}
