@@ -208,8 +208,9 @@ class MvVolunteerAdminActionTestCase(BaseTestCase):
             phone_number=["+447000000000"],
             residential_postcodes=["SW1A 1AA"],
             is_sponsor=True,
-            edited_in_app=False,
         )
+
+        MvVolunteer.objects.filter(pk=self.volunteer.pk).update(edited_in_app=False)
 
     def test_redact_personal_information(self):
         queryset = MvVolunteer.objects.filter(pk=self.volunteer.pk)
@@ -232,7 +233,7 @@ class MvVolunteerAdminActionTestCase(BaseTestCase):
         self.assertIsNone(self.volunteer.phone_number)
         self.assertIsNone(self.volunteer.residential_postcodes)
 
-        self.assertTrue(self.volunteer.edited_in_app)
+        assert self.volunteer.edited_in_app is True
 
         self.admin.message_user.assert_called_once_with(
             self.request, "Successfully redacted personal information."

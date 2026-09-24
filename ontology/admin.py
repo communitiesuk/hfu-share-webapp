@@ -431,6 +431,7 @@ class MvVolunteerAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
             passport_details=None,
             phone_number=None,
             residential_postcodes=None,
+            edited_in_app=True,
         )
         user = request.user
         record_ids = list(queryset.values_list("pk", flat=True))
