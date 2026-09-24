@@ -207,19 +207,21 @@ class MvVolunteerAdminActionTestCase(BaseTestCase):
             phone_number=["+447000000000"],
             residential_postcodes=["SW1A 1AA"],
             is_sponsor=True,
+            edited_in_app=False,
         )
 
     def test_redact_personal_information(self):
         queryset = MvVolunteer.objects.filter(pk=self.volunteer.pk)
         self.admin.redact_personal_information(self.request, queryset)
         self.volunteer.refresh_from_db()
+        REDACTED_VALUE = "[Redacted]"
 
-        self.assertEqual(self.volunteer.first_name, "REDACTED")
-        self.assertEqual(self.volunteer.last_name, "REDACTED")
-        self.assertEqual(self.volunteer.full_name, "REDACTED")
-        self.assertEqual(self.volunteer.email, "REDACTED")
-        self.assertEqual(self.volunteer.family_situation, "REDACTED")
-        self.assertEqual(self.volunteer.sex, "REDACTED")
+        self.assertEqual(self.volunteer.first_name, REDACTED_VALUE)
+        self.assertEqual(self.volunteer.last_name, REDACTED_VALUE)
+        self.assertEqual(self.volunteer.full_name, REDACTED_VALUE)
+        self.assertEqual(self.volunteer.email, REDACTED_VALUE)
+        self.assertEqual(self.volunteer.family_situation, REDACTED_VALUE)
+        self.assertEqual(self.volunteer.sex, REDACTED_VALUE)
 
         self.assertIsNone(self.volunteer.age)
         self.assertIsNone(self.volunteer.date_of_birth)
@@ -229,6 +231,8 @@ class MvVolunteerAdminActionTestCase(BaseTestCase):
         self.assertIsNone(self.volunteer.passport_details)
         self.assertIsNone(self.volunteer.phone_number)
         self.assertIsNone(self.volunteer.residential_postcodes)
+
+        self.assertTrue(self.volunteer.edited_in_app)
 
         self.admin.message_user.assert_called_once_with(
             self.request, "Successfully redacted personal information."

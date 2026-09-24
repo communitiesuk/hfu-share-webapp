@@ -415,13 +415,15 @@ class MvVolunteerAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
         permissions=["redact_personal_information"],
     )
     def redact_personal_information(self, request, queryset):
+        REDACTED_VALUE = "[Redacted]"
+
         queryset.update(
-            first_name="REDACTED",
-            last_name="REDACTED",
-            full_name="REDACTED",
-            email="REDACTED",
-            family_situation="REDACTED",
-            sex="REDACTED",
+            first_name=REDACTED_VALUE,
+            last_name=REDACTED_VALUE,
+            full_name=REDACTED_VALUE,
+            email=REDACTED_VALUE,
+            family_situation=REDACTED_VALUE,
+            sex=REDACTED_VALUE,
             age=None,
             date_of_birth=None,
             national_identity_card_number=None,
