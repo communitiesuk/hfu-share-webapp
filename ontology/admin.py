@@ -60,6 +60,7 @@ from ontology.models import (
     VisaInformationRequest,
     VisaInformationRequestComments,
 )
+from webapp.constants import REDACTED_VALUE
 
 logger = logging.getLogger(__name__)
 
@@ -415,8 +416,6 @@ class MvVolunteerAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
         permissions=["redact_personal_information"],
     )
     def redact_personal_information(self, request, queryset):
-        REDACTED_VALUE = "[Redacted]"
-
         queryset.update(
             first_name=REDACTED_VALUE,
             last_name=REDACTED_VALUE,

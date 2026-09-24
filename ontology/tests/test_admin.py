@@ -21,6 +21,7 @@ from ontology.tests.factories import (
 )
 from test_utils.base import BaseTestCase
 from user_management.tests.base import get_admin_user
+from webapp.constants import REDACTED_VALUE
 
 
 class UAMsAdminReadOnlyModelsTestCase(TestSessionTokenMixin, UamsBaseTestCase):
@@ -214,7 +215,6 @@ class MvVolunteerAdminActionTestCase(BaseTestCase):
         queryset = MvVolunteer.objects.filter(pk=self.volunteer.pk)
         self.admin.redact_personal_information(self.request, queryset)
         self.volunteer.refresh_from_db()
-        REDACTED_VALUE = "[Redacted]"
 
         self.assertEqual(self.volunteer.first_name, REDACTED_VALUE)
         self.assertEqual(self.volunteer.last_name, REDACTED_VALUE)
