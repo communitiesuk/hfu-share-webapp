@@ -184,17 +184,16 @@ class DeduplicationAccommodationCheckAndCompleteViewTestCase(
         )
         self.assertContains(
             response,
-            '<button type="submit"class="govuk-button">'
-            "Yes, confirm and deduplicate"
-            "</button>",
+            '<button name="submit" class="govuk-button" id="id_submit" '
+            'data-module="govuk-button">Yes, confirm and deduplicate</button>',
             html=True,
         )
         self.assertContains(
             response,
-            '<button type="submit"class="govuk-button govuk-button--secondary"'
-            'name="wizard_goto_step"type="submit"value="select-correct-details">'
-            "No, go back to select correct information"
-            "</button>",
+            '<button class="govuk-button govuk-button--secondary" '
+            'data-module="govuk-button" name="wizard_goto_step" type="submit" '
+            'value="select-correct-details">'
+            "No, go back to select correct information</button>",
             html=True,
         )
 
