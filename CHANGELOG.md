@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.21.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.20.0...2.21.0) (2026-09-25)
+
+
+### Features
+
+* Add admin action to redact volunteer PII ([#213](https://github.com/communitiesuk/hfu-share-webapp/issues/213)) ([84e64ea](https://github.com/communitiesuk/hfu-share-webapp/commit/84e64eafdafd4e8a2da384d356b7939b7e0100fe))
+* add browser test as part of the pipeline ([#225](https://github.com/communitiesuk/hfu-share-webapp/issues/225)) ([711f999](https://github.com/communitiesuk/hfu-share-webapp/commit/711f999391d48205e63ed8d7e8a0ad9dcdaaa61c))
+
+
+### Bug Fixes
+
+* HFURB-4056 create link helper to replace HTML links in python focusing on the cancel link ([#236](https://github.com/communitiesuk/hfu-share-webapp/issues/236)) ([d3161d9](https://github.com/communitiesuk/hfu-share-webapp/commit/d3161d943244b4aad1ebcd3d857abacdb5f6057b))
+* HFURB-4056 make the app use a single tag helper ([#243](https://github.com/communitiesuk/hfu-share-webapp/issues/243)) ([9f880c8](https://github.com/communitiesuk/hfu-share-webapp/commit/9f880c8c198c20a3e9e0cd8dbd016d33d6968386))
+* HFURB-4056 replace inline HTML in the uses of the HTML class ([#237](https://github.com/communitiesuk/hfu-share-webapp/issues/237)) ([78de8ce](https://github.com/communitiesuk/hfu-share-webapp/commit/78de8ce602b1822cd06c7e57e028f427697c5e0e))
+* move the building of the test users out of the browser tests so they can be shared in app code and browser code ([#241](https://github.com/communitiesuk/hfu-share-webapp/issues/241)) ([e8a1208](https://github.com/communitiesuk/hfu-share-webapp/commit/e8a1208810d067305e3282eccf0546910a60a183))
+
 ## [2.20.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.19.0...2.20.0) (2026-09-21)
 
 
