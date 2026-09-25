@@ -1,6 +1,7 @@
 import http.client
 from datetime import datetime, timezone
 
+from bs4 import BeautifulSoup
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
@@ -326,13 +327,30 @@ class GuestsActionsBlockedByReassignmentTestCase(
 
         response = self._get_actions_response()
 
-        self.assertContains(
-            response,
+        soup = BeautifulSoup(response.content, "html.parser")
+
+        pedning_value = soup.find("dd", {"class": "govuk-summary-list__value"})
+        self.assertIsNotNone(pedning_value)
+        self.assertEqual(
+            pedning_value.get_text(" ", strip=True),
             f"You sent a request to move this guest to {rr.destination_ltla_name}. "
-            f"You cannot undo this deduplication while there is a "
-            f'<a class="govuk-link" href='
-            f'"{reverse("reassignment-requests:detail-received", kwargs={"pk": rr.id})}">'  # noqa: E501
-            f"pending request to move this guest</a>.",
+            "You cannot undo this deduplication while there is a "
+            "pending request to move this guest .",
+        )
+
+        pending_link = soup.find(
+            "a",
+            {
+                "href": reverse(
+                    "reassignment-requests:detail-received", kwargs={"pk": rr.id}
+                ),
+                "class": "govuk-link",
+            },
+        )
+        self.assertIsNotNone(pending_link)
+        self.assertEqual(
+            pending_link.get_text(" ", strip=True),
+            "pending request to move this guest",
         )
 
     def test_principal_records_with_post_dedup_reassignment_do_not_show_undo_action(

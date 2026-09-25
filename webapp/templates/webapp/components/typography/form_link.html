@@ -1,0 +1,13 @@
+<form method="post"
+      {% if form_action %}action="{{ form_action }}"{% endif %}
+      novalidate>
+    {% for hidden_input in hidden_inputs %}{{ hidden_input }}{% endfor %}
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}" />
+    <input type="hidden"
+           name="{{ form_name }}"
+           id="id_{{ form_name }}"
+           value="{{ form_value }}" />
+    <button type="submit" name="submit" class="govuk-link">
+        {{ text }}<span class="govuk-visually-hidden">{# djlint:off #} {# djlint:on #}{{ record_name }}</span>
+    </button>
+</form>

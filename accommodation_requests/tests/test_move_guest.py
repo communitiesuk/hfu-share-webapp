@@ -1,6 +1,7 @@
 import http.client
 from unittest.mock import MagicMock, patch
 
+from bs4 import BeautifulSoup
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.http import urlencode
@@ -1833,12 +1834,37 @@ class RematchGuestsFormWizardTestCase(
         )
 
         self.assertEqual(response.status_code, http.client.OK)
-        self.assertContains(response, self.accommodation_one.full_address)
-        self.assertContains(
-            response,
-            '<button type="submit" name="submit" class="govuk-link">Select'
-            '<span class="govuk-visually-hidden"> '
-            f"{self.accommodation_one.full_address}</span></button>",
+
+        soup = BeautifulSoup(response.content, "html.parser")
+
+        accommodation_link = soup.find(
+            "a",
+            {
+                "href": f"/accommodations/{self.accommodation_one.pk}/overview",
+                "class": "govuk-link",
+                "rel": "noreferrer noopener",
+                "target": "_blank",
+            },
+        )
+        self.assertIsNotNone(accommodation_link)
+        self.assertEqual(
+            accommodation_link.get_text(" ", strip=True),
+            f"{self.accommodation_one.full_address} (opens in new tab)",
+        )
+
+        button = soup.find(
+            "button",
+            {
+                "type": "submit",
+                "name": "submit",
+                "class": "govuk-link",
+            },
+        )
+
+        self.assertIsNotNone(button)
+        self.assertEqual(
+            button.get_text(" ", strip=True),
+            f"Select {self.accommodation_one.full_address}",
         )
 
     def test_accommodation_request_is_updated_after_confirmation(self):

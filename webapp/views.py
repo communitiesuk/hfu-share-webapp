@@ -3,7 +3,7 @@ import logging
 import os
 from dataclasses import dataclass
 from functools import reduce
-from typing import Any
+from typing import Any, cast
 
 import django_filters
 from django.contrib.auth.decorators import login_not_required
@@ -15,7 +15,6 @@ from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.middleware.csrf import get_token
 from django.urls import reverse
 from django.utils.decorators import method_decorator
-from django.utils.html import format_html
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, TemplateView
@@ -52,6 +51,7 @@ from webapp.mixins import (
     SectionHeadingMixin,
     UserActionsMixin,
 )
+from webapp.templatetags.link_renderers import render_app_form_link, render_govuk_link
 from webapp.templatetags.tag_renderers import render_govuk_tag
 from webapp.utils import (
     CustomDateTimeColumn,
@@ -149,10 +149,10 @@ class PendingAccessRequestsTable(tables.Table):
     )
 
     def render_group_info(self, value, record):
-        return format_html(
-            '<a class="govuk-link govuk-link--no-visited-state" href={}>{}</a>',
-            reverse("user-management:access-request-your-request", args=[record.pk]),
+        return render_govuk_link(
             render_name_label_from_group_info(value),
+            reverse("user-management:access-request-your-request", args=[record.pk]),
+            no_visited_state=True,
         )
 
     class Meta:
@@ -183,31 +183,22 @@ class RejectedAccessRequestsTable(tables.Table):
     )
 
     def render_group_info(self, value, record):
-        return format_html(
-            '<a class="govuk-link govuk-link--no-visited-state" href={}>{}</a>',
-            reverse("user-management:access-request-your-request", args=[record.pk]),
+        return render_govuk_link(
             render_name_label_from_group_info(value),
+            reverse("user-management:access-request-your-request", args=[record.pk]),
+            no_visited_state=True,
         )
 
     def render_remove(self, record):
-        csrf_token = getattr(self, "csrf_token", "")
-        action_url = reverse(
-            "user-management:hide-access-request", kwargs={"pk": record.pk}
-        )
-
-        return format_html(
-            '<form method="post" action={action_url} classs="app--display-inline" '
-            "novalidate>"
-            '<input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}">'
-            '<button type="submit" class="govuk-link govuk-link--no-visited-state">'
-            "Remove"
-            '<span class="govuk-visually-hidden"> rejected request '
-            "{request_name}</span>"
-            "</button>"
-            "</form>",
-            action_url=action_url,
-            csrf_token=csrf_token,
-            request_name=render_name_label_from_group_info(record.group_info),
+        return render_app_form_link(
+            self.request,
+            "remove-access-request",
+            True,
+            render_name_label_from_group_info(record.group_info),
+            action=reverse(
+                "user-management:hide-access-request", kwargs={"pk": record.pk}
+            ),
+            text="Remove",
         )
 
     class Meta:
@@ -228,10 +219,10 @@ class ApprovedAccessRequestsTable(tables.Table):
     )
 
     def render_group_info(self, value, record):
-        return format_html(
-            '<a class="govuk-link govuk-link--no-visited-state" href={}>{}</a>',
-            reverse("user-management:access-request-your-request", args=[record.pk]),
+        return render_govuk_link(
             render_name_label_from_group_info(value),
+            reverse("user-management:access-request-your-request", args=[record.pk]),
+            no_visited_state=True,
         )
 
     class Meta:
@@ -324,6 +315,7 @@ class LandingPageView(UserActionsMixin, MultiTableMixin, TemplateView):
                 hidden_by_requester=False,
             ).order_by(rejected_sort),
             prefix="rejected-",
+            request=self.request,
         )
         table_approved = ApprovedAccessRequestsTable(
             AccessRequest.objects.filter(
@@ -606,12 +598,11 @@ class LinkAction(Action):
     ):
         super().__init__(
             label=label,
-            value=format_html(
-                '<a href="{url}" class="govuk-link--no-visited-state">{url_text}'
-                '<span class="govuk-visually-hidden"> {label}</span></a>',
-                url=url,
-                url_text=url_text,
-                label=label,
+            value=render_govuk_link(
+                cast(str, url_text),
+                url,
+                visually_hidden_text=label,
+                no_visited_state=True,
             )
             if url
             else "",

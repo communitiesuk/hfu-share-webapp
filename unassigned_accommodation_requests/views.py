@@ -10,10 +10,8 @@ from django.db import DatabaseError, IntegrityError, transaction
 from django.db.models import F, OuterRef, Q, Subquery
 from django.forms import CheckboxInput
 from django.http import HttpRequest, HttpResponse
-from django.middleware.csrf import get_token
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.utils.html import format_html
 from django.views import View
 from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.detail import SingleObjectMixin
@@ -49,6 +47,7 @@ from webapp.mixins import (
     WizardPageTitleMixin,
 )
 from webapp.search import perform_search
+from webapp.templatetags.link_renderers import render_app_form_link, render_govuk_link
 from webapp.utils import CustomDateColumn
 
 from .forms import (
@@ -93,43 +92,37 @@ class UnassignedAccommodationRequestsTable(tables.Table):
         ]
 
     def render_title(self, record: MvAccommodationRequest, value):
-        return format_html(
-            '<a class="govuk-body-s govuk-link" href="{}">{}</a>',
+        return render_govuk_link(
+            value,
             reverse(
                 "accommodation-requests:detail-overview",
                 args=[record.id],
-            )
-            + "?from=unassigned-accommodation-requests",
-            value,
+                query={"from": "unassigned-accommodation-requests"},
+            ),
         )
 
     def hide_link(self, record):
-        return format_html(
-            '<a class="govuk-body-s govuk-link govuk-link--no-visited-state" '
-            'href="{}">Hide<span class="govuk-visually-hidden"> {}</span></a>',
+        return render_govuk_link(
+            "Hide",
             reverse(
                 "unassigned-accommodation-requests:hide",
                 args=[record.id],
             ),
-            record.title,
+            no_visited_state=True,
+            visually_hidden_text=record.title,
         )
 
     def unhide_form(self, record):
-        return format_html(
-            '<form method="post" action={action_url} class="app--display-inline" '
-            "novalidate>"
-            '<input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}">'
-            '<button type="submit" class="govuk-link govuk-link--no-visited-state">'
-            "Unhide"
-            '<span class="govuk-visually-hidden"> {record_name}</span>'
-            "</button>"
-            "</form>",
-            action_url=reverse(
+        return render_app_form_link(
+            self.request,
+            "unide-ar",
+            True,
+            record.title,
+            action=reverse(
                 "unassigned-accommodation-requests:unhide",
                 args=[record.id],
             ),
-            csrf_token=get_token(self.request),
-            record_name=record.title,
+            text="Unhide",
         )
 
     def render_hide(self, record: MvAccommodationRequest):

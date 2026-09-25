@@ -4,9 +4,9 @@ from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import Field, Fieldset, Layout, Size
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.html import format_html
 from django.views.generic import FormView
 from django_filters import (
     CharFilter,
@@ -36,6 +36,7 @@ from webapp.mixins import (
     UserActionsMixin,
 )
 from webapp.search import perform_search
+from webapp.templatetags.link_renderers import render_govuk_link
 from webapp.templatetags.tag_renderers import render_app_access_request_status_tag
 from webapp.utils import (
     CustomDateFromToRangeFilter,
@@ -62,25 +63,25 @@ class AccessRequestsTable(tables.Table):
 
     def render_requester(self, record: AccessRequest):
         if record.requester.first_name and record.requester.last_name:
-            return format_html(
-                '<div class="app-text--white-space-nowrap">'
-                '<a class="govuk-link" href="{}">{} {}</a></div>'
-                "<div>({})</div>",
-                reverse(
-                    "user-management:access-request-details",
-                    args=[record.reference_number],
-                ),
-                record.requester.first_name,
-                record.requester.last_name,
-                record.requester.email,
+            return render_to_string(
+                "user_management/access_requests/access_request_link.html",
+                {
+                    "full_name": (
+                        f"{record.requester.first_name} {record.requester.last_name}"
+                    ),
+                    "href": reverse(
+                        "user-management:access-request-details",
+                        args=[record.reference_number],
+                    ),
+                    "email": record.requester.email,
+                },
             )
 
-        return format_html(
-            '<a class="govuk-link" href="{url}">{value}</a>',
-            url=reverse(
+        return render_govuk_link(
+            record.requester.email,
+            reverse(
                 "user-management:access-request-details", args=[record.reference_number]
             ),
-            value=record.requester.email,
         )
 
     def render_status(self, record: AccessRequest):

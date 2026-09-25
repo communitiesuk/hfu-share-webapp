@@ -15,11 +15,10 @@ from django.db import DatabaseError, transaction
 from django.db.models import OuterRef, Q, Subquery
 from django.forms import TextInput, widgets
 from django.http import Http404, HttpRequest, HttpResponse, HttpResponseRedirect
-from django.middleware.csrf import get_token
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
-from django.utils.html import escape, format_html
+from django.utils.html import escape
 from django.views.generic import DetailView, FormView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
 from django_filters import (
@@ -92,6 +91,7 @@ from webapp.search import perform_search
 from webapp.templatetags.checks_status_extras import (
     accommodation_checks_status_label_to_tag_colour,
 )
+from webapp.templatetags.link_renderers import render_app_form_link, render_govuk_link
 from webapp.templatetags.tag_renderers import (
     render_app_accommodation_checks_status_tag,
     render_govuk_tag,
@@ -201,13 +201,12 @@ class AccommodationRequestsTable(tables.Table):
     utla_name = Column(verbose_name="Upper tier LA")
 
     def render_title(self, record: MvAccommodationRequest, value):
-        return format_html(
-            '<a class="govuk-body-s govuk-link" href="{}">{}</a>',
+        return render_govuk_link(
+            value,
             reverse(
                 "accommodation-requests:detail-overview",
                 args=[record.id],
             ),
-            value,
         )
 
     def render_checks_status(self, value):
@@ -553,15 +552,14 @@ class AccommodationRequestDetailOverviewView(
         ):
             return None
 
-        return format_html(
-            '<a class="govuk-link govuk-link--no-visited-state" href="{}">'
-            "Assign local authority"
-            "</a>",
+        return render_govuk_link(
+            "Assign local authority",
             reverse(
                 "unassigned-accommodation-requests:assign-local-authority",
                 kwargs={"pk": self.object.id},
-            )
-            + "?reset=true",
+                query={"reset": "true"},
+            ),
+            no_visited_state=True,
         )
 
 
@@ -754,23 +752,17 @@ class AccommodationRequestDetailActionsView(
                 [escape(g.get_full_name()) for g in pending_reassignment.guests.all()]
             )
             destination = escape(pending_reassignment.destination_ltla_name)
-            reassignments_link = format_html(
-                '<a class="govuk-link govuk-link" href="{}">{}</a>',
-                reverse(
-                    "reassignment-requests:detail-received",
-                    kwargs={"pk": pending_reassignment.id},
-                ),
-                "pending request to move guests",
-            )
-            reassignment_message = format_html(
-                '<p class="govuk-notification-banner__heading max-width-none">'
-                "You sent a request to move {} to {}.<br><br>"
-                "You cannot take any actions on this accommodation request "
-                "while there is a {}."
-                "</p>",
-                guest_names,
-                destination,
-                reassignments_link,
+            reassignment_message = render_to_string(
+                "accommodation_requests/move_guests/"
+                "accommodation_requests_move_guests_notification_banner_content.html",
+                {
+                    "guest_names": guest_names,
+                    "destination": destination,
+                    "reassignments_link": reverse(
+                        "reassignment-requests:detail-received",
+                        kwargs={"pk": pending_reassignment.id},
+                    ),
+                },
             )
             messages.info(
                 self.request,
@@ -1925,28 +1917,19 @@ class AccommodationTable(tables.Table):
     )
 
     def render_full_address(self, record: MvAccommodation, value):
-        return format_html(
-            '<a class="govuk-body-s govuk-link" href="{}" '
-            'rel="noreferrer noopener" target="_blank">{} '
-            '<span class="govuk-visually-hidden">(opens in new tab)</span></a>',
-            reverse("accommodations:detail-overview", args=[record.id]),
+        return render_govuk_link(
             value,
+            reverse("accommodations:detail-overview", args=[record.id]),
+            opens_in_new_tab=True,
         )
 
     def render_select(self, value, record):
-        return format_html(
-            '<form method="post" novalidate>'
-            "{management_form}"
-            '<input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}"/>'
-            '<input type="hidden" name="select_accommodation-accommodation" '
-            'id="id_select_accommodation-accommodation" value="{value}"/>'
-            '<button type="submit" name="submit" class="govuk-link">Select'
-            '<span class="govuk-visually-hidden"> {record_name}</span></button>'
-            "</form>",
-            management_form=self.context["wizard"]["management_form"],
-            value=value,
-            csrf_token=get_token(self.request),
-            record_name=record.full_address,
+        return render_app_form_link(
+            self.request,
+            "select_accommodation-accommodation",
+            value,
+            record.full_address,
+            self.context["wizard"]["management_form"],
         )
 
     class Meta:

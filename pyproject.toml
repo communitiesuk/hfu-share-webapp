@@ -227,6 +227,7 @@ ignore_errors = true
 [tool.djlint]
 profile="django"
 ignore="H021,H030,H031" # Ignore inline styles, and html <meta> tag suggestion
+exclude="webapp/templates/webapp/components/typography/link.html" # Ignore inline link component
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "case_management.settings"
