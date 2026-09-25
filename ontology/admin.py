@@ -60,6 +60,7 @@ from ontology.models import (
     VisaInformationRequest,
     VisaInformationRequestComments,
 )
+from webapp.constants import REDACTED_VALUE
 
 logger = logging.getLogger(__name__)
 
@@ -405,9 +406,41 @@ class MvVolunteerAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
     ]
     search_fields = ["full_name", "email", "application_unique_application_number"]
     list_filter = ["sponsor_type", "is_sponsor", "notional_data", "is_principal"]
+    actions = ["redact_personal_information"]
 
     def get_queryset(self, request):
         return MvVolunteer.objects_including_archived.all()
+
+    @admin.action(
+        description="Redact personal information",
+        permissions=["redact_personal_information"],
+    )
+    def redact_personal_information(self, request, queryset):
+        queryset.update(
+            first_name=REDACTED_VALUE,
+            last_name=REDACTED_VALUE,
+            full_name=REDACTED_VALUE,
+            email=REDACTED_VALUE,
+            family_situation=REDACTED_VALUE,
+            sex=REDACTED_VALUE,
+            age=None,
+            date_of_birth=None,
+            national_identity_card_number=None,
+            nationality=None,
+            other_nationalities=None,
+            passport_details=None,
+            phone_number=None,
+            residential_postcodes=None,
+            edited_in_app=True,
+        )
+        user = request.user
+        record_ids = list(queryset.values_list("pk", flat=True))
+
+        logger.info("User ID %s has redacted the records: %s", user.pk, record_ids)
+        self.message_user(request, "Successfully redacted personal information.")
+
+    def has_redact_personal_information_permission(self, request):
+        return request.user.is_superuser
 
 
 class MvInteractionAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
