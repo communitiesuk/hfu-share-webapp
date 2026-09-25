@@ -41,9 +41,31 @@ def update_and_link_unitary_authorities(apps, schema_editor):
         attach_new_ltla(ltla_name, apps)
 
 
+def revert_update_and_link_unitary_authorities(apps, schema_editor):
+    GroupInfo = apps.get_model("accounts", "GroupInfo")
+
+    GroupInfo.objects.filter(utla_name="Somerset", is_utla=True).update(
+        utla_gss_code="E10000027"
+    )
+    GroupInfo.objects.filter(utla_name="North Yorkshire", is_utla=True).update(
+        utla_gss_code="E10000023"
+    )
+
+    GroupInfo.objects.filter(ltla_name__in=ltlas_to_link, is_utla=False).update(
+        parent_utla=None,
+        utla_name=None,
+        utla_gss_code=None,
+    )
+
+
 class Migration(migrations.Migration):
     dependencies = [
         ("accounts", "0036_create_new_unitary_la_groups"),
     ]
 
-    operations = [migrations.RunPython(update_and_link_unitary_authorities)]
+    operations = [
+        migrations.RunPython(
+            update_and_link_unitary_authorities,
+            reverse_code=revert_update_and_link_unitary_authorities,
+        )
+    ]

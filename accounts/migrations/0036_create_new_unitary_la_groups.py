@@ -38,9 +38,21 @@ def create_ltla_groups(apps, schema_editor):
         create_ltla_group(name, gss_code, apps)
 
 
+def revert_ltla_groups(apps, schema_editor):
+    Group = apps.get_model("auth", "Group")
+
+    group_names_to_delete = [
+        "_".join(["ltla"] + name.lower().split()) for _, name in ltla_data
+    ]
+
+    Group.objects.filter(name__in=group_names_to_delete).delete()
+
+
 class Migration(migrations.Migration):
     dependencies = [
         ("accounts", "0035_create_second_browser_test_la_group"),
     ]
 
-    operations = [migrations.RunPython(create_ltla_groups)]
+    operations = [
+        migrations.RunPython(create_ltla_groups, reverse_code=revert_ltla_groups)
+    ]
