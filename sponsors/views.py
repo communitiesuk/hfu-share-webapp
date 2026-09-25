@@ -46,6 +46,7 @@ from webapp.mixins import (
     UserActionsMixinProtocol,
 )
 from webapp.search import perform_search
+from webapp.templatetags.link_renderers import render_app_record_link, render_govuk_link
 from webapp.utils import (
     CustomDateColumn,
     CustomDateFromToRangeFilter,
@@ -76,14 +77,8 @@ class SponsorsTable(tables.Table):
     created_date = CustomDateTimeColumn(verbose_name="Date added")
 
     def render_full_name(self, record: MvVolunteer, value):
-        dup_text = "Duplicate" if not record.is_principal else ""
-        return format_html(
-            '<a class="govuk-body-s govuk-link" href="{url}">{value}</a>'
-            '<div class="govuk-hint govuk-!-font-size-16 govuk-!-margin-top-1'
-            ' govuk-!-margin-bottom-0">{dup_text}</div>',
-            url=reverse("sponsors:detail-overview", args=[record.id]),
-            value=value,
-            dup_text=dup_text,
+        return render_app_record_link(
+            record, value, reverse("sponsors:detail-overview", args=[record.id])
         )
 
     def render_phone_number(self, value):
@@ -377,10 +372,9 @@ class SponsorDetailActionsView(
             merged_sponsors = dup_group.sponsors.all()
 
             merged_sponsors_names = [
-                format_html(
-                    '<a class="govuk-link" href="{url}">{value}</a>',
-                    url=reverse("sponsors:detail-overview", args=[sponsor.id]),
-                    value=sponsor.full_name,
+                render_govuk_link(
+                    sponsor.full_name,
+                    reverse("sponsors:detail-overview", args=[sponsor.id]),
                 )
                 for sponsor in merged_sponsors
             ]

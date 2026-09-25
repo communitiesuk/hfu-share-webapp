@@ -2,8 +2,8 @@ from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import Button, Div, Field, Layout, Size
 from django import forms
 from django.contrib import messages
+from django.template.loader import render_to_string
 from django.urls import reverse
-from django.utils.html import format_html, format_html_join
 from django.views.generic import FormView
 from django_filters.filters import CharFilter
 from django_filters.rest_framework import FilterSet
@@ -27,6 +27,7 @@ from webapp.mixins import (
     UserActionsMixin,
 )
 from webapp.search import perform_search
+from webapp.templatetags.link_renderers import render_govuk_link
 from webapp.views import SummaryListRow, SummaryListView
 
 
@@ -35,10 +36,9 @@ class GroupsTable(tables.Table):
     user_count = tables.Column(verbose_name="Count of members")
 
     def render_name(self, record: GroupProxy):
-        return format_html(
-            '<a class="govuk-link" href="{url}">{value}</a>',
-            url=reverse("user-management:group-details", args=[record.pk]),
-            value=render_name_label_from_group(record),
+        return render_govuk_link(
+            render_name_label_from_group(record),
+            reverse("user-management:group-details", args=[record.pk]),
         )
 
     class Meta:
@@ -115,25 +115,23 @@ class GroupDetailsView(
         if len(users) == 0:
             return "No users"
 
-        return format_html_join(
-            "",
-            '<div class="app-table--tag">'
-            '<a href="{}" class="govuk-link govuk-link--no-underline">{}</a>'
-            '<a href="{}" class="govuk-link govuk-link--no-visited-state">Remove'
-            '<span class="govuk-visually-hidden"> {}</span></a>'
-            "</div>",
-            (
-                (
-                    reverse("user-management:user-details", args=[user.pk]),
-                    user.email,
-                    reverse(
-                        "user-management:group-remove-user",
-                        kwargs={"user_pk": user.pk, "group_pk": self.object.pk},
-                    ),
-                    user.email,
-                )
-                for user in users
-            ),
+        return render_to_string(
+            "user_management/user_management_links.html",
+            {
+                "items": [
+                    {
+                        "link_text": user.email,
+                        "link_href": reverse(
+                            "user-management:user-details", args=[user.pk]
+                        ),
+                        "remove_link_href": reverse(
+                            "user-management:group-remove-user",
+                            kwargs={"user_pk": user.pk, "group_pk": self.object.pk},
+                        ),
+                    }
+                    for user in users
+                ]
+            },
         )
 
     user_set = SummaryListRow(verbose_name="Members")

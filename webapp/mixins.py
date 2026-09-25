@@ -449,21 +449,14 @@ class SummaryListTestCaseMixin:
 class MultiLABannerMixin:
     def add_multi_la_message(self):
         if self.object.is_multi_la:
-            linked_records_url = reverse(
-                "accommodation-requests:detail-linked-records",
-                kwargs={"pk": self.object.id},
-            )
-            multi_la_message = format_html(
-                '<p class="govuk-notification-banner__heading max-width-none">'
-                "This accommodation request is linked to multiple local "
-                "authorities (LAs). One or more of the guests on this"
-                " accommodation request have visa applications in more than one LA."
-                "<br><br>Some actions may be unavailable.<br><br>"
-                "You can find guests who are linked to multiple local authorities in"
-                " the <a class='govuk-link "
-                "govuk-link--no-visited-state' href='{}'>linked records tab</a>."
-                "</p>",
-                linked_records_url,
+            multi_la_message = render_to_string(
+                "webapp/components/multi_la_banner_content/multi_la_banner_content.html",
+                {
+                    "linked_records_url": reverse(
+                        "accommodation-requests:detail-linked-records",
+                        kwargs={"pk": self.object.id},
+                    )
+                },
             )
             messages.info(
                 self.request,

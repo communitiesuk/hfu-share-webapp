@@ -48,6 +48,7 @@ from webapp.mixins import (
     UserActionsMixinProtocol,
 )
 from webapp.search import perform_search
+from webapp.templatetags.link_renderers import render_app_record_link, render_govuk_link
 from webapp.utils import LazyChoiceFilter
 from webapp.views import (
     Action,
@@ -66,14 +67,10 @@ class AccommodationTable(tables.Table, TableRendererMixin):
     utla_name = Column(verbose_name="Upper tier LA")
 
     def render_full_address(self, record: MvAccommodation, value):
-        dup_text = "Duplicate" if not record.is_principal else ""
-        return format_html(
-            '<a class="govuk-body-s govuk-link" href="{url}">{value}</a>'
-            '<div class="govuk-hint govuk-!-font-size-16 govuk-!-margin-top-1'
-            ' govuk-!-margin-bottom-0">{dup_text}</div>',
-            url=reverse("accommodations:detail-overview", args=[record.id]),
-            value=value,
-            dup_text=dup_text,
+        return render_app_record_link(
+            record,
+            value,
+            reverse("accommodations:detail-overview", args=[record.id]),
         )
 
     class Meta:
@@ -381,12 +378,9 @@ class AccommodationDetailActionsView(
             merged_accommodations = dup_group.accommodations.all()
 
             merged_accommodations_names = [
-                format_html(
-                    '<a class="govuk-link" href="{url}">{value}</a>',
-                    url=reverse(
-                        "accommodations:detail-overview", args=[accommodation.id]
-                    ),
-                    value=accommodation.full_address,
+                render_govuk_link(
+                    accommodation.full_address,
+                    reverse("accommodations:detail-overview", args=[accommodation.id]),
                 )
                 for accommodation in merged_accommodations
             ]

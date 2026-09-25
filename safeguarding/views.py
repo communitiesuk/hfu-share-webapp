@@ -71,6 +71,7 @@ from webapp.mixins import (
 )
 from webapp.search import perform_search
 from webapp.templatetags.alerted_status_extras import alerted_status_to_tag_colour
+from webapp.templatetags.link_renderers import render_govuk_link
 from webapp.templatetags.tag_renderers import (
     render_app_accommodation_checks_status_tag,
     render_app_accommodation_request_status_tag,
@@ -356,10 +357,9 @@ class EscalatedChecksTable(tables.Table):
         if not person:
             return ""
 
-        return format_html(
-            '<a class="govuk-body-s govuk-link" href="{url}">{value}</a>',
-            url=reverse("safeguarding:detail-overview", args=[person.id, record.id]),
-            value=person.get_full_name(),
+        return render_govuk_link(
+            person.get_full_name(),
+            reverse("safeguarding:detail-overview", args=[person.id, record.id]),
         )
 
     def render_passport_id(self, record: SafeguardingReferral):
@@ -1303,11 +1303,7 @@ class CentralSafeguardingTable(tables.Table):
             )
 
         if display_value:
-            return format_html(
-                '<a class="govuk-body-s govuk-link" href="{}">{}</a>',
-                url,
-                display_value,
-            )
+            return render_govuk_link(display_value, url)
 
         return "Unknown alert type"
 

@@ -10,7 +10,6 @@ from django.forms import ValidationError
 from django.http import HttpResponse
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.html import format_html
 from django.views.generic import FormView
 from django.views.generic.detail import SingleObjectMixin
 from django_filters import (
@@ -43,6 +42,7 @@ from webapp.mixins import (
     PermissionsMixin,
 )
 from webapp.search import perform_search
+from webapp.templatetags.link_renderers import render_govuk_link
 from webapp.templatetags.reassignment_request_extras import (
     reassignment_request_outcome_label_to_tag_colour,
 )
@@ -79,10 +79,8 @@ class ReassignmentRequestsMadeTable(tables.Table):
         if not names:
             return "No guests"
 
-        return format_html(
-            "<a class='govuk-link' href={}>{}</a>",
-            f"{record.pk}/",
-            names,
+        return render_govuk_link(
+            names, reverse("reassignment-requests:detail-made", args=[record.pk])
         )
 
     def render_outcome(self, record: ReassignmentRequest):
@@ -110,10 +108,8 @@ class ReassignmentRequestsReceivedTable(tables.Table):
         if not names:
             return "No guests"
 
-        return format_html(
-            "<a class='govuk-link' href={}>{}</a>",
-            f"{record.pk}/",
-            names,
+        return render_govuk_link(
+            names, reverse("reassignment-requests:detail-received", args=[record.pk])
         )
 
     def render_outcome(self, record: ReassignmentRequest):

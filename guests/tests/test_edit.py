@@ -1,6 +1,7 @@
 import http.client
 from datetime import date, datetime, timezone
 
+from bs4 import BeautifulSoup
 from django.urls import reverse
 
 from accounts.enums import GroupType
@@ -70,12 +71,28 @@ class GuestEditViewTests(TestSessionTokenMixin, BaseTestCase):
         response = self.client.get(self.edit_url)
 
         self.assertEqual(response.status_code, http.client.OK)
-        self.assertContains(response, "Guest record for")
-        self.assertContains(response, "Initial Guest")
-        self.assertContains(response, 'value="Initial"')
-        self.assertContains(response, 'value="Guest"')
-        self.assertContains(response, 'value="15/05/1990"')
-        self.assertContains(response, 'value="Female" selected')
+
+        soup = BeautifulSoup(response.content, "html.parser")
+
+        heading = soup.find("h1")
+
+        self.assertEqual(
+            heading.get_text(" ", strip=True), "Guest record for Initial Guest"
+        )
+
+        first_name_input = soup.find(
+            "input", {"name": "first_name", "value": "Initial"}
+        )
+        last_name_input = soup.find("input", {"name": "last_name", "value": "Guest"})
+        date_of_birth_input = soup.find(
+            "input", {"name": "date_of_birth", "value": "15/05/1990"}
+        )
+        gender_option = soup.find("option", {"value": "Female", "selected": True})
+
+        self.assertIsNotNone(first_name_input)
+        self.assertIsNotNone(last_name_input)
+        self.assertIsNotNone(date_of_birth_input)
+        self.assertIsNotNone(gender_option)
 
     def test_edit_view_returns_404_for_archived_guest(self):
         user = get_admin_user()

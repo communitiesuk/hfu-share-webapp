@@ -6,7 +6,6 @@ from crispy_forms_gds.layout.constants import Size
 from django.http import Http404
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.utils.html import format_html
 from django.views import View
 from django.views.generic import DetailView
 from django.views.generic.detail import SingleObjectMixin
@@ -40,6 +39,7 @@ from webapp.s3 import (
     s3_file_exists,
 )
 from webapp.search import perform_search
+from webapp.templatetags.link_renderers import render_govuk_link
 from webapp.utils import (
     CustomDateColumn,
     CustomDateFromToRangeFilter,
@@ -62,10 +62,9 @@ class UamsTable(tables.Table):
     created_at = CustomDateTimeColumn(verbose_name="Created at")
 
     def render_sponsor_full_name(self, record: SponsorshipCertificationForm, value):
-        return format_html(
-            '<a class="govuk-body-s govuk-link" href="{url}">{value}</a>',
-            url=reverse("uams:detail-overview", args=[record.pk]),
-            value=value,
+        return render_govuk_link(
+            value,
+            reverse("uams:detail-overview", args=[record.pk]),
         )
 
     class Meta:
