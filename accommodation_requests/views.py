@@ -92,6 +92,10 @@ from webapp.search import perform_search
 from webapp.templatetags.checks_status_extras import (
     accommodation_checks_status_label_to_tag_colour,
 )
+from webapp.templatetags.tag_renderers import (
+    render_app_accommodation_checks_status_tag,
+    render_govuk_tag,
+)
 from webapp.templatetags.timeline_extras import TimelineEventType
 from webapp.utils import (
     CustomDateColumn,
@@ -207,10 +211,7 @@ class AccommodationRequestsTable(tables.Table):
         )
 
     def render_checks_status(self, value):
-        return render_to_string(
-            "webapp/components/checks_status_tag/accommodation_checks_status_tag.html",
-            {"accommodation_checks_status": value},
-        )
+        return render_app_accommodation_checks_status_tag(value)
 
     def format_array_as_string(self, value):
         output = ""
@@ -473,14 +474,10 @@ class AccommodationRequestDetailOverviewView(
             not ar.get_sponsors_restrict_for_user(user).exists()
             and ar.has_any_active_sponsors()
         ):
-            sponsors = format_html(
-                (
-                    '<strong class="govuk-tag {tag_colour_class} app--display-inline">'
-                    "{tag_text}"
-                    "</strong>"
-                ),
-                tag_colour_class="govuk-tag--red",
-                tag_text="Sponsor is not in your LA",
+            sponsors = render_govuk_tag(
+                text="Sponsor is not in your LA",
+                colour="red",
+                css_class="app--display-inline",
             )
         else:
             sponsors = [
@@ -493,14 +490,7 @@ class AccommodationRequestDetailOverviewView(
             ]
 
         context["fields"] = [
-            (
-                "Status",
-                render_to_string(
-                    "webapp/components/checks_status_tag/"
-                    "accommodation_checks_status_tag.html",
-                    {"accommodation_checks_status": ar.checks_status},
-                ),
-            ),
+            ("Status", render_app_accommodation_checks_status_tag(ar.checks_status)),
             (
                 "Host",
                 (host := ar.get_host_restrict_for_user(user))
@@ -509,7 +499,6 @@ class AccommodationRequestDetailOverviewView(
                     {
                         "value": host.get_full_name(),
                         "tag_text": "Current host",
-                        "tag_colour": "green",
                         "tag_position": "below",
                     },
                 ),
@@ -546,7 +535,6 @@ class AccommodationRequestDetailOverviewView(
                             {
                                 "value": accommodation.full_address,
                                 "tag_text": "Current accommodation",
-                                "tag_colour": "green",
                                 "tag_position": "below",
                             },
                         )
@@ -646,7 +634,7 @@ class AccommodationRequestDetailActionsView(
                     TagAction(
                         label="Move guests (rematch or reassign)",
                         tag_text="All guests moved",
-                        tag_colour_class="govuk-tag--red",
+                        tag_colour_class="red",
                     )
                 )
             else:
@@ -711,7 +699,7 @@ class AccommodationRequestDetailActionsView(
                     TagAction(
                         label="Withdraw sponsor",
                         tag_text="Sponsor is not in your LA",
-                        tag_colour_class="govuk-tag--red",
+                        tag_colour_class="red",
                     )
                 )
             else:
@@ -719,7 +707,7 @@ class AccommodationRequestDetailActionsView(
                     TagAction(
                         label="Withdraw sponsor",
                         tag_text="All sponsors withdrawn",
-                        tag_colour_class="govuk-tag--red",
+                        tag_colour_class="red",
                     )
                 )
 

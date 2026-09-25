@@ -74,6 +74,10 @@ from webapp.mixins import (
     WizardPageTitleMixin,
 )
 from webapp.search import perform_search
+from webapp.templatetags.tag_renderers import (
+    render_app_accommodation_checks_status_tag,
+    render_app_visa_status_tag,
+)
 from webapp.utils import (
     CustomDateColumn,
     CustomDateFromToRangeFilter,
@@ -737,10 +741,7 @@ class ManualGuestDeduplicationTable(dj_tables.Table):
         )
 
     def render_visa_status(self, value):
-        return render_to_string(
-            "webapp/components/visa_status_tag/visa_status_tag.html",
-            {"visa_status": value},
-        )
+        return render_app_visa_status_tag(value)
 
     class Meta:
         model = MvPerson
@@ -1134,10 +1135,7 @@ class ManualViewSelectedGuestsTable(dj_tables.Table):
         )
 
     def render_visa_status(self, value):
-        return render_to_string(
-            "webapp/components/visa_status_tag/visa_status_tag.html",
-            {"visa_status": value},
-        )
+        return render_app_visa_status_tag(value)
 
     class Meta:
         model = MvPerson
@@ -1380,10 +1378,7 @@ class ManualReviewSelectedGuestsTable(dj_tables.Table):
         )
 
     def render_visa_status(self, value):
-        return render_to_string(
-            "webapp/components/visa_status_tag/visa_status_tag.html",
-            {"visa_status": value},
-        )
+        return render_app_visa_status_tag(value)
 
     class Meta:
         model = MvPerson
@@ -1503,10 +1498,7 @@ class ManualSelectAccommodationRequestTable(dj_tables.Table):
         )
 
     def render_checks_status(self, value):
-        return render_to_string(
-            "webapp/components/checks_status_tag/accommodation_checks_status_tag.html",
-            {"accommodation_checks_status": value},
-        )
+        return render_app_accommodation_checks_status_tag(value)
 
     class Meta:
         model = MvAccommodationRequest
@@ -1650,10 +1642,7 @@ class ManualSelectCorrectDetailsGuestsTable(dj_tables.Table):
         )
 
     def render_visa_status(self, value):
-        return render_to_string(
-            "webapp/components/visa_status_tag/visa_status_tag.html",
-            {"visa_status": value},
-        )
+        return render_app_visa_status_tag(value)
 
     class Meta:
         model = MvPerson
@@ -1810,10 +1799,7 @@ class ManualCheckAndCompleteGuestsTable(dj_tables.Table):
     )
 
     def render_visa_status(self, value):
-        return render_to_string(
-            "webapp/components/visa_status_tag/visa_status_tag.html",
-            {"visa_status": value},
-        )
+        return render_app_visa_status_tag(value)
 
     class Meta:
         model = MvPerson
@@ -2027,10 +2013,7 @@ class ManualViewDeduplicatedGuestsTable(dj_tables.Table):
         )
 
     def render_visa_status(self, value):
-        return render_to_string(
-            "webapp/components/visa_status_tag/visa_status_tag.html",
-            {"visa_status": value},
-        )
+        return render_app_visa_status_tag(value)
 
     class Meta:
         model = MvPerson

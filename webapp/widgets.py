@@ -79,9 +79,7 @@ class CheckboxSelectMultipleWithTags(ChoiceWidget):
         context = super().get_context(name, value, attrs)
         for _, options, _ in context["widget"]["optgroups"]:
             for option in options:
-                option["label_tag_colour_class"] = (
-                    f"govuk-tag--{self.label_to_tag_colour(option['label'])}"
-                )
+                option["label_tag_colour"] = self.label_to_tag_colour(option["label"])
         return context
 
 

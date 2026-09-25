@@ -11,8 +11,6 @@ from django.forms import (
 )
 from django.forms.widgets import CheckboxSelectMultiple, Input
 from django.template.loader import render_to_string
-from django.utils.html import format_html
-from django.utils.safestring import mark_safe
 
 from ontology.models import (
     MvAccommodation,
@@ -24,6 +22,13 @@ from ontology.models import (
 from webapp.formatting import format_date_value
 from webapp.layout import ButtonAsLink, Link
 from webapp.mixins import ReadOnlyFieldsMixin
+from webapp.templatetags.component_renderers import (
+    render_app_concatenated_text,
+)
+from webapp.templatetags.tag_renderers import (
+    render_app_accommodation_checks_status_tag,
+    render_app_visa_status_tag,
+)
 
 
 class SelectRecordTypeForm(forms.Form):
@@ -728,15 +733,8 @@ class SelectCorrectDetailsStepForm(ReadOnlyFieldsMixin, forms.Form):
                             for an in (record.application_number or [])
                         ],
                         "formatted_value": [
-                            format_html(
-                                "{} {}",
-                                an,
-                                mark_safe(
-                                    render_to_string(
-                                        "webapp/components/visa_status_tag/visa_status_tag.html",
-                                        {"visa_status": vs},
-                                    )
-                                ),
+                            render_app_concatenated_text(
+                                an, render_app_visa_status_tag(vs)
                             )
                             for an, vs in application_numbers_with_visa_status
                         ],
@@ -779,14 +777,10 @@ class SelectCorrectDetailsStepForm(ReadOnlyFieldsMixin, forms.Form):
                         "help_text": "This accommodation request you selected will be "
                         "linked to the new principal guest record.",
                         "value": ar.title,
-                        "formatted_value": format_html(
-                            "{} {}",
+                        "formatted_value": render_app_concatenated_text(
                             ar.title,
-                            mark_safe(
-                                render_to_string(
-                                    "webapp/components/checks_status_tag/accommodation_checks_status_tag.html",
-                                    {"accommodation_checks_status": ar.checks_status},
-                                )
+                            render_app_accommodation_checks_status_tag(
+                                ar.checks_status
                             ),
                         ),
                     },
