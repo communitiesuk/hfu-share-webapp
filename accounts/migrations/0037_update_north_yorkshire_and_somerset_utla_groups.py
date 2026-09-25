@@ -2,9 +2,16 @@
 
 from django.db import migrations
 
-utla_data = [
+utlas_to_update_gss = [
     ("E06000066", "Somerset"),
     ("E06000065", "North Yorkshire"),
+]
+
+ltlas_to_link = [
+    "Cumberland",
+    "Westmorland and Furness",
+    "North Yorkshire",
+    "Somerset",
 ]
 
 
@@ -14,22 +21,24 @@ def update_utla_gss_code(utla_name: str, utla_gss_code: str, apps):
     GroupInfo.objects.filter(utla_name=utla_name).update(utla_gss_code=utla_gss_code)
 
 
-def attach_new_ltla(utla_name: str, apps):
+def attach_new_ltla(ltla_name: str, apps):
     GroupInfo = apps.get_model("accounts", "GroupInfo")
 
-    parent_utla = GroupInfo.objects.get(utla_name=utla_name, is_utla=True)
+    parent_utla = GroupInfo.objects.get(utla_name=ltla_name, is_utla=True)
 
-    GroupInfo.objects.filter(ltla_name=utla_name, is_utla=False).update(
+    GroupInfo.objects.filter(ltla_name=ltla_name, is_utla=False).update(
         parent_utla=parent_utla,
-        utla_name=utla_name,
+        utla_name=ltla_name,
+        utla_gss_code=parent_utla.utla_gss_code,
     )
 
 
-def update_north_yorkshire_and_somerset_utlas(apps, schema_editor):
-    for utla in utla_data:
-        utla_gss_code, utla_name = utla
-        attach_new_ltla(utla_name, apps)
+def update_and_link_unitary_authorities(apps, schema_editor):
+    for utla_gss_code, utla_name in utlas_to_update_gss:
         update_utla_gss_code(utla_name, utla_gss_code, apps)
+
+    for ltla_name in ltlas_to_link:
+        attach_new_ltla(ltla_name, apps)
 
 
 class Migration(migrations.Migration):
@@ -37,4 +46,4 @@ class Migration(migrations.Migration):
         ("accounts", "0036_create_new_unitary_la_groups"),
     ]
 
-    operations = [migrations.RunPython(update_north_yorkshire_and_somerset_utlas)]
+    operations = [migrations.RunPython(update_and_link_unitary_authorities)]
