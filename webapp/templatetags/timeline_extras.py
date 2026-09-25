@@ -2,7 +2,10 @@ import re
 from enum import Enum
 
 from django import template
-from django.utils.html import format_html, strip_tags
+from django.utils.html import strip_tags
+from django.utils.safestring import mark_safe
+
+from webapp.templatetags.list_renderers import render_govuk_list
 
 register = template.Library()
 
@@ -81,11 +84,7 @@ def format_interaction_content(text):
 
     names = chunk.rstrip(".").replace(" and ", ", ").split(", ")
 
-    html = (
-        "<ul class='govuk-list govuk-list--bullet'>"
-        + "".join(f"<li>{name}</li>" for name in names)
-        + "</ul>"
-    )
+    html = render_govuk_list(names, bulleted_list=True)
 
     result = sanitised_text.replace(chunk, html, 1)
-    return format_html(result)
+    return mark_safe(result)

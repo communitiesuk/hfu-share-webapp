@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 
 from crispy_forms.layout import flatatt
 
@@ -72,14 +72,52 @@ class LinkAsButtonBuilder(LinkBuilderBase):
         super().__init__(text, href, css_class, data_module="govuk-button", **kwargs)
 
 
+class AdminLinkBuilder(LinkBuilderBase):
+    classes = ""
+
+    def __init__(
+        self,
+        text: str,
+        href: str,
+        *,
+        opens_in_new_tab: bool = False,
+        **kwargs,
+    ):
+        if opens_in_new_tab:
+            kwargs["target"] = "_blank"
+
+        super().__init__(text, href, **kwargs)
+
+
 class TagBuilder:
     classes = "govuk-tag"
 
-    def __init__(self, text: str, colour: Optional[str] = None, css_class: str = ""):
+    def __init__(self, text: str, *, colour: Optional[str] = None, css_class: str = ""):
         self.text = text
 
         if colour:
             self.classes += f" govuk-tag--{colour}"
+
+        if css_class:
+            self.classes += f" {css_class}"
+
+
+class ListBuilder:
+    classes = "govuk-list"
+
+    def __init__(
+        self,
+        items: List[str],
+        *,
+        bulleted_list: bool = False,
+        css_class: str = "",
+        item_class: str = "",
+    ):
+        self.items = items
+        self.item_classes = item_class
+
+        if bulleted_list:
+            self.classes += " govuk-list--bullet"
 
         if css_class:
             self.classes += f" {css_class}"

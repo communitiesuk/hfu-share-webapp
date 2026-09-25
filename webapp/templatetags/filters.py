@@ -59,7 +59,9 @@ def linked_record_link(value, linked_from, linked_as):
         tag_colour = status_to_tag_colour(data.status_type, data.status) or "grey"
         return render_app_concatenated_text_with_wrapper(
             render_govuk_link(data.title, url),
-            render_govuk_tag(data.status, tag_colour, "app-tag--nowrap"),
+            render_govuk_tag(
+                data.status, colour=tag_colour, css_class="app-tag--nowrap"
+            ),
             wrapper_class="app-table--tag",
         )
     return render_govuk_link(data.title, url)

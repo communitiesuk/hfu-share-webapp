@@ -7,6 +7,7 @@ from django.template import Template
 from django.template.loader import render_to_string
 
 from webapp.component_builders import LinkAsButtonBuilder, LinkBuilder, LinkBuilderBase
+from webapp.templatetags.link_renderers import LINK_TEMPLATE_PATH
 
 
 class PlainRadioChoice(ConditionalQuestion):
@@ -29,7 +30,7 @@ class ConditionalRadiosWithLegend(ConditionalRadios):
 
 
 class Link(TemplateNameMixin):
-    template = "webapp/components/typography/link.html"
+    template = LINK_TEMPLATE_PATH
 
     @staticmethod
     def cancel(text: str = "Cancel", **kwargs):

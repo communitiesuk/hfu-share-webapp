@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from datetime import timezone as dt_timezone
 
+from bs4 import BeautifulSoup
 from django.utils import timezone
 from django.views.generic import DetailView
 
@@ -47,6 +48,12 @@ class InteractionTimelineMixinTest(BaseTestCase):
         self.assertTrue(
             any(abs((expected_dt - d).total_seconds()) < 1 for d in event_dates)
         )
+
+    def asset_html_equal(self, actual, expected):
+        actual_soup = BeautifulSoup(actual, "html.parser")
+        expected_soup = BeautifulSoup(expected, "html.parser")
+
+        self.assertEqual(actual_soup.prettify(), expected_soup.prettify())
 
     def test_returns_interactions_linked_to_accommodation_request(self):
         accommodation_request = MvAccommodationRequestFactory(
@@ -124,7 +131,7 @@ class InteractionTimelineMixinTest(BaseTestCase):
 
         timeline_event = events[0]
         self.assertEqual(timeline_event.title, interaction.title)
-        self.assertEqual(timeline_event.content, formatted_interaction_notes)
+        self.asset_html_equal(timeline_event.content, formatted_interaction_notes)
 
     def test_interaction_has_system_display_name_for_events_without_user(self):
         accommodation_request = MvAccommodationRequestFactory(

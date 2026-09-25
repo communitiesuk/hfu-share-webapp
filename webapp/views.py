@@ -94,7 +94,7 @@ class ExampleTable(tables.Table):
     def render_visa_status(self, value):
         return render_govuk_tag(
             value,
-            "green" if value == "Issued" else "red",
+            colour="green" if value == "Issued" else "red",
         )
 
     class Meta:
@@ -619,7 +619,9 @@ class TagAction(Action):
     def __init__(self, label: str, tag_text: str, tag_colour_class: str = "grey"):
         super().__init__(
             label=label,
-            value=render_govuk_tag(tag_text, tag_colour_class, "app-max-width--100"),
+            value=render_govuk_tag(
+                tag_text, colour=tag_colour_class, css_class="app-max-width--100"
+            ),
         )
 
 

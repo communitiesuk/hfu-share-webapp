@@ -1,0 +1,7 @@
+<ul class="{{ list.classes }}">
+    {% for item in list.items %}
+        <li{# djlint:off #} {# djlint:on #}{% if list.item_classes %} class="{{ list.item_classes }}"{% endif %}>
+            {{ item }}
+        </li>
+    {% endfor %}
+</ul>

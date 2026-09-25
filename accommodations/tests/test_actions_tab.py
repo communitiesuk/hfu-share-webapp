@@ -1,6 +1,7 @@
 import http.client
 from datetime import datetime, timezone
 
+from bs4 import BeautifulSoup
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
@@ -211,11 +212,33 @@ class AccommodationsActionsTestCase(
             )
         )
 
-        self.assertContains(
-            response,
-            "This deduplication cannot yet be undone due to a "
-            "further deduplication. To restore this record, "
-            "first undo the deduplication from the",
+        soup = BeautifulSoup(response.content, "html.parser")
+
+        undo_dedupe_value = soup.find("dd", {"class": "govuk-summary-list__value"})
+        self.assertIsNotNone(undo_dedupe_value)
+        self.assertEqual(
+            " ".join(undo_dedupe_value.get_text(" ", strip=True).split()),
+            "This deduplication cannot yet be undone due to a further deduplication. "
+            "To restore this record, first undo the deduplication from the "
+            "actions tab for 123 Street . "
+            "A full deduplication history is in the history tab.",
         )
 
-        self.assertContains(response, "123 Street")
+        undo_dedupe_value_link = soup.find(
+            "a",
+            {
+                "href": reverse(
+                    "accommodations:detail-actions",
+                    args=[further_accommodation_duplicate_group.principal_record.pk],
+                ),
+                "class": "govuk-link",
+            },
+        )
+        self.assertIsNotNone(undo_dedupe_value_link)
+        self.assertEqual(
+            undo_dedupe_value_link.get_text(" ", strip=True),
+            "actions tab for 123 Street",
+        )
+
+        start_link = soup.find("a", string="Start")
+        self.assertIsNone(start_link)
