@@ -2,6 +2,8 @@
 
 from django.db import migrations
 
+from accounts.enums import GroupType
+
 ltla_data = [
     ("E06000063", "Cumberland"),
     ("E06000064", "Westmorland and Furness"),
@@ -19,7 +21,15 @@ def create_ltla_group(ltla_name: str, gss_code: str, apps):
     group, created = Group.objects.get_or_create(name=group_name)
 
     if created:
-        GroupInfo.objects.create(group=group, gss_code=gss_code, ltla_name=ltla_name)
+        GroupInfo.objects.create(
+            group=group,
+            group_type=GroupType.LOCAL_AUTHORITY,
+            ltla_name=ltla_name,
+            gss_code=gss_code,
+            da_name="England",
+            da_gss_code="E92000001",
+            description="New Unitary Authority from 2023",
+        )
 
 
 def create_ltla_groups(apps, schema_editor):
