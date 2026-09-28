@@ -329,10 +329,10 @@ class GuestsActionsBlockedByReassignmentTestCase(
 
         soup = BeautifulSoup(response.content, "html.parser")
 
-        pedning_value = soup.find("dd", {"class": "govuk-summary-list__value"})
-        self.assertIsNotNone(pedning_value)
+        pending_value = soup.find("dd", {"class": "govuk-summary-list__value"})
+        self.assertIsNotNone(pending_value)
         self.assertEqual(
-            pedning_value.get_text(" ", strip=True),
+            pending_value.get_text(" ", strip=True),
             f"You sent a request to move this guest to {rr.destination_ltla_name}. "
             "You cannot undo this deduplication while there is a "
             "pending request to move this guest .",

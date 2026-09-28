@@ -57,7 +57,7 @@ def render_app_form_link(
             "form_action": action,
             "form_name": name,
             "form_value": value,
-            "record_name": record_name,
+            "record_name": f" {record_name}",
             "hidden_inputs": hidden_inputs,
             "text": text,
         },
