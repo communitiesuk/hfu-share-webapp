@@ -42,9 +42,11 @@ class LinkBuilder(LinkBuilderBase):
         if opens_in_new_tab:
             kwargs["rel"] = "noreferrer noopener"
             kwargs["target"] = "_blank"
-            visually_hidden_text = " (opens in new tab)"
+            visually_hidden_text = "(opens in new tab)"
 
-        self.visually_hidden_text = f" {visually_hidden_text}"
+        self.visually_hidden_text = (
+            f" {visually_hidden_text}" if visually_hidden_text else ""
+        )
 
         super().__init__(text, href, css_class, **kwargs)
 
