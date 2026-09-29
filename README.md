@@ -171,6 +171,14 @@ BROWSER_TEST_USER_EMAIL     # Retrieve from AWS secrets manager
 BROWSER_TEST_USER_PASSWORD  # Retrieve from AWS secrets manager
 ```
 
+When running your tests against your local development server you need to enable google analytics.
+This can be done by setting the following environment variables:
+
+```shell
+GOOGLE_ANALYTICS_ID=G-12345         # This is a fake ID and can be anything starting with "G-"
+GOOGLE_ANALYTICS_ENABLED=Enabled
+```
+
 For running the test:
 ```shell
 poetry run test-browser

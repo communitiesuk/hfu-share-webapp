@@ -1,7 +1,6 @@
+{% load tag_renderers %}
 <div class="govuk-phase-banner govuk-width-container pink-banner">
     <p class="govuk-phase-banner__content">
-        <span class="govuk-phase-banner__content__text">
-            <strong class="govuk-tag govuk-phase-banner__content__tag">You are in the {{ environment }} environment.</strong>
-        </span>
+        <span class="govuk-phase-banner__content__text">{% render_app_environment_tag %}</span>
     </p>
 </div>

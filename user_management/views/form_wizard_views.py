@@ -1,4 +1,5 @@
 from django.shortcuts import redirect
+from django.urls import reverse
 from django.views.generic import TemplateView
 from formtools.wizard.views import SessionWizardView
 
@@ -128,6 +129,9 @@ class AccessRequestFormWizard(  # pylint: disable=view-missing-access-control
     # pylint: disable=arguments-differ
     def get_context_data(self, form, **kwargs):
         context = super().get_context_data(form=form, **kwargs)
+
+        if self.steps.current == "group_type":
+            context["cancel_url"] = reverse("webapp:landing-page")
 
         group_type_data = self.get_cleaned_data_for_step("group_type") or {}
         is_devolved_administration = (

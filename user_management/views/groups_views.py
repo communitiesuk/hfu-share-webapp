@@ -1,9 +1,9 @@
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import HTML, Button, Div, Field, Layout, Size
+from crispy_forms_gds.layout import Button, Div, Field, Layout, Size
 from django import forms
 from django.contrib import messages
+from django.template.loader import render_to_string
 from django.urls import reverse
-from django.utils.html import format_html, format_html_join
 from django.views.generic import FormView
 from django_filters.filters import CharFilter
 from django_filters.rest_framework import FilterSet
@@ -17,6 +17,7 @@ from user_management.templatetags.access_request_extras import (
     render_name_label_from_group,
 )
 from webapp.constants import GROUP_SEARCH_FIELDS
+from webapp.layout import Link
 from webapp.mixins import (
     FilterPanelMixin,
     PageTitleMixin,
@@ -26,6 +27,7 @@ from webapp.mixins import (
     UserActionsMixin,
 )
 from webapp.search import perform_search
+from webapp.templatetags.link_renderers import render_govuk_link
 from webapp.views import SummaryListRow, SummaryListView
 
 
@@ -34,10 +36,9 @@ class GroupsTable(tables.Table):
     user_count = tables.Column(verbose_name="Count of members")
 
     def render_name(self, record: GroupProxy):
-        return format_html(
-            '<a class="govuk-link" href="{url}">{value}</a>',
-            url=reverse("user-management:group-details", args=[record.pk]),
-            value=render_name_label_from_group(record),
+        return render_govuk_link(
+            render_name_label_from_group(record),
+            reverse("user-management:group-details", args=[record.pk]),
         )
 
     class Meta:
@@ -114,25 +115,23 @@ class GroupDetailsView(
         if len(users) == 0:
             return "No users"
 
-        return format_html_join(
-            "",
-            '<div style="display: flex; justify-content: space-between;">'
-            '<a href="{}" class="govuk-link govuk-link--no-underline">{}</a>'
-            '<a href="{}" class="govuk-link govuk-link--no-visited-state">Remove'
-            '<span class="govuk-visually-hidden"> {}</span></a>'
-            "</div>",
-            (
-                (
-                    reverse("user-management:user-details", args=[user.pk]),
-                    user.email,
-                    reverse(
-                        "user-management:group-remove-user",
-                        kwargs={"user_pk": user.pk, "group_pk": self.object.pk},
-                    ),
-                    user.email,
-                )
-                for user in users
-            ),
+        return render_to_string(
+            "user_management/user_management_links.html",
+            {
+                "items": [
+                    {
+                        "link_text": user.email,
+                        "link_href": reverse(
+                            "user-management:user-details", args=[user.pk]
+                        ),
+                        "remove_link_href": reverse(
+                            "user-management:group-remove-user",
+                            kwargs={"user_pk": user.pk, "group_pk": self.object.pk},
+                        ),
+                    }
+                    for user in users
+                ]
+            },
         )
 
     user_set = SummaryListRow(verbose_name="Members")
@@ -145,20 +144,14 @@ class GroupDetailsView(
 
 
 class GroupRemoveUserForm(forms.Form):
-    def __init__(self, *args, group_pk=None, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
                 Button.warning("submit", "Yes - remove this person"),
-                HTML(
-                    f'<a href="{
-                        reverse("user-management:group-details", args=[group_pk])
-                    }" class="govuk-link govuk-link--no-visited-state govuk-body">'
-                    f"Cancel"
-                    f"</a>"
-                ),
-                style="display: flex; gap: 16px; align-items: baseline",
+                Link.cancel(),
+                css_class="govuk-button-group",
             )
         )
 
@@ -175,6 +168,9 @@ class GroupRemoveUserView(
         context["user"] = User.objects.get(pk=self.kwargs["user_pk"])
         context["group_name"] = render_name_label_from_group(
             GroupProxy.objects.get(pk=self.kwargs["group_pk"])
+        )
+        context["cancel_url"] = reverse(
+            "user-management:group-details", args=[self.kwargs["group_pk"]]
         )
         return context
 
@@ -197,8 +193,3 @@ class GroupRemoveUserView(
             self.request, f"{user.full_name_or_email} removed from this group."
         )
         return super().form_valid(form)
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["group_pk"] = self.kwargs["group_pk"]
-        return kwargs

@@ -33,6 +33,11 @@ def open_page(page: SharePage, path: str, page_name: str):
     )
 
 
+@pytest.fixture
+def home_page(home_page_with_accessibility_user: HomePage):
+    return home_page_with_accessibility_user
+
+
 @pytest.mark.accessibility
 class TestAccessibility(BrowserTest):
     def test_sign_in_page_has_no_axe_violations(self, home_page: HomePage):

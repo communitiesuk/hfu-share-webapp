@@ -1,9 +1,10 @@
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import HTML, Button, Div, Field, Layout
+from crispy_forms_gds.layout import Button, Div, Field, Layout
 from crispy_forms_gds.layout.constants import Size
 from django import forms
 
 from ontology.models import VisaInformationRequest, VisaInformationRequestComments
+from webapp.layout import Link
 
 
 class StartVIRForm(forms.ModelForm):
@@ -131,12 +132,7 @@ class VIRCloseConfirmForm(forms.Form):
             ),
             Div(
                 Button("confirm_close_submit", "Confirm"),
-                HTML(
-                    '<a href="{{ return_url }}"'
-                    'class="govuk-link govuk-link--no-visited-state govuk-body">'
-                    "Cancel"
-                    "</a>"
-                ),
+                Link.cancel(),
                 css_class="govuk-button-group",
             ),
         )
@@ -166,12 +162,7 @@ class VIRReopenConfirmForm(forms.Form):
             ),
             Div(
                 Button("confirm_reopen_submit", "Confirm"),
-                HTML(
-                    '<a href="{{ return_url }}"'
-                    'class="govuk-link govuk-link--no-visited-state govuk-body">'
-                    "Cancel"
-                    "</a>"
-                ),
+                Link.cancel(),
                 css_class="govuk-button-group",
             ),
         )

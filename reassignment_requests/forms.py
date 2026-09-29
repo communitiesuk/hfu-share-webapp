@@ -1,9 +1,10 @@
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import HTML, Button, Div, Field, Fieldset, Layout
+from crispy_forms_gds.layout import Button, Div, Field, Fieldset, Layout
 from crispy_forms_gds.layout.constants import Size
 from django.forms import BooleanField, forms
 
 from ontology.models import ReassignmentRequest
+from webapp.layout import Link
 
 
 class CancelReassignmentRequestForm(forms.Form):
@@ -28,13 +29,8 @@ class CancelReassignmentRequestForm(forms.Form):
                 legend_size=Size.LARGE,
             ),
             Div(
-                Button("submit", "Cancel request"),
-                HTML(
-                    '<a href="{{ cancel_url }}" class="govuk-link '
-                    'govuk-link--no-visited-state govuk-body">'
-                    "Go back"
-                    "</a>"
-                ),
+                Button.primary("submit", "Cancel request"),
+                Link.cancel("Go back"),
                 css_class="govuk-button-group",
             ),
         )

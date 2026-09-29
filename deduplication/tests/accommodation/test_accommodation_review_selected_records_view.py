@@ -132,7 +132,8 @@ class DeduplicationAccommodationSelectedViewTests(TestSessionTokenMixin, BaseTes
         )
         self.assertContains(
             response,
-            '<button class="govuk-button"type="submit">Continue</button>',
+            '<button name="submit" class="govuk-button" id="id_submit" '
+            'data-module="govuk-button">Continue</button>',
             html=True,
         )
         self.assertContains(

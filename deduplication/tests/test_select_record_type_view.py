@@ -105,14 +105,15 @@ class DeduplicationSponsorSelectedViewTests(TestSessionTokenMixin, BaseTestCase)
 
         self.assertContains(
             response,
-            '<button class="govuk-button"type="submit">Continue</button>',
+            '<button name="submit" class="govuk-button" id="id_submit" '
+            'data-module="govuk-button">Continue</button>',
             html=True,
         )
 
         self.assertContains(
             response,
-            '<a class="govuk-button govuk-button--secondary" '
-            'href="/landing-page">Cancel</a>',
+            '<a href="/landing-page" class="govuk-link govuk-link--no-visited-state">'
+            "Cancel</a>",
             html=True,
         )
 

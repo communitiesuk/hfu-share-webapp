@@ -1,6 +1,7 @@
 import http.client
 from datetime import date, datetime, timezone
 
+from bs4 import BeautifulSoup
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
@@ -100,26 +101,56 @@ class SponsorEditViewTests(TestSessionTokenMixin, BaseTestCase):
         self.client.force_login(user)
         response = self.client.get(self.scottish_edit_url)
 
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Sponsor and host record for")
-        self.assertContains(response, "Scottish Sponsor")
-        self.assertContains(response, 'value="Scottish"')
-        self.assertContains(response, 'value="Sponsor"')
-        self.assertContains(response, 'value="15/05/1990"')
-        self.assertContains(response, 'value="Female" selected')
+        soup = BeautifulSoup(response.content, "html.parser")
+
+        heading = soup.find("h1")
+
+        self.assertEqual(
+            heading.get_text(" ", strip=True),
+            "Sponsor and host record for Scottish Sponsor",
+        )
+
+        first_name_input = soup.find(
+            "input", {"name": "first_name", "value": "Scottish"}
+        )
+        last_name_input = soup.find("input", {"name": "last_name", "value": "Sponsor"})
+        date_of_birth_input = soup.find(
+            "input", {"name": "date_of_birth", "value": "15/05/1990"}
+        )
+        gender_option = soup.find("option", {"value": "Female", "selected": True})
+
+        self.assertIsNotNone(first_name_input)
+        self.assertIsNotNone(last_name_input)
+        self.assertIsNotNone(date_of_birth_input)
+        self.assertIsNotNone(gender_option)
 
     def test_edit_view_get_loads_correctly_for_admin_users(self):
         user = get_admin_user()
         self.client.force_login(user)
         response = self.client.get(self.edit_url)
 
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Sponsor and host record for")
-        self.assertContains(response, "Initial Sponsor")
-        self.assertContains(response, 'value="Initial"')
-        self.assertContains(response, 'value="Sponsor"')
-        self.assertContains(response, 'value="15/05/1990"')
-        self.assertContains(response, 'value="Female" selected')
+        soup = BeautifulSoup(response.content, "html.parser")
+
+        heading = soup.find("h1")
+
+        self.assertEqual(
+            heading.get_text(" ", strip=True),
+            "Sponsor and host record for Initial Sponsor",
+        )
+
+        first_name_input = soup.find(
+            "input", {"name": "first_name", "value": "Initial"}
+        )
+        last_name_input = soup.find("input", {"name": "last_name", "value": "Sponsor"})
+        date_of_birth_input = soup.find(
+            "input", {"name": "date_of_birth", "value": "15/05/1990"}
+        )
+        gender_option = soup.find("option", {"value": "Female", "selected": True})
+
+        self.assertIsNotNone(first_name_input)
+        self.assertIsNotNone(last_name_input)
+        self.assertIsNotNone(date_of_birth_input)
+        self.assertIsNotNone(gender_option)
 
     def test_edit_view_returns_404_for_uneditable_sponsor(self):
         user = get_admin_user()

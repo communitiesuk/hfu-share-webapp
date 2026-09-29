@@ -1,7 +1,8 @@
+{% load tag_renderers %}
 {% if tag_position == "below" %}
     <div>{{ value }}</div>
-    <strong class="govuk-tag govuk-tag--{{ tag_colour }} govuk-!-margin-top-1 app-tag--nowrap">{{ tag_text }}</strong>
+    {{ tag_text|render_app_value_with_tag:True }}
 {% else %}
     {{ value }}
-    <strong class="govuk-tag govuk-tag--{{ tag_colour }} govuk-!-margin-left-1 app-tag--nowrap">{{ tag_text }}</strong>
+    {{ tag_text|render_app_value_with_tag:False }}
 {% endif %}

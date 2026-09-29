@@ -1,17 +1,15 @@
 import os
 
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import HTML, Button, Div, Field, Fieldset, Layout
+from crispy_forms_gds.layout import Button, Div, Field, Fieldset, Layout
 from crispy_forms_gds.layout.constants import Size
 from django import forms
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db import DatabaseError, transaction
 from django.forms import ValidationError
 from django.http import HttpResponse
-from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.html import format_html
 from django.views.generic import FormView
 from django.views.generic.detail import SingleObjectMixin
 from django_filters import (
@@ -36,6 +34,7 @@ from ontology.models.MvPerson import MvPerson
 from reassignment_requests.forms import CancelReassignmentRequestForm
 from webapp.constants import REASSIGNMENT_REQUEST_SEARCH_FIELDS
 from webapp.enhanced_sentry_logging import db_values, log_event, log_persistence_check
+from webapp.layout import Link
 from webapp.mixins import (
     FilterPanelMixin,
     PageTitleMixin,
@@ -43,8 +42,12 @@ from webapp.mixins import (
     PermissionsMixin,
 )
 from webapp.search import perform_search
+from webapp.templatetags.link_renderers import render_govuk_link
 from webapp.templatetags.reassignment_request_extras import (
     reassignment_request_outcome_label_to_tag_colour,
+)
+from webapp.templatetags.tag_renderers import (
+    render_app_reassignment_request_outcome_tag,
 )
 from webapp.utils import (
     CustomDateColumn,
@@ -76,16 +79,13 @@ class ReassignmentRequestsMadeTable(tables.Table):
         if not names:
             return "No guests"
 
-        return format_html(
-            "<a class='govuk-link' href={}>{}</a>",
-            f"{record.pk}/",
-            names,
+        return render_govuk_link(
+            names, reverse("reassignment-requests:detail-made", args=[record.pk])
         )
 
     def render_outcome(self, record: ReassignmentRequest):
-        return render_to_string(
-            "webapp/components/reassignment_request/reassignment_request_outcome_tag.html",
-            {"outcome": ReassignmentRequest.Outcome(record.outcome.capitalize())},
+        return render_app_reassignment_request_outcome_tag(
+            ReassignmentRequest.Outcome(record.outcome.capitalize())
         )
 
     class Meta:
@@ -108,16 +108,13 @@ class ReassignmentRequestsReceivedTable(tables.Table):
         if not names:
             return "No guests"
 
-        return format_html(
-            "<a class='govuk-link' href={}>{}</a>",
-            f"{record.pk}/",
-            names,
+        return render_govuk_link(
+            names, reverse("reassignment-requests:detail-received", args=[record.pk])
         )
 
     def render_outcome(self, record: ReassignmentRequest):
-        return render_to_string(
-            "webapp/components/reassignment_request/reassignment_request_outcome_tag.html",
-            {"outcome": ReassignmentRequest.Outcome(record.outcome.capitalize())},
+        return render_app_reassignment_request_outcome_tag(
+            ReassignmentRequest.Outcome(record.outcome.capitalize())
         )
 
     def render_source_ltla_name(self, record: ReassignmentRequest):
@@ -429,13 +426,8 @@ class AcceptRejectReassignmentRequestForm(forms.Form):
                 "comments", label_size=Size.MEDIUM, rows=5, max_characters=500
             ),
             Div(
-                Button("submit", "Confirm"),
-                HTML(
-                    '<a href="{{ cancel_url }}"'
-                    'class="govuk-link govuk-link--no-visited-state govuk-body">'
-                    "Cancel"
-                    "</a>"
-                ),
+                Button.primary("submit", "Confirm"),
+                Link.cancel(),
                 css_class="govuk-button-group",
             ),
         )
