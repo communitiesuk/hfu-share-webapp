@@ -83,7 +83,7 @@ def create_safeguarding_checks(_, __, queryset: QuerySet[MvAccommodationRequest]
 
 
 def devcheckv2_detail_view(obj):
-    checks = obj.devcheckv2_set.all()
+    checks = obj.checks.all()
     if not checks:
         return "(None)"
     return format_html_join(
