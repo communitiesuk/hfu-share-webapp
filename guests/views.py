@@ -57,6 +57,7 @@ from webapp.mixins import (
     UserActionsMixinProtocol,
 )
 from webapp.search import perform_search
+from webapp.templatetags.link_renderers import render_app_record_link, render_govuk_link
 from webapp.templatetags.tag_renderers import render_app_visa_status_tag
 from webapp.utils import (
     CustomDateColumn,
@@ -89,14 +90,8 @@ class GuestsTable(tables.Table):
     application_number = Column(verbose_name="Unique application number (UAN)")
 
     def render_full_name(self, record: MvPerson, value):
-        dup_text = "Duplicate" if not record.is_principal else ""
-        return format_html(
-            '<a class="govuk-body-s govuk-link" href="{url}">{value}</a>'
-            '<div class="govuk-hint govuk-!-font-size-16 govuk-!-margin-top-1'
-            ' govuk-!-margin-bottom-0">{dup_text}</div>',
-            url=reverse("guests:detail-overview", args=[record.id]),
-            value=value,
-            dup_text=dup_text,
+        return render_app_record_link(
+            record, value, reverse("guests:detail-overview", args=[record.id])
         )
 
     def render_passport_id(self, value):
@@ -499,10 +494,9 @@ class GuestDetailActionsView(
             deduplicated_guests = dup_group.guests.all()
 
             deduplicated_guests_names = [
-                format_html(
-                    '<a class="govuk-link" href="{url}">{value}</a>',
-                    url=reverse("guests:detail-overview", args=[guest.id]),
-                    value=guest.get_full_name(),
+                render_govuk_link(
+                    guest.get_full_name(),
+                    reverse("guests:detail-overview", args=[guest.id]),
                 )
                 for guest in deduplicated_guests
             ]
@@ -529,16 +523,17 @@ class GuestDetailActionsView(
                     actions.append(
                         LinkAction(
                             label="Undo deduplication",
-                            text=format_html(
-                                "You sent a request to move this guest to {}. "
-                                "You cannot undo this deduplication while there is a "
-                                '<a class="govuk-link" href="{}">{}</a>.',
+                            text="You sent a request to move this guest to {}. "
+                            "You cannot undo this deduplication while there is a "
+                            "{}.".format(
                                 escape(pending_reassignment.destination_ltla_name),
-                                reverse(
-                                    "reassignment-requests:detail-received",
-                                    kwargs={"pk": pending_reassignment.id},
+                                render_govuk_link(
+                                    "pending request to move this guest",
+                                    reverse(
+                                        "reassignment-requests:detail-received",
+                                        kwargs={"pk": pending_reassignment.id},
+                                    ),
                                 ),
-                                "pending request to move this guest",
                             ),
                         )
                     )
@@ -835,18 +830,13 @@ class RedactedVisaApplicationsTable(tables.Table):
 
     def render_Q44g_full_name(self, record, value):
         if record.user_can_view:
-            return format_html(
-                (
-                    '<a class="govuk-body-s govuk-link app-text--white-space-normal "'
-                    'href="{}">'
-                    "{}"
-                    "</a>"
-                ),
+            return render_govuk_link(
+                value,
                 reverse(
                     "visa-applications:detail-overview",
                     args=[record.visa_application_id],
                 ),
-                value,
+                css_class="app-text--white-space-normal",
             )
 
         return value

@@ -5,12 +5,15 @@ from django import template
 from django.db.models import QuerySet
 from django.http import QueryDict
 from django.shortcuts import resolve_url
-from django.utils.html import format_html
 
 from accounts.models import AccessRequest
 from ontology.utils import LinkedRecordData
 from webapp.constants import status_to_tag_colour
 from webapp.formatting import format_date_value
+from webapp.templatetags.component_renderers import (
+    render_app_concatenated_text_with_wrapper,
+)
+from webapp.templatetags.link_renderers import render_govuk_link
 from webapp.templatetags.tag_renderers import render_govuk_tag
 
 register = template.Library()
@@ -54,16 +57,12 @@ def linked_record_link(value, linked_from, linked_as):
     url = resolve_url(data.view_name, data.id)
     if data.status_type and data.status:
         tag_colour = status_to_tag_colour(data.status_type, data.status) or "grey"
-        return format_html(
-            '<div class="app-table--tag">'
-            + '<a class="govuk-link" href="{}">{}</a>'
-            + "{}"
-            + "</div>",
-            url,
-            data.title,
+        return render_app_concatenated_text_with_wrapper(
+            render_govuk_link(data.title, url),
             render_govuk_tag(data.status, tag_colour, "app-tag--nowrap"),
+            wrapper_class="app-table--tag",
         )
-    return format_html('<a class="govuk-link" href="{}">{}</a>', url, data.title)
+    return render_govuk_link(data.title, url)
 
 
 @register.filter

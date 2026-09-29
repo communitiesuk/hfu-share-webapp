@@ -1,10 +1,12 @@
-from typing import Optional
+from typing import Optional, Type
 
-from crispy_forms.layout import TemplateNameMixin, flatatt
+from crispy_forms.layout import TemplateNameMixin
 from crispy_forms.utils import TEMPLATE_PACK
 from crispy_forms_gds.layout import ConditionalQuestion, ConditionalRadios, Size
 from django.template import Template
 from django.template.loader import render_to_string
+
+from webapp.component_builders import LinkAsButtonBuilder, LinkBuilder, LinkBuilderBase
 
 
 class PlainRadioChoice(ConditionalQuestion):
@@ -26,80 +28,64 @@ class ConditionalRadiosWithLegend(ConditionalRadios):
         return super().render(form, context, template_pack, **kwargs)
 
 
-class BaseLink(TemplateNameMixin):
-    template = "%s/layout/link.html"
-
-    def __init__(
-        self,
-        text: str,
-        href: str,
-        css_class: str = "",
-        template: Optional[str] = None,
-        **kwargs,
-    ):
-        self.text = text
-        self.href = href
-
-        if css_class:
-            self.field_classes += f" {css_class.strip()}"
-
-        self.template = template or self.template
-        self.flat_attrs = flatatt(kwargs)
-
-    def render(self, form, context, template_pack=TEMPLATE_PACK, **kwargs):
-        template = self.get_template_name(template_pack)
-
-        href = Template(self.href).render(context)
-
-        context.update(
-            {
-                "text": self.text,
-                "href": href,
-                "field_classes": self.field_classes,
-                "flat_attrs": self.flat_attrs,
-            }
-        )
-        return render_to_string(template, context.flatten())
-
-
-class Link(BaseLink):
-    field_classes = "govuk-link"
+class Link(TemplateNameMixin):
+    template = "webapp/components/typography/link.html"
 
     @staticmethod
     def cancel(text: str = "Cancel", **kwargs):
         return Link(text, "{{ cancel_url }}", no_visited_state=True, **kwargs)
 
-    def __init__(
-        self,
+    @staticmethod
+    def as_button(
         text: str,
         href: str,
-        css_class: str = "",
-        no_visited_state: bool = False,
-        template: Optional[str] = None,
-        **kwargs,
-    ):
-        if no_visited_state:
-            css_class += " govuk-link--no-visited-state"
-
-        super().__init__(text, href, css_class, template, **kwargs)
-
-
-class ButtonAsLink(BaseLink):
-    field_classes = "govuk-button"
-
-    def __init__(
-        self,
-        text: str,
-        href: str,
+        *,
         css_class: str = "",
         type: str = "primary",
         template: Optional[str] = None,
         **kwargs,
     ):
-        match type:
-            case "secondary":
-                css_class += " govuk-button--secondary"
-            case "warning":
-                css_class += " govuk-button--warning"
+        return Link(
+            text,
+            href,
+            css_class=css_class,
+            type=type,
+            template=template,
+            builder=LinkAsButtonBuilder,
+            **kwargs,
+        )
 
-        super().__init__(text, href, css_class, template, data_module="govuk-button")
+    def __init__(
+        self,
+        text: str,
+        href: str,
+        css_class: str = "",
+        visually_hidden_text: Optional[str] = None,
+        no_visited_state: bool = False,
+        opens_in_new_tab: bool = False,
+        template: Optional[str] = None,
+        builder: Type[LinkBuilderBase] = LinkBuilder,
+        **kwargs,
+    ):
+        self.link_buidler = builder(
+            text,
+            href,
+            css_class=css_class,
+            visually_hidden_text=visually_hidden_text,
+            no_visited_state=no_visited_state,
+            opens_in_new_tab=opens_in_new_tab,
+            **kwargs,
+        )
+        self.template = template or self.template
+
+    def render(self, form, context, template_pack=TEMPLATE_PACK, **kwargs):
+        template = self.get_template_name(template_pack)
+
+        self.link_buidler.href = Template(self.link_buidler.href).render(context)
+
+        context.update(
+            {
+                "link": self.link_buidler,
+            }
+        )
+        return render_to_string(template, context.flatten())

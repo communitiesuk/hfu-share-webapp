@@ -1,6 +1,7 @@
 import http.client
 from datetime import date, datetime, timezone
 
+from bs4 import BeautifulSoup
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
@@ -160,13 +161,43 @@ class AccommodationEditViewTests(TestSessionTokenMixin, BaseTestCase):
         self.assertTemplateUsed(
             response, "accommodations/edit_view/edit_view_question.html"
         )
-        self.assertContains(response, "Accommodation record for")
-        self.assertContains(response, "1 Test Street, Neath Port Talbot, SA11 2AA")
-        self.assertContains(response, 'name="current_capacity" value="1"')
-        self.assertContains(response, 'name="availability_start_date"')
-        self.assertContains(response, 'name="availability_end_date"')
+
+        soup = BeautifulSoup(response.content, "html.parser")
+
+        heading = soup.find("h1")
+
+        self.assertEqual(
+            heading.get_text(" ", strip=True),
+            "Accommodation record for 1 Test Street, Neath Port Talbot, SA11 2AA",
+        )
+
+        current_capacity_input = soup.find(
+            "input", {"name": "current_capacity", "value": "1"}
+        )
+        availability_start_date_input = soup.find(
+            "input",
+            {
+                "name": "availability_start_date",
+            },
+        )
+        availability_end_date_input = soup.find(
+            "input",
+            {
+                "name": "availability_end_date",
+            },
+        )
+        postcode_input = soup.find(
+            "input",
+            {
+                "name": "postcode",
+            },
+        )
+
+        self.assertIsNotNone(current_capacity_input)
+        self.assertIsNotNone(availability_start_date_input)
+        self.assertIsNotNone(availability_end_date_input)
         # this is loaded by js now
-        self.assertNotContains(response, 'name="postcode"')
+        self.assertIsNone(postcode_input)
 
     def test_edit_view_post_updates_accommodation(self):
         self.client.force_login(self.user)

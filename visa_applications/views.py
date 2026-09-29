@@ -12,7 +12,6 @@ from django.forms.widgets import CheckboxSelectMultiple
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.html import format_html
 from django.views.generic import DetailView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import FormView
@@ -60,6 +59,7 @@ from webapp.mixins import (
     SectionHeadingMixin,
 )
 from webapp.search import perform_search
+from webapp.templatetags.link_renderers import render_govuk_link
 from webapp.templatetags.tag_renderers import (
     render_app_vir_status_tag,
     render_app_visa_status_tag,
@@ -113,17 +113,12 @@ class VisaApplicationsTable(tables.Table):
         return render_app_visa_status_tag(value)
 
     def render_title(self, record, value):
-        return format_html(
-            (
-                '<a class="govuk-body-s govuk-link app-text--white-space-normal" '
-                ' href="{}">'
-                "{}"
-                "</a>"
-            ),
+        return render_govuk_link(
+            value,
             reverse(
                 "visa-applications:detail-overview", args=[record.visa_application_id]
             ),
-            value,
+            css_class="app-text--white-space-normal",
         )
 
     class Meta:
@@ -787,18 +782,13 @@ class VIRTable(tables.Table):
         return render_app_visa_status_tag(value)
 
     def render_name(self, record, value):
-        return format_html(
-            (
-                '<a class="govuk-body-s govuk-link app-text--white-space-normal" '
-                'href="{}">'
-                "{}"
-                "</a>"
-            ),
+        return render_govuk_link(
+            value,
             reverse(
                 "visa-applications:detail-overview",
                 args=[record.visa_application.visa_application_id],
             ),
-            value,
+            css_class="app-text--white-space-normal",
         )
 
     def render_vir_status(self, record):

@@ -20,7 +20,7 @@ from ontology.models import (
     VisaApplication,
 )
 from webapp.formatting import format_date_value
-from webapp.layout import ButtonAsLink, Link
+from webapp.layout import Link
 from webapp.mixins import ReadOnlyFieldsMixin
 from webapp.templatetags.component_renderers import (
     render_app_concatenated_text,
@@ -978,7 +978,7 @@ class UndoDeduplicateRecordsStepForm(forms.Form):
         self.helper.layout = Layout(
             Div(
                 Button.primary("submit", "Yes, undo deduplication"),
-                ButtonAsLink(
+                Link.as_button(
                     "No, return to the record", "{{ cancel_url }}", type="secondary"
                 ),
                 css_class="govuk-button-group",

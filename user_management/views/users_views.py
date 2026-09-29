@@ -4,8 +4,8 @@ from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import Button, Div, Field, Layout, Size
 from django import forms
 from django.contrib import messages
+from django.template.loader import render_to_string
 from django.urls import reverse
-from django.utils.html import format_html, format_html_join
 from django.views.generic import FormView
 from django_filters import CharFilter, FilterSet
 from django_filters.views import FilterView
@@ -28,6 +28,7 @@ from webapp.mixins import (
     UserActionsMixin,
 )
 from webapp.search import perform_search
+from webapp.templatetags.link_renderers import render_govuk_link
 from webapp.views import SummaryListView
 
 
@@ -36,10 +37,9 @@ class UsersTable(tables.Table):
     email = Column(verbose_name="Email")
 
     def render_full_name_or_email(self, record: User, value):
-        return format_html(
-            '<a class="govuk-link" href="{url}">{value}</a>',
-            url=reverse("user-management:user-details", args=[record.pk]),
-            value=value,
+        return render_govuk_link(
+            value,
+            reverse("user-management:user-details", args=[record.pk]),
         )
 
     class Meta:
@@ -109,25 +109,23 @@ class UserDetailsView(
         if len(user_groups) == 0:
             return "No groups"
 
-        return format_html_join(
-            "",
-            '<div class="app-table--tag">'
-            '<a href="{}" class="govuk-link govuk-link--no-underline">{}</a>'
-            '<a href="{}" class="govuk-link govuk-link--no-visited-state">Remove'
-            '<span class="govuk-visually-hidden"> from {}</span></a>'
-            "</div>",
-            (
-                (
-                    reverse("user-management:group-details", args=[group.pk]),
-                    render_name_label_from_group(group),
-                    reverse(
-                        "user-management:user-remove-from-group",
-                        kwargs={"user_pk": self.object.pk, "group_pk": group.pk},
-                    ),
-                    render_name_label_from_group(group),
-                )
-                for group in user_groups
-            ),
+        return render_to_string(
+            "user_management/user_management_links.html",
+            {
+                "items": [
+                    {
+                        "link_text": render_name_label_from_group(group),
+                        "link_href": reverse(
+                            "user-management:group-details", args=[group.pk]
+                        ),
+                        "remove_link_href": reverse(
+                            "user-management:user-remove-from-group",
+                            kwargs={"user_pk": self.object.pk, "group_pk": group.pk},
+                        ),
+                    }
+                    for group in user_groups
+                ]
+            },
         )
 
     class Meta:

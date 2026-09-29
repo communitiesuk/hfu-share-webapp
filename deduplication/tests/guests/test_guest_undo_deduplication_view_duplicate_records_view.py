@@ -44,7 +44,7 @@ class UndoDeduplicationGuestViewDeduplicatedRecordsViewTestCase(
             arrival_date=datetime(2025, 12, 10, tzinfo=timezone.utc),
             visa_application_date_maximum=datetime(2030, 6, 20, tzinfo=timezone.utc),
             application_number=["4242-4242-4242-4242"],
-            is_principal=True,
+            is_principal=False,
         )
 
         self.second_guest = MvPersonFactory(
@@ -59,7 +59,7 @@ class UndoDeduplicationGuestViewDeduplicatedRecordsViewTestCase(
             arrival_date=datetime(2035, 9, 19, tzinfo=timezone.utc),
             visa_application_date_maximum=datetime(2032, 3, 3, tzinfo=timezone.utc),
             application_number=["9999-9999-9999-9999"],
-            is_principal=True,
+            is_principal=False,
         )
 
         self.new_principal_guest = MvPersonFactory(

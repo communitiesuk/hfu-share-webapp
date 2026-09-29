@@ -6,11 +6,12 @@ repos:
     hooks:
     -   id: trailing-whitespace
     -   id: end-of-file-fixer
+        exclude: "webapp/templates/webapp/components/typography/link.html"
     -   id: check-yaml
     -   id: check-added-large-files
     -   id: name-tests-test
         args: [--pytest-test-first]
-        exclude: "tests/.*(base|factories)"
+        exclude: "tests/.*(base|factories),webapp/templates/webapp/components/typography/link.html"
     -   id: no-commit-to-branch
         args: [--branch=main]
 -   repo: https://github.com/astral-sh/ruff-pre-commit
@@ -31,6 +32,7 @@ repos:
     rev: v1.36.4
     hooks:
       - id: djlint-reformat-django
+        exclude: "webapp/templates/webapp/components/typography/link.html"
       - id: djlint-django
 -   repo: https://github.com/python-jsonschema/check-jsonschema
     rev: 0.38.0
