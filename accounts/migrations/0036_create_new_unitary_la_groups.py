@@ -16,20 +16,22 @@ def create_ltla_group(ltla_name: str, gss_code: str, apps):
     Group = apps.get_model("auth", "Group")
     GroupInfo = apps.get_model("accounts", "GroupInfo")
 
+    parent_utla = GroupInfo.objects.get(utla_name=ltla_name, is_utla=True)
+
     group_name = "_".join(["ltla"] + ltla_name.lower().split())
-
-    parent_da = GroupInfo.objects.get(is_da=True, da_name="England")
-
     group, created = Group.objects.get_or_create(name=group_name)
 
     if created:
         GroupInfo.objects.create(
             group=group,
-            da_name=parent_da.da_name,
-            da_gss_code=parent_da.da_gss_code,
+            da_name=parent_utla.da_name,
+            da_gss_code=parent_utla.da_gss_code,
+            utla_name=ltla_name,
+            utla_gss_code=parent_utla.utla_gss_code,
             ltla_name=ltla_name,
             gss_code=gss_code,
-            parent_da=parent_da,
+            parent_da=parent_utla.parent_da,
+            parent_utla=parent_utla,
             description="New Unitary Authority from 2023",
             group_type=GroupType.LOCAL_AUTHORITY,
         )
@@ -37,15 +39,15 @@ def create_ltla_group(ltla_name: str, gss_code: str, apps):
 
 def create_ltla_groups(apps, schema_editor):
     for ltla in ltla_data:
-        gss_code, name = ltla
-        create_ltla_group(name, gss_code, apps)
+        gss_code, ltla_name = ltla
+        create_ltla_group(ltla_name, gss_code, apps)
 
 
-def revert_ltla_groups(apps, schema_editor):
+def remove_ltla_groups(apps, schema_editor):
     Group = apps.get_model("auth", "Group")
 
     group_names_to_delete = [
-        "_".join(["ltla"] + name.lower().split()) for _, name in ltla_data
+        "_".join(["ltla"] + ltla_name.lower().split()) for _, ltla_name in ltla_data
     ]
 
     Group.objects.filter(name__in=group_names_to_delete).delete()
@@ -57,5 +59,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(create_ltla_groups, reverse_code=revert_ltla_groups)
+        migrations.RunPython(create_ltla_groups, reverse_code=remove_ltla_groups)
     ]
