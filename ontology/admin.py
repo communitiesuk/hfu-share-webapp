@@ -60,6 +60,7 @@ from ontology.models import (
 )
 from webapp.constants import REDACTED_VALUE
 from webapp.templatetags.component_renderers import (
+    ConcatenatedTextSeparator,
     render_app_concatenated_text,
 )
 from webapp.templatetags.link_renderers import render_app_admin_link
@@ -100,7 +101,7 @@ def devcheckv2_detail_view(obj):
             )
             for check in checks
         ],
-        separator="<br>",
+        separator=ConcatenatedTextSeparator.NEW_LINE,
     )
 
 
@@ -520,7 +521,7 @@ class SafeguardingNotificationAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
                 )
                 for sponsor in sponsors
             ],
-            separator=", ",
+            separator=ConcatenatedTextSeparator.COMMA_SPACE,
         )
 
 

@@ -5,7 +5,7 @@ from webapp.templatetags.timeline_extras import format_interaction_content
 
 
 class FormatInteractionContentTagTests(SimpleTestCase):
-    def asset_html_equal(self, actual, expected):
+    def assert_html_equal(self, actual, expected):
         actual_soup = BeautifulSoup(actual, "html.parser")
         expected_soup = BeautifulSoup(expected, "html.parser")
 
@@ -32,7 +32,7 @@ class FormatInteractionContentTagTests(SimpleTestCase):
             "from old_ltla to new_ltla."
         )
 
-        self.asset_html_equal(result, expected)
+        self.assert_html_equal(result, expected)
 
     def test_interaction_content_tag_renders_names_as_list_for_reassignment_rejected(
         self,
@@ -58,7 +58,7 @@ class FormatInteractionContentTagTests(SimpleTestCase):
             "Reason for rejecting: not in new_ltla"
         )
 
-        self.asset_html_equal(result, expected)
+        self.assert_html_equal(result, expected)
 
     def test_interaction_content_tag_renders_names_as_list_for_reassignment_accepted(
         self,
@@ -84,7 +84,7 @@ class FormatInteractionContentTagTests(SimpleTestCase):
             "Reason for accepting: in new_ltla"
         )
 
-        self.asset_html_equal(result, expected)
+        self.assert_html_equal(result, expected)
 
     def test_interaction_content_tag_names_as_list_for_any_amount_of_names(self):
         test_interaction_notes = (
@@ -107,7 +107,7 @@ class FormatInteractionContentTagTests(SimpleTestCase):
             " Reason for accepting: in new_ltla"
         )
 
-        self.asset_html_equal(result, expected)
+        self.assert_html_equal(result, expected)
 
     def test_interaction_content_tag_ignores_transforming_single_name(self):
         test_interaction_notes = (
@@ -128,7 +128,7 @@ class FormatInteractionContentTagTests(SimpleTestCase):
             "Reason for accepting: not in new_ltla"
         )
 
-        self.asset_html_equal(result, expected)
+        self.assert_html_equal(result, expected)
 
     def test_interaction_content_tag_ignores_html_in_reason_comment(self):
         test_interaction_notes = (
@@ -154,7 +154,7 @@ class FormatInteractionContentTagTests(SimpleTestCase):
             "Reason for accepting: p tag content"
         )
 
-        self.asset_html_equal(result, expected)
+        self.assert_html_equal(result, expected)
 
     def test_interaction_content_tag_ignores_non_flagged_lists(self):
         test_interaction_notes = (
@@ -177,7 +177,7 @@ class FormatInteractionContentTagTests(SimpleTestCase):
             "and firstname2 lastname2"
         )
 
-        self.asset_html_equal(result, expected)
+        self.assert_html_equal(result, expected)
 
     def test_interaction_content_tag_ignores_flagged_lists_in_reason_comment(self):
         test_interaction_notes = (
@@ -200,4 +200,4 @@ class FormatInteractionContentTagTests(SimpleTestCase):
             "and firstname2 lastname2"
         )
 
-        self.asset_html_equal(result, expected)
+        self.assert_html_equal(result, expected)

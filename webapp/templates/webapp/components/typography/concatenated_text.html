@@ -1,3 +1,7 @@
 {% if wrapper_class %}<div class="{{ wrapper_class }}">{% endif %}
-    {{ items|join:separator }}
+    {% if multi_line %}
+        {{ items|join:"<br>" }}
+    {% else %}
+        {{ items|join:separator }}
+    {% endif %}
     {% if wrapper_class %}</div>{% endif %}

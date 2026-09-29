@@ -49,7 +49,7 @@ class InteractionTimelineMixinTest(BaseTestCase):
             any(abs((expected_dt - d).total_seconds()) < 1 for d in event_dates)
         )
 
-    def asset_html_equal(self, actual, expected):
+    def assert_html_equal(self, actual, expected):
         actual_soup = BeautifulSoup(actual, "html.parser")
         expected_soup = BeautifulSoup(expected, "html.parser")
 
@@ -131,7 +131,7 @@ class InteractionTimelineMixinTest(BaseTestCase):
 
         timeline_event = events[0]
         self.assertEqual(timeline_event.title, interaction.title)
-        self.asset_html_equal(timeline_event.content, formatted_interaction_notes)
+        self.assert_html_equal(timeline_event.content, formatted_interaction_notes)
 
     def test_interaction_has_system_display_name_for_events_without_user(self):
         accommodation_request = MvAccommodationRequestFactory(
