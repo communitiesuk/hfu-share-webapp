@@ -18,17 +18,20 @@ def create_ltla_group(ltla_name: str, gss_code: str, apps):
 
     group_name = "_".join(["ltla"] + ltla_name.lower().split())
 
+    parent_da = GroupInfo.objects.get(is_da=True, da_name="England")
+
     group, created = Group.objects.get_or_create(name=group_name)
 
     if created:
         GroupInfo.objects.create(
             group=group,
-            group_type=GroupType.LOCAL_AUTHORITY,
+            da_name=parent_da.da_name,
+            da_gss_code=parent_da.da_gss_code,
             ltla_name=ltla_name,
             gss_code=gss_code,
-            da_name="England",
-            da_gss_code="E92000001",
+            parent_da=parent_da,
             description="New Unitary Authority from 2023",
+            group_type=GroupType.LOCAL_AUTHORITY,
         )
 
 
