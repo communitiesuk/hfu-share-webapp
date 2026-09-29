@@ -8,8 +8,9 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Q
 from django.forms.widgets import CheckboxInput, CheckboxSelectMultiple
 from django.shortcuts import get_object_or_404, redirect
+from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
-from django.utils.html import escape, format_html
+from django.utils.html import escape
 from django.views.generic import DetailView, UpdateView
 from django_filters import (
     BooleanFilter,
@@ -568,20 +569,18 @@ class GuestDetailActionsView(
                 actions.append(
                     LinkAction(
                         label="Undo deduplication",
-                        text="This deduplication cannot yet be undone due to a "
-                        "further deduplication. To restore this record, first undo the "
-                        "deduplication from the "
-                        f"{
-                            format_html(
-                                '<a href={}>actions tab for {}.</a><br></br>',
-                                reverse(
-                                    'guests:detail-actions',
+                        text=render_to_string(
+                            "webapp/components/cannot_undo_deduplication/cannot_undo_deduplication.html",
+                            {
+                                "text": (
+                                    further_dup_group.principal_record.get_full_name()
+                                ),
+                                "href": reverse(
+                                    "guests:detail-actions",
                                     args=[further_dup_group.principal_record.pk],
                                 ),
-                                further_dup_group.principal_record.get_full_name(),
-                            )
-                        }"
-                        "A full deduplication history is in the history tab.",
+                            },
+                        ),
                     )
                 )
         return actions

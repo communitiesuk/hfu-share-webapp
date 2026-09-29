@@ -13,8 +13,6 @@ from django.http import Http404, HttpRequest
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
-from django.utils.html import format_html
-from django.utils.safestring import mark_safe
 from django.views.generic import FormView, TemplateView
 from django_filters import BooleanFilter, CharFilter, FilterSet, MultipleChoiceFilter
 from django_filters.views import FilterView
@@ -73,6 +71,7 @@ from webapp.mixins import (
     WizardPageTitleMixin,
 )
 from webapp.search import perform_search
+from webapp.templatetags.field_renderers import render_app_hidden_input
 from webapp.templatetags.link_renderers import (
     render_app_form_link,
     render_app_record_link,
@@ -420,25 +419,17 @@ class ManualSponsorDeduplicationTable(dj_tables.Table):
         return "True" if value is True else "False"
 
     def render_select(self, value, record):
-        hidden_sponsor_inputs = mark_safe(
-            "".join(
-                [
-                    format_html(
-                        '<input type="hidden" name="select-record-sponsor_record" '
-                        'id="id_select-record-sponsor_record" value="{value}"/>',
-                        value=pk,
-                    )
-                    for pk in self.context["selected_ids"]
-                ]
-            )
-        )
+        hidden_sponsor_inputs = [
+            render_app_hidden_input("select-record-sponsor_record", pk)
+            for pk in self.context["selected_ids"]
+        ]
         return render_app_form_link(
             self.request,
             "select-record-sponsor_record",
             value,
             record.get_full_name(),
             self.context["wizard"]["management_form"],
-            hidden_sponsor_inputs,
+            *hidden_sponsor_inputs,
         )
 
     class Meta:
@@ -703,25 +694,17 @@ class ManualGuestDeduplicationTable(dj_tables.Table):
         )
 
     def render_select(self, value, record):
-        hidden_guest_inputs = mark_safe(
-            "".join(
-                [
-                    format_html(
-                        '<input type="hidden" name="select-record-guest_record" '
-                        'id="id_select-record-guest_record" value="{value}"/>',
-                        value=pk,
-                    )
-                    for pk in self.context["selected_ids"]
-                ]
-            )
-        )
+        hidden_guest_inputs = [
+            render_app_hidden_input("select-record-guest_record", pk)
+            for pk in self.context["selected_ids"]
+        ]
         return render_app_form_link(
             self.request,
             "select-record-guest_record",
             value,
             record.get_full_name(),
             self.context["wizard"]["management_form"],
-            hidden_guest_inputs,
+            *hidden_guest_inputs,
         )
 
     def render_visa_status(self, value):
@@ -867,26 +850,17 @@ class ManualAccommodationDeduplicationTable(dj_tables.Table, TableRendererMixin)
         )
 
     def render_select(self, value, record):
-        hidden_accommodation_inputs = mark_safe(
-            "".join(
-                [
-                    format_html(
-                        '<input type="hidden" '
-                        'name="select-record-accommodation_record" '
-                        'id="id_select-record-accommodation_record" value="{value}"/>',
-                        value=pk,
-                    )
-                    for pk in self.context["selected_ids"]
-                ]
-            )
-        )
+        hidden_accommodation_inputs = [
+            render_app_hidden_input("select-record-accommodation_record", pk)
+            for pk in self.context["selected_ids"]
+        ]
         return render_app_form_link(
             self.request,
             "select-record-accommodation_record",
             value,
             record.full_address,
             self.context["wizard"]["management_form"],
-            hidden_accommodation_inputs,
+            *hidden_accommodation_inputs,
         )
 
     class Meta:

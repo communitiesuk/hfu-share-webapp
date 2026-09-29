@@ -72,14 +72,14 @@ class GuestsActionsTestCase(
         guest_duplicate_group.guests.set([self.first_guest, self.second_guest])
         guest_duplicate_group.save()
 
-        guest_further_duplicate_group = GuestDuplicateGroupFactory.create(
+        self.guest_further_duplicate_group = GuestDuplicateGroupFactory.create(
             principal_record=self.new_principal_guest,
             created_at=datetime(2026, 1, 1, 9, 30, tzinfo=timezone.utc),
         )
-        guest_further_duplicate_group.guests.set(
+        self.guest_further_duplicate_group.guests.set(
             [self.further_duped_guest, self.third_guest]
         )
-        guest_further_duplicate_group.save()
+        self.guest_further_duplicate_group.save()
 
         self.ltla_accommodation_request = MvAccommodationRequestFactory(
             ltla_name=["ltla_somerset"],
@@ -246,24 +246,36 @@ class GuestsActionsTestCase(
             )
         )
 
-        self.assertContains(
-            response,
-            "This deduplication cannot yet be undone due to a further "
-            "deduplication. To restore this record, first undo the deduplication "
-            "from the",
+        soup = BeautifulSoup(response.content, "html.parser")
+
+        undo_dedupe_value = soup.find("dd", {"class": "govuk-summary-list__value"})
+        self.assertIsNotNone(undo_dedupe_value)
+        self.assertEqual(
+            " ".join(undo_dedupe_value.get_text(" ", strip=True).split()),
+            "This deduplication cannot yet be undone due to a further deduplication. "
+            "To restore this record, first undo the deduplication from the "
+            "actions tab for test3firstname test2lastname . "
+            "A full deduplication history is in the history tab.",
         )
 
-        self.assertRegex(
-            response.content.decode(),
-            r"<a href=/guests/\d+/actions>actions tab for "
-            "test3firstname test2lastname.</a>",
+        undo_dedupe_value_link = soup.find(
+            "a",
+            {
+                "href": reverse(
+                    "guests:detail-actions",
+                    args=[self.guest_further_duplicate_group.principal_record.pk],
+                ),
+                "class": "govuk-link",
+            },
+        )
+        self.assertIsNotNone(undo_dedupe_value_link)
+        self.assertEqual(
+            undo_dedupe_value_link.get_text(" ", strip=True),
+            "actions tab for test3firstname test2lastname",
         )
 
-        self.assertContains(
-            response, "A full deduplication history is in the history tab."
-        )
-
-        self.assertNotContains(response, "Start")
+        start_link = soup.find("a", string="Start")
+        self.assertIsNone(start_link)
 
 
 class GuestsActionsBlockedByReassignmentTestCase(

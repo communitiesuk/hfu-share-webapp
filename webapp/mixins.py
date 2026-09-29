@@ -18,7 +18,6 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.datastructures import MultiValueDict
-from django.utils.html import format_html, format_html_join
 from django_filters import MultipleChoiceFilter
 from django_tables2 import LazyPaginator
 
@@ -43,10 +42,12 @@ from ontology.models import (
 from webapp.constants import AUDIT_EVENT_TYPE_ACTION
 from webapp.formatting import format_date_value, to_local_date
 from webapp.s3 import s3_file_exists
+from webapp.templatetags.list_renderers import render_govuk_list
 from webapp.templatetags.timeline_extras import (
     AuditEventType,
     TimelineEventType,
     format_interaction_content,
+    render_app_timeline_change_item,
 )
 
 NONE_TYPES = {None, "None", "", "None None", "[]"}
@@ -634,27 +635,25 @@ class AuditLogTimelineEventsMixin(BaseTimelineEventsMixin):
         field_name = self.format_field_name(change["field"])
         old = self.format_field_value(change["field"], change["old"])
         new = self.format_field_value(change["field"], change["new"])
+
         if change["change_type"] == AuditEventType.CHANGED:
-            return format_html(
-                "{} {}: was {} now {}.",
+            return render_app_timeline_change_item(
                 field_name,
                 AUDIT_EVENT_TYPE_ACTION[AuditEventType.CHANGED],
-                old,
-                new,
+                old=old,
+                new=new,
             )
         elif change["change_type"] == AuditEventType.ADDED:
-            return format_html(
-                "{} {}: now {}.",
+            return render_app_timeline_change_item(
                 field_name,
                 AUDIT_EVENT_TYPE_ACTION[AuditEventType.ADDED],
-                new,
+                new=new,
             )
         elif change["change_type"] == AuditEventType.DELETED:
-            return format_html(
-                "{} {}: was {}.",
+            return render_app_timeline_change_item(
                 field_name,
                 AUDIT_EVENT_TYPE_ACTION[AuditEventType.DELETED],
-                old,
+                old=old,
             )
 
     def render_changes_for_timeline(self, changes):
@@ -666,12 +665,7 @@ class AuditLogTimelineEventsMixin(BaseTimelineEventsMixin):
         if len(rendered_changes) == 1:
             return rendered_changes[0]
 
-        return format_html(
-            '<ul class="govuk-list govuk-list--bullet">{}</ul>',
-            format_html_join(
-                "", "<li>{}</li>", ((change,) for change in rendered_changes)
-            ),
-        )
+        return render_govuk_list(rendered_changes, bulleted_list=True)
 
     def get_timeline_events(self, obj) -> list[TimelineItem]:
         if not self._show_events() or not self._should_show_audit_logs():

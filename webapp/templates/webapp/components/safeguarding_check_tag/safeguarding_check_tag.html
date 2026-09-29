@@ -13,7 +13,7 @@
 {% endif %}
 {% if check_subtype %}
     {% if display_check_subtype_as_tag %}
-        {% render_govuk_tag text=check_subtype colour='grey' css_class='govuk-!-margin-bottom-1 app-tag--nowrap' %}
+        {% render_govuk_tag check_subtype colour='grey' css_class='govuk-!-margin-bottom-1 app-tag--nowrap' %}
     {% else %}
         <div class="govuk-hint govuk-!-margin-top-3 govuk-!-margin-bottom-1">{{ check_subtype }}</div>
     {% endif %}
