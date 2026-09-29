@@ -60,8 +60,7 @@ from ontology.models import (
 )
 from webapp.constants import REDACTED_VALUE
 from webapp.templatetags.component_renderers import (
-    render_app_concatenated_text_list,
-    render_app_concatenated_text_multi_line,
+    render_app_concatenated_text,
 )
 from webapp.templatetags.link_renderers import render_app_admin_link
 
@@ -89,7 +88,7 @@ def devcheckv2_detail_view(obj):
     checks = obj.checks.all()
     if not checks:
         return "(None)"
-    return render_app_concatenated_text_multi_line(
+    return render_app_concatenated_text(
         *[
             render_app_admin_link(
                 check.check_type,
@@ -100,7 +99,8 @@ def devcheckv2_detail_view(obj):
                 opens_in_new_tab=True,
             )
             for check in checks
-        ]
+        ],
+        separator="<br>",
     )
 
 
@@ -512,14 +512,15 @@ class SafeguardingNotificationAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
 
         sponsors = MvVolunteer.objects.filter(id__in=obj.sponsor_ids)
 
-        return render_app_concatenated_text_list(
+        return render_app_concatenated_text(
             *[
                 render_app_admin_link(
                     sponsor.get_full_name(),
                     reverse("admin:ontology_mvvolunteer_change", args=[sponsor.id]),
                 )
                 for sponsor in sponsors
-            ]
+            ],
+            separator=", ",
         )
 
 

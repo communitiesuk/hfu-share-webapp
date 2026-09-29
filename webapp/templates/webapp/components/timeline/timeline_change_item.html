@@ -1,1 +1,1 @@
-{# djlint:off #}{{ field_name }} {{ audit_event_type_action }}:{% if old %} was {{ old }}{% endif %}{% if new %} now {{ new }}{% endif %}.{# djlint:on #}
+{{ field_name }} {{ audit_event_type_action }}: {{ changes|join:" " }}.

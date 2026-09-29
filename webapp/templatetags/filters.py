@@ -11,7 +11,7 @@ from ontology.utils import LinkedRecordData
 from webapp.constants import status_to_tag_colour
 from webapp.formatting import format_date_value
 from webapp.templatetags.component_renderers import (
-    render_app_concatenated_text_with_wrapper,
+    render_app_concatenated_text,
 )
 from webapp.templatetags.link_renderers import render_govuk_link
 from webapp.templatetags.tag_renderers import render_govuk_tag
@@ -57,7 +57,7 @@ def linked_record_link(value, linked_from, linked_as):
     url = resolve_url(data.view_name, data.id)
     if data.status_type and data.status:
         tag_colour = status_to_tag_colour(data.status_type, data.status) or "grey"
-        return render_app_concatenated_text_with_wrapper(
+        return render_app_concatenated_text(
             render_govuk_link(data.title, url),
             render_govuk_tag(
                 data.status, colour=tag_colour, css_class="app-tag--nowrap"

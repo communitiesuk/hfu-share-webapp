@@ -47,6 +47,7 @@ from webapp.templatetags.timeline_extras import (
     AuditEventType,
     TimelineEventType,
     format_interaction_content,
+    render_app_timeline_change_item,
 )
 
 NONE_TYPES = {None, "None", "", "None None", "[]"}
@@ -635,50 +636,24 @@ class AuditLogTimelineEventsMixin(BaseTimelineEventsMixin):
         old = self.format_field_value(change["field"], change["old"])
         new = self.format_field_value(change["field"], change["new"])
 
-        # return render_to_string(
-        #     'webapp/components/timeline/timeline_change_item.html',
-        #     {
-        #         "change_type": change["change_type"],
-        #         "audit_event_type": AuditEventType,
-        #         "audit_event_type_action": AUDIT_EVENT_TYPE_ACTION,
-        #         "field_name": field_name,
-        #         "old": old,
-        #         "new": new,
-        #     }
-        # )
         if change["change_type"] == AuditEventType.CHANGED:
-            return render_to_string(
-                "webapp/components/timeline/timeline_change_item.html",
-                {
-                    "field_name": field_name,
-                    "audit_event_type_action": AUDIT_EVENT_TYPE_ACTION[
-                        AuditEventType.CHANGED
-                    ],
-                    "old": old,
-                    "new": new,
-                },
+            return render_app_timeline_change_item(
+                field_name,
+                AUDIT_EVENT_TYPE_ACTION[AuditEventType.CHANGED],
+                old=old,
+                new=new,
             )
         elif change["change_type"] == AuditEventType.ADDED:
-            return render_to_string(
-                "webapp/components/timeline/timeline_change_item.html",
-                {
-                    "field_name": field_name,
-                    "audit_event_type_action": AUDIT_EVENT_TYPE_ACTION[
-                        AuditEventType.ADDED
-                    ],
-                    "new": new,
-                },
+            return render_app_timeline_change_item(
+                field_name,
+                AUDIT_EVENT_TYPE_ACTION[AuditEventType.ADDED],
+                new=new,
             )
         elif change["change_type"] == AuditEventType.DELETED:
-            return render_to_string(
-                "webapp/components/timeline/timeline_change_item.html",
-                {
-                    "field_name": field_name,
-                    "audit_event_type_action": AUDIT_EVENT_TYPE_ACTION[
-                        AuditEventType.DELETED
-                    ],
-                    "old": old,
-                },
+            return render_app_timeline_change_item(
+                field_name,
+                AUDIT_EVENT_TYPE_ACTION[AuditEventType.DELETED],
+                old=old,
             )
 
     def render_changes_for_timeline(self, changes):

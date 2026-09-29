@@ -1,11 +1,17 @@
 import re
 from enum import Enum
+from typing import Optional
 
 from django import template
+from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 
 from webapp.templatetags.list_renderers import render_govuk_list
+
+TIMELINE_TEMPLATES_DIR = "webapp/components/timeline"
+TIMELINE_ITEM_TEMPLATE_PATH = f"{TIMELINE_TEMPLATES_DIR}/timeline_change_item.html"
+
 
 register = template.Library()
 
@@ -88,3 +94,28 @@ def format_interaction_content(text):
 
     result = sanitised_text.replace(chunk, html, 1)
     return mark_safe(result)
+
+
+def render_app_timeline_change_item(
+    field_name: str,
+    audit_event_type_action: str,
+    *,
+    old: Optional[str] = None,
+    new: Optional[str] = None,
+):
+    changes = []
+
+    if old:
+        changes.append(f"was {old}")
+
+    if new:
+        changes.append(f"now {new}")
+
+    return render_to_string(
+        TIMELINE_ITEM_TEMPLATE_PATH,
+        {
+            "field_name": field_name,
+            "audit_event_type_action": audit_event_type_action,
+            "changes": changes,
+        },
+    )
