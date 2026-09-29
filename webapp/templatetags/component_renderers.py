@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+from typing import Optional
 
 from django.template.loader import render_to_string
 from django.utils.safestring import SafeString, mark_safe
@@ -8,7 +8,7 @@ CONCATENATED_TEXT_TEMPLATE_PATH = f"{TYPOGRAPHY_TEMPLATES_DIR}/concatenated_text
 
 
 def render_app_concatenated_text(
-    *items: Tuple[str | SafeString, ...],
+    *items: str | SafeString,
     separator: str = " ",
     wrapper_class: Optional[str] = None,
 ):

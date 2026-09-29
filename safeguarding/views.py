@@ -70,8 +70,8 @@ from webapp.mixins import (
 )
 from webapp.search import perform_search
 from webapp.templatetags.alerted_status_extras import alerted_status_to_tag_colour
+from webapp.templatetags.component_renderers import render_app_concatenated_text
 from webapp.templatetags.link_renderers import render_govuk_link
-from webapp.templatetags.list_renderers import render_govuk_list
 from webapp.templatetags.tag_renderers import (
     render_app_accommodation_checks_status_tag,
     render_app_accommodation_request_status_tag,
@@ -377,8 +377,9 @@ class EscalatedChecksTable(tables.Table):
         gwfs = getattr(person, "gwf", None)
         if gwfs:
             if isinstance(gwfs, (list, tuple)):
-                return render_govuk_list(
-                    [str(g) for g in gwfs if g], item_class="govuk-body-s"
+                return render_app_concatenated_text(
+                    *[str(g) for g in gwfs if g],
+                    separator="<br>",
                 )
             return str(gwfs)
         return ""
@@ -391,9 +392,9 @@ class EscalatedChecksTable(tables.Table):
         application_numbers = getattr(person, "application_number", None)
         if application_numbers:
             if isinstance(application_numbers, (list, tuple)):
-                return render_govuk_list(
-                    [str(a) for a in application_numbers if a],
-                    item_class="govuk-body-s",
+                return render_app_concatenated_text(
+                    *[str(a) for a in application_numbers if a],
+                    separator="<br>",
                 )
             return str(application_numbers)
         return ""
