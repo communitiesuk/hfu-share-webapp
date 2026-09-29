@@ -20,11 +20,11 @@ class AccommodationDetailViewsTabsTestCase(TestSessionTokenMixin, BaseTestCase):
         super().setUp()
         self.accommodation = MvAccommodationFactory(
             full_address="123 Street",
-            ltla_name="ltla_somerset",
+            ltla_name="ltla_test",
         )
         self.ltla_accommodation = MvAccommodationFactory(
             full_address="Somerset LTLA Address",
-            ltla_name="ltla_somerset",
+            ltla_name="ltla_test",
         )
         self.da_accommodation = MvAccommodationFactory(
             full_address="Scotland DA address",

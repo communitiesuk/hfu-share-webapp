@@ -30,13 +30,13 @@ class AccommodationsActionsTestCase(
         super().setUp()
         self.accommodation = MvAccommodationFactory(
             full_address="123 Street",
-            ltla_name="ltla_somerset",
+            ltla_name="ltla_test",
         )
 
         self.new_principal_accommodation = MvAccommodationFactory(
             full_address="123 Street",
             is_principal=True,
-            ltla_name="ltla_somerset",
+            ltla_name="ltla_test",
         )
 
         self.ltla_one_a_accommodation.full_address = "123 Street"
@@ -55,7 +55,7 @@ class AccommodationsActionsTestCase(
 
         self.ltla_accommodation = MvAccommodationFactory(
             full_address="Somerset LTLA Address",
-            ltla_name="ltla_somerset",
+            ltla_name="ltla_test",
         )
         self.da_accommodation = MvAccommodationFactory(
             full_address="Scotland DA address",

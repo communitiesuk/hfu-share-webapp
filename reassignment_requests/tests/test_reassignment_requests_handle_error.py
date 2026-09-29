@@ -71,7 +71,7 @@ class ReassignmentRequestsDBErrorTestCase(ReassignmentRequestsBaseTestCase):
             self.guest_b.id,
         ]
         accommodation = MvAccommodationFactory(
-            ltla_name="ltla_somerset", utla_name="utla_somerset"
+            ltla_name="ltla_test", utla_name="utla_somerset"
         )
         self.pending_request_somerset_source_multiple_guests_ar.accommodation_id = [
             accommodation.id,

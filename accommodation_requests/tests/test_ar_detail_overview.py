@@ -124,7 +124,7 @@ class AccommodationRequestDetailOverviewTestCase(
             checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
             active_host=self.sponsor_1,
             sponsor_id=[self.sponsor_2.id, self.sponsor_3.id],
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
             utla_name=["utla_somerset"],
             person_id=[self.guest.id],
             accommodation_id=[self.accommodation_one.id],
@@ -152,7 +152,7 @@ class AccommodationRequestDetailOverviewTestCase(
         self.assertInHTML("Sponsor is not in your LA", fields["Sponsor"])
 
         self.assertIn("Lower tier Local Authority", fields)
-        self.assertIn("ltla_somerset", fields["Lower tier Local Authority"])
+        self.assertIn("ltla_test", fields["Lower tier Local Authority"])
 
         self.assertIn("Upper tier Local Authority", fields)
         self.assertIn("utla_somerset", fields["Upper tier Local Authority"])
@@ -345,14 +345,12 @@ class AccommodationRequestDetailOverviewTestCase(
         ar = AccReqFactory(
             title="Test Access Request",
             checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
         )
 
         self.client.force_login(get_mhclg_user())
 
-        self.assertEqual(
-            ["ltla_somerset"], self.get_lower_tier_local_authority_value(ar)
-        )
+        self.assertEqual(["ltla_test"], self.get_lower_tier_local_authority_value(ar))
 
     def test_overview_has_no_assign_to_la_link_for_users_who_cannot_assign(self):
         ar = AccReqFactory(

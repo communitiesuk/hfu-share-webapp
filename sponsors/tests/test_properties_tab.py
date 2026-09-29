@@ -19,7 +19,7 @@ class SponsorsPropertiesTestCase(
     def setUp(self):
         super().setUp()
         self.uan = VisaApplicationFactory(
-            ltla_name="ltla_somerset",
+            ltla_name="ltla_test",
             application_unique_application_number="123456",
             title="Visa Application for Guest",
         )
@@ -51,7 +51,7 @@ class SponsorsPropertiesTestCase(
             ],
         )
         self.accommodation = MvAccommodationFactory(
-            ltla_name="ltla_somerset",
+            ltla_name="ltla_test",
             full_address="Somerset accommodation",
         )
         self.scottish_accommodation = MvAccommodationFactory(
@@ -79,7 +79,7 @@ class SponsorsPropertiesTestCase(
         )
         self.ar = MvAccommodationRequestFactory(
             title="Guest Person to Somerset accom",
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
             utla_name=["utla_somerset"],
             primary_accommodation=self.accommodation,
             accommodation_id=[

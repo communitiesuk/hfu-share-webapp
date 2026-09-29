@@ -87,7 +87,7 @@ class MoveGuestsFormWizardTestCase(
             accommodation_id=[self.accommodation_one],
             number_of_people=1,
             person_id=[guest.pk],
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
             utla_name=["utla_somerset"],
         )
 
@@ -221,7 +221,7 @@ class ReassignGuestsFormWizardTestCase(
             accommodation_id=[self.accommodation_one],
             number_of_people=1,
             person_id=[guest.pk],
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
             utla_name=["utla_somerset"],
         )
 
@@ -316,7 +316,7 @@ class ReassignGuestsFormWizardTestCase(
             accommodation_id=[self.accommodation_one],
             number_of_people=3,
             person_id=[guest_1.pk, guest_2.pk, guest_3.pk],
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
             utla_name=["utla_somerset"],
         )
 
@@ -1056,7 +1056,7 @@ class ReassignGuestsFormWizardTestCase(
             person_id=[self.guest.pk],
             primary_accommodation=self.accommodation_one,
             accommodation_id=[self.accommodation_one.pk],
-            ltla_name=["ltla_somerset", "ltla_manchester"],
+            ltla_name=["ltla_test", "ltla_manchester"],
             utla_name=["utla_somerset", "utla_manchester"],
         )
 
@@ -1165,7 +1165,7 @@ class ReassignGuestsFormWizardTestCase(
         self.assertEqual(
             interaction.interaction_notes,
             "Reassignment request for [names_list]John Smith[names_list_end] "
-            "from ltla_somerset|ltla_manchester to test_welsh_ltla_name.",
+            "from ltla_test|ltla_manchester to test_welsh_ltla_name.",
         )
         self.assertEqual(
             interaction.created_by,
@@ -1185,7 +1185,7 @@ class ReassignGuestsFormWizardTestCase(
             person_id=[self.guest.pk, self.guest_2.pk],
             primary_accommodation=self.accommodation_one,
             accommodation_id=[self.accommodation_one.pk],
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
             utla_name=["utla_somerset"],
         )
 
@@ -1312,7 +1312,7 @@ class ReassignGuestsFormWizardTestCase(
             interaction.interaction_notes,
             "Reassignment request for "
             "[names_list]Jane Doe and John Smith[names_list_end] "
-            "from ltla_somerset to test_welsh_ltla_name.",
+            "from ltla_test to test_welsh_ltla_name.",
         )
         self.assertEqual(
             interaction.created_by,
@@ -1544,7 +1544,7 @@ class RematchGuestsFormWizardTestCase(
             accommodation_id=[self.accommodation_one],
             number_of_people=1,
             person_id=[guest.pk],
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
             utla_name=["utla_somerset"],
         )
 
@@ -1620,7 +1620,7 @@ class RematchGuestsFormWizardTestCase(
             accommodation_id=[self.accommodation_one],
             number_of_people=3,
             person_id=[guest_1.pk, guest_2.pk, guest_3.pk],
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
             utla_name=["utla_somerset"],
         )
 

@@ -51,7 +51,7 @@ class DeduplicationSponsorListViewTestCase(TestSessionTokenMixin, BaseTestCase):
 
         self.somerset_ltla_accommodation = MvAccommodationFactory(
             full_address="Somerset LTLA Address",
-            ltla_name="ltla_somerset",
+            ltla_name="ltla_test",
             is_principal=True,
         )
         self.somerset_ltla_accommodation.hosts.set([self.sponsor.id])

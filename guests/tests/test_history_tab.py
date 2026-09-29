@@ -32,7 +32,7 @@ class GuestDetailHistoryViewTests(TestSessionTokenMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
         self.accommodation_request = MvAccommodationRequestFactory(
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
             person_id=["person-2"],
             number_of_people=1,
         )
@@ -48,8 +48,8 @@ class GuestDetailHistoryViewTests(TestSessionTokenMixin, BaseTestCase):
             "guests:detail-history", kwargs={"pk": self.guest.pk}
         )
         self.ltla_group = GroupFactory(
-            name="ltla_somerset",
-            groupinfo__ltla_name="ltla_somerset",
+            name="ltla_test",
+            groupinfo__ltla_name="ltla_test",
             groupinfo__group_type=GroupType.LOCAL_AUTHORITY,
         )
 

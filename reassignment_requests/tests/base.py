@@ -19,7 +19,7 @@ class ReassignmentRequestsBaseTestCase(
 
         # Create reassignment requests with different outcomes for Somerset LA
         self.pending_request_somerset_source = ReassignmentRequestFactory(
-            source_ltla_name=["ltla_somerset"],
+            source_ltla_name=["ltla_test"],
             source_utla_name=["utla_somerset"],
             destination_ltla_name="ltla_destination",
             destination_utla_name="utla_destination",
@@ -27,7 +27,7 @@ class ReassignmentRequestsBaseTestCase(
         )
 
         self.rejected_request_somerset_source = ReassignmentRequestFactory(
-            source_ltla_name=["ltla_somerset"],
+            source_ltla_name=["ltla_test"],
             source_utla_name=["utla_somerset"],
             destination_ltla_name="ltla_destination",
             destination_utla_name="utla_destination",
@@ -35,7 +35,7 @@ class ReassignmentRequestsBaseTestCase(
         )
 
         self.accepted_request_somerset_source = ReassignmentRequestFactory(
-            source_ltla_name=["ltla_somerset"],
+            source_ltla_name=["ltla_test"],
             source_utla_name=["utla_somerset"],
             destination_ltla_name="ltla_destination",
             destination_utla_name="utla_destination",
@@ -43,7 +43,7 @@ class ReassignmentRequestsBaseTestCase(
         )
 
         self.needs_ar_request_somerset_source = ReassignmentRequestFactory(
-            source_ltla_name=["ltla_somerset"],
+            source_ltla_name=["ltla_test"],
             source_utla_name=["utla_somerset"],
             destination_ltla_name="ltla_destination",
             destination_utla_name="utla_destination",
@@ -54,7 +54,7 @@ class ReassignmentRequestsBaseTestCase(
         self.request_to_somerset = ReassignmentRequestFactory(
             source_ltla_name=["ltla_other"],
             source_utla_name=["utla_other"],
-            destination_ltla_name="ltla_somerset",
+            destination_ltla_name="ltla_test",
             destination_utla_name="utla_somerset",
             created_at=datetime(2025, 12, 12, 12, 12, 10),
             reason="Example reason",
@@ -79,7 +79,7 @@ class ReassignmentRequestsBaseTestCase(
         )
 
         self.pending_request_somerset_source_single_guest = ReassignmentRequestFactory(
-            source_ltla_name=["ltla_somerset"],
+            source_ltla_name=["ltla_test"],
             source_utla_name=["utla_somerset"],
             destination_ltla_name="ltla_destination",
             destination_utla_name="utla_destination",
@@ -89,7 +89,7 @@ class ReassignmentRequestsBaseTestCase(
 
         self.pending_request_somerset_source_multiple_guests = (
             ReassignmentRequestFactory(
-                source_ltla_name=["ltla_somerset"],
+                source_ltla_name=["ltla_test"],
                 source_utla_name=["utla_somerset"],
                 destination_ltla_name="ltla_destination",
                 destination_utla_name="utla_destination",

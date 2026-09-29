@@ -48,7 +48,7 @@ class ReassignmentRequestsMadePageViewTestCase(ReassignmentRequestsBaseTestCase)
 
     def test_empty_tables_show_correct_messages(self):
         not_somerset_user = get_user_with_groups(
-            [UserGroup(name="not_ltla_somerset", type=GroupType.LOCAL_AUTHORITY)]
+            [UserGroup(name="not_ltla_test", type=GroupType.LOCAL_AUTHORITY)]
         )
 
         self.client.force_login(not_somerset_user)
@@ -135,7 +135,7 @@ class ReassignmentRequestsReceivedPageViewTestCase(ReassignmentRequestsBaseTestC
 
     def test_empty_tables_show_correct_messages(self):
         not_somerset_user = get_user_with_groups(
-            [UserGroup(name="not_ltla_somerset", type=GroupType.LOCAL_AUTHORITY)]
+            [UserGroup(name="not_ltla_test", type=GroupType.LOCAL_AUTHORITY)]
         )
 
         self.client.force_login(not_somerset_user)

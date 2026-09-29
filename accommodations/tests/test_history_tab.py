@@ -26,7 +26,7 @@ class AccommodationsHistoryTestCase(TestSessionTokenMixin, BaseTestCase):
     def setUp(self):
         super().setUp()
         self.accommodation = MvAccommodationFactory(
-            ltla_name="ltla_somerset",
+            ltla_name="ltla_test",
             full_address="456 Avenue",
         )
 

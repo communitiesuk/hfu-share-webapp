@@ -28,7 +28,7 @@ class GuestEditViewTests(TestSessionTokenMixin, BaseTestCase):
         super().setUp()
         self.user = get_admin_user()
         self.accommodation_request = MvAccommodationRequestFactory(
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
             person_id=["person-1"],
             number_of_people=1,
         )
@@ -48,8 +48,8 @@ class GuestEditViewTests(TestSessionTokenMixin, BaseTestCase):
             group=self.group,
         )
         self.ltla_group = GroupFactory(
-            name="ltla_somerset",
-            groupinfo__ltla_name="ltla_somerset",
+            name="ltla_test",
+            groupinfo__ltla_name="ltla_test",
             groupinfo__group_type=GroupType.LOCAL_AUTHORITY,
         )
 

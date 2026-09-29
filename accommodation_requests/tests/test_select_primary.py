@@ -56,7 +56,7 @@ class SelectPrimaryAccommodationAndHostWizardTestCase(
 
         self.ltla_accommodation = MvAccommodationFactory(
             full_address="Somerset LTLA Address",
-            ltla_name="ltla_somerset",
+            ltla_name="ltla_test",
         )
         self.da_accommodation = MvAccommodationFactory(
             full_address="Scotland DA address",
@@ -77,7 +77,7 @@ class SelectPrimaryAccommodationAndHostWizardTestCase(
             title="Test Accommodation Request LA",
             checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
             accommodation_id=[self.ltla_accommodation.id],
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
         )
         self.da_accommodation_request = MvAccommodationRequestFactory(
             title="Test Accommodation Request DA",
@@ -195,7 +195,7 @@ class SelectPrimaryAccommodationAndHostWizardTestCase(
         multi_la_accommodation_request = MvAccommodationRequestFactory(
             title="Multi LA Accommodation Request",
             checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
-            ltla_name=["ltla_somerset", "ltla_bristol"],
+            ltla_name=["ltla_test", "ltla_bristol"],
         )
 
         response = self.client.get(
@@ -214,7 +214,7 @@ class SelectPrimaryAccommodationAndHostWizardTestCase(
             title="Multi LA Accommodation Request",
             checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
             accommodation_id=[self.accommodation_1.id],
-            ltla_name=["ltla_somerset", "ltla_bristol"],
+            ltla_name=["ltla_test", "ltla_bristol"],
         )
 
         response = self.client.post(

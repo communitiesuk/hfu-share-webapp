@@ -36,7 +36,7 @@ class AcceptReassignmentLoggingTestCase(ReassignmentRequestsBaseTestCase):
         self.ar = MvAccommodationRequestFactory(
             number_of_people=2,
             person_id=[self.guest_a.id, self.guest_b.id],
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
             utla_name=["utla_somerset"],
             accommodation_id=[acc.id],
             primary_accommodation=acc,
@@ -194,7 +194,7 @@ class AcceptPartialReassignmentLoggingTestCase(ReassignmentRequestsBaseTestCase)
         self.ar = MvAccommodationRequestFactory(
             number_of_people=3,
             person_id=[self.guest_a.id, self.guest_b.id, self.guest_c.id],
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
             utla_name=["utla_somerset"],
             accommodation_id=[acc.id],
             primary_accommodation=acc,
@@ -295,7 +295,7 @@ class RejectReassignmentLoggingTestCase(ReassignmentRequestsBaseTestCase):
         self.ar = MvAccommodationRequestFactory(
             number_of_people=2,
             person_id=[self.guest_a.id, self.guest_b.id],
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
         )
         self.request = self.pending_request_somerset_source_multiple_guests
         self.request.accommodation_request = self.ar
@@ -359,7 +359,7 @@ class CancelReassignmentLoggingTestCase(ReassignmentRequestsBaseTestCase):
         super().setUp()
         self.client.force_login(
             get_user_with_groups(
-                [UserGroup(name="ltla_somerset", type=GroupType.LOCAL_AUTHORITY)]
+                [UserGroup(name="ltla_test", type=GroupType.LOCAL_AUTHORITY)]
             )
         )
         self.ar = MvAccommodationRequestFactory()

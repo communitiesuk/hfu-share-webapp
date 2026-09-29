@@ -82,7 +82,7 @@ class GuestsActionsTestCase(
         self.guest_further_duplicate_group.save()
 
         self.ltla_accommodation_request = MvAccommodationRequestFactory(
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
             person_id=["person-2"],
             number_of_people=1,
         )

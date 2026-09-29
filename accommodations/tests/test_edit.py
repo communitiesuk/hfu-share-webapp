@@ -50,7 +50,7 @@ class AccommodationEditViewTests(TestSessionTokenMixin, BaseTestCase):
             wheelchair_accessible=True,
             edited_in_app=False,
             is_editable=True,
-            ltla_name="ltla_somerset",
+            ltla_name="ltla_test",
         )
         self.da_accommodation = AccommodationFactory(
             full_address="Scotland DA address",

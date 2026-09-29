@@ -76,7 +76,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
         ar = MvAccommodationRequestFactory(
             number_of_people=2,
             person_id=[self.guest_a.id, self.guest_b.id],
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
             utla_name=["utla_somerset"],
             accommodation_id=[acc.id],
             primary_accommodation=acc,
@@ -166,7 +166,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
         ar = MvAccommodationRequestFactory(
             number_of_people=3,
             person_id=[self.guest_a.id, self.guest_b.id, self.guest_c.id],
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
             utla_name=["utla_somerset"],
             accommodation_id=[acc.id],
             primary_accommodation=acc,
@@ -202,7 +202,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
         self.assertEqual(ar.primary_accommodation.id, acc.id)
 
         # Old AR location is not updated
-        self.assertEqual(ar.ltla_name, ["ltla_somerset"])
+        self.assertEqual(ar.ltla_name, ["ltla_test"])
         self.assertEqual(ar.utla_name, ["utla_somerset"])
 
         # Old AR's active host is not updated
@@ -274,7 +274,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
         ar = MvAccommodationRequestFactory(
             number_of_people=2,
             person_id=[self.guest_a, self.guest_b],
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
         )
 
         request = self.pending_request_somerset_source_multiple_guests
@@ -302,7 +302,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
 
         ar.refresh_from_db()
 
-        self.assertEqual(ar.ltla_name, ["ltla_somerset"])
+        self.assertEqual(ar.ltla_name, ["ltla_test"])
 
         interaction = MvInteraction.objects.filter(
             linked_accommodation_request=ar
@@ -401,7 +401,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
         self.client.force_login(self.user)
 
         request = ReassignmentRequestFactory(
-            source_ltla_name=["ltla_somerset"],
+            source_ltla_name=["ltla_test"],
             source_utla_name=["utla_somerset"],
             destination_ltla_name="ltla_destination",
             destination_utla_name="utla_destination",
@@ -431,7 +431,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
         ar = MvAccommodationRequestFactory(
             number_of_people=1,
             person_id=[self.guest_a.id],
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
             utla_name=["utla_somerset"],
             accommodation_id=[acc.id],
             primary_accommodation=acc,
@@ -472,7 +472,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
         )
         self.assertEqual(
             interaction.interaction_notes,
-            "ltla_destination accepted the reassignment request from ltla_somerset "
+            "ltla_destination accepted the reassignment request from ltla_test "
             "for [names_list]Guest A.[names_list_end] "
             "Reason for accepting: Approved for transfer",
         )
@@ -487,7 +487,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
         original_ar = MvAccommodationRequestFactory(
             number_of_people=2,
             person_id=[self.guest_a.id, self.guest_b.id],
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
             utla_name=["utla_somerset"],
             accommodation_id=[acc.id],
             primary_accommodation=acc,
@@ -495,7 +495,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
         )
 
         reassignment_request = ReassignmentRequestFactory(
-            source_ltla_name=["ltla_somerset"],
+            source_ltla_name=["ltla_test"],
             source_utla_name=["utla_somerset"],
             destination_ltla_name="ltla_destination",
             destination_utla_name="utla_destination",
@@ -543,7 +543,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
             )
             self.assertEqual(
                 interaction.interaction_notes,
-                "ltla_destination accepted the reassignment request from ltla_somerset "
+                "ltla_destination accepted the reassignment request from ltla_test "
                 "for [names_list]Guest A.[names_list_end] "
                 "Reason for accepting: Approved for transfer",
             )
@@ -558,7 +558,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
         ar = MvAccommodationRequestFactory(
             number_of_people=1,
             person_id=[self.guest_a.id],
-            ltla_name=["ltla_somerset", "ltla_manchester"],
+            ltla_name=["ltla_test", "ltla_manchester"],
             utla_name=["utla_somerset", "utla_manchester"],
             accommodation_id=[acc.id],
             primary_accommodation=acc,
@@ -567,7 +567,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
 
         request = self.pending_request_somerset_source_single_guest
         request.source_ltla_name = (
-            "ltla_somerset",
+            "ltla_test",
             "ltla_manchester",
         )
         request.source_utla_name = (
@@ -608,7 +608,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
         self.assertEqual(
             interaction.interaction_notes,
             "ltla_destination accepted the reassignment request from "
-            "ltla_somerset|ltla_manchester for "
+            "ltla_test|ltla_manchester for "
             "[names_list]Guest A.[names_list_end] Reason for accepting: "
             "Approved for transfer",
         )
@@ -632,7 +632,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
         )
 
         request = ReassignmentRequestFactory(
-            source_ltla_name=["ltla_somerset"],
+            source_ltla_name=["ltla_test"],
             source_utla_name=["utla_somerset"],
             destination_ltla_name="ltla_destination",
             destination_utla_name="utla_destination",
@@ -643,7 +643,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
         ar = MvAccommodationRequestFactory(
             number_of_people=1,
             person_id=[guest_a.id, guest_b.id],
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
             utla_name=["utla_somerset"],
             accommodation_id=[acc.id],
             primary_accommodation=acc,
@@ -685,7 +685,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
         self.assertEqual(
             interaction.interaction_notes,
             "ltla_destination accepted the reassignment request from "
-            "ltla_somerset for "
+            "ltla_test for "
             "[names_list]Guest A and Guest B.[names_list_end] Reason for accepting: "
             "These guests have moved to my LA.",
         )
@@ -700,7 +700,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
         ar = MvAccommodationRequestFactory(
             number_of_people=1,
             person_id=[self.guest_a.id],
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
             utla_name=["utla_somerset"],
             accommodation_id=[acc.id],
             primary_accommodation=acc,
@@ -741,7 +741,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
         )
         self.assertEqual(
             interaction.interaction_notes,
-            "ltla_destination rejected the reassignment request from ltla_somerset "
+            "ltla_destination rejected the reassignment request from ltla_test "
             "for [names_list]Guest A.[names_list_end] Reason for rejecting: "
             "This guest has not moved to my LA.",
         )
@@ -756,7 +756,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
         ar = MvAccommodationRequestFactory(
             number_of_people=2,
             person_id=[self.guest_a.id, self.guest_b.id],
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
             utla_name=["utla_somerset"],
             accommodation_id=[acc.id],
             primary_accommodation=acc,
@@ -764,7 +764,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
         )
 
         reassignment_request = ReassignmentRequestFactory(
-            source_ltla_name=["ltla_somerset"],
+            source_ltla_name=["ltla_test"],
             source_utla_name=["utla_somerset"],
             destination_ltla_name="ltla_destination",
             destination_utla_name="utla_destination",
@@ -806,7 +806,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
         )
         self.assertEqual(
             interaction.interaction_notes,
-            "ltla_destination rejected the reassignment request from ltla_somerset "
+            "ltla_destination rejected the reassignment request from ltla_test "
             "for [names_list]Guest A.[names_list_end] "
             "Reason for rejecting: Rejected for transfer",
         )
@@ -821,7 +821,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
         ar = MvAccommodationRequestFactory(
             number_of_people=1,
             person_id=[self.guest_a.id],
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
             utla_name=["utla_somerset"],
             accommodation_id=[acc.id],
             primary_accommodation=acc,
@@ -830,7 +830,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
 
         request = self.pending_request_somerset_source_single_guest
         request.source_ltla_name = (
-            "ltla_somerset",
+            "ltla_test",
             "ltla_manchester",
         )
         request.source_utla_name = (
@@ -871,7 +871,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
         self.assertEqual(
             interaction.interaction_notes,
             "ltla_destination rejected the reassignment request from "
-            "ltla_somerset|ltla_manchester for "
+            "ltla_test|ltla_manchester for "
             "[names_list]Guest A.[names_list_end] Reason for rejecting: "
             "This guest has not moved to my LA.",
         )
@@ -886,7 +886,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
         ar = MvAccommodationRequestFactory(
             number_of_people=1,
             person_id=[self.guest_a.id, self.guest_b.id],
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
             utla_name=["utla_somerset"],
             accommodation_id=[acc.id],
             primary_accommodation=acc,
@@ -928,7 +928,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
         self.assertEqual(
             interaction.interaction_notes,
             "ltla_destination rejected the reassignment request from "
-            "ltla_somerset for [names_list]Guest A and Guest B.[names_list_end] "
+            "ltla_test for [names_list]Guest A and Guest B.[names_list_end] "
             "Reason for rejecting: This guest has not moved to my LA.",
         )
         self.assertEqual(
@@ -943,7 +943,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
         ar = MvAccommodationRequestFactory(
             number_of_people=2,
             person_id=[self.guest_a.id, self.guest_b.id],
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
             utla_name=["utla_somerset"],
             ltla_code_id=["E001"],
             utla_code_id=["E002"],
@@ -1005,7 +1005,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
         ar = MvAccommodationRequestFactory(
             number_of_people=2,
             person_id=[self.guest_a.id, self.guest_b.id],
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
             utla_name=["utla_somerset"],
             ltla_code_id=["E001"],
             utla_code_id=["E002"],
@@ -1057,7 +1057,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
         ar = MvAccommodationRequestFactory(
             number_of_people=3,
             person_id=[self.guest_a.id, self.guest_b.id],
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
             utla_name=["utla_somerset"],
             accommodation_id=[],
         )
