@@ -72,9 +72,9 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.pylint]
-load-plugins = ["hfurb_scripts.lint_extras.find_f_strings_in_format_html", "hfurb_scripts.lint_extras.check_view_access_control", "hfurb_scripts.lint_extras.check_generic_link_text", "hfurb_scripts.lint_extras.check_html_as_python_string"]
+load-plugins = ["hfurb_scripts.lint_extras.find_f_strings_in_format_html", "hfurb_scripts.lint_extras.check_view_access_control", "hfurb_scripts.lint_extras.check_generic_link_text"]
 disable = ["all"]  # Disable all rules by default
-enable = ["W1350", "W1351", "W1353", "W1354"]  # Only enable our custom rules
+enable = ["W1350", "W1351", "W1353"]  # Only enable our custom rules
 
 [tool.ruff]
 target-version = "py313"
@@ -93,6 +93,7 @@ select = [
     # "UP", # pyupgrade
     # "SIM", # flake8-simplify
     "TID251", # banned-api
+    "S308", # suspicious-mark-safe-usage
 ]
 ignore = []
 exclude = []
@@ -127,7 +128,7 @@ line-ending = "auto"
 
 [tool.ruff.lint.flake8-tidy-imports.banned-api]
 "django.utils.html.format_html".msg = "Use templates instead of format_html."
-"django.utils.html.format_html_join".msg = "Use templates instead of format_html."
+"django.utils.html.format_html_join".msg = "Use templates instead of format_html_join."
 
 [tool.mypy]
 exclude = [
