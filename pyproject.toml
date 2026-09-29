@@ -92,6 +92,8 @@ select = [
     "G", # flake8-logging-format
     # "UP", # pyupgrade
     # "SIM", # flake8-simplify
+    "TID251", # banned-api
+    "S308", # suspicious-mark-safe-usage
 ]
 ignore = []
 exclude = []
@@ -123,6 +125,10 @@ line-ending = "auto"
 "accounts/models/__init__.py" = ["F401"]  # F401 unused import error
 "ontology/models/__init__.py" = ["F401"]  # F401 unused import error
 "user_management/views/__init__.py" = ["F401"]  # F401 unused import error
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"django.utils.html.format_html".msg = "Use templates instead of format_html."
+"django.utils.html.format_html_join".msg = "Use templates instead of format_html_join."
 
 [tool.mypy]
 exclude = [

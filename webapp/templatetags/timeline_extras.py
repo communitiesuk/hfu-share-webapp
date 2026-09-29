@@ -93,7 +93,7 @@ def format_interaction_content(text):
     html = render_govuk_list(names, bulleted_list=True)
 
     result = sanitised_text.replace(chunk, html, 1)
-    return mark_safe(result)
+    return mark_safe(result)  # noqa:S308
 
 
 def render_app_timeline_change_item(
