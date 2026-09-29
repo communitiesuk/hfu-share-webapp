@@ -1,9 +1,8 @@
-from django.test import SimpleTestCase
-
+from test_utils.base import BaseSimpleTestCase
 from webapp.widgets import MultiValueWidget
 
 
-class MultiValueWidgetTest(SimpleTestCase):
+class MultiValueWidgetTest(BaseSimpleTestCase):
     def test_render_with_multiple_values(self):
         widget = MultiValueWidget("Email")
         html = widget.render(

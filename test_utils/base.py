@@ -1,13 +1,11 @@
-from django.test import TestCase
+from django.test import SimpleTestCase, TestCase
 
-from .faker import fake
+from .mixins import FakerMixin
 
 
-class BaseTestCase(TestCase):
-    def setUp(self):
-        super().setUp()
-        self._clear_faker_unique_cache()
+class BaseTestCase(FakerMixin, TestCase):
+    pass
 
-    @staticmethod
-    def _clear_faker_unique_cache():
-        fake.unique.clear()
+
+class BaseSimpleTestCase(FakerMixin, SimpleTestCase):
+    pass
