@@ -289,7 +289,6 @@ CONTENT_SECURITY_POLICY_REPORT_ONLY = {
         ],
         "style-src": [
             SELF,
-            UNSAFE_INLINE,  # For inline styles in templates
         ],
         "manifest-src": [SELF],
         "connect-src": [
@@ -343,7 +342,7 @@ CONTENT_SECURITY_POLICY = {
         ],
         "style-src": [
             SELF,
-            UNSAFE_INLINE,  # For inline styles in templates
+            UNSAFE_INLINE,  # TODO: Remove if there are no reports being raised
         ],
         "manifest-src": [SELF],
         "connect-src": [
