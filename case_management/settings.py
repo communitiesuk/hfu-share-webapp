@@ -266,24 +266,6 @@ CONTENT_SECURITY_POLICY_REPORT_ONLY = {
             NONCE,
             # jquery
             "https://code.jquery.com",
-            # searchable_select
-            "'sha256-K10lU0q0Oi3Wwjp5I3IUreVtxHV5c2e6tUMzazKBxjo='",
-            # searchable_select
-            "'sha256-SvqgtrmdvMY376buoS0bObmi+nGdnEEbHvJePnMdXa4='",
-            # searchable_select
-            "'sha256-MXNk1OEwcDStaETBx8zNl9Y061AVFjbowqN8TCN50KQ='",
-            # searchable_select
-            "'sha256-zxwfckhxf4IOIPf3crNlE7EdgVWHtGFqyGndp/h/0fE='",
-            # searchable_select
-            "'sha256-YMwcMhkQEhelu2MNRsvB812jMqT/aeLHlLUJ29T7cIw='",
-            # searchable_select
-            "'sha256-IL1hz2/N+U3AfZl4hpFU67bVZRJMRelB0bv2EuHWiXQ='",
-            # searchable_select
-            "'sha256-uom/SHkGTVCPyfBOrsyJTOYvycWFrn8ZebdS4FFbRK0='",
-            # multi_value_text_input
-            "'sha256-V2C+dBQKNCxI0Zt3bPFTyF2LHD9DyrPnGv9Mt5okFAg='",
-            # dynamic-dropdown-search
-            "'sha256-uLQsCmEbwl/t20guNF18o9vC6if6d+8Nn7qvtal4VV0='",
             # Google Analytics
             "https://www.googletagmanager.com",
         ],
@@ -319,24 +301,6 @@ CONTENT_SECURITY_POLICY = {
             NONCE,
             # jquery
             "https://code.jquery.com",
-            # searchable_select
-            "'sha256-K10lU0q0Oi3Wwjp5I3IUreVtxHV5c2e6tUMzazKBxjo='",
-            # searchable_select
-            "'sha256-SvqgtrmdvMY376buoS0bObmi+nGdnEEbHvJePnMdXa4='",
-            # searchable_select
-            "'sha256-MXNk1OEwcDStaETBx8zNl9Y061AVFjbowqN8TCN50KQ='",
-            # searchable_select
-            "'sha256-zxwfckhxf4IOIPf3crNlE7EdgVWHtGFqyGndp/h/0fE='",
-            # searchable_select
-            "'sha256-YMwcMhkQEhelu2MNRsvB812jMqT/aeLHlLUJ29T7cIw='",
-            # searchable_select
-            "'sha256-IL1hz2/N+U3AfZl4hpFU67bVZRJMRelB0bv2EuHWiXQ='",
-            # searchable_select
-            "'sha256-uom/SHkGTVCPyfBOrsyJTOYvycWFrn8ZebdS4FFbRK0='",
-            # multi_value_text_input
-            "'sha256-V2C+dBQKNCxI0Zt3bPFTyF2LHD9DyrPnGv9Mt5okFAg='",
-            # dynamic-dropdown-search
-            "'sha256-uLQsCmEbwl/t20guNF18o9vC6if6d+8Nn7qvtal4VV0='",
             # Google Analytics
             "https://www.googletagmanager.com",
         ],

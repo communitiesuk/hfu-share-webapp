@@ -17,7 +17,7 @@ class MultiValueWidgetTest(SimpleTestCase):
         self.assertIn('name="emails-1"', html)
         self.assertIn('id="id_emails-1"', html)
         self.assertIn('value="b@example.com"', html)
-        self.assertIn('class="array-input-group"', html)
+        self.assertIn('data-module="array-input-group"', html)
 
     def test_render_empty(self):
         widget = MultiValueWidget("Email")

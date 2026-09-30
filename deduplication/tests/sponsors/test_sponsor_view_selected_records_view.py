@@ -23,6 +23,7 @@ class DeduplicationSponsorSelectedViewTests(TestSessionTokenMixin, BaseTestCase)
             phone_number=["01134960698"],
             residential_postcodes=["OX1 1OX"],
             flag_unsuitable=False,
+            is_eoi=False,
             is_principal=True,
             sponsor_type=MvVolunteer.SponsorType.INDIVIDUAL,
         )
@@ -36,6 +37,7 @@ class DeduplicationSponsorSelectedViewTests(TestSessionTokenMixin, BaseTestCase)
             phone_number=["04467123455"],
             residential_postcodes=["NW1 1WN"],
             flag_unsuitable=False,
+            is_eoi=False,
             is_principal=True,
             sponsor_type=MvVolunteer.SponsorType.INDIVIDUAL,
         )

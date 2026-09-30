@@ -1,6 +1,3 @@
-import base64
-import hashlib
-import re
 from unittest import mock
 from unittest.mock import patch
 
@@ -11,7 +8,6 @@ from accounts.enums import GroupType
 from accounts.models import GroupInfo
 from accounts.tests.base import TestSessionTokenMixin
 from accounts.tests.factories import GroupInfoFactory
-from case_management.settings import CONTENT_SECURITY_POLICY
 from ontology.models import MvAccommodation, MvAccommodationRequest
 from ontology.tests.factories import (
     MvAccommodationFactory,
@@ -221,25 +217,6 @@ class AssignLocalAuthorityFormTestCase(TestSessionTokenMixin, BaseTestCase):
         self.assertIn(self.english_la, local_authorities)
         self.assertNotIn(self.welsh_la, local_authorities)
         self.assertNotIn(self.english_utla, local_authorities)
-
-    def test_local_authority_search_script_is_allowed_by_the_content_security_policy(
-        self,
-    ):
-        self.client.force_login(get_mhclg_user())
-
-        html = self.post_region(self.unassigned_ar, "England").content.decode()
-        scripts = [
-            script
-            for script in re.findall(r"<script[^>]*>(.*?)</script>", html, re.DOTALL)
-            if "accessibleAutocomplete" in script
-        ]
-
-        self.assertEqual(len(scripts), 1)
-        digest = base64.b64encode(hashlib.sha256(scripts[0].encode()).digest()).decode()
-        self.assertIn(
-            f"'sha256-{digest}'",
-            CONTENT_SECURITY_POLICY["DIRECTIVES"]["script-src"],
-        )
 
     def test_local_authority_step_labels_las_as_in_the_reassignment_flow(self):
         self.client.force_login(get_mhclg_user())
