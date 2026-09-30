@@ -85,7 +85,7 @@ class GuestEditForm(GuestBaseForm):
         help_text="Enter up to 5 email addresses.",
         required=True,
         widget=MultiValueWidget(
-            "Email address", attrs={"label": "email", "input_type": "email"}
+            "Email address", attrs={"label": "email address", "input_type": "email"}
         ),
         error_messages={
             "required": "Please enter an email address",
