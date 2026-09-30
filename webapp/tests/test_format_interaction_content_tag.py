@@ -1,9 +1,8 @@
 from test_utils.base import BaseSimpleTestCase
-from test_utils.mixins import HTMLAssertionsMixin
 from webapp.templatetags.timeline_extras import format_interaction_content
 
 
-class FormatInteractionContentTagTests(BaseSimpleTestCase, HTMLAssertionsMixin):
+class FormatInteractionContentTagTests(BaseSimpleTestCase):
     def test_interaction_content_tag_renders_names_as_list_for_reassignment_request(
         self,
     ):
