@@ -14,7 +14,7 @@ class ReassignmentRequestsDBErrorTestCase(ReassignmentRequestsBaseTestCase):
         super().setUp()
         self.user = get_la_user()
         self.client.force_login(self.user)
-        self.request = self.pending_request_somerset_source_multiple_guests
+        self.request = self.pending_request_test_source_multiple_guests
 
     def _post_action(self, action="accept"):
         url = reverse(
@@ -50,11 +50,11 @@ class ReassignmentRequestsDBErrorTestCase(ReassignmentRequestsBaseTestCase):
         self._assert_rollback(ar_count, interaction_count)
 
     def test_db_error_on_update_accommodation(self):
-        self.pending_request_somerset_source_multiple_guests_ar.person_id = [
+        self.pending_request_test_source_multiple_guests_ar.person_id = [
             self.guest_a.id,
             self.guest_b.id,
         ]
-        self.pending_request_somerset_source_multiple_guests_ar.save()
+        self.pending_request_test_source_multiple_guests_ar.save()
         ar_count = MvAccommodationRequest.objects.count()
         interaction_count = MvInteraction.objects.count()
         with patch(
@@ -66,17 +66,17 @@ class ReassignmentRequestsDBErrorTestCase(ReassignmentRequestsBaseTestCase):
         self._assert_rollback(ar_count, interaction_count)
 
     def test_db_error_on_unlink_host(self):
-        self.pending_request_somerset_source_multiple_guests_ar.person_id = [
+        self.pending_request_test_source_multiple_guests_ar.person_id = [
             self.guest_a.id,
             self.guest_b.id,
         ]
         accommodation = MvAccommodationFactory(
-            ltla_name="ltla_test", utla_name="utla_somerset"
+            ltla_name="ltla_test", utla_name="utla_test"
         )
-        self.pending_request_somerset_source_multiple_guests_ar.accommodation_id = [
+        self.pending_request_test_source_multiple_guests_ar.accommodation_id = [
             accommodation.id,
         ]
-        self.pending_request_somerset_source_multiple_guests_ar.save()
+        self.pending_request_test_source_multiple_guests_ar.save()
         ar_count = MvAccommodationRequest.objects.count()
         interaction_count = MvInteraction.objects.count()
         with patch(

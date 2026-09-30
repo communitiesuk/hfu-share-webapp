@@ -49,13 +49,13 @@ class DeduplicationSponsorListViewTestCase(TestSessionTokenMixin, BaseTestCase):
             sponsor_type=MvVolunteer.SponsorType.INDIVIDUAL,
         )
 
-        self.somerset_ltla_accommodation = MvAccommodationFactory(
-            full_address="Somerset LTLA Address",
+        self.test_ltla_accommodation = MvAccommodationFactory(
+            full_address="Test LTLA Address",
             ltla_name="ltla_test",
             is_principal=True,
         )
-        self.somerset_ltla_accommodation.hosts.set([self.sponsor.id])
-        self.sponsor.accommodations.set([self.somerset_ltla_accommodation.id])
+        self.test_ltla_accommodation.hosts.set([self.sponsor.id])
+        self.sponsor.accommodations.set([self.test_ltla_accommodation.id])
 
         self.other_la_accommodation = MvAccommodationFactory(
             full_address="Other accommodation",
@@ -70,10 +70,10 @@ class DeduplicationSponsorListViewTestCase(TestSessionTokenMixin, BaseTestCase):
             ltla_name="Multi LTLA",
             is_principal=True,
         )
-        self.somerset_ltla_accommodation.hosts.set([self.multi_la_sponsor.id])
+        self.test_ltla_accommodation.hosts.set([self.multi_la_sponsor.id])
         self.multi_la_accommodation.hosts.set([self.multi_la_sponsor])
         self.multi_la_sponsor.accommodations.set(
-            [self.somerset_ltla_accommodation, self.multi_la_accommodation]
+            [self.test_ltla_accommodation, self.multi_la_accommodation]
         )
 
         self.sponsor_with_duplicate_accommodation = MvVolunteerFactory(

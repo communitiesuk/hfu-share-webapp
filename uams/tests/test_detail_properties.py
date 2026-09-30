@@ -49,7 +49,7 @@ class UamDetailPropertiesViewTests(TestSessionTokenMixin, UamsBaseTestCase):
             residential_line_1="123 Main St",
             residential_line_2="Apt 4B",
             residential_postcode="NW5 1TL",
-            residential_town="Somerset",
+            residential_town="Test",
             ltla_name=["ltla_test"],
             # child_guest_details
             minor_contact_type=["Email"],
@@ -270,7 +270,7 @@ class UamDetailPropertiesViewTests(TestSessionTokenMixin, UamsBaseTestCase):
         # residential_postcode
         self.assertContains(response, "NW5 1TL")
         # residential_town
-        self.assertContains(response, "Somerset")
+        self.assertContains(response, "Test")
         # ltla_name
         self.assertContains(response, "ltla_test")
 

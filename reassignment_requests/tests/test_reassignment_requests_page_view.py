@@ -47,11 +47,11 @@ class ReassignmentRequestsMadePageViewTestCase(ReassignmentRequestsBaseTestCase)
         self.assertContains(response, "Status")
 
     def test_empty_tables_show_correct_messages(self):
-        not_somerset_user = get_user_with_groups(
+        not_test_user = get_user_with_groups(
             [UserGroup(name="not_ltla_test", type=GroupType.LOCAL_AUTHORITY)]
         )
 
-        self.client.force_login(not_somerset_user)
+        self.client.force_login(not_test_user)
 
         response = self.client.get(self.url)
 
@@ -74,15 +74,15 @@ class ReassignmentRequestsMadePageViewTestCase(ReassignmentRequestsBaseTestCase)
         requests = list(table.data)
         request_ids = [request.id for request in requests]
 
-        self.assertIn(str(self.pending_request_somerset_source.id), request_ids)
+        self.assertIn(str(self.pending_request_test_source.id), request_ids)
         self.assertIn(
-            str(self.pending_request_somerset_source_multiple_guests.id), request_ids
+            str(self.pending_request_test_source_multiple_guests.id), request_ids
         )
         self.assertIn(
-            str(self.pending_request_somerset_source_single_guest.id), request_ids
+            str(self.pending_request_test_source_single_guest.id), request_ids
         )
-        self.assertIn(str(self.rejected_request_somerset_source.id), request_ids)
-        self.assertIn(str(self.accepted_request_somerset_source.id), request_ids)
+        self.assertIn(str(self.rejected_request_test_source.id), request_ids)
+        self.assertIn(str(self.accepted_request_test_source.id), request_ids)
 
     def test_user_cannot_see_other_la_requests_or_if_they_are_destination(self):
         user = get_la_user()
@@ -97,8 +97,8 @@ class ReassignmentRequestsMadePageViewTestCase(ReassignmentRequestsBaseTestCase)
         # Verify that requests from other LAs are not visible
         self.assertNotIn(str(self.request_other_la.id), all_visible_requests)
 
-        # The request TO Somerset should not be visible in the "made" view
-        self.assertNotIn(str(self.request_to_somerset.id), all_visible_requests)
+        # The request TO Test should not be visible in the "made" view
+        self.assertNotIn(str(self.request_to_test.id), all_visible_requests)
 
 
 class ReassignmentRequestsReceivedPageViewTestCase(ReassignmentRequestsBaseTestCase):
@@ -134,11 +134,11 @@ class ReassignmentRequestsReceivedPageViewTestCase(ReassignmentRequestsBaseTestC
         self.assertContains(response, "Status")
 
     def test_empty_tables_show_correct_messages(self):
-        not_somerset_user = get_user_with_groups(
+        not_test_user = get_user_with_groups(
             [UserGroup(name="not_ltla_test", type=GroupType.LOCAL_AUTHORITY)]
         )
 
-        self.client.force_login(not_somerset_user)
+        self.client.force_login(not_test_user)
 
         response = self.client.get(self.url)
 
@@ -159,7 +159,7 @@ class ReassignmentRequestsReceivedPageViewTestCase(ReassignmentRequestsBaseTestC
         requests = list(table.data)
         request_ids = [request.id for request in requests]
 
-        self.assertIn(str(self.request_to_somerset.id), request_ids)
+        self.assertIn(str(self.request_to_test.id), request_ids)
 
     def test_user_cannot_see_requests_they_made_or_from_other_las(self):
         user = get_la_user()
@@ -171,22 +171,20 @@ class ReassignmentRequestsReceivedPageViewTestCase(ReassignmentRequestsBaseTestC
         table = response.context["table"]
         all_visible_requests = [item.id for item in table.data]
 
-        # Verify that requests FROM Somerset are not visible in the "received" view
+        # Verify that requests FROM Test are not visible in the "received" view
+        self.assertNotIn(str(self.pending_request_test_source.id), all_visible_requests)
         self.assertNotIn(
-            str(self.pending_request_somerset_source.id), all_visible_requests
+            str(self.rejected_request_test_source.id), all_visible_requests
         )
         self.assertNotIn(
-            str(self.rejected_request_somerset_source.id), all_visible_requests
-        )
-        self.assertNotIn(
-            str(self.accepted_request_somerset_source.id), all_visible_requests
+            str(self.accepted_request_test_source.id), all_visible_requests
         )
 
         # Verify that requests from other LAs are not visible
         self.assertNotIn(str(self.request_other_la.id), all_visible_requests)
 
-        # The request TO Somerset should be visible in the "received" view
-        self.assertIn(str(self.request_to_somerset.id), all_visible_requests)
+        # The request TO Test should be visible in the "received" view
+        self.assertIn(str(self.request_to_test.id), all_visible_requests)
 
     def test_requests_with_none_value_source_ltla_names_do_not_cause_exceptions(self):
         user = get_la_user()
@@ -194,7 +192,7 @@ class ReassignmentRequestsReceivedPageViewTestCase(ReassignmentRequestsBaseTestC
 
         self.pending_request_no_source_ltla_name = ReassignmentRequestFactory(
             source_ltla_name=[None],
-            source_utla_name=["utla_somerset"],
+            source_utla_name=["utla_test"],
             destination_ltla_name="ltla_destination",
             destination_utla_name="utla_destination",
             outcome=ReassignmentRequest.Outcome.PENDING,

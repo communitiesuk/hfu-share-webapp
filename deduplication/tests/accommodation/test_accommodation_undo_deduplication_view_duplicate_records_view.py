@@ -32,7 +32,7 @@ class UndoDeduplicationAccommodationViewDeduplicatedRecordsViewTestCase(
             is_principal=True,
         )
         self.new_principal_ltla_accommodation = MvAccommodationFactory(
-            full_address="Somerset LTLA Address",
+            full_address="Test LTLA Address",
             ltla_name="ltla_test",
             is_principal=True,
         )

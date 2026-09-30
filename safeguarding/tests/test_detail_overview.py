@@ -47,7 +47,7 @@ class SafeguardingOverviewViewTestCase(
         self.host_other_la = MvVolunteerFactory(first_name="Host", last_name="Host")
         self.accommodation = MvAccommodationFactory(
             ltla_name="ltla_test",
-            full_address="Somerset accommodation",
+            full_address="Test accommodation",
         )
         self.accommodation.hosts.set([self.sponsor.id, self.host.id])
         self.accommodation_other_la = MvAccommodationFactory(
@@ -67,9 +67,9 @@ class SafeguardingOverviewViewTestCase(
             last_name="Guest",
         )
         self.ar = MvAccommodationRequestFactory(
-            title="Guest Person to Somerset accom",
+            title="Guest Person to Test accom",
             ltla_name=["ltla_test"],
-            utla_name=["utla_somerset"],
+            utla_name=["utla_test"],
             primary_accommodation=self.accommodation,
             person_id=[self.guest.id, self.guest_other.id],
             number_of_people=2,

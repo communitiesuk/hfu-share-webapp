@@ -177,7 +177,7 @@ class AccommodationsHistoryTestCase(TestSessionTokenMixin, BaseTestCase):
             action=LogEntry.Action.UPDATE,
             changes={
                 "full_address": ["123 Street", "456 Avenue"],
-                "ltla_name": [None, "Somerset"],
+                "ltla_name": [None, "Test"],
                 "last_modified_date": ["2024-01-01", "2026-01-01"],
             },
         )
@@ -208,7 +208,7 @@ class AccommodationsHistoryTestCase(TestSessionTokenMixin, BaseTestCase):
             action=LogEntry.Action.UPDATE,
             changes={
                 "full_address": ["123 Street", "456 Avenue"],
-                "ltla_name": [None, "Somerset"],
+                "ltla_name": [None, "Test"],
                 "last_modified_date": ["2024-01-01", "2026-01-01"],
             },
         )
@@ -238,7 +238,7 @@ class AccommodationsHistoryTestCase(TestSessionTokenMixin, BaseTestCase):
             action=LogEntry.Action.UPDATE,
             changes={
                 "full_address": ["123 Street", "456 Avenue"],
-                "ltla_name": [None, "Somerset"],
+                "ltla_name": [None, "Test"],
                 "last_modified_date": ["2024-01-01", "2026-01-01"],
             },
         )
@@ -264,7 +264,7 @@ class AccommodationsHistoryTestCase(TestSessionTokenMixin, BaseTestCase):
             object_repr=str(self.accommodation),
             action=LogEntry.Action.CREATE,
             changes={
-                "ltla_name": [None, "Somerset"],
+                "ltla_name": [None, "Test"],
             },
         )
 
@@ -278,7 +278,7 @@ class AccommodationsHistoryTestCase(TestSessionTokenMixin, BaseTestCase):
         self.assertContains(response, "History")
         self.assertContains(response, "Details changed")
         self.assertContains(response, f"By {user.email}")
-        self.assertContains(response, "Lower tier LA added: now Somerset")
+        self.assertContains(response, "Lower tier LA added: now Test")
 
     def test_audit_logs_display_deleted_details_correctly(self):
         user = get_admin_user()
@@ -292,7 +292,7 @@ class AccommodationsHistoryTestCase(TestSessionTokenMixin, BaseTestCase):
             object_repr=str(self.accommodation),
             action=LogEntry.Action.CREATE,
             changes={
-                "ltla_name": ["Somerset", None],
+                "ltla_name": ["Test", None],
             },
         )
 
@@ -306,7 +306,7 @@ class AccommodationsHistoryTestCase(TestSessionTokenMixin, BaseTestCase):
         self.assertContains(response, "History")
         self.assertContains(response, "Details changed")
         self.assertContains(response, f"By {user.email}")
-        self.assertContains(response, "Lower tier LA deleted: was Somerset")
+        self.assertContains(response, "Lower tier LA deleted: was Test")
 
     def test_audit_logs_display_changed_details_correctly(self):
         user = get_admin_user()

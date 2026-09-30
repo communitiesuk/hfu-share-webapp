@@ -344,8 +344,8 @@ class AccommodationRequestCommentsDownloadAttachmentViewTests(
             file_name="other_la_file.txt",
         )
 
-        somerset_user = get_la_user()
-        self.client.force_login(somerset_user)
+        test_user = get_la_user()
+        self.client.force_login(test_user)
 
         response = self.client.get(
             reverse(
@@ -361,9 +361,9 @@ class AccommodationRequestCommentsDownloadAttachmentViewTests(
         self.assertEqual(response.status_code, http.client.NOT_FOUND)
 
     def test_la_user_cannot_download_attachment_from_other_la_with_valid_ar(self):
-        self.somerset_ar = MvAccommodationRequestFactory(
-            id="somerset-accommodation-request-with-files-123",
-            ltla_name=["Somerset"],
+        self.test_ar = MvAccommodationRequestFactory(
+            id="test-accommodation-request-with-files-123",
+            ltla_name=["Test"],
         )
 
         comment = CommentFactory(
@@ -376,14 +376,14 @@ class AccommodationRequestCommentsDownloadAttachmentViewTests(
             file_name="other_la_file.txt",
         )
 
-        somerset_user = get_la_user()
-        self.client.force_login(somerset_user)
+        test_user = get_la_user()
+        self.client.force_login(test_user)
 
         response = self.client.get(
             reverse(
                 "accommodation_requests:comments-download-attachment",
                 kwargs={
-                    "pk": self.somerset_ar.id,
+                    "pk": self.test_ar.id,
                     "comment_id": comment.id,
                     "attachment_id": attachment.id,
                 },

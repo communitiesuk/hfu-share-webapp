@@ -16,14 +16,14 @@ class DeduplicationAccommodationCheckAndCompleteViewTestCase(
         self.first_accommodation = MvAccommodationFactory(
             full_address="1 ABC Road, AB1 CD3",
             ltla_name="ltla_test",
-            utla_name="utla_somerset",
+            utla_name="utla_test",
             postcode=MvUkPostcodeFactory(postcode="AB1CD3"),
             is_principal=True,
         )
         self.second_accommodation = MvAccommodationFactory(
             full_address="2 DEQ Road, PP2 EE1",
             ltla_name="ltla_test",
-            utla_name="ltla_test",
+            utla_name="utla_test",
             postcode=MvUkPostcodeFactory(postcode="PP2EE1"),
             is_principal=True,
         )

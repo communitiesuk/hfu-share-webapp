@@ -17,7 +17,7 @@ class DeduplicationAccommodationSelectedViewTests(TestSessionTokenMixin, BaseTes
         self.first_accommodation = MvAccommodationFactory(
             full_address="[Test] Address 1",
             ltla_name="ltla_test",
-            utla_name="utla_somerset",
+            utla_name="utla_test",
             postcode=MvUkPostcodeFactory(postcode="ABC123"),
             is_principal=True,
         )
@@ -25,7 +25,7 @@ class DeduplicationAccommodationSelectedViewTests(TestSessionTokenMixin, BaseTes
         self.second_accommodation = MvAccommodationFactory(
             full_address="[Test] Address 2",
             ltla_name="ltla_test",
-            utla_name="utla_somerset",
+            utla_name="utla_test",
             postcode=MvUkPostcodeFactory(postcode="ABC123"),
             is_principal=True,
         )

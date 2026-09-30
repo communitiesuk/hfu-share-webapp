@@ -30,7 +30,7 @@ class AccommodationRequestPropertiesTestCase(
             first_name="Other LA Guest", last_name="Guest"
         )
         self.accommodation = MvAccommodationFactory(
-            ltla_name="ltla_test", full_address="Somerset accommodation"
+            ltla_name="ltla_test", full_address="Test accommodation"
         )
         self.accommodation.hosts.set([self.sponsor.id, self.host.id])
         self.accommodation_other_la = MvAccommodationFactory(
@@ -54,7 +54,7 @@ class AccommodationRequestPropertiesTestCase(
         )
         self.uam = SponsorshipCertificationFormFactory(
             ltla_name=["ltla_test"],
-            utla_name=["utla_somerset"],
+            utla_name=["utla_test"],
             reference="UAM-111-222",
             given_name="John",
             family_name="Doe",
@@ -68,7 +68,7 @@ class AccommodationRequestPropertiesTestCase(
         )
         self.ar = MvAccommodationRequestFactory(
             ltla_name=["ltla_test"],
-            utla_name=["utla_somerset"],
+            utla_name=["utla_test"],
             accommodation_id=[self.accommodation.id, self.accommodation_other_la.id],
             person_id=[self.guest.id, self.guest_other_la.id],
             number_of_people=1,
@@ -86,7 +86,7 @@ class AccommodationRequestPropertiesTestCase(
         )
         self.ar_with_active_host_and_primary_sponsor = MvAccommodationRequestFactory(
             ltla_name=["ltla_test"],
-            utla_name=["utla_somerset"],
+            utla_name=["utla_test"],
             accommodation_id=[self.accommodation.id, self.accommodation_other_la.id],
             person_id=[self.guest.id, self.guest_other_la.id],
             number_of_people=1,
@@ -101,7 +101,7 @@ class AccommodationRequestPropertiesTestCase(
         self.ar_with_primary_sponsor_with_no_active_host = (
             MvAccommodationRequestFactory(
                 ltla_name=["ltla_test"],
-                utla_name=["utla_somerset"],
+                utla_name=["utla_test"],
                 accommodation_id=[
                     self.accommodation.id,
                     self.accommodation_other_la.id,

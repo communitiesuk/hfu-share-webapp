@@ -125,7 +125,7 @@ class AccommodationRequestDetailOverviewTestCase(
             active_host=self.sponsor_1,
             sponsor_id=[self.sponsor_2.id, self.sponsor_3.id],
             ltla_name=["ltla_test"],
-            utla_name=["utla_somerset"],
+            utla_name=["utla_test"],
             person_id=[self.guest.id],
             accommodation_id=[self.accommodation_one.id],
         )
@@ -155,7 +155,7 @@ class AccommodationRequestDetailOverviewTestCase(
         self.assertIn("ltla_test", fields["Lower tier Local Authority"])
 
         self.assertIn("Upper tier Local Authority", fields)
-        self.assertIn("utla_somerset", fields["Upper tier Local Authority"])
+        self.assertIn("utla_test", fields["Upper tier Local Authority"])
 
         self.assertIn("Guests", fields)
         self.assertEqual([], fields["Guests"])

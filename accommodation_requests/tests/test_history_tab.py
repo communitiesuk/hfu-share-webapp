@@ -44,7 +44,7 @@ class AccommodationRequestHistoryTestCase(
         self.host = MvVolunteerFactory(first_name="Host", last_name="Host")
         self.guest = MvPersonFactory(first_name="LA Guest", last_name="Guest")
         self.accommodation = MvAccommodationFactory(
-            ltla_name="ltla_test", full_address="Somerset accommodation"
+            ltla_name="ltla_test", full_address="Test accommodation"
         )
         self.accommodation.hosts.set([self.sponsor.id, self.host.id])
         self.uan = VisaApplicationFactory(
@@ -54,14 +54,14 @@ class AccommodationRequestHistoryTestCase(
         )
         self.uam = SponsorshipCertificationFormFactory(
             ltla_name=["ltla_test"],
-            utla_name=["utla_somerset"],
+            utla_name=["utla_test"],
             reference="UAM-111-222",
             given_name="John",
             family_name="Doe",
         )
         self.ar = MvAccommodationRequestFactory(
             ltla_name=["ltla_test"],
-            utla_name=["utla_somerset"],
+            utla_name=["utla_test"],
             accommodation_id=[self.accommodation.id],
             person_id=[self.guest.id],
             number_of_people=1,
@@ -404,7 +404,7 @@ class AccommodationRequestHistoryTestCase(
             linked_accommodation_request=self.ar,
             title="Reassignment accepted ",
             interaction_contact=MvInteraction.InteractionContact.REASSIGNMENT_ACCEPTED,
-            interaction_notes="Accepted the reassignment request from Somerset",
+            interaction_notes="Accepted the reassignment request from Test",
         )
         interaction.created_at = timezone.now()
         interaction.save()
@@ -466,7 +466,7 @@ class AccommodationRequestHistoryTestCase(
             linked_accommodation_request=self.ar,
             title="Reassignment accepted ",
             interaction_contact=MvInteraction.InteractionContact.REASSIGNMENT_ACCEPTED,
-            interaction_notes="Accepted the reassignment request from Somerset",
+            interaction_notes="Accepted the reassignment request from Test",
         )
         interaction.created_at = timezone.now()
         interaction.save()
@@ -526,7 +526,7 @@ class AccommodationRequestHistoryTestCase(
             linked_accommodation_request=self.ar,
             title="Reassignment accepted ",
             interaction_contact=MvInteraction.InteractionContact.REASSIGNMENT_ACCEPTED,
-            interaction_notes="Accepted the reassignment request from Somerset",
+            interaction_notes="Accepted the reassignment request from Test",
         )
         interaction.created_at = timezone.now()
         interaction.save()
@@ -586,7 +586,7 @@ class AccommodationRequestHistoryTestCase(
             linked_accommodation_request=self.ar,
             title="Reassignment accepted ",
             interaction_contact=MvInteraction.InteractionContact.REASSIGNMENT_ACCEPTED,
-            interaction_notes="Accepted the reassignment request from Somerset",
+            interaction_notes="Accepted the reassignment request from Test",
         )
         interaction.created_at = timezone.now()
         interaction.save()
@@ -646,7 +646,7 @@ class AccommodationRequestHistoryTestCase(
             linked_accommodation_request=self.ar,
             title="Reassignment accepted ",
             interaction_contact=MvInteraction.InteractionContact.REASSIGNMENT_ACCEPTED,
-            interaction_notes="Accepted the reassignment request from Somerset",
+            interaction_notes="Accepted the reassignment request from Test",
         )
         interaction.created_at = timezone.now()
         interaction.save()
@@ -706,7 +706,7 @@ class AccommodationRequestHistoryTestCase(
             linked_accommodation_request=self.ar,
             title="Reassignment accepted ",
             interaction_contact=MvInteraction.InteractionContact.REASSIGNMENT_ACCEPTED,
-            interaction_notes="Accepted the reassignment request from Somerset",
+            interaction_notes="Accepted the reassignment request from Test",
         )
         interaction.created_at = timezone.now()
         interaction.save()
@@ -765,7 +765,7 @@ class AccommodationRequestHistoryTestCase(
             linked_accommodation_request=self.ar,
             title="Reassignment accepted ",
             interaction_contact=MvInteraction.InteractionContact.REASSIGNMENT_ACCEPTED,
-            interaction_notes="Accepted the reassignment request from Somerset",
+            interaction_notes="Accepted the reassignment request from Test",
         )
         interaction.created_at = timezone.now()
         interaction.save()
@@ -818,7 +818,7 @@ class AccommodationRequestHistoryTestCase(
             linked_accommodation_request=self.ar,
             title="Reassignment accepted ",
             interaction_contact=MvInteraction.InteractionContact.REASSIGNMENT_ACCEPTED,
-            interaction_notes="Accepted the reassignment request from Somerset",
+            interaction_notes="Accepted the reassignment request from Test",
         )
         interaction.created_at = timezone.now()
         interaction.save()
@@ -871,7 +871,7 @@ class AccommodationRequestHistoryTestCase(
             linked_accommodation_request=self.ar,
             title="Reassignment accepted ",
             interaction_contact=MvInteraction.InteractionContact.REASSIGNMENT_ACCEPTED,
-            interaction_notes="Accepted the reassignment request from Somerset",
+            interaction_notes="Accepted the reassignment request from Test",
         )
         interaction.created_at = timezone.now()
         interaction.save()
@@ -918,7 +918,7 @@ class AccommodationRequestHistoryTestCase(
             linked_accommodation_request=self.ar,
             title="Reassignment accepted ",
             interaction_contact=MvInteraction.InteractionContact.REASSIGNMENT_ACCEPTED,
-            interaction_notes="Accepted the reassignment request from Somerset",
+            interaction_notes="Accepted the reassignment request from Test",
         )
         interaction.created_at = timezone.now()
         interaction.save()

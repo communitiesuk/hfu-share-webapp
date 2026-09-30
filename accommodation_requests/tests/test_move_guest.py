@@ -88,7 +88,7 @@ class MoveGuestsFormWizardTestCase(
             number_of_people=1,
             person_id=[guest.pk],
             ltla_name=["ltla_test"],
-            utla_name=["utla_somerset"],
+            utla_name=["utla_test"],
         )
 
         user = get_la_user()
@@ -222,7 +222,7 @@ class ReassignGuestsFormWizardTestCase(
             number_of_people=1,
             person_id=[guest.pk],
             ltla_name=["ltla_test"],
-            utla_name=["utla_somerset"],
+            utla_name=["utla_test"],
         )
 
         user = get_la_user()
@@ -317,7 +317,7 @@ class ReassignGuestsFormWizardTestCase(
             number_of_people=3,
             person_id=[guest_1.pk, guest_2.pk, guest_3.pk],
             ltla_name=["ltla_test"],
-            utla_name=["utla_somerset"],
+            utla_name=["utla_test"],
         )
 
         guests_within_la = [guest_1, guest_2]
@@ -1057,7 +1057,7 @@ class ReassignGuestsFormWizardTestCase(
             primary_accommodation=self.accommodation_one,
             accommodation_id=[self.accommodation_one.pk],
             ltla_name=["ltla_test", "ltla_manchester"],
-            utla_name=["utla_somerset", "utla_manchester"],
+            utla_name=["utla_test", "utla_manchester"],
         )
 
         # Submit the first step
@@ -1186,7 +1186,7 @@ class ReassignGuestsFormWizardTestCase(
             primary_accommodation=self.accommodation_one,
             accommodation_id=[self.accommodation_one.pk],
             ltla_name=["ltla_test"],
-            utla_name=["utla_somerset"],
+            utla_name=["utla_test"],
         )
 
         # Submit the first step
@@ -1545,7 +1545,7 @@ class RematchGuestsFormWizardTestCase(
             number_of_people=1,
             person_id=[guest.pk],
             ltla_name=["ltla_test"],
-            utla_name=["utla_somerset"],
+            utla_name=["utla_test"],
         )
 
         user = get_la_user()
@@ -1621,7 +1621,7 @@ class RematchGuestsFormWizardTestCase(
             number_of_people=3,
             person_id=[guest_1.pk, guest_2.pk, guest_3.pk],
             ltla_name=["ltla_test"],
-            utla_name=["utla_somerset"],
+            utla_name=["utla_test"],
         )
 
         guests_within_la = [guest_1, guest_2]

@@ -47,7 +47,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
 
         url = reverse(
             "reassignment-requests:detail-received",
-            kwargs={"pk": self.request_to_somerset.pk},
+            kwargs={"pk": self.request_to_test.pk},
         )
 
         response = self.client.post(
@@ -61,7 +61,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
 
         url = reverse(
             "reassignment-requests:detail-received",
-            kwargs={"pk": self.pending_request_somerset_source.pk},
+            kwargs={"pk": self.pending_request_test_source.pk},
         )
 
         response = self.client.post(url, {"action": "", "comments": ""}, follow=True)
@@ -77,13 +77,13 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
             number_of_people=2,
             person_id=[self.guest_a.id, self.guest_b.id],
             ltla_name=["ltla_test"],
-            utla_name=["utla_somerset"],
+            utla_name=["utla_test"],
             accommodation_id=[acc.id],
             primary_accommodation=acc,
             active_host=MvVolunteerFactory(),
         )
 
-        request = self.pending_request_somerset_source_multiple_guests
+        request = self.pending_request_test_source_multiple_guests
         request.accommodation_request = ar
         request.save()
 
@@ -167,14 +167,14 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
             number_of_people=3,
             person_id=[self.guest_a.id, self.guest_b.id, self.guest_c.id],
             ltla_name=["ltla_test"],
-            utla_name=["utla_somerset"],
+            utla_name=["utla_test"],
             accommodation_id=[acc.id],
             primary_accommodation=acc,
             active_host=MvVolunteerFactory(),
         )
 
         # RR has guest_a and guest_b
-        request = self.pending_request_somerset_source_multiple_guests
+        request = self.pending_request_test_source_multiple_guests
         request.accommodation_request = ar
         request.save()
 
@@ -203,7 +203,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
 
         # Old AR location is not updated
         self.assertEqual(ar.ltla_name, ["ltla_test"])
-        self.assertEqual(ar.utla_name, ["utla_somerset"])
+        self.assertEqual(ar.utla_name, ["utla_test"])
 
         # Old AR's active host is not updated
         self.assertIsNotNone(ar.active_host)
@@ -277,7 +277,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
             ltla_name=["ltla_test"],
         )
 
-        request = self.pending_request_somerset_source_multiple_guests
+        request = self.pending_request_test_source_multiple_guests
         request.accommodation_request = ar
         request.save()
 
@@ -402,7 +402,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
 
         request = ReassignmentRequestFactory(
             source_ltla_name=["ltla_test"],
-            source_utla_name=["utla_somerset"],
+            source_utla_name=["utla_test"],
             destination_ltla_name="ltla_destination",
             destination_utla_name="utla_destination",
             outcome=ReassignmentRequest.Outcome.PENDING,
@@ -432,13 +432,13 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
             number_of_people=1,
             person_id=[self.guest_a.id],
             ltla_name=["ltla_test"],
-            utla_name=["utla_somerset"],
+            utla_name=["utla_test"],
             accommodation_id=[acc.id],
             primary_accommodation=acc,
             active_host=MvVolunteerFactory(),
         )
 
-        request = self.pending_request_somerset_source_single_guest
+        request = self.pending_request_test_source_single_guest
         request.accommodation_request = ar
         request.save()
 
@@ -488,7 +488,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
             number_of_people=2,
             person_id=[self.guest_a.id, self.guest_b.id],
             ltla_name=["ltla_test"],
-            utla_name=["utla_somerset"],
+            utla_name=["utla_test"],
             accommodation_id=[acc.id],
             primary_accommodation=acc,
             active_host=MvVolunteerFactory(),
@@ -496,7 +496,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
 
         reassignment_request = ReassignmentRequestFactory(
             source_ltla_name=["ltla_test"],
-            source_utla_name=["utla_somerset"],
+            source_utla_name=["utla_test"],
             destination_ltla_name="ltla_destination",
             destination_utla_name="utla_destination",
             outcome=ReassignmentRequest.Outcome.PENDING,
@@ -559,19 +559,19 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
             number_of_people=1,
             person_id=[self.guest_a.id],
             ltla_name=["ltla_test", "ltla_manchester"],
-            utla_name=["utla_somerset", "utla_manchester"],
+            utla_name=["utla_test", "utla_manchester"],
             accommodation_id=[acc.id],
             primary_accommodation=acc,
             active_host=MvVolunteerFactory(),
         )
 
-        request = self.pending_request_somerset_source_single_guest
+        request = self.pending_request_test_source_single_guest
         request.source_ltla_name = (
             "ltla_test",
             "ltla_manchester",
         )
         request.source_utla_name = (
-            "utla_somerset",
+            "utla_test",
             "utla_manchester",
         )
         request.accommodation_request = ar
@@ -633,7 +633,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
 
         request = ReassignmentRequestFactory(
             source_ltla_name=["ltla_test"],
-            source_utla_name=["utla_somerset"],
+            source_utla_name=["utla_test"],
             destination_ltla_name="ltla_destination",
             destination_utla_name="utla_destination",
             outcome=ReassignmentRequest.Outcome.PENDING,
@@ -644,7 +644,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
             number_of_people=1,
             person_id=[guest_a.id, guest_b.id],
             ltla_name=["ltla_test"],
-            utla_name=["utla_somerset"],
+            utla_name=["utla_test"],
             accommodation_id=[acc.id],
             primary_accommodation=acc,
             active_host=MvVolunteerFactory(),
@@ -701,13 +701,13 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
             number_of_people=1,
             person_id=[self.guest_a.id],
             ltla_name=["ltla_test"],
-            utla_name=["utla_somerset"],
+            utla_name=["utla_test"],
             accommodation_id=[acc.id],
             primary_accommodation=acc,
             active_host=MvVolunteerFactory(),
         )
 
-        request = self.pending_request_somerset_source_single_guest
+        request = self.pending_request_test_source_single_guest
         request.accommodation_request = ar
         request.save()
 
@@ -757,7 +757,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
             number_of_people=2,
             person_id=[self.guest_a.id, self.guest_b.id],
             ltla_name=["ltla_test"],
-            utla_name=["utla_somerset"],
+            utla_name=["utla_test"],
             accommodation_id=[acc.id],
             primary_accommodation=acc,
             active_host=MvVolunteerFactory(),
@@ -765,7 +765,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
 
         reassignment_request = ReassignmentRequestFactory(
             source_ltla_name=["ltla_test"],
-            source_utla_name=["utla_somerset"],
+            source_utla_name=["utla_test"],
             destination_ltla_name="ltla_destination",
             destination_utla_name="utla_destination",
             outcome=ReassignmentRequest.Outcome.PENDING,
@@ -822,19 +822,19 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
             number_of_people=1,
             person_id=[self.guest_a.id],
             ltla_name=["ltla_test"],
-            utla_name=["utla_somerset"],
+            utla_name=["utla_test"],
             accommodation_id=[acc.id],
             primary_accommodation=acc,
             active_host=MvVolunteerFactory(),
         )
 
-        request = self.pending_request_somerset_source_single_guest
+        request = self.pending_request_test_source_single_guest
         request.source_ltla_name = (
             "ltla_test",
             "ltla_manchester",
         )
         request.source_utla_name = (
-            "utla_somerset",
+            "utla_test",
             "utla_manchester",
         )
         request.accommodation_request = ar
@@ -887,13 +887,13 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
             number_of_people=1,
             person_id=[self.guest_a.id, self.guest_b.id],
             ltla_name=["ltla_test"],
-            utla_name=["utla_somerset"],
+            utla_name=["utla_test"],
             accommodation_id=[acc.id],
             primary_accommodation=acc,
             active_host=MvVolunteerFactory(),
         )
 
-        request = self.pending_request_somerset_source_multiple_guests
+        request = self.pending_request_test_source_multiple_guests
         request.accommodation_request = ar
         request.save()
 
@@ -944,7 +944,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
             number_of_people=2,
             person_id=[self.guest_a.id, self.guest_b.id],
             ltla_name=["ltla_test"],
-            utla_name=["utla_somerset"],
+            utla_name=["utla_test"],
             ltla_code_id=["E001"],
             utla_code_id=["E002"],
             accommodation_id=[acc.id],
@@ -953,15 +953,15 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
         )
 
         # Ltla and Utla without GroupInfo
-        self.pending_request_somerset_source_multiple_guests.destination_ltla_name = (
+        self.pending_request_test_source_multiple_guests.destination_ltla_name = (
             "other_ltla_destination"
         )
-        self.pending_request_somerset_source_multiple_guests.destination_utla_name = (
+        self.pending_request_test_source_multiple_guests.destination_utla_name = (
             "other_utla_destination"
         )
-        self.pending_request_somerset_source_multiple_guests.save()
+        self.pending_request_test_source_multiple_guests.save()
 
-        request = self.pending_request_somerset_source_multiple_guests
+        request = self.pending_request_test_source_multiple_guests
         request.accommodation_request = ar
         request.save()
 
@@ -1006,7 +1006,7 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
             number_of_people=2,
             person_id=[self.guest_a.id, self.guest_b.id],
             ltla_name=["ltla_test"],
-            utla_name=["utla_somerset"],
+            utla_name=["utla_test"],
             ltla_code_id=["E001"],
             utla_code_id=["E002"],
             accommodation_id=[acc.id],
@@ -1015,15 +1015,15 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
         )
 
         # Ltla and Utla without GroupInfo
-        self.pending_request_somerset_source_multiple_guests.destination_ltla_name = (
+        self.pending_request_test_source_multiple_guests.destination_ltla_name = (
             "other_ltla_destination_2"
         )
-        self.pending_request_somerset_source_multiple_guests.destination_utla_name = (
+        self.pending_request_test_source_multiple_guests.destination_utla_name = (
             "other_utla_destination_2"
         )
-        self.pending_request_somerset_source_multiple_guests.save()
+        self.pending_request_test_source_multiple_guests.save()
 
-        request = self.pending_request_somerset_source_multiple_guests
+        request = self.pending_request_test_source_multiple_guests
         request.accommodation_request = ar
         request.save()
 
@@ -1058,11 +1058,11 @@ class ReassignmentRequestsAcceptRejectTestCase(ReassignmentRequestsBaseTestCase)
             number_of_people=3,
             person_id=[self.guest_a.id, self.guest_b.id],
             ltla_name=["ltla_test"],
-            utla_name=["utla_somerset"],
+            utla_name=["utla_test"],
             accommodation_id=[],
         )
 
-        request = self.pending_request_somerset_source_multiple_guests
+        request = self.pending_request_test_source_multiple_guests
         request.accommodation_request = ar
         request.save()
 

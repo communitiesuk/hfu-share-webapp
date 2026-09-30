@@ -36,7 +36,7 @@ class AccommodationPropertiesTestCase(TestSessionTokenMixin, BaseTestCase):
         )
         self.accommodation = MvAccommodationFactory(
             ltla_name="ltla_test",
-            full_address="Somerset accommodation",
+            full_address="Test accommodation",
             application_unique_application_number=[
                 self.uan.application_unique_application_number,
                 self.uan_other_la.application_unique_application_number,
@@ -44,14 +44,14 @@ class AccommodationPropertiesTestCase(TestSessionTokenMixin, BaseTestCase):
         )
         self.accommodation.hosts.set([self.sponsor.id, self.host.id])
         self.ar = MvAccommodationRequestFactory(
-            title="LA Guest Guest to Somerset accom",
+            title="LA Guest Guest to Test accom",
             ltla_name=["ltla_test"],
-            utla_name=["utla_somerset"],
+            utla_name=["utla_test"],
             primary_accommodation=self.accommodation,
             accommodation_id=[self.accommodation.id],
         )
         self.ar_other_la = MvAccommodationRequestFactory(
-            title="Other LA Guest Guest to Somerset accom",
+            title="Other LA Guest Guest to Test accom",
             ltla_name=["Other LTLA"],
             utla_name=["Other UTLA"],
             primary_accommodation=self.accommodation,

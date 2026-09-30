@@ -53,7 +53,7 @@ class VisaApplicationsLinkedRecordsTestCase(
         )
         self.accommodation = MvAccommodationFactory(
             ltla_name="ltla_test",
-            full_address="Somerset accommodation",
+            full_address="Test accommodation",
             application_unique_application_number=[
                 self.uan.application_unique_application_number
             ],
@@ -85,9 +85,9 @@ class VisaApplicationsLinkedRecordsTestCase(
             ],
         )
         self.ar = MvAccommodationRequestFactory(
-            title="Guest Person to Somerset accom",
+            title="Guest Person to Test accom",
             ltla_name=["ltla_test"],
-            utla_name=["utla_somerset"],
+            utla_name=["utla_test"],
             primary_accommodation=self.accommodation,
             person_id=[self.guest.id],
             number_of_people=1,
@@ -97,7 +97,7 @@ class VisaApplicationsLinkedRecordsTestCase(
             unique_application_number=[self.uan.application_unique_application_number],
         )
         self.ar_other_la = MvAccommodationRequestFactory(
-            title="Other LA Guest Guest to Somerset accom",
+            title="Other LA Guest Guest to Test accom",
             ltla_name=["Other LTLA"],
             utla_name=["Other UTLA"],
             primary_accommodation=self.accommodation,

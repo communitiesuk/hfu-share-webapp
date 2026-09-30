@@ -58,14 +58,14 @@ class SafeguardingDetailPropertiesViewTests(
         self.accommodation = MvAccommodationFactory(
             id="acc-222-111",
             ltla_name="ltla_test",
-            full_address="Somerset accommodation",
+            full_address="Test accommodation",
         )
         self.accommodation.hosts.set([self.host.id])
 
         self.ar = MvAccommodationRequestFactory(
-            title="Guest Person to Somerset accom",
+            title="Guest Person to Test accom",
             ltla_name=["ltla_test"],
-            utla_name=["utla_somerset"],
+            utla_name=["utla_test"],
             primary_accommodation=self.accommodation,
             person_id=[self.guest.id],
             number_of_people=1,

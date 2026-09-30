@@ -54,7 +54,7 @@ class AccommodationsActionsTestCase(
         accommodation_duplicate_group.save()
 
         self.ltla_accommodation = MvAccommodationFactory(
-            full_address="Somerset LTLA Address",
+            full_address="Test LTLA Address",
             ltla_name="ltla_test",
         )
         self.da_accommodation = MvAccommodationFactory(

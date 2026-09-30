@@ -206,7 +206,7 @@ class AccommodationRequestMoveGuestTestCase(
             number_of_people=1,
             person_id=[guest.pk],
             ltla_name=["ltla_test"],
-            utla_name=["utla_somerset"],
+            utla_name=["utla_test"],
         )
 
         self.client.force_login(get_la_user())

@@ -54,7 +54,7 @@ class SponsorsLinkedRecordsTestCase(
         )
         self.accommodation = MvAccommodationFactory(
             ltla_name="ltla_test",
-            full_address="Somerset accommodation",
+            full_address="Test accommodation",
         )
         self.scottish_accommodation = MvAccommodationFactory(
             ltla_name="City of Edinburgh",
@@ -80,9 +80,9 @@ class SponsorsLinkedRecordsTestCase(
             last_name="Person",
         )
         self.ar = MvAccommodationRequestFactory(
-            title="Guest Person to Somerset accom",
+            title="Guest Person to Test accom",
             ltla_name=["ltla_test"],
-            utla_name=["utla_somerset"],
+            utla_name=["utla_test"],
             primary_accommodation=self.accommodation,
             accommodation_id=[
                 self.accommodation.id,
