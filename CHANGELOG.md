@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.22.1](https://github.com/communitiesuk/hfu-share-webapp/compare/2.22.0...2.22.1) (2026-10-01)
+
+
+### Bug Fixes
+
+* load all custom JS from a single file and remove unused JS ([#256](https://github.com/communitiesuk/hfu-share-webapp/issues/256)) ([2a3e08a](https://github.com/communitiesuk/hfu-share-webapp/commit/2a3e08a122b8c625131e6f4f24c074babc2e145e))
+
 ## [2.22.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.21.0...2.22.0) (2026-10-01)
 
 
