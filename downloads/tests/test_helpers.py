@@ -1,8 +1,6 @@
 from datetime import datetime
 from unittest.mock import MagicMock
 
-from django.test import SimpleTestCase
-
 from downloads.constants import (
     ACCOMMODATION_FIELDS,
     DOWNLOAD_ALL_COLUMN_ORDERING,
@@ -25,9 +23,10 @@ from ontology.models import (
     MvPerson,
     SponsorshipCertificationForm,
 )
+from test_utils.base import BaseSimpleTestCase
 
 
-class TestEscapeLeadingControlCharactersInRow(SimpleTestCase):
+class TestEscapeLeadingControlCharactersInRow(BaseSimpleTestCase):
     def test_escape_leading_control_characters(self):
         for value, expected in [
             ("=hello", "hello"),
@@ -93,7 +92,7 @@ class TestEscapeLeadingControlCharactersInRow(SimpleTestCase):
         ]
 
 
-class TestBuildCSVHeader(SimpleTestCase):
+class TestBuildCSVHeader(BaseSimpleTestCase):
     def test_build_csv_header_basic(self):
         header = build_csv_header(MvPerson, DownloadType.GUESTS)
 
@@ -116,7 +115,7 @@ class TestBuildCSVHeader(SimpleTestCase):
         assert header == DOWNLOAD_UAMS_COLUMN_ORDERING
 
 
-class TestBuildCSVRow(SimpleTestCase):
+class TestBuildCSVRow(BaseSimpleTestCase):
     def test_build_csv_row_basic(self):
         person = MvPerson(
             first_name="John",
@@ -251,7 +250,7 @@ def make_mock(**overrides):
     return obj
 
 
-class DetermineRedactedFieldTests(SimpleTestCase):
+class DetermineRedactedFieldTests(BaseSimpleTestCase):
     def test_returns_empty_set_when_all_sections_match(self):
         obj = make_mock(
             sponsor_ltla_name=["LTLA1"],
