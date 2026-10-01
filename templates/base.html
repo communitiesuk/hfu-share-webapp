@@ -49,7 +49,6 @@
         {% if analytics_enabled %}
             {% include "webapp/components/cookie_banner/cookie_banner.html" %}
         {% endif %}
-        <script src="{% static 'js/cookie-consent.js' %}"></script>
         <a href="#main-content"
            class="govuk-skip-link"
            data-module="govuk-skip-link">Skip to main content</a>
@@ -86,6 +85,13 @@
                 crossorigin="anonymous"></script>
         <script src="{% static 'moj-frontend/moj-frontend.min.js' %}"></script>
         <script nonce="{{request.csp_nonce}}">window.MOJFrontend.initAll();</script>
+        <script src="{% static 'accessible-autocomplete/accessible-autocomplete.min.js' %}"></script>
+        <script type="module" nonce="{{request.csp_nonce}}">
+            import {
+              initAll
+            } from "{% static 'js/init.js' %}"
+            initAll()
+        </script>
         {% block extra_js %}
         {% endblock extra_js %}
     </body>

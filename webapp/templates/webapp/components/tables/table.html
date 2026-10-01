@@ -2,32 +2,6 @@
 {% load static %}
 {% load i18n l10n %}
 {% load filters pagination_extras %}
-<script nonce="{{request.csp_nonce}}">
-    document.addEventListener('DOMContentLoaded', () => {
-        const selectAllCheckbox = document.getElementById('select-all')
-        const table = selectAllCheckbox?.closest('table')
-        const tableBody = table?.querySelector('tbody')
-        const rowCheckboxes = tableBody ? Array.from(tableBody.getElementsByClassName('govuk-checkboxes__input')) : []
-
-        if (selectAllCheckbox) {
-            selectAllCheckbox.addEventListener('change', () => {
-                rowCheckboxes.forEach(checkbox => {
-                    if (checkbox.id !== "select-all") {
-                        checkbox.checked = selectAllCheckbox.checked
-                    }
-                })
-            })
-
-            rowCheckboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', () => {
-                  if (!checkbox.checked && selectAllCheckbox.checked) {
-                     selectAllCheckbox.checked = false
-                  }
-                })
-            })
-        }
-    })
-</script>
 {% block table-wrapper %}
     {% if table.table_name %}<h1 class="govuk-heading-l">{{ table.table_name }}</h1>{% endif %}
     {% if table.empty_text and not table.data %}

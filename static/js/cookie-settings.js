@@ -1,3 +1,5 @@
+import { setConsentCookie, checkExistingConsent, updateElementVisibility } from './cookie-consent.js'
+
 const submitSettingsForm = function (event) {
     event.preventDefault()
 
@@ -44,18 +46,19 @@ const setInitialFormValues = function () {
     radioButton.checked = true
 }
 
-const initSettingsForm = () => {
-  const $cookieSettingsForm = document.querySelector('.cookie-settings-form')
+const initCookieSettingsForm = () => {
+  const $cookieSettingsForm = document.querySelector('[data-module="cookie-settings-form"]')
+
   if ($cookieSettingsForm) {
     $cookieSettingsForm.addEventListener('submit', submitSettingsForm)
+
+    // Hide cookie banner if on the page
+    const $cookieBanner = document.querySelector('.govuk-cookie-banner')
+    updateElementVisibility($cookieBanner, false)
+
+    // Populate form with existing consent choice if present
+    setInitialFormValues()
   }
-  // Hide cookie banner if on the page
-  const $cookieBanner = document.querySelector('.govuk-cookie-banner')
-  updateElementVisibility($cookieBanner, false)
-
-  // Populate form with existing consent choice if present
-  setInitialFormValues()
-
 }
 
-initSettingsForm()
+export { initCookieSettingsForm }

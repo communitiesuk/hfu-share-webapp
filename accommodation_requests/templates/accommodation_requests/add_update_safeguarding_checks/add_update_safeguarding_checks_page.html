@@ -21,7 +21,10 @@
             <p class="govuk-body govuk-!-margin-bottom-6">
                 If you change the status from ‘failed’ to any other status, raise a Jira ticket to inform MHCLG.
             </p>
-            <form id="safeguarding-form" method="post" novalidate>
+            <form id="safeguarding-form"
+                  method="post"
+                  data-module="safeguarding-form"
+                  novalidate>
                 {% csrf_token %}
                 <div id="safeguarding-errors-container">
                     {% if form.non_field_errors %}
@@ -58,6 +61,3 @@
         </div>
     </div>
 {% endblock form-content %}
-{% block extra_js %}
-    <script src="{% static 'js/safeguarding-form.js' %}"></script>
-{% endblock extra_js %}
