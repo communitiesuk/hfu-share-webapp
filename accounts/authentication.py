@@ -38,6 +38,7 @@ class Authentication:
         flow = self.msal_app.initiate_auth_code_flow(
             scopes=settings.ENTRA_AUTH["SCOPES"],
             redirect_uri=redirect_uri,
+            response_mode="form_post",
         )
         self.request.session[self.auth_flow_session_key] = flow
         return flow["auth_uri"]
@@ -47,10 +48,10 @@ class Authentication:
         if not flow:
             raise FlowError("Flow cannot be extracted from session")
 
-        self._handle_state_mismatch(flow.get("state"), self.request.GET.get("state"))
+        self._handle_state_mismatch(flow.get("state"), self.request.POST.get("state"))
 
         token = self.msal_app.acquire_token_by_auth_code_flow(
-            auth_code_flow=flow, auth_response=self.request.GET
+            auth_code_flow=flow, auth_response=self.request.POST
         )
         if "error" in token:
             raise TokenError(token["error"], token["error_description"])
