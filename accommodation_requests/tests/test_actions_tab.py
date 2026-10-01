@@ -205,8 +205,8 @@ class AccommodationRequestMoveGuestTestCase(
             accommodation_id=[self.accommodation_one],
             number_of_people=1,
             person_id=[guest.pk],
-            ltla_name=["ltla_somerset"],
-            utla_name=["utla_somerset"],
+            ltla_name=["ltla_test"],
+            utla_name=["utla_test"],
         )
 
         self.client.force_login(get_la_user())
@@ -310,7 +310,7 @@ class ConfirmCurrentAccommodationActionTestCase(
         self.single_la_ar = AccReqFactory(
             title="Single LA acc req",
             checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
         )
         self.single_la_da_ar = AccReqFactory(
             title="Single LA DA acc req",
@@ -319,7 +319,7 @@ class ConfirmCurrentAccommodationActionTestCase(
         self.multi_la_ar = AccReqFactory(
             title="Multi LA acc req",
             checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
-            ltla_name=["ltla_somerset", "ltla_bristol"],
+            ltla_name=["ltla_test", "ltla_bristol"],
         )
 
     def _get_actions_url(self, ar):

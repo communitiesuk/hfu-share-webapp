@@ -49,8 +49,8 @@ class UamDetailPropertiesViewTests(TestSessionTokenMixin, UamsBaseTestCase):
             residential_line_1="123 Main St",
             residential_line_2="Apt 4B",
             residential_postcode="NW5 1TL",
-            residential_town="Somerset",
-            ltla_name=["ltla_somerset"],
+            residential_town="Test",
+            ltla_name=["ltla_test"],
             # child_guest_details
             minor_contact_type=["Email"],
             minor_date_of_birth=datetime(2015, 1, 1),
@@ -270,9 +270,9 @@ class UamDetailPropertiesViewTests(TestSessionTokenMixin, UamsBaseTestCase):
         # residential_postcode
         self.assertContains(response, "NW5 1TL")
         # residential_town
-        self.assertContains(response, "Somerset")
+        self.assertContains(response, "Test")
         # ltla_name
-        self.assertContains(response, "ltla_somerset")
+        self.assertContains(response, "ltla_test")
 
     def test_renders_child_guest_details_correctly(self):
         admin_user = get_admin_user()

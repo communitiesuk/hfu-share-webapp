@@ -23,10 +23,10 @@ class RematchGuestsDBErrorTestCase(
         self.user = get_la_user()
         self.client.force_login(self.user)
         self.accommodation = MvAccommodationFactory(
-            full_address="somerset accommodation",
+            full_address="test accommodation",
             is_available_for_rematch=True,
-            ltla_name="ltla_somerset",
-            utla_name="utla_somerset",
+            ltla_name="ltla_test",
+            utla_name="utla_test",
             is_principal=True,
         )
         self.ar = MvAccommodationRequestFactory(
@@ -35,8 +35,8 @@ class RematchGuestsDBErrorTestCase(
             accommodation_id=[str(self.accommodation.pk)],
             number_of_people=2,
             person_id=[self.guest.pk, self.guest_2.pk],
-            ltla_name=["ltla_somerset"],
-            utla_name=["utla_somerset"],
+            ltla_name=["ltla_test"],
+            utla_name=["utla_test"],
             active_host=MvVolunteerFactory(),
         )
         self.guest.accommodation_request = self.ar

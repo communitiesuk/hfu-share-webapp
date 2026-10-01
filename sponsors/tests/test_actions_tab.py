@@ -103,8 +103,8 @@ class SponsorsActionsTestCase(
             last_name="Spon",
         )
         self.ltla_accommodation = MvAccommodationFactory(
-            full_address="Somerset LTLA Address",
-            ltla_name="ltla_somerset",
+            full_address="Test LTLA Address",
+            ltla_name="ltla_test",
         )
         self.ltla_accommodation.hosts.set([self.ltla_sponsor.id])
 
