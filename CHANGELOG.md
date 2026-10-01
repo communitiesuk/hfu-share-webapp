@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.22.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.21.0...2.22.0) (2026-10-01)
+
+
+### Features
+
+* add new unitary authorities ([#239](https://github.com/communitiesuk/hfu-share-webapp/issues/239)) ([e1f86bc](https://github.com/communitiesuk/hfu-share-webapp/commit/e1f86bce1888bed86cdb6ddc49c9781ca62a490a))
+* HFURB-4055 block inline styles using the content security policy ([#249](https://github.com/communitiesuk/hfu-share-webapp/issues/249)) ([0fe1722](https://github.com/communitiesuk/hfu-share-webapp/commit/0fe1722f0153d9c6d051563833f70a1cb4f3e31c))
+* HFURB-4056 add linter to check for HTML in python code ([#248](https://github.com/communitiesuk/hfu-share-webapp/issues/248)) ([f5d310f](https://github.com/communitiesuk/hfu-share-webapp/commit/f5d310f1d150c3ef0ed61e3a35ed6c07b6bb0bc0))
+* update GOV.UK Frontend to v6.5.1 ([#242](https://github.com/communitiesuk/hfu-share-webapp/issues/242)) ([eb30e2c](https://github.com/communitiesuk/hfu-share-webapp/commit/eb30e2c798e936d8ff2b2f53ec4990f6d9031bf0))
+
+
+### Bug Fixes
+
+* create a mixin to share test utils code ([#254](https://github.com/communitiesuk/hfu-share-webapp/issues/254)) ([456e11d](https://github.com/communitiesuk/hfu-share-webapp/commit/456e11d8e28b7cde0b94a62c1ea58101253a10eb))
+
 ## [2.21.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.20.0...2.21.0) (2026-09-29)
 
 
