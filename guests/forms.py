@@ -174,10 +174,10 @@ class UPEVisaStatusFieldMixin:
         super().__init__(*args, **kwargs)
         self.fields["upe_visa_status"].widget = forms.RadioSelect()
         self.fields["upe_visa_status"].choices = MvPerson.UPEVisaStatus.choices
-        self.fields["upe_visa_status"].label = "UPE visa status"
+        self.fields["upe_visa_status"].label = MvPerson.UPE_VISA_STATUS_FULL_LABEL
         self.fields["upe_visa_status"].required = True
         self.fields["upe_visa_status"].error_messages = {
-            "required": "Please select a UPE visa status"
+            "required": "Please select a Ukraine Permission Extension (UPE) visa status"
         }
 
 

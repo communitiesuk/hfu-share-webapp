@@ -132,3 +132,11 @@ class GuestPropertiesTestCase(
         )
         self.assertNotContains(response, "Archived at")
         self.assertNotContains(response, "Is archived")
+
+    def test_upe_visa_status_label_spells_out_upe(self):
+        user = get_la_user()
+        self.client.force_login(user)
+        response = self.client.get(
+            reverse("guests:detail-properties", args=[self.guest.pk])
+        )
+        self.assertContains(response, "Ukraine Permission Extension (UPE) visa status")
