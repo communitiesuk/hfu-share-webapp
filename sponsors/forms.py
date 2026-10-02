@@ -1,11 +1,12 @@
 from datetime import datetime, timedelta
 
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import HTML, Field, Layout
+from crispy_forms_gds.layout import HTML, Button, Div, Field, Fieldset, Layout
 from crispy_forms_gds.layout.constants import Size
 from django import forms
 
 from ontology.models import MvVolunteer
+from webapp.layout import Link
 from webapp.mixins import ReadOnlyFieldsMixin
 from webapp.widgets import DatePicker, MultiValueWidget
 
@@ -13,28 +14,24 @@ from webapp.widgets import DatePicker, MultiValueWidget
 class SponsorEditForm(ReadOnlyFieldsMixin, forms.ModelForm):
     first_name = forms.CharField(
         label="First Name",
-        widget=forms.Textarea(attrs={"rows": 1}),
-        required=True,
         error_messages={"required": "Please enter a valid first name"},
     )
 
     last_name = forms.CharField(
         label="Last Name",
-        widget=forms.Textarea(attrs={"rows": 1}),
-        required=True,
         error_messages={"required": "Please enter a valid last name"},
     )
 
     date_of_birth = forms.DateField(
         label="Date of Birth",
-        widget=DatePicker(
-            attrs={
-                "hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=11000)).strftime('%-d/%-m/%Y')}.",
-            }
-        ),
+        help_text=f"For example, "
+        f"{(datetime.today() - timedelta(days=11000)).strftime('%-d/%-m/%Y')}.",
+        widget=DatePicker(),
         required=True,
-        error_messages={"required": "Please enter a valid date of birth"},
+        error_messages={
+            "required": "Please enter a valid date of birth",
+            "invalid": "Enter a valid date for 'Date of birth'",
+        },
     )
 
     GENDERS = (
@@ -59,22 +56,28 @@ class SponsorEditForm(ReadOnlyFieldsMixin, forms.ModelForm):
     )
 
     phone_number = forms.Field(
-        label="Phone number (optional)",
+        label="",
+        help_text="Enter up to 5 phone numbers",
         required=False,
         widget=MultiValueWidget(
+            "Phone number",
             attrs={
                 "label": "phone number",
-            }
+                "required": False,
+            },
         ),
     )
 
     passport_details = forms.Field(
-        label="Passport number (optional)",
+        label="",
+        help_text="Enter up to 5 passport numbers",
         required=False,
         widget=MultiValueWidget(
+            "Passport number",
             attrs={
                 "label": "passport number",
-            }
+                "required": False,
+            },
         ),
     )
 
@@ -142,19 +145,15 @@ class SponsorEditForm(ReadOnlyFieldsMixin, forms.ModelForm):
                 legend_size=Size.SMALL,
                 label_size=Size.SMALL,
             ),
-            Field(
+            Fieldset(
                 "phone_number",
-                context={
-                    "label_size": "govuk-fieldset__legend--s",
-                    "hint": "Enter up to 5 phone numbers",
-                },
+                legend="Phone number (optional)",
+                legend_size=Size.SMALL,
             ),
-            Field(
+            Fieldset(
                 "passport_details",
-                context={
-                    "label_size": "govuk-fieldset__legend--s",
-                    "hint": "Enter up to 5 passport numbers",
-                },
+                legend="Passport number (optional)",
+                legend_size=Size.SMALL,
             ),
             Field(
                 "family_situation",
@@ -164,11 +163,9 @@ class SponsorEditForm(ReadOnlyFieldsMixin, forms.ModelForm):
             ),
             HTML(self.render_readonly_field("Host", "is_eoi")),
             HTML(self.render_readonly_field("Sponsor", "is_sponsor")),
-            HTML(
-                '<div class="govuk-button-group">'
-                '    <button type="submit" class="govuk-button">Update</button>'
-                '    <a class="govuk-link govuk-link--no-visited-state"\n'
-                '       href="{{ cancel_url }}">Cancel</a>'
-                "</div>"
+            Div(
+                Button.primary("submit", "Update"),
+                Link.cancel(),
+                css_class="govuk-button-group",
             ),
         )

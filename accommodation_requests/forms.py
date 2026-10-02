@@ -1,7 +1,7 @@
 import uuid
 
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import HTML, Button, Div, Field, Layout, Size
+from crispy_forms_gds.layout import HTML, Button, Div, Field, Fieldset, Layout, Size
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db import transaction
@@ -16,6 +16,7 @@ from django.forms import (
 )
 from django.forms.widgets import Input
 from django.utils import timezone
+from django.utils.html import escape
 
 from accommodation_requests.enums import MoveGuestsTypes
 from accommodation_requests.safeguarding_utils import (
@@ -38,6 +39,7 @@ from ontology.models.DevCheckV2 import validate_sponsor_dbs_passed_subtype
 from user_management.templatetags.access_request_extras import (
     render_name_label_from_group_info,
 )
+from webapp.layout import Link
 from webapp.utils import normalize_empty_to_none
 from webapp.widgets import SearchableSelect
 
@@ -225,10 +227,7 @@ class AccommodationRequestUpdateSafeguardingChecksForm(forms.ModelForm):
             ),
             Div(
                 Button.secondary("submit_and_stay", "Save and add another check"),
-                HTML(
-                    '<a class="govuk-link govuk-link--no-visited-state" '
-                    'href="{{ cancel_url }}">Cancel</a>'
-                ),
+                Link.cancel(),
                 css_class="govuk-button-group  govuk-!-margin-top-0",
             ),
         )
@@ -613,13 +612,8 @@ class CloseAccommodationRequestForm(forms.Form):
             ),
             Div(
                 Button("submit", "Update record"),
-                HTML(
-                    '<a href="{{ cancel_url }}"'
-                    'class="govuk-link govuk-link--no-visited-state govuk-body">'
-                    "Cancel"
-                    "</a>"
-                ),
-                style="display: flex; gap: 16px; align-items: baseline",
+                Link.cancel(),
+                css_class="govuk-button-group",
             ),
         )
         if len(guest_list) > 1:
@@ -655,6 +649,7 @@ class CloseAccommodationRequestForm(forms.Form):
 
 class ReopenAccommodationRequestForm(forms.Form):
     confirmation = forms.BooleanField(
+        widget=forms.CheckboxInput(),
         label="Yes, reopen this accommodation request",
         help_text="Please confirm you want to reopen this request.",
         error_messages={
@@ -666,16 +661,14 @@ class ReopenAccommodationRequestForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            HTML.h2("Are you sure you want to reopen this accommodation request?"),
-            Field.checkboxes("confirmation"),
+            Fieldset(
+                Field.checkboxes("confirmation"),
+                legend="Are you sure you want to reopen this accommodation request?",
+                legend_size=Size.LARGE,
+            ),
             Div(
                 Button("submit", "Reopen accommodation request"),
-                HTML(
-                    '<a href="{{ cancel_url }}"'
-                    'class="govuk-link govuk-link--no-visited-state govuk-body">'
-                    "Cancel"
-                    "</a>"
-                ),
+                Link.cancel(),
                 css_class="govuk-button-group",
             ),
         )
@@ -718,12 +711,7 @@ class WithdrawSponsorAccommodationRequestForm(forms.Form):
                 ),
                 Div(
                     Button("submit", "Withdraw sponsor"),
-                    HTML(
-                        '<a href="{{ cancel_url }}"'
-                        'class="govuk-link govuk-link--no-visited-state govuk-body">'
-                        "Cancel"
-                        "</a>"
-                    ),
+                    Link.cancel(),
                     css_class="govuk-button-group",
                 ),
             )
@@ -737,12 +725,7 @@ class WithdrawSponsorAccommodationRequestForm(forms.Form):
                 ),
                 Div(
                     Button("submit", "Withdraw sponsor"),
-                    HTML(
-                        '<a href="{{ cancel_url }}"'
-                        'class="govuk-link govuk-link--no-visited-state govuk-body">'
-                        "Cancel"
-                        "</a>"
-                    ),
+                    Link.cancel(),
                     css_class="govuk-button-group",
                 ),
             )
@@ -773,12 +756,7 @@ class MoveGuestsFormIsStayingInLAStep(forms.Form):
             Field.radios("within_la", legend_size=Size.LARGE, inline=True),
             Div(
                 Button.primary("submit", "Continue"),
-                HTML(
-                    '<a href="{{ cancel_url }}"'
-                    'class="govuk-link govuk-link--no-visited-state govuk-body">'
-                    "Cancel"
-                    "</a>"
-                ),
+                Link.cancel(),
                 css_class="govuk-button-group",
             ),
         )
@@ -819,12 +797,7 @@ class MoveGuestsFormSelectGuestsStep(forms.Form):
             Field.checkboxes("guests", legend_size=Size.LARGE),
             Div(
                 Button.primary("submit", "Continue"),
-                HTML(
-                    '<a href="{{ cancel_url }}"'
-                    'class="govuk-link govuk-link--no-visited-state govuk-body">'
-                    "Cancel"
-                    "</a>"
-                ),
+                Link.cancel(),
                 css_class="govuk-button-group",
             ),
         )
@@ -881,21 +854,21 @@ class MoveGuestsConfirmationStep(forms.Form):
         # Set names based on the number of guests moved
         names = MvAccommodationRequest.format_guest_names(moving_guests)
 
-        headline = f"Are you sure you want to move {names} to {destination}?"
+        headline = escape(f"Are you sure you want to move {names} to {destination}?")
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
-                HTML.h2(headline),
-                Field.checkboxes("confirm_guests_moved", legend_size=Size.LARGE),
+                Fieldset(
+                    Field.checkboxes(
+                        "confirm_guests_moved",
+                    ),
+                    legend=headline,
+                    legend_size=Size.LARGE,
+                ),
                 Div(
                     Button.primary("move_guests", button_text),
-                    HTML(
-                        '<a href="{{ cancel_url }}"'
-                        'class="govuk-link govuk-link--no-visited-state govuk-body">'
-                        "Cancel"
-                        "</a>"
-                    ),
+                    Link.cancel(),
                     css_class="govuk-button-group",
                 ),
             ),
@@ -935,12 +908,7 @@ class MoveGuestsFormSelectCountryStep(forms.Form):
             Field.radios("country", legend_size=Size.LARGE),
             Div(
                 Button.primary("button", "Continue"),
-                HTML(
-                    '<a href="{{ cancel_url }}"'
-                    'class="govuk-link govuk-link--no-visited-state govuk-body">'
-                    "Cancel"
-                    "</a>"
-                ),
+                Link.cancel(),
                 css_class="govuk-button-group",
             ),
         )
@@ -990,12 +958,7 @@ class MoveGuestsFormSelectLocalAuthorityStep(forms.Form):
             Field.text("local_authority", label_size=Size.MEDIUM),
             Div(
                 Button.primary("button", "Continue"),
-                HTML(
-                    '<a href="{{ cancel_url }}"'
-                    'class="govuk-link govuk-link--no-visited-state govuk-body">'
-                    "Cancel"
-                    "</a>"
-                ),
+                Link.cancel(),
                 css_class="govuk-button-group",
             ),
         )
@@ -1024,12 +987,7 @@ class MoveGuestsFormReasonStep(forms.Form):
             Field.textarea("reason", label_size=Size.LARGE, rows=5, max_characters=500),
             Div(
                 Button.primary("button", "Continue"),
-                HTML(
-                    '<a href="{{ cancel_url }}"'
-                    'class="govuk-link govuk-link--no-visited-state govuk-body">'
-                    "Cancel"
-                    "</a>"
-                ),
+                Link.cancel(),
                 css_class="govuk-button-group",
             ),
         )
@@ -1060,12 +1018,7 @@ class SelectPrimaryFormAccommodationStep(forms.Form):
             ),
             Div(
                 Button.primary("submit", "Confirm and continue"),
-                HTML(
-                    '<a href="{{ cancel_url }}"'
-                    'class="govuk-link govuk-link--no-visited-state govuk-body">'
-                    "Cancel"
-                    "</a>"
-                ),
+                Link.cancel(),
                 css_class="govuk-button-group",
             ),
         )
@@ -1095,12 +1048,7 @@ class SelectPrimaryFormHostStep(forms.Form):
             ),
             Div(
                 Button.primary("submit", "Confirm"),
-                HTML(
-                    '<a href="{{ cancel_url }}"'
-                    'class="govuk-link govuk-link--no-visited-state govuk-body">'
-                    "Cancel"
-                    "</a>"
-                ),
+                Link.cancel(),
                 css_class="govuk-button-group",
             ),
         )

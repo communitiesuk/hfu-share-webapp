@@ -27,7 +27,7 @@ class AccommodationRequestDetailViewsTabsTestCase(TestSessionTokenMixin, BaseTes
         self.ltla_accommodation_request = MvAccommodationRequestFactory(
             title="LTLA Accommodation Request",
             checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
         )
 
         self.da_accommodation_request = MvAccommodationRequestFactory(

@@ -15,6 +15,11 @@ services:
       - "AWS_ACCESS_KEY_ID=test"
       - "AWS_SECRET_ACCESS_KEY=test"
       - "AWS_ENDPOINT_URL=http://localstack:4566/"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8010/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
   database:
     image: postgres:16.11@sha256:468e1f126ca5af849799cda06ac9b03d8090aae9fa5163408b3e8da44fad0702
     volumes:

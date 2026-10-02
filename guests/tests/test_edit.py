@@ -1,6 +1,7 @@
 import http.client
 from datetime import date, datetime, timezone
 
+from bs4 import BeautifulSoup
 from django.urls import reverse
 
 from accounts.enums import GroupType
@@ -27,7 +28,7 @@ class GuestEditViewTests(TestSessionTokenMixin, BaseTestCase):
         super().setUp()
         self.user = get_admin_user()
         self.accommodation_request = MvAccommodationRequestFactory(
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
             person_id=["person-1"],
             number_of_people=1,
         )
@@ -47,8 +48,8 @@ class GuestEditViewTests(TestSessionTokenMixin, BaseTestCase):
             group=self.group,
         )
         self.ltla_group = GroupFactory(
-            name="ltla_somerset",
-            groupinfo__ltla_name="ltla_somerset",
+            name="ltla_test",
+            groupinfo__ltla_name="ltla_test",
             groupinfo__group_type=GroupType.LOCAL_AUTHORITY,
         )
 
@@ -70,12 +71,28 @@ class GuestEditViewTests(TestSessionTokenMixin, BaseTestCase):
         response = self.client.get(self.edit_url)
 
         self.assertEqual(response.status_code, http.client.OK)
-        self.assertContains(response, "Guest record for")
-        self.assertContains(response, "Initial Guest")
-        self.assertContains(response, 'id="id_first_name">\nInitial')
-        self.assertContains(response, 'id="id_last_name">\nGuest')
-        self.assertContains(response, 'value="15/05/1990"')
-        self.assertContains(response, 'value="Female" selected')
+
+        soup = BeautifulSoup(response.content, "html.parser")
+
+        heading = soup.find("h1")
+
+        self.assertEqual(
+            heading.get_text(" ", strip=True), "Guest record for Initial Guest"
+        )
+
+        first_name_input = soup.find(
+            "input", {"name": "first_name", "value": "Initial"}
+        )
+        last_name_input = soup.find("input", {"name": "last_name", "value": "Guest"})
+        date_of_birth_input = soup.find(
+            "input", {"name": "date_of_birth", "value": "15/05/1990"}
+        )
+        gender_option = soup.find("option", {"value": "Female", "selected": True})
+
+        self.assertIsNotNone(first_name_input)
+        self.assertIsNotNone(last_name_input)
+        self.assertIsNotNone(date_of_birth_input)
+        self.assertIsNotNone(gender_option)
 
     def test_edit_view_returns_404_for_archived_guest(self):
         user = get_admin_user()
@@ -175,7 +192,9 @@ class GuestEditViewTests(TestSessionTokenMixin, BaseTestCase):
         self.assertEqual(response.status_code, http.client.OK)
         errors = response.context["form"].errors
         self.assertEqual(errors["first_name"][0], "Please enter a valid name")
-        self.assertEqual(errors["date_of_birth"][0], "Enter a valid date.")
+        self.assertEqual(
+            errors["date_of_birth"][0], "Enter a valid date for 'Date of birth'"
+        )
 
         self.guest.refresh_from_db()
         self.assertEqual(self.guest.first_name, "Initial")

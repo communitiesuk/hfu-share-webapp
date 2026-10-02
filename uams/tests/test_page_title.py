@@ -27,21 +27,23 @@ class UAMSPageTitlesTestCase(TestSessionTokenMixin, BaseTestCase):
         pages_and_titles = [
             (
                 "uams:detail-overview",
-                f"Applications to sponsor a child: TU, Overview - {self.service_name}",
+                f"Applications to sponsor a child: TU, Overview - "
+                f"{self.service_name} - GOV.UK",
             ),
             (
                 "uams:detail-properties",
                 f"Applications to sponsor a child: TU, Properties"
-                f" - {self.service_name}",
+                f" - {self.service_name} - GOV.UK",
             ),
             (
                 "uams:detail-linked-records",
                 f"Applications to sponsor a child: TU, Linked records"
-                f" - {self.service_name}",
+                f" - {self.service_name} - GOV.UK",
             ),
             (
                 "uams:detail-files",
-                f"Applications to sponsor a child: TU, Files - {self.service_name}",
+                f"Applications to sponsor a child: TU, Files - "
+                f"{self.service_name} - GOV.UK",
             ),
         ]
 
@@ -73,7 +75,8 @@ class UAMSPageTitlesTestCase(TestSessionTokenMixin, BaseTestCase):
         self.assertEqual(response.status_code, http.client.OK)
         self.assertEqual(
             response.context["TITLE"],
-            f"Applications to sponsor a child: T, Overview - {self.service_name}",
+            f"Applications to sponsor a child: T, Overview - "
+            f"{self.service_name} - GOV.UK",
         )
 
     def test_guest_with_missing_names(self):
@@ -88,5 +91,5 @@ class UAMSPageTitlesTestCase(TestSessionTokenMixin, BaseTestCase):
         self.assertEqual(response.status_code, http.client.OK)
         self.assertEqual(
             response.context["TITLE"],
-            f"Applications to sponsor a child: Overview - {self.service_name}",
+            f"Applications to sponsor a child: Overview - {self.service_name} - GOV.UK",
         )

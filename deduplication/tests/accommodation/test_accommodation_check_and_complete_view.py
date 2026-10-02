@@ -15,15 +15,15 @@ class DeduplicationAccommodationCheckAndCompleteViewTestCase(
         super().setUp()
         self.first_accommodation = MvAccommodationFactory(
             full_address="1 ABC Road, AB1 CD3",
-            ltla_name="ltla_somerset",
-            utla_name="utla_somerset",
+            ltla_name="ltla_test",
+            utla_name="utla_test",
             postcode=MvUkPostcodeFactory(postcode="AB1CD3"),
             is_principal=True,
         )
         self.second_accommodation = MvAccommodationFactory(
             full_address="2 DEQ Road, PP2 EE1",
-            ltla_name="ltla_somerset",
-            utla_name="ltla_somerset",
+            ltla_name="ltla_test",
+            utla_name="utla_test",
             postcode=MvUkPostcodeFactory(postcode="PP2EE1"),
             is_principal=True,
         )
@@ -184,17 +184,16 @@ class DeduplicationAccommodationCheckAndCompleteViewTestCase(
         )
         self.assertContains(
             response,
-            '<button type="submit"class="govuk-button">'
-            "Yes, confirm and deduplicate"
-            "</button>",
+            '<button name="submit" class="govuk-button" id="id_submit" '
+            'data-module="govuk-button">Yes, confirm and deduplicate</button>',
             html=True,
         )
         self.assertContains(
             response,
-            '<button type="submit"class="govuk-button govuk-button--secondary"'
-            'name="wizard_goto_step"type="submit"value="select-correct-details">'
-            "No, go back to select correct information"
-            "</button>",
+            '<button class="govuk-button govuk-button--secondary" '
+            'data-module="govuk-button" name="wizard_goto_step" type="submit" '
+            'value="select-correct-details">'
+            "No, go back to select correct information</button>",
             html=True,
         )
 

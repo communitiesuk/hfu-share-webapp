@@ -1,18 +1,15 @@
 import os
-from datetime import datetime, timedelta
 
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import HTML, Button, Div, Field, Fieldset, Layout
+from crispy_forms_gds.layout import Button, Div, Field, Fieldset, Layout
 from crispy_forms_gds.layout.constants import Size
 from django import forms
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db import DatabaseError, transaction
 from django.forms import ValidationError
 from django.http import HttpResponse
-from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.html import format_html
 from django.views.generic import FormView
 from django.views.generic.detail import SingleObjectMixin
 from django_filters import (
@@ -23,7 +20,6 @@ from django_filters import (
 from django_filters.views import FilterView
 from django_tables2 import (
     Column,
-    LazyPaginator,
     SingleTableMixin,
     tables,
 )
@@ -38,15 +34,27 @@ from ontology.models.MvPerson import MvPerson
 from reassignment_requests.forms import CancelReassignmentRequestForm
 from webapp.constants import REASSIGNMENT_REQUEST_SEARCH_FIELDS
 from webapp.enhanced_sentry_logging import db_values, log_event, log_persistence_check
+from webapp.layout import Link
 from webapp.mixins import (
     FilterPanelMixin,
+    PageTitleMixin,
+    PaginatorClassMixin,
     PermissionsMixin,
 )
 from webapp.search import perform_search
+from webapp.templatetags.link_renderers import render_govuk_link
 from webapp.templatetags.reassignment_request_extras import (
     reassignment_request_outcome_label_to_tag_colour,
 )
-from webapp.utils import CustomDateColumn, CustomDateFromToRangeFilter, LazyChoiceFilter
+from webapp.templatetags.tag_renderers import (
+    render_app_reassignment_request_outcome_tag,
+)
+from webapp.utils import (
+    CustomDateColumn,
+    CustomDateFromToRangeFilter,
+    LazyChoiceFilter,
+    date_hint_text,
+)
 from webapp.views import (
     SummaryListRow,
     SummaryListView,
@@ -71,16 +79,13 @@ class ReassignmentRequestsMadeTable(tables.Table):
         if not names:
             return "No guests"
 
-        return format_html(
-            "<a class='govuk-link' href={}>{}</a>",
-            f"{record.pk}/",
-            names,
+        return render_govuk_link(
+            names, reverse("reassignment-requests:detail-made", args=[record.pk])
         )
 
     def render_outcome(self, record: ReassignmentRequest):
-        return render_to_string(
-            "webapp/components/reassignment_request/reassignment_request_outcome_tag.html",
-            {"outcome": ReassignmentRequest.Outcome(record.outcome.capitalize())},
+        return render_app_reassignment_request_outcome_tag(
+            ReassignmentRequest.Outcome(record.outcome.capitalize())
         )
 
     class Meta:
@@ -103,16 +108,13 @@ class ReassignmentRequestsReceivedTable(tables.Table):
         if not names:
             return "No guests"
 
-        return format_html(
-            "<a class='govuk-link' href={}>{}</a>",
-            f"{record.pk}/",
-            names,
+        return render_govuk_link(
+            names, reverse("reassignment-requests:detail-received", args=[record.pk])
         )
 
     def render_outcome(self, record: ReassignmentRequest):
-        return render_to_string(
-            "webapp/components/reassignment_request/reassignment_request_outcome_tag.html",
-            {"outcome": ReassignmentRequest.Outcome(record.outcome.capitalize())},
+        return render_app_reassignment_request_outcome_tag(
+            ReassignmentRequest.Outcome(record.outcome.capitalize())
         )
 
     def render_source_ltla_name(self, record: ReassignmentRequest):
@@ -147,17 +149,16 @@ class ReassignmentRequestsMadeFilter(FilterSet, FilterPanelMixin):
         widget=StackedRangeInput(
             sub_widget=DatePicker,
             attrs={
-                "from_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=600)).strftime('%-d/%-m/%Y')}.",
-                "to_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=600)).strftime('%-d/%-m/%Y')}.",
+                "from_help_text": date_hint_text(600),
+                "to_help_text": date_hint_text(600),
                 "from_label": "Date from",
                 "to_label": "Date to",
             },
         ),
         distinct=True,
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "'Date of request from' must be before "
+            "'Date of request to'",
         },
     )
 
@@ -230,17 +231,16 @@ class ReassignmentRequestsReceivedFilter(FilterSet, FilterPanelMixin):
         widget=StackedRangeInput(
             sub_widget=DatePicker,
             attrs={
-                "from_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
-                "to_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
+                "from_help_text": date_hint_text(20),
+                "to_help_text": date_hint_text(20),
                 "from_label": "Date from",
                 "to_label": "Date to",
             },
         ),
         distinct=True,
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "'Date of request from' must be before "
+            "'Date of request to'",
         },
     )
 
@@ -307,7 +307,15 @@ class ReassignmentRequestsReceivedFilter(FilterSet, FilterPanelMixin):
         ]
 
 
-class ReassignmentRequestsMadePageView(PermissionsMixin, SingleTableMixin, FilterView):
+class ReassignmentRequestsMadePageView(
+    PageTitleMixin,
+    PermissionsMixin,
+    SingleTableMixin,
+    PaginatorClassMixin,
+    FilterView,
+):
+    page_heading = "Requests to move guests to different local authorities"
+    heading_labels_title = False
     model = ReassignmentRequest
     group_type = [
         GroupType.LOCAL_AUTHORITY,
@@ -317,7 +325,6 @@ class ReassignmentRequestsMadePageView(PermissionsMixin, SingleTableMixin, Filte
     ]
 
     table_class = ReassignmentRequestsMadeTable
-    paginator_class = LazyPaginator
     filterset_class = ReassignmentRequestsMadeFilter
     table_pagination = {"per_page": os.environ.get("PAGINATION_PAGE_SIZE")}
     template_name = "reassignment_requests/reassignment_requests_tab_page.html"
@@ -346,8 +353,10 @@ class ReassignmentRequestsMadePageView(PermissionsMixin, SingleTableMixin, Filte
 
 
 class ReassignmentRequestsReceivedPageView(
-    PermissionsMixin, SingleTableMixin, FilterView
+    PageTitleMixin, PermissionsMixin, SingleTableMixin, PaginatorClassMixin, FilterView
 ):
+    page_heading = "Requests to move guests to different local authorities"
+    heading_labels_title = False
     model = ReassignmentRequest
     group_type = [
         GroupType.LOCAL_AUTHORITY,
@@ -358,7 +367,6 @@ class ReassignmentRequestsReceivedPageView(
 
     table_class = ReassignmentRequestsReceivedTable
     filterset_class = ReassignmentRequestsReceivedFilter
-    paginator_class = LazyPaginator
     table_pagination = {"per_page": os.environ.get("PAGINATION_PAGE_SIZE")}
     template_name = "reassignment_requests/reassignment_requests_tab_page.html"
 
@@ -392,7 +400,7 @@ class AcceptRejectReassignmentRequestForm(forms.Form):
         ],
         widget=forms.RadioSelect,
         required=True,
-        label="",
+        label="Do you accept or reject this move request?",
     )
     comments = forms.CharField(
         widget=forms.Textarea(),
@@ -412,19 +420,14 @@ class AcceptRejectReassignmentRequestForm(forms.Form):
         self.helper.layout = Layout(
             Field.radios(
                 "action",
-                legend_size=Size.LARGE,
+                legend_size=Size.MEDIUM,
             ),
             Field.textarea(
-                "comments", label_size=Size.LARGE, rows=5, max_characters=500
+                "comments", label_size=Size.MEDIUM, rows=5, max_characters=500
             ),
             Div(
-                Button("submit", "Confirm"),
-                HTML(
-                    '<a href="{{ cancel_url }}"'
-                    'class="govuk-link govuk-link--no-visited-state govuk-body">'
-                    "Cancel"
-                    "</a>"
-                ),
+                Button.primary("submit", "Confirm"),
+                Link.cancel(),
                 css_class="govuk-button-group",
             ),
         )
@@ -442,11 +445,14 @@ class AcceptRejectReassignmentRequestForm(forms.Form):
 
 
 class ReassignmentRequestDetailView(
+    PageTitleMixin,
     PermissionsMixin,
     SuccessMessageMixin,
     FormView,
     SummaryListView,
 ):
+    page_heading = "Request to move guests to a different local authority"
+    heading_labels_title = False
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
@@ -562,9 +568,8 @@ class ReassignmentRequestDetailView(
                     ar = reassignment_request.accommodation_request
 
                     # determine if all AR guests are moved or just partial
-                    is_partial = (
-                        reassignment_request.guests.count()
-                        != reassignment_request.accommodation_request.number_of_people
+                    is_partial = reassignment_request.guests.count() != len(
+                        ar.person_id or []
                     )
 
                     if is_partial:
@@ -904,11 +909,14 @@ class ReassignmentRequestDetailView(
 
 
 class CancelReassignmentRequestView(
+    PageTitleMixin,
     PermissionsMixin,
     SingleObjectMixin,
     SuccessMessageMixin,
     FormView,
 ):
+    page_heading = "Cancel request to move guests to a different local authority"
+    heading_labels_title = False
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,

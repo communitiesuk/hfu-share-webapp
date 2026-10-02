@@ -1,5 +1,4 @@
 import os
-from datetime import datetime, timedelta
 
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import Field, Fieldset, Layout, Size
@@ -8,7 +7,6 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.html import format_html
 from django.views.generic import FormView
 from django_filters import (
     CharFilter,
@@ -16,7 +14,7 @@ from django_filters import (
     MultipleChoiceFilter,
 )
 from django_filters.views import FilterView
-from django_tables2 import Column, LazyPaginator, SingleTableMixin, tables
+from django_tables2 import Column, SingleTableMixin, tables
 from formtools.wizard.views import SessionWizardView
 
 from accounts.enums import GroupType
@@ -28,10 +26,23 @@ from user_management.templatetags.access_request_extras import (
     render_name_label_from_group_info,
 )
 from user_management.views.form_wizard_views import ACCESS_REQUEST_FORM_BREADCRUMBS
-from webapp.constants import ACCESS_REQUEST_SEARCH_FIELDS
-from webapp.mixins import FilterPanelMixin, PIISafeRecordNameMixin, UserActionsMixin
+from webapp.constants import ACCESS_REQUEST_SEARCH_FIELDS, APP_TABLE_TD_CLASSES
+from webapp.mixins import (
+    FilterPanelMixin,
+    PageTitleMixin,
+    PaginatorClassMixin,
+    PIISafeRecordNameMixin,
+    SectionHeadingMixin,
+    UserActionsMixin,
+)
 from webapp.search import perform_search
-from webapp.utils import CustomDateFromToRangeFilter, CustomDateTimeColumn
+from webapp.templatetags.link_renderers import render_govuk_link
+from webapp.templatetags.tag_renderers import render_app_access_request_status_tag
+from webapp.utils import (
+    CustomDateFromToRangeFilter,
+    CustomDateTimeColumn,
+    date_hint_text,
+)
 from webapp.views import SummaryListRow, SummaryListView
 from webapp.widgets import CheckboxSelectMultipleWithTags, DatePicker, StackedRangeInput
 
@@ -45,38 +56,36 @@ class AccessRequestsTable(tables.Table):
     )
     justification = Column(verbose_name="Why access is required")
     created_at = CustomDateTimeColumn(
-        verbose_name="Request date", attrs={"td": {"style": "white-space: nowrap;"}}
+        verbose_name="Request date",
+        attrs={"td": {"class": f"{APP_TABLE_TD_CLASSES} app-text--white-space-nowrap"}},
     )
     status = Column(verbose_name="Status")
 
     def render_requester(self, record: AccessRequest):
         if record.requester.first_name and record.requester.last_name:
-            return format_html(
-                '<div style="white-space: nowrap">'
-                '<a class="govuk-link" href="{}">{} {}</a></div>'
-                "<div>({})</div>",
-                reverse(
-                    "user-management:access-request-details",
-                    args=[record.reference_number],
-                ),
-                record.requester.first_name,
-                record.requester.last_name,
-                record.requester.email,
+            return render_to_string(
+                "user_management/access_requests/access_request_link.html",
+                {
+                    "full_name": (
+                        f"{record.requester.first_name} {record.requester.last_name}"
+                    ),
+                    "href": reverse(
+                        "user-management:access-request-details",
+                        args=[record.reference_number],
+                    ),
+                    "email": record.requester.email,
+                },
             )
 
-        return format_html(
-            '<a class="govuk-link" href="{url}">{value}</a>',
-            url=reverse(
+        return render_govuk_link(
+            record.requester.email,
+            reverse(
                 "user-management:access-request-details", args=[record.reference_number]
             ),
-            value=record.requester.email,
         )
 
     def render_status(self, record: AccessRequest):
-        return render_to_string(
-            "webapp/components/access_request/access_request_status_tag.html",
-            {"status": AccessRequest.Status(record.status)},
-        )
+        return render_app_access_request_status_tag(AccessRequest.Status(record.status))
 
     def render_group_type(self, record: AccessRequest):
         group_type = GroupType(record.group_type)
@@ -114,16 +123,14 @@ class AccessRequestsFilter(FilterSet, FilterPanelMixin):
         widget=StackedRangeInput(
             sub_widget=DatePicker,
             attrs={
-                "from_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=600)).strftime('%-d/%-m/%Y')}.",
-                "to_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
+                "from_help_text": date_hint_text(600),
+                "to_help_text": date_hint_text(20),
                 "from_label": "Date from",
                 "to_label": "Date to",
             },
         ),
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "'Request date from' must be before 'Request date to'",
         },
     )
 
@@ -169,21 +176,28 @@ class AccessRequestsFilter(FilterSet, FilterPanelMixin):
         fields = ["search", "created_at", "status"]
 
 
-class AccessRequestsListView(AdminAccessRequiredMixin, SingleTableMixin, FilterView):
+class AccessRequestsListView(
+    SectionHeadingMixin,
+    AdminAccessRequiredMixin,
+    SingleTableMixin,
+    PaginatorClassMixin,
+    FilterView,
+):
     model = AccessRequest
     table_class = AccessRequestsTable
     filterset_class = AccessRequestsFilter
     table_pagination = {"per_page": os.environ.get("PAGINATION_PAGE_SIZE")}
-    paginator_class = LazyPaginator
     template_name = "user_management/access_requests/access_requests_list_page.html"
 
 
 class AccessRequestsDetailsPage(
+    PageTitleMixin,
     PIISafeRecordNameMixin,
     UserActionsMixin,
     AdminAccessRequiredMixin,
     SessionWizardView,
 ):
+    heading_labels_title = False
     model = AccessRequest
     template_name = "user_management/access_requests/access_request_details_page.html"
 
@@ -212,9 +226,8 @@ class AccessRequestsDetailsPage(
         request_summary = {
             "status": {
                 "question": "Status",
-                "answer": render_to_string(
-                    "webapp/components/access_request/access_request_status_tag.html",
-                    {"status": AccessRequest.Status(access_request.status)},
+                "answer": render_app_access_request_status_tag(
+                    AccessRequest.Status(access_request.status)
                 ),
             },
             "request_date": {
@@ -289,6 +302,7 @@ class AccessRequestsDetailsPage(
 
         context["access_request_summary"] = request_summary
         context["access_review_summary"] = review_summary
+        context["cancel_url"] = reverse("user-management:access-requests")
         return context
 
     def done(self, form_list, **kwargs):
@@ -315,8 +329,10 @@ class AccessRequestsDetailsPage(
         return redirect(f"{url}?status=PENDING&sort=-created_at")
 
 
-class AccessRequestYourRequestView(UserActionsMixin, SummaryListView):
+class AccessRequestYourRequestView(PageTitleMixin, UserActionsMixin, SummaryListView):
     # pylint: disable=view-missing-access-control
+    page_heading = "Your request"
+    heading_labels_title = False
     template_name = (
         "user_management/access_requests/access_requests_your_request_page.html"
     )

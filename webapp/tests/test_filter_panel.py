@@ -14,11 +14,11 @@ class FilterPanelIntegrationTest(TestSessionTokenMixin, BaseTestCase):
 
     def assert_panel_open(self, response):
         self.assertContains(response, 'id="filter-container"')
-        self.assertIn("display: block", response.content.decode())
+        self.assertIn("app-display--block", response.content.decode())
 
     def assert_panel_closed(self, response):
         self.assertContains(response, 'id="filter-container"')
-        self.assertIn("display: none", response.content.decode())
+        self.assertIn("app-display--none", response.content.decode())
 
     def test_panel_remains_open_after_sorting_without_filters(self):
         """

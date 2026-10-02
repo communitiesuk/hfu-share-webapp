@@ -23,12 +23,12 @@ from ontology.models import (
     SponsorshipCertificationForm,
     VisaApplication,
 )
-from webapp.mixins import PermissionsMixin
+from webapp.mixins import PermissionsMixin, SectionHeadingMixin
 
 BATCH_SIZE = 1000
 
 
-class DownloadsPage(PermissionsMixin, FormView):
+class DownloadsPage(SectionHeadingMixin, PermissionsMixin, FormView):
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,

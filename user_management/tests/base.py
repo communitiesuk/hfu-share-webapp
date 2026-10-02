@@ -32,14 +32,14 @@ def get_user_with_groups(groups: list[UserGroup]):
 
 def get_la_user():
     return get_user_with_groups(
-        [UserGroup(name="ltla_somerset", type=GroupType.LOCAL_AUTHORITY)]
+        [UserGroup(name="ltla_test", type=GroupType.LOCAL_AUTHORITY)]
     )
 
 
 def get_la_early_adopter_user():
     return get_user_with_groups(
         [
-            UserGroup(name="ltla_somerset", type=GroupType.LOCAL_AUTHORITY),
+            UserGroup(name="ltla_test", type=GroupType.LOCAL_AUTHORITY),
             UserGroup(
                 name="local_authority_early_adopters",
                 type=GroupType.LOCAL_AUTHORITY_EARLY_ADOPTERS,
@@ -51,7 +51,7 @@ def get_la_early_adopter_user():
 def get_ea_user():
     return get_user_with_groups(
         [
-            UserGroup(name="ltla_somerset", type=GroupType.LOCAL_AUTHORITY),
+            UserGroup(name="ltla_test", type=GroupType.LOCAL_AUTHORITY),
             UserGroup(
                 name="early_adopter", type=GroupType.LOCAL_AUTHORITY_EARLY_ADOPTERS
             ),

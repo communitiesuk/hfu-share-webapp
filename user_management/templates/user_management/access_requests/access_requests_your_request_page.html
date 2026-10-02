@@ -16,7 +16,7 @@
 {% endblock breadcrumb_content %}
 {% load filters %}
 {% block content %}
-    {% include "webapp/components/heading/heading.html" with page_heading="Your request" %}
+    {% include "webapp/components/heading/heading.html" with page_heading=page_heading %}
     {% if object|access_request_is_rejected or object|access_request_is_approved %}
         <div class="govuk-warning-text">
             <span class="govuk-warning-text__icon" aria-hidden="true">!</span>

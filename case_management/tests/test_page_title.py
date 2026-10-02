@@ -10,6 +10,7 @@ from case_management.page_title import (
     apply_record_name,
     apply_section_title,
     apply_service_name,
+    apply_step_title,
     apply_tab_title,
     get_section_title,
     get_short_record_name,
@@ -170,6 +171,33 @@ class ApplyTabTitleTestCase(BaseTestCase):
         self.assertEqual("Accommodation request", title)
 
 
+class ApplyStepTitleTestCase(BaseTestCase):
+    def test_apply_step_title_appends_to_section(self):
+        request = RequestFactory().get("/")
+        request.step_title = "Check your answers"
+
+        title = apply_step_title("Request access", request)
+
+        self.assertEqual("Request access: Check your answers", title)
+
+    def test_apply_step_title_appends_after_existing_colon(self):
+        request = RequestFactory().get("/")
+        request.step_title = "Select correct details"
+
+        title = apply_step_title("Fix duplicate guest records: List view", request)
+
+        self.assertEqual(
+            "Fix duplicate guest records: List view, Select correct details", title
+        )
+
+    def test_apply_step_title_without_step(self):
+        request = RequestFactory().get("/")
+
+        title = apply_step_title("Request access", request)
+
+        self.assertEqual("Request access", title)
+
+
 class GetTabTitleTestCase(BaseTestCase):
     def test_get_tab_title_with_list_view(self):
         resolver_match = ResolverMatch(
@@ -213,7 +241,7 @@ class ApplyServiceNameTestCase(BaseTestCase):
 
         self.assertEqual(
             updated_title,
-            "Section Title - Share Homes for Ukraine data",
+            "Section Title - Share Homes for Ukraine data - GOV.UK",
         )
 
     def test_apply_service_name_without_title(self):
@@ -223,7 +251,7 @@ class ApplyServiceNameTestCase(BaseTestCase):
 
         self.assertEqual(
             updated_title,
-            "Share Homes for Ukraine data",
+            "Share Homes for Ukraine data - GOV.UK",
         )
 
 
@@ -273,7 +301,7 @@ class GetTitleTestCase(BaseTestCase):
 
         title = get_title(request, service_name)
 
-        self.assertEqual(title, "Share Homes for Ukraine data")
+        self.assertEqual(title, "Share Homes for Ukraine data - GOV.UK")
 
     def test_get_title_home_page(self):
         request = RequestFactory()
@@ -289,7 +317,7 @@ class GetTitleTestCase(BaseTestCase):
 
         title = get_title(request, service_name)
 
-        self.assertEqual(title, "Share Homes for Ukraine data")
+        self.assertEqual(title, "Share Homes for Ukraine data - GOV.UK")
 
     def test_get_title_with_section_title(self):
         request = RequestFactory()
@@ -305,7 +333,7 @@ class GetTitleTestCase(BaseTestCase):
 
         title = get_title(request, service_name)
 
-        self.assertEqual(title, "Cookies - Share Homes for Ukraine data")
+        self.assertEqual(title, "Cookies - Share Homes for Ukraine data - GOV.UK")
 
     def test_get_title_with_no_section_title_applies_only_service_name(self):
         request = RequestFactory()
@@ -321,7 +349,7 @@ class GetTitleTestCase(BaseTestCase):
 
         title = get_title(request, service_name)
 
-        self.assertEqual(title, "Share Homes for Ukraine data")
+        self.assertEqual(title, "Share Homes for Ukraine data - GOV.UK")
 
     def test_get_title_with_section_and_list_view_tab_title(self):
         request = RequestFactory()
@@ -338,7 +366,8 @@ class GetTitleTestCase(BaseTestCase):
         title = get_title(request, service_name)
 
         self.assertEqual(
-            title, "Accommodation request: List view - Share Homes for Ukraine data"
+            title,
+            "Accommodation request: List view - Share Homes for Ukraine data - GOV.UK",
         )
 
     def test_get_title_with_section_and_overview_tab_title(self):
@@ -356,7 +385,8 @@ class GetTitleTestCase(BaseTestCase):
         title = get_title(request, service_name)
 
         self.assertEqual(
-            title, "Accommodation request: Overview - Share Homes for Ukraine data"
+            title,
+            "Accommodation request: Overview - Share Homes for Ukraine data - GOV.UK",
         )
 
     def test_get_title_with_section_and_unmatched_tab_title(self):
@@ -373,7 +403,9 @@ class GetTitleTestCase(BaseTestCase):
 
         title = get_title(request, service_name)
 
-        self.assertEqual(title, "Accommodation request - Share Homes for Ukraine data")
+        self.assertEqual(
+            title, "Accommodation request - Share Homes for Ukraine data - GOV.UK"
+        )
 
     def test_get_title_without_apply_record_name(self):
         request = RequestFactory()
@@ -390,7 +422,8 @@ class GetTitleTestCase(BaseTestCase):
         title = get_title(request, service_name)
 
         self.assertEqual(
-            title, "Accommodation request: Overview - Share Homes for Ukraine data"
+            title,
+            "Accommodation request: Overview - Share Homes for Ukraine data - GOV.UK",
         )
 
     def test_get_title_with_section_record_name_and_tab_title(self):
@@ -411,5 +444,5 @@ class GetTitleTestCase(BaseTestCase):
         self.assertEqual(
             title,
             "Accommodation request: Lorem ipsum dolor..., Overview - "
-            "Share Homes for Ukraine data",
+            "Share Homes for Ukraine data - GOV.UK",
         )

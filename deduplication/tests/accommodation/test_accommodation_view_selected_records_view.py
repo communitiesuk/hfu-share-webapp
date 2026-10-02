@@ -16,16 +16,16 @@ class DeduplicationAccommodationSelectedViewTests(TestSessionTokenMixin, BaseTes
 
         self.first_accommodation = MvAccommodationFactory(
             full_address="[Test] Address 1",
-            ltla_name="ltla_somerset",
-            utla_name="utla_somerset",
+            ltla_name="ltla_test",
+            utla_name="utla_test",
             postcode=MvUkPostcodeFactory(postcode="ABC123"),
             is_principal=True,
         )
 
         self.second_accommodation = MvAccommodationFactory(
             full_address="[Test] Address 2",
-            ltla_name="ltla_somerset",
-            utla_name="utla_somerset",
+            ltla_name="ltla_test",
+            utla_name="utla_test",
             postcode=MvUkPostcodeFactory(postcode="ABC123"),
             is_principal=True,
         )
@@ -90,24 +90,17 @@ class DeduplicationAccommodationSelectedViewTests(TestSessionTokenMixin, BaseTes
 
         self.assertContains(
             response,
-            "<button "
-            'class="govuk-button govuk-button--secondary"'
-            'name="wizard_goto_step"'
-            'type="submit"'
+            '<button class="govuk-button govuk-button--secondary" '
+            'data-module="govuk-button" name="wizard_goto_step" type="submit" '
             'value="select-record">'
-            "Select another record"
-            "</button>",
+            "Select another record</button>",
             html=True,
         )
 
         self.assertContains(
             response,
-            "<button "
-            'class="govuk-button"'
-            'type="submit"'
-            "disabled>"
-            "Confirm selection"
-            "</button>",
+            '<button type="submit" class="govuk-button" '
+            'data-module="govuk-button" disabled>Confirm selection</button>',
             html=True,
         )
 
@@ -468,19 +461,16 @@ class DeduplicationAccommodationSelectedViewTests(TestSessionTokenMixin, BaseTes
 
         self.assertContains(
             response,
-            "<button "
-            'class="govuk-button govuk-button--secondary"'
-            'name="wizard_goto_step"'
-            'type="submit"'
-            'value="select-record"'
-            "disabled>"
-            "Select another record"
-            "</button>",
+            '<button class="govuk-button govuk-button--secondary" '
+            'data-module="govuk-button" name="wizard_goto_step" type="submit" '
+            'value="select-record" disabled>'
+            "Select another record</button>",
             html=True,
         )
 
         self.assertContains(
             response,
-            '<button class="govuk-button" type="submit">Confirm selection</button>',
+            '<button type="submit" class="govuk-button" '
+            'data-module="govuk-button">Confirm selection</button>',
             html=True,
         )

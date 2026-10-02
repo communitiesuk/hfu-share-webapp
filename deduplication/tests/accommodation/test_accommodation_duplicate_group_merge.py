@@ -1649,10 +1649,10 @@ class AccommodationDuplicateGroupDeduplicationTestCase(BaseTestCase):
 
     def test_deduplication_sets_last_modified_fields_on_linked_ar(self):
         accommodation_one = MvAccommodationFactory(
-            is_principal=True, ltla_name="ltla_somerset"
+            is_principal=True, ltla_name="ltla_test"
         )
         accommodation_two = MvAccommodationFactory(
-            is_principal=True, ltla_name="ltla_somerset"
+            is_principal=True, ltla_name="ltla_test"
         )
         ar = MvAccommodationRequestFactory(
             primary_accommodation=accommodation_one,
@@ -1678,10 +1678,10 @@ class AccommodationDuplicateGroupDeduplicationTestCase(BaseTestCase):
 
     def test_undo_deduplication_sets_last_modified_fields_on_linked_ar(self):
         accommodation_one = MvAccommodationFactory(
-            is_principal=True, ltla_name="ltla_somerset"
+            is_principal=True, ltla_name="ltla_test"
         )
         accommodation_two = MvAccommodationFactory(
-            is_principal=True, ltla_name="ltla_somerset"
+            is_principal=True, ltla_name="ltla_test"
         )
         ar = MvAccommodationRequestFactory(
             primary_accommodation=accommodation_one,

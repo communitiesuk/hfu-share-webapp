@@ -19,9 +19,9 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.datastructures import MultiValueDict
-from django.utils.html import format_html, format_html_join
 from django.utils.http import url_has_allowed_host_and_scheme
 from django_filters import MultipleChoiceFilter
+from django_tables2 import LazyPaginator
 
 from accounts.enums import GroupType
 from accounts.mixins import (
@@ -48,10 +48,12 @@ from ontology.models import (
 from webapp.constants import AUDIT_EVENT_TYPE_ACTION
 from webapp.formatting import format_date_value, to_local_date
 from webapp.s3 import s3_file_exists
+from webapp.templatetags.list_renderers import render_govuk_list
 from webapp.templatetags.timeline_extras import (
     AuditEventType,
     TimelineEventType,
     format_interaction_content,
+    render_app_timeline_change_item,
 )
 
 logger = logging.getLogger(__name__)
@@ -456,21 +458,14 @@ class SummaryListTestCaseMixin:
 class MultiLABannerMixin:
     def add_multi_la_message(self):
         if self.object.is_multi_la:
-            linked_records_url = reverse(
-                "accommodation-requests:detail-linked-records",
-                kwargs={"pk": self.object.id},
-            )
-            multi_la_message = format_html(
-                '<p class="govuk-notification-banner__heading max-width-none">'
-                "This accommodation request is linked to multiple local "
-                "authorities (LAs). One or more of the guests on this"
-                " accommodation request have visa applications in more than one LA."
-                "<br><br>Some actions may be unavailable.<br><br>"
-                "You can find guests who are linked to multiple local authorities in"
-                " the <a class='govuk-link "
-                "govuk-link--no-visited-state' href='{}'>linked records tab</a>."
-                "</p>",
-                linked_records_url,
+            multi_la_message = render_to_string(
+                "webapp/components/multi_la_banner_content/multi_la_banner_content.html",
+                {
+                    "linked_records_url": reverse(
+                        "accommodation-requests:detail-linked-records",
+                        kwargs={"pk": self.object.id},
+                    )
+                },
             )
             messages.info(
                 self.request,
@@ -648,27 +643,25 @@ class AuditLogTimelineEventsMixin(BaseTimelineEventsMixin):
         field_name = self.format_field_name(change["field"])
         old = self.format_field_value(change["field"], change["old"])
         new = self.format_field_value(change["field"], change["new"])
+
         if change["change_type"] == AuditEventType.CHANGED:
-            return format_html(
-                "{} {}: was {} now {}.",
+            return render_app_timeline_change_item(
                 field_name,
                 AUDIT_EVENT_TYPE_ACTION[AuditEventType.CHANGED],
-                old,
-                new,
+                old=old,
+                new=new,
             )
         elif change["change_type"] == AuditEventType.ADDED:
-            return format_html(
-                "{} {}: now {}.",
+            return render_app_timeline_change_item(
                 field_name,
                 AUDIT_EVENT_TYPE_ACTION[AuditEventType.ADDED],
-                new,
+                new=new,
             )
         elif change["change_type"] == AuditEventType.DELETED:
-            return format_html(
-                "{} {}: was {}.",
+            return render_app_timeline_change_item(
                 field_name,
                 AUDIT_EVENT_TYPE_ACTION[AuditEventType.DELETED],
-                old,
+                old=old,
             )
 
     def render_changes_for_timeline(self, changes):
@@ -680,12 +673,7 @@ class AuditLogTimelineEventsMixin(BaseTimelineEventsMixin):
         if len(rendered_changes) == 1:
             return rendered_changes[0]
 
-        return format_html(
-            '<ul class="govuk-list govuk-list--bullet">{}</ul>',
-            format_html_join(
-                "", "<li>{}</li>", ((change,) for change in rendered_changes)
-            ),
-        )
+        return render_govuk_list(rendered_changes, bulleted_list=True)
 
     def get_timeline_events(self, obj) -> list[TimelineItem]:
         if not self._show_events() or not self._should_show_audit_logs():
@@ -1197,3 +1185,106 @@ class DetailViewMixin(DetailLayoutMixin, ABC):
         )
 
         return context
+
+
+class PageTitleMixin:
+    """
+    Declares a view's page heading once, so the h1 and the browser title
+    share a single source.
+
+    Configuration:
+    - page_heading: the heading text. Override get_page_heading() instead
+      when the heading is dynamic (for example derived from a form label).
+    - heading_labels_title: when True (the default) the heading also becomes
+      the final label slot of the browser title. Set it to False when the
+      section title already identifies the page, or when the heading contains
+      record details that must stay out of the title (titles reach browser
+      history and analytics, so only PII-safe text belongs there).
+
+    Templates render the heading from the page_heading context variable,
+    usually via webapp/components/heading/heading.html.
+    """
+
+    request: HttpRequest
+    page_heading: str | None = None
+    heading_labels_title: bool = True
+
+    def get_page_heading(self) -> str | None:
+        return self.page_heading
+
+    def get_title_label(self) -> str | None:
+        if self.heading_labels_title:
+            return self.get_page_heading()
+        return None
+
+    def get_context_data(self, **kwargs) -> dict:
+        context = super().get_context_data(**kwargs)  # type: ignore[misc]
+        heading = self.get_page_heading()
+        if heading:
+            context.setdefault("page_heading", heading)
+        title_label = self.get_title_label()
+        if title_label:
+            self.request.step_title = title_label  # type: ignore[attr-defined]
+        return context
+
+
+class SectionHeadingMixin(PageTitleMixin):
+    """
+    For pages whose h1 is simply the section name (typically list pages):
+    the heading comes from the section title in case_management/page_title.py,
+    and nothing extra is added to the browser title, which already starts
+    with the section. Needs no configuration.
+    """
+
+    heading_labels_title = False
+
+    def get_page_heading(self) -> str | None:
+        from case_management.page_title import get_section_title
+
+        resolver_match = self.request.resolver_match
+        if resolver_match is None:
+            return None
+        return get_section_title(resolver_match)
+
+
+class WizardPageTitleMixin(PageTitleMixin):
+    """
+    Gives each step of a formtools wizard its own heading and browser title.
+
+    Configuration:
+    - step_headings: map of step name to heading text.
+    - get_step_heading(context): override instead when a step's heading
+      depends on the rendered context (selected records, pluralisation).
+
+    Headings are applied in render_to_response rather than get_context_data
+    because subclasses add their context keys after the mixin runs, and only
+    render_to_response sees the completed context.
+    """
+
+    steps: Any
+    step_headings: dict[str, str] = {}
+
+    def get_step_heading(self, context: dict) -> str | None:
+        return self.step_headings.get(self.steps.current)
+
+    def render_to_response(self, context: dict, **response_kwargs) -> HttpResponse:
+        heading = self.get_step_heading(context)
+        if heading:
+            context.setdefault("page_heading", heading)
+            self.request.step_title = context["page_heading"]  # type: ignore[attr-defined]
+        return super().render_to_response(  # type: ignore[misc]
+            context, **response_kwargs
+        )
+
+
+class PaginatorClassMixin:
+    @property
+    def paginator_class(self):
+        if self.user_can_edit(
+            group_types=[
+                GroupType.DEV,
+            ]
+        ):
+            return Paginator
+
+        return LazyPaginator

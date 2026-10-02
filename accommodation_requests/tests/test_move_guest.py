@@ -1,6 +1,7 @@
 import http.client
 from unittest.mock import MagicMock, patch
 
+from bs4 import BeautifulSoup
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.http import urlencode
@@ -86,8 +87,8 @@ class MoveGuestsFormWizardTestCase(
             accommodation_id=[self.accommodation_one],
             number_of_people=1,
             person_id=[guest.pk],
-            ltla_name=["ltla_somerset"],
-            utla_name=["utla_somerset"],
+            ltla_name=["ltla_test"],
+            utla_name=["utla_test"],
         )
 
         user = get_la_user()
@@ -220,8 +221,8 @@ class ReassignGuestsFormWizardTestCase(
             accommodation_id=[self.accommodation_one],
             number_of_people=1,
             person_id=[guest.pk],
-            ltla_name=["ltla_somerset"],
-            utla_name=["utla_somerset"],
+            ltla_name=["ltla_test"],
+            utla_name=["utla_test"],
         )
 
         user = get_la_user()
@@ -315,8 +316,8 @@ class ReassignGuestsFormWizardTestCase(
             accommodation_id=[self.accommodation_one],
             number_of_people=3,
             person_id=[guest_1.pk, guest_2.pk, guest_3.pk],
-            ltla_name=["ltla_somerset"],
-            utla_name=["utla_somerset"],
+            ltla_name=["ltla_test"],
+            utla_name=["utla_test"],
         )
 
         guests_within_la = [guest_1, guest_2]
@@ -1055,8 +1056,8 @@ class ReassignGuestsFormWizardTestCase(
             person_id=[self.guest.pk],
             primary_accommodation=self.accommodation_one,
             accommodation_id=[self.accommodation_one.pk],
-            ltla_name=["ltla_somerset", "ltla_manchester"],
-            utla_name=["utla_somerset", "utla_manchester"],
+            ltla_name=["ltla_test", "ltla_manchester"],
+            utla_name=["utla_test", "utla_manchester"],
         )
 
         # Submit the first step
@@ -1164,7 +1165,7 @@ class ReassignGuestsFormWizardTestCase(
         self.assertEqual(
             interaction.interaction_notes,
             "Reassignment request for [names_list]John Smith[names_list_end] "
-            "from ltla_somerset|ltla_manchester to test_welsh_ltla_name.",
+            "from ltla_test|ltla_manchester to test_welsh_ltla_name.",
         )
         self.assertEqual(
             interaction.created_by,
@@ -1184,8 +1185,8 @@ class ReassignGuestsFormWizardTestCase(
             person_id=[self.guest.pk, self.guest_2.pk],
             primary_accommodation=self.accommodation_one,
             accommodation_id=[self.accommodation_one.pk],
-            ltla_name=["ltla_somerset"],
-            utla_name=["utla_somerset"],
+            ltla_name=["ltla_test"],
+            utla_name=["utla_test"],
         )
 
         # Submit the first step
@@ -1311,7 +1312,7 @@ class ReassignGuestsFormWizardTestCase(
             interaction.interaction_notes,
             "Reassignment request for "
             "[names_list]Jane Doe and John Smith[names_list_end] "
-            "from ltla_somerset to test_welsh_ltla_name.",
+            "from ltla_test to test_welsh_ltla_name.",
         )
         self.assertEqual(
             interaction.created_by,
@@ -1543,8 +1544,8 @@ class RematchGuestsFormWizardTestCase(
             accommodation_id=[self.accommodation_one],
             number_of_people=1,
             person_id=[guest.pk],
-            ltla_name=["ltla_somerset"],
-            utla_name=["utla_somerset"],
+            ltla_name=["ltla_test"],
+            utla_name=["utla_test"],
         )
 
         user = get_la_user()
@@ -1619,8 +1620,8 @@ class RematchGuestsFormWizardTestCase(
             accommodation_id=[self.accommodation_one],
             number_of_people=3,
             person_id=[guest_1.pk, guest_2.pk, guest_3.pk],
-            ltla_name=["ltla_somerset"],
-            utla_name=["utla_somerset"],
+            ltla_name=["ltla_test"],
+            utla_name=["utla_test"],
         )
 
         guests_within_la = [guest_1, guest_2]
@@ -1833,12 +1834,37 @@ class RematchGuestsFormWizardTestCase(
         )
 
         self.assertEqual(response.status_code, http.client.OK)
-        self.assertContains(response, self.accommodation_one.full_address)
-        self.assertContains(
-            response,
-            '<button type="submit" name="submit" class="govuk-link">Select'
-            '<span class="govuk-visually-hidden"> '
-            f"{self.accommodation_one.full_address}</span></button>",
+
+        soup = BeautifulSoup(response.content, "html.parser")
+
+        accommodation_link = soup.find(
+            "a",
+            {
+                "href": f"/accommodations/{self.accommodation_one.pk}/overview",
+                "class": "govuk-link",
+                "rel": "noreferrer noopener",
+                "target": "_blank",
+            },
+        )
+        self.assertIsNotNone(accommodation_link)
+        self.assertEqual(
+            accommodation_link.get_text(" ", strip=True),
+            f"{self.accommodation_one.full_address} (opens in new tab)",
+        )
+
+        button = soup.find(
+            "button",
+            {
+                "type": "submit",
+                "name": "submit",
+                "class": "govuk-link",
+            },
+        )
+
+        self.assertIsNotNone(button)
+        self.assertEqual(
+            button.get_text(" ", strip=True),
+            f"Select {self.accommodation_one.full_address}",
         )
 
     def test_accommodation_request_is_updated_after_confirmation(self):
@@ -2441,3 +2467,87 @@ class RematchGuestsFormWizardTestCase(
             return_value=None,
         ):
             wizard.get_form_kwargs(RematchGuestsFormSteps.CONFIRMATION)
+
+    def test_rematch_of_all_guests_with_stale_number_of_people(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        accommodation_request = AccReqFactory(
+            title="Two guest acc req",
+            checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
+            number_of_people=1,
+            person_id=[self.guest.pk, self.guest_2.pk],
+            primary_accommodation=self.accommodation_one,
+            accommodation_id=[self.accommodation_one.pk],
+            ltla_name=[self.ltla_name],
+            utla_name=[self.utla_name],
+        )
+
+        ar_count_before = MvAccommodationRequest.objects.count()
+
+        self.client.post(
+            reverse(
+                "accommodation-requests:move-guests",
+                kwargs={"pk": accommodation_request.pk},
+            ),
+            {"within_la": "yes"},
+            follow=True,
+        )
+
+        self.client.post(
+            reverse(
+                "accommodation-requests:rematch-guests-step",
+                kwargs={
+                    "pk": accommodation_request.pk,
+                    "step": RematchGuestsFormSteps.GUESTS,
+                },
+            ),
+            {
+                "guests-guests": [self.guest.pk, self.guest_2.pk],
+                f"rematch_guests_form_wizard_{accommodation_request.pk}"
+                f"-current_step": RematchGuestsFormSteps.GUESTS,
+            },
+            follow=True,
+        )
+
+        self.client.post(
+            reverse(
+                "accommodation-requests:rematch-guests-step",
+                kwargs={
+                    "pk": accommodation_request.pk,
+                    "step": RematchGuestsFormSteps.SELECT_ACCOMMODATION,
+                },
+            ),
+            {
+                "select_accommodation-accommodation": self.accommodation_two.pk,
+                f"rematch_guests_form_wizard_{accommodation_request.pk}"
+                f"-current_step": RematchGuestsFormSteps.SELECT_ACCOMMODATION,
+            },
+            follow=True,
+        )
+
+        self.client.post(
+            reverse(
+                "accommodation-requests:rematch-guests-step",
+                kwargs={
+                    "pk": accommodation_request.pk,
+                    "step": RematchGuestsFormSteps.CONFIRMATION,
+                },
+            ),
+            {
+                "confirmation-confirm_guests_moved": "on",
+                f"rematch_guests_form_wizard_{accommodation_request.pk}"
+                f"-current_step": RematchGuestsFormSteps.CONFIRMATION,
+            },
+            follow=True,
+        )
+
+        self.assertEqual(MvAccommodationRequest.objects.count(), ar_count_before)
+
+        accommodation_request.refresh_from_db()
+        self.assertEqual(
+            accommodation_request.primary_accommodation.pk, self.accommodation_two.pk
+        )
+        self.assertEqual(
+            accommodation_request.person_id, [self.guest.pk, self.guest_2.pk]
+        )

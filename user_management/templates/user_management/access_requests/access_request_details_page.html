@@ -10,10 +10,11 @@
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
+            {% error_summary form %}
             {% include "webapp/components/heading/heading.html" with page_heading=title %}
             {% include "webapp/components/access_request/access_request_summary_list.html" with access_request_summary=access_request_summary.items %}
             {% if status_pending %}
-                <form method="post">
+                <form method="post" novalidate>
                     {{ wizard.management_form }}
                     {% crispy wizard.form %}
                 </form>

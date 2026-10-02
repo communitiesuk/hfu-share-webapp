@@ -1,5 +1,4 @@
 import os
-from datetime import datetime, timedelta
 from typing import Optional
 
 from crispy_forms_gds.helper import FormHelper
@@ -9,8 +8,8 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.forms import CheckboxInput
 from django.forms.widgets import CheckboxSelectMultiple
 from django.http import HttpResponse
+from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
-from django.utils.html import format_html
 from django.views.generic import DetailView, UpdateView
 from django_filters import (
     BooleanFilter,
@@ -21,7 +20,6 @@ from django_filters import (
 from django_filters.views import FilterView
 from django_tables2 import (
     Column,
-    LazyPaginator,
     SingleTableMixin,
     tables,
 )
@@ -40,15 +38,20 @@ from webapp.mixins import (
     InteractionTimelineEventsMixin,
     IsDuplicateMixin,
     MultiLABannerMixin,
+    PageTitleMixin,
+    PaginatorClassMixin,
     PermissionsMixin,
     PIISafeRecordNameMixin,
+    SectionHeadingMixin,
     UserActionsMixinProtocol,
 )
 from webapp.search import perform_search
+from webapp.templatetags.link_renderers import render_app_record_link, render_govuk_link
 from webapp.utils import (
     CustomDateColumn,
     CustomDateFromToRangeFilter,
     CustomDateTimeColumn,
+    date_hint_text,
 )
 from webapp.views import (
     Action,
@@ -74,14 +77,8 @@ class SponsorsTable(tables.Table):
     created_date = CustomDateTimeColumn(verbose_name="Date added")
 
     def render_full_name(self, record: MvVolunteer, value):
-        dup_text = "Duplicate" if not record.is_principal else ""
-        return format_html(
-            '<a class="govuk-body-s govuk-link" href="{url}">{value}</a>'
-            '<div class="govuk-hint govuk-!-font-size-16 govuk-!-margin-top-1'
-            ' govuk-!-margin-bottom-0">{dup_text}</div>',
-            url=reverse("sponsors:detail-overview", args=[record.id]),
-            value=value,
-            dup_text=dup_text,
+        return render_app_record_link(
+            record, value, reverse("sponsors:detail-overview", args=[record.id])
         )
 
     def render_phone_number(self, value):
@@ -118,17 +115,15 @@ class SponsorsFilter(FilterSet, FilterPanelMixin):
         widget=StackedRangeInput(
             sub_widget=DatePicker,
             attrs={
-                "from_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20000)).strftime('%-d/%-m/%Y')}.",
-                "to_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=9500)).strftime('%-d/%-m/%Y')}.",
+                "from_help_text": date_hint_text(20000),
+                "to_help_text": date_hint_text(9500),
                 "from_label": "Date from",
                 "to_label": "Date to",
             },
         ),
         distinct=True,
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "'Date of birth from' must be before 'Date of birth to'.",
         },
     )
 
@@ -144,17 +139,15 @@ class SponsorsFilter(FilterSet, FilterPanelMixin):
         widget=StackedRangeInput(
             sub_widget=DatePicker,
             attrs={
-                "from_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=1600)).strftime('%-d/%-m/%Y')}.",
-                "to_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
+                "from_help_text": date_hint_text(1600),
+                "to_help_text": date_hint_text(20),
                 "from_label": "Date from",
                 "to_label": "Date to",
             },
         ),
         distinct=True,
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "'Date added from' must be before 'Date added to'.",
         },
     )
 
@@ -229,7 +222,13 @@ class SponsorsFilter(FilterSet, FilterPanelMixin):
         ]
 
 
-class SponsorsListView(PermissionsMixin, SingleTableMixin, FilterView):
+class SponsorsListView(
+    SectionHeadingMixin,
+    PermissionsMixin,
+    SingleTableMixin,
+    PaginatorClassMixin,
+    FilterView,
+):
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
@@ -242,7 +241,6 @@ class SponsorsListView(PermissionsMixin, SingleTableMixin, FilterView):
     table_class = SponsorsTable
     filterset_class = SponsorsFilter
     table_pagination = {"per_page": os.environ.get("PAGINATION_PAGE_SIZE")}
-    paginator_class = LazyPaginator
     template_name = "sponsors/sponsors_list_page.html"
 
     def get_queryset(self):
@@ -374,10 +372,9 @@ class SponsorDetailActionsView(
             merged_sponsors = dup_group.sponsors.all()
 
             merged_sponsors_names = [
-                format_html(
-                    '<a class="govuk-link" href="{url}">{value}</a>',
-                    url=reverse("sponsors:detail-overview", args=[sponsor.id]),
-                    value=sponsor.full_name,
+                render_govuk_link(
+                    sponsor.full_name,
+                    reverse("sponsors:detail-overview", args=[sponsor.id]),
                 )
                 for sponsor in merged_sponsors
             ]
@@ -428,20 +425,16 @@ class SponsorDetailActionsView(
                 actions.append(
                     LinkAction(
                         label="Undo deduplication",
-                        text="This deduplication cannot yet be undone due to a "
-                        "further deduplication. To restore this record, first undo the "
-                        "deduplication from the "
-                        f"{
-                            format_html(
-                                '<a href={}>actions tab for {}.</a><br></br>',
-                                reverse(
-                                    'sponsors:detail-actions',
+                        text=render_to_string(
+                            "webapp/components/cannot_undo_deduplication/cannot_undo_deduplication.html",
+                            {
+                                "text": further_dup_group.principal_record.full_name,
+                                "href": reverse(
+                                    "sponsors:detail-actions",
                                     args=[further_dup_group.principal_record.pk],
                                 ),
-                                further_dup_group.principal_record.full_name,
-                            )
-                        }"
-                        "A full deduplication history is in the history tab.",
+                            },
+                        ),
                     )
                 )
         return actions
@@ -588,8 +581,13 @@ class SponsorDetailHistoryView(
 
 
 class SponsorEditView(
-    PIISafeRecordNameMixin, PermissionsMixin, SuccessMessageMixin, UpdateView
+    PageTitleMixin,
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    SuccessMessageMixin,
+    UpdateView,
 ):
+    heading_labels_title = False
     model = MvVolunteer
     group_type = [
         GroupType.DEV,

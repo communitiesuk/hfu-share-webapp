@@ -28,23 +28,26 @@ class AccommodationPageTitlesTestCase(TestSessionTokenMixin, BaseTestCase):
         pages_and_titles = [
             (
                 "accommodations:detail-overview",
-                "Accommodations: AB1C, Overview - Share Homes for Ukraine data",
+                "Accommodations: AB1C, Overview - "
+                "Share Homes for Ukraine data - GOV.UK",
             ),
             (
                 "accommodations:detail-actions",
-                "Accommodations: AB1C, Actions - Share Homes for Ukraine data",
+                "Accommodations: AB1C, Actions - Share Homes for Ukraine data - GOV.UK",
             ),
             (
                 "accommodations:detail-linked-records",
-                "Accommodations: AB1C, Linked records - Share Homes for Ukraine data",
+                "Accommodations: AB1C, Linked records - "
+                "Share Homes for Ukraine data - GOV.UK",
             ),
             (
                 "accommodations:detail-properties",
-                "Accommodations: AB1C, Properties - Share Homes for Ukraine data",
+                "Accommodations: AB1C, Properties - "
+                "Share Homes for Ukraine data - GOV.UK",
             ),
             (
                 "accommodations:detail-history",
-                "Accommodations: AB1C, History - Share Homes for Ukraine data",
+                "Accommodations: AB1C, History - Share Homes for Ukraine data - GOV.UK",
             ),
         ]
         user = get_admin_user()
@@ -76,7 +79,7 @@ class AccommodationPageTitlesTestCase(TestSessionTokenMixin, BaseTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.context["TITLE"],
-            "Accommodations: AB1C, Overview - Share Homes for Ukraine data",
+            "Accommodations: AB1C, Overview - Share Homes for Ukraine data - GOV.UK",
         )
 
     def test_accom_with_truncated_postcode(self):
@@ -93,7 +96,7 @@ class AccommodationPageTitlesTestCase(TestSessionTokenMixin, BaseTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.context["TITLE"],
-            "Accommodations: XYZ, Overview - Share Homes for Ukraine data",
+            "Accommodations: XYZ, Overview - Share Homes for Ukraine data - GOV.UK",
         )
 
     def test_accom_with_no_postcode(self):
@@ -110,5 +113,5 @@ class AccommodationPageTitlesTestCase(TestSessionTokenMixin, BaseTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.context["TITLE"],
-            "Accommodations: Overview - Share Homes for Ukraine data",
+            "Accommodations: Overview - Share Homes for Ukraine data - GOV.UK",
         )

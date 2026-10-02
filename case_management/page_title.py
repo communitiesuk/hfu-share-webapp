@@ -6,24 +6,25 @@ def get_title(request: HttpRequest, service_name: str) -> str:
     # We need resolver match to build the title
     # If not present, we default to Service Name only
     if request.resolver_match is None:
-        return service_name
+        return apply_service_name("", service_name)
 
     # Resolver match contains route and app name info
     resolver_match = request.resolver_match
 
     # Quick return for Home page
     if is_home_page(resolver_match):
-        return service_name
+        return apply_service_name("", service_name)
 
     # Title composition
-    # [Section Title]:[Record Name][, Tab Title] - Service Name
-    # e.g. Guest: Full Name of Guest, Overview - Share Homes for Ukraine data
+    # [Section Title]:[Record Name][, Tab Title][, Step Title] - Service Name - GOV.UK
+    # e.g. Guest: Full Name of Guest, Overview - Share Homes for Ukraine data - GOV.UK
 
     # Build title step by step
     title = ""
     title = apply_section_title(title, resolver_match)
     title = apply_record_name(title, request)
     title = apply_tab_title(title, resolver_match)
+    title = apply_step_title(title, request)
     title = apply_service_name(title, service_name)
 
     return title
@@ -64,11 +65,25 @@ def apply_tab_title(title: str, resolver_match: ResolverMatch) -> str:
     return title
 
 
+def apply_step_title(title: str, request: HttpRequest) -> str:
+    step_title = getattr(request, "step_title", None)
+
+    # A wizard's first step can use the section name as its heading;
+    # appending it again would read "Section: Section"
+    if step_title and step_title != title:
+        if ":" not in title:
+            title = f"{title}: {step_title}"
+        else:
+            title = f"{title}, {step_title}"
+
+    return title
+
+
 def apply_service_name(title: str, service_name: str) -> str:
     if title:
-        return f"{title} - {service_name}"
+        return f"{title} - {service_name} - GOV.UK"
 
-    return service_name
+    return f"{service_name} - GOV.UK"
 
 
 def get_section_title(resolver_match: ResolverMatch) -> str:
@@ -85,7 +100,7 @@ def get_section_title(resolver_match: ResolverMatch) -> str:
         "deduplication": "Fix duplicate records",
         "deduplication:accommodations": "Fix duplicate accommodation records",
         "deduplication:guests": "Fix duplicate guest records",
-        "deduplication:sponsors": "Fix duplicate sponsor records",
+        "deduplication:sponsors": "Fix duplicate sponsor and host records",
     }
 
     app_name = resolver_match.app_name

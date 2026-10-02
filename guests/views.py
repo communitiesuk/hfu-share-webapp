@@ -1,5 +1,4 @@
 import os
-from datetime import datetime, timedelta
 from typing import Optional
 
 from crispy_forms_gds.helper import FormHelper
@@ -11,7 +10,7 @@ from django.forms.widgets import CheckboxInput, CheckboxSelectMultiple
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
-from django.utils.html import escape, format_html
+from django.utils.html import escape
 from django.views.generic import DetailView, UpdateView
 from django_filters import (
     BooleanFilter,
@@ -22,7 +21,6 @@ from django_filters import (
 from django_filters.views import FilterView
 from django_tables2 import (
     Column,
-    LazyPaginator,
     SingleTableMixin,
     SingleTableView,
     tables,
@@ -52,15 +50,21 @@ from webapp.mixins import (
     InteractionTimelineEventsMixin,
     IsDuplicateMixin,
     MultiLABannerMixin,
+    PageTitleMixin,
+    PaginatorClassMixin,
     PermissionsMixin,
     PIISafeRecordNameMixin,
+    SectionHeadingMixin,
     UserActionsMixinProtocol,
 )
 from webapp.search import perform_search
+from webapp.templatetags.link_renderers import render_app_record_link, render_govuk_link
+from webapp.templatetags.tag_renderers import render_app_visa_status_tag
 from webapp.utils import (
     CustomDateColumn,
     CustomDateFromToRangeFilter,
     CustomDateTimeColumn,
+    date_hint_text,
 )
 from webapp.views import (
     Action,
@@ -87,14 +91,8 @@ class GuestsTable(tables.Table):
     application_number = Column(verbose_name="Unique application number (UAN)")
 
     def render_full_name(self, record: MvPerson, value):
-        dup_text = "Duplicate" if not record.is_principal else ""
-        return format_html(
-            '<a class="govuk-body-s govuk-link" href="{url}">{value}</a>'
-            '<div class="govuk-hint govuk-!-font-size-16 govuk-!-margin-top-1'
-            ' govuk-!-margin-bottom-0">{dup_text}</div>',
-            url=reverse("guests:detail-overview", args=[record.id]),
-            value=value,
-            dup_text=dup_text,
+        return render_app_record_link(
+            record, value, reverse("guests:detail-overview", args=[record.id])
         )
 
     def render_passport_id(self, value):
@@ -104,10 +102,7 @@ class GuestsTable(tables.Table):
         return value[0] if value else ""
 
     def render_visa_status(self, value):
-        return render_to_string(
-            "webapp/components/visa_status_tag/visa_status_tag.html",
-            {"visa_status": value},
-        )
+        return render_app_visa_status_tag(value)
 
     class Meta:
         model = MvPerson
@@ -145,17 +140,15 @@ class GuestsFilter(FilterSet, FilterPanelMixin):
         widget=StackedRangeInput(
             sub_widget=DatePicker,
             attrs={
-                "from_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20000)).strftime('%-d/%-m/%Y')}.",
-                "to_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=300)).strftime('%-d/%-m/%Y')}.",
+                "from_help_text": date_hint_text(20000),
+                "to_help_text": date_hint_text(300),
                 "from_label": "Date from",
                 "to_label": "Date to",
             },
         ),
         distinct=True,
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "'Date of birth from' must be before 'Date of birth to'.",
         },
     )
 
@@ -165,17 +158,16 @@ class GuestsFilter(FilterSet, FilterPanelMixin):
         widget=StackedRangeInput(
             sub_widget=DatePicker,
             attrs={
-                "from_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=1600)).strftime('%-d/%-m/%Y')}.",
-                "to_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
+                "from_help_text": date_hint_text(1600),
+                "to_help_text": date_hint_text(20),
                 "from_label": "Date from",
                 "to_label": "Date to",
             },
         ),
         distinct=True,
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "'First arrival date from' must be before "
+            "'First arrival date to'.",
         },
     )
 
@@ -185,17 +177,16 @@ class GuestsFilter(FilterSet, FilterPanelMixin):
         widget=StackedRangeInput(
             sub_widget=DatePicker,
             attrs={
-                "from_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=1600)).strftime('%-d/%-m/%Y')}.",
-                "to_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
+                "from_help_text": date_hint_text(1600),
+                "to_help_text": date_hint_text(20),
                 "from_label": "Date from",
                 "to_label": "Date to",
             },
         ),
         distinct=True,
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "'Latest arrival date from' must be before "
+            "'Latest arrival date to'.",
         },
     )
 
@@ -205,17 +196,16 @@ class GuestsFilter(FilterSet, FilterPanelMixin):
         widget=StackedRangeInput(
             sub_widget=DatePicker,
             attrs={
-                "from_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=1600)).strftime('%-d/%-m/%Y')}.",
-                "to_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
+                "from_help_text": date_hint_text(1600),
+                "to_help_text": date_hint_text(20),
                 "from_label": "Date from",
                 "to_label": "Date to",
             },
         ),
         distinct=True,
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "'Latest visa application date from' must be before "
+            "'Latest visa application date to'.",
         },
     )
 
@@ -315,7 +305,13 @@ class GuestsFilter(FilterSet, FilterPanelMixin):
         ]
 
 
-class GuestsListView(PermissionsMixin, SingleTableMixin, FilterView):
+class GuestsListView(
+    SectionHeadingMixin,
+    PermissionsMixin,
+    SingleTableMixin,
+    PaginatorClassMixin,
+    FilterView,
+):
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
@@ -328,7 +324,6 @@ class GuestsListView(PermissionsMixin, SingleTableMixin, FilterView):
     table_class = GuestsTable
     filterset_class = GuestsFilter
     table_pagination = {"per_page": os.environ.get("PAGINATION_PAGE_SIZE")}
-    paginator_class = LazyPaginator
     template_name = "guests/guests_list_page.html"
 
     def get_queryset(self):
@@ -500,10 +495,9 @@ class GuestDetailActionsView(
             deduplicated_guests = dup_group.guests.all()
 
             deduplicated_guests_names = [
-                format_html(
-                    '<a class="govuk-link" href="{url}">{value}</a>',
-                    url=reverse("guests:detail-overview", args=[guest.id]),
-                    value=guest.get_full_name(),
+                render_govuk_link(
+                    guest.get_full_name(),
+                    reverse("guests:detail-overview", args=[guest.id]),
                 )
                 for guest in deduplicated_guests
             ]
@@ -530,16 +524,17 @@ class GuestDetailActionsView(
                     actions.append(
                         LinkAction(
                             label="Undo deduplication",
-                            text=format_html(
-                                "You sent a request to move this guest to {}. "
-                                "You cannot undo this deduplication while there is a "
-                                '<a class="govuk-link" href="{}">{}</a>.',
+                            text="You sent a request to move this guest to {}. "
+                            "You cannot undo this deduplication while there is a "
+                            "{}.".format(
                                 escape(pending_reassignment.destination_ltla_name),
-                                reverse(
-                                    "reassignment-requests:detail-received",
-                                    kwargs={"pk": pending_reassignment.id},
+                                render_govuk_link(
+                                    "pending request to move this guest",
+                                    reverse(
+                                        "reassignment-requests:detail-received",
+                                        kwargs={"pk": pending_reassignment.id},
+                                    ),
                                 ),
-                                "pending request to move this guest",
                             ),
                         )
                     )
@@ -574,20 +569,18 @@ class GuestDetailActionsView(
                 actions.append(
                     LinkAction(
                         label="Undo deduplication",
-                        text="This deduplication cannot yet be undone due to a "
-                        "further deduplication. To restore this record, first undo the "
-                        "deduplication from the "
-                        f"{
-                            format_html(
-                                '<a href={}>actions tab for {}.</a><br></br>',
-                                reverse(
-                                    'guests:detail-actions',
+                        text=render_to_string(
+                            "webapp/components/cannot_undo_deduplication/cannot_undo_deduplication.html",
+                            {
+                                "text": (
+                                    further_dup_group.principal_record.get_full_name()
+                                ),
+                                "href": reverse(
+                                    "guests:detail-actions",
                                     args=[further_dup_group.principal_record.pk],
                                 ),
-                                further_dup_group.principal_record.get_full_name(),
-                            )
-                        }"
-                        "A full deduplication history is in the history tab.",
+                            },
+                        ),
                     )
                 )
         return actions
@@ -751,8 +744,13 @@ class GuestDetailHistoryView(
 
 
 class GuestEditView(
-    PIISafeRecordNameMixin, PermissionsMixin, SuccessMessageMixin, UpdateView
+    PageTitleMixin,
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    SuccessMessageMixin,
+    UpdateView,
 ):
+    heading_labels_title = False
     model = MvPerson
     group_type = [
         GroupType.DEV,
@@ -811,10 +809,7 @@ class RedactedVisaApplicationsTable(tables.Table):
     )
 
     def render_visa_status(self, value):
-        return render_to_string(
-            "webapp/components/visa_status_tag/visa_status_tag.html",
-            {"visa_status": value},
-        )
+        return render_app_visa_status_tag(value)
 
     def render_gwf(self, record, value):
         if not record.user_can_view:
@@ -834,18 +829,13 @@ class RedactedVisaApplicationsTable(tables.Table):
 
     def render_Q44g_full_name(self, record, value):
         if record.user_can_view:
-            return format_html(
-                (
-                    '<a class="govuk-body-s govuk-link"'
-                    'style="white-space: normal" href="{}">'
-                    "{}"
-                    "</a>"
-                ),
+            return render_govuk_link(
+                value,
                 reverse(
                     "visa-applications:detail-overview",
                     args=[record.visa_application_id],
                 ),
-                value,
+                css_class="app-text--white-space-normal",
             )
 
         return value
@@ -866,7 +856,9 @@ class RedactedVisaApplicationsTable(tables.Table):
         order_by = ("-application_event_datetime",)
 
 
-class GuestVisaApplicationsListView(PermissionsMixin, SingleTableView):
+class GuestVisaApplicationsListView(
+    PermissionsMixin, SingleTableView, PaginatorClassMixin
+):
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
@@ -878,7 +870,6 @@ class GuestVisaApplicationsListView(PermissionsMixin, SingleTableView):
     model = VisaApplication
     table_class = RedactedVisaApplicationsTable
     table_pagination = {"per_page": os.environ.get("PAGINATION_PAGE_SIZE")}
-    paginator_class = LazyPaginator
     template_name = (
         "guests/detail_view/detail_view_linked_records_visa_application_list.html"
     )

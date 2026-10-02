@@ -1,7 +1,7 @@
 from auditlog.models import LogEntry
 
 from accounts.enums import (
-    BROWSER_TEST_LA_GROUP_NAME,
+    BROWSER_TEST_FIRST_LA_GROUP_NAME,
     BROWSER_TEST_LTLA_NAMES,
     GroupType,
 )
@@ -39,7 +39,7 @@ from ontology.tests.factories import (
 class BrowserTestLaWipeCompletenessTestCase(BaseScriptTestCase):
     def setUp(self):
         GroupFactory(
-            name=BROWSER_TEST_LA_GROUP_NAME,
+            name=BROWSER_TEST_FIRST_LA_GROUP_NAME,
             groupinfo__ltla_name=BROWSER_TEST_LTLA_NAMES[0],
             groupinfo__group_type=GroupType.LOCAL_AUTHORITY_BROWSER_TEST,
         )

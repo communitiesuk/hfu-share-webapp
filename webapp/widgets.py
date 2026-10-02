@@ -2,7 +2,6 @@ from typing import Callable
 
 from django.forms import MultiWidget, TextInput
 from django.forms.widgets import ChoiceWidget, DateInput, Select, Widget
-from django.template.loader import render_to_string
 
 
 class DatePicker(DateInput):
@@ -13,8 +12,8 @@ RANGE_INPUT_ATTR_MAPPING: dict[str, str] = {
     "input_size": "size",
     "from_label": "label",
     "to_label": "label",
-    "from_hint": "hint",
-    "to_hint": "hint",
+    "from_help_text": "help_text",
+    "to_help_text": "help_text",
     "unit_hint": "unit_hint",
 }
 
@@ -54,6 +53,11 @@ class RangeInput(MultiWidget):
 class StackedRangeInput(RangeInput):
     template_name = "webapp/widgets/stackedrangeinput.html"
 
+    def __init__(self, attrs=None, sub_widget=TextInput):
+        super().__init__(attrs, sub_widget)
+
+        self.widgets_names = ["", "_1"]
+
 
 class InlineRangeInput(RangeInput):
     template_name = "webapp/widgets/inlinerangeinput.html"
@@ -75,31 +79,8 @@ class CheckboxSelectMultipleWithTags(ChoiceWidget):
         context = super().get_context(name, value, attrs)
         for _, options, _ in context["widget"]["optgroups"]:
             for option in options:
-                option["label_tag_colour_class"] = (
-                    f"govuk-tag--{self.label_to_tag_colour(option['label'])}"
-                )
+                option["label_tag_colour"] = self.label_to_tag_colour(option["label"])
         return context
-
-
-class ConditionalRadioWidget(Widget):
-    template_name = "webapp/widgets/conditional_radio.html"
-
-    def __init__(self, attrs=None, choices=(), conditional_inputs=None):
-        super().__init__(attrs)
-        self.choices = list(choices)
-        self.conditional_inputs = conditional_inputs or {}
-
-    def get_context(self, name, value, attrs):
-        return {
-            "name": name,
-            "value": value,
-            "choices": self.choices,
-            "conditional_inputs": self.conditional_inputs,
-        }
-
-    def render(self, name, value, attrs=None, renderer=None):
-        context = self.get_context(name, value, attrs)
-        return render_to_string(self.template_name, context)
 
 
 class SearchableSelect(Select):
@@ -113,7 +94,8 @@ class SearchableSelectLazy(Select):
 class MultiValueWidget(Widget):
     template_name = "webapp/widgets/multi_value_text_input.html"
 
-    def __init__(self, attrs=None, max_values=5):
+    def __init__(self, field_label, attrs=None, max_values=5):
+        self.field_label = field_label
         default_attrs = {"class": "array-input-widget", "input_type": "text"}
         self.max_values = max_values
         if attrs:
@@ -125,6 +107,7 @@ class MultiValueWidget(Widget):
         context["widget"]["values"] = value or [""]
         context["widget"]["name"] = name
         context["widget"]["max_values"] = self.max_values
+        context["widget"]["field_label"] = self.field_label
         return context
 
     def value_from_datadict(self, data, files, name):

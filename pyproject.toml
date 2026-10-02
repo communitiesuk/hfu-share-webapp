@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "hfu-case-management-webapp"
-version = "2.16.0"
+version = "2.22.0"
 description = "Homes for Ukraine case management webapp"
 authors = ["Homes for Ukraine <homesforukraine@communities.gov.uk>"]
 readme = "README.md"
@@ -60,6 +60,8 @@ format = "scripts:format_code"
 lint = "scripts:lint"
 lint-shell = "scripts:lint_shell"
 seed-db = "scripts:seed_db"
+seed-groups = "scripts:seed_groups"
+seed-browser-test-users = "scripts:seed_browser_test_users"
 test = "scripts:test"
 test-parallel = "scripts:test_parallel"
 test-browser = "scripts:test_browser"
@@ -90,6 +92,8 @@ select = [
     "G", # flake8-logging-format
     # "UP", # pyupgrade
     # "SIM", # flake8-simplify
+    "TID251", # banned-api
+    "S308", # suspicious-mark-safe-usage
 ]
 ignore = []
 exclude = []
@@ -121,6 +125,10 @@ line-ending = "auto"
 "accounts/models/__init__.py" = ["F401"]  # F401 unused import error
 "ontology/models/__init__.py" = ["F401"]  # F401 unused import error
 "user_management/views/__init__.py" = ["F401"]  # F401 unused import error
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"django.utils.html.format_html".msg = "Use templates instead of format_html."
+"django.utils.html.format_html_join".msg = "Use templates instead of format_html_join."
 
 [tool.mypy]
 exclude = [
@@ -224,7 +232,8 @@ ignore_errors = true
 
 [tool.djlint]
 profile="django"
-ignore="H021,H030,H031" # Ignore inline styles, and html <meta> tag suggestion
+ignore="H030,H031" # Ignore html <meta> tag suggestion
+exclude="webapp/templates/webapp/components/links/link.html" # Ignore inline link component
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "case_management.settings"

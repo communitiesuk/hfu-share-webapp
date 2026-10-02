@@ -10,10 +10,8 @@ from django.db import DatabaseError, IntegrityError, transaction
 from django.db.models import F, OuterRef, Q, Subquery
 from django.forms import CheckboxInput
 from django.http import HttpRequest, HttpResponse
-from django.middleware.csrf import get_token
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.utils.html import format_html
 from django.views import View
 from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.detail import SingleObjectMixin
@@ -26,7 +24,6 @@ from django_filters import (
 from django_filters.views import FilterView
 from django_tables2 import (
     Column,
-    LazyPaginator,
     SingleTableMixin,
     tables,
 )
@@ -43,10 +40,14 @@ from webapp.constants import (
 )
 from webapp.mixins import (
     FilterPanelMixin,
+    PaginatorClassMixin,
     PermissionsMixin,
     PIISafeRecordNameMixin,
+    SectionHeadingMixin,
+    WizardPageTitleMixin,
 )
 from webapp.search import perform_search
+from webapp.templatetags.link_renderers import render_app_form_link, render_govuk_link
 from webapp.utils import CustomDateColumn
 
 from .forms import (
@@ -91,42 +92,37 @@ class UnassignedAccommodationRequestsTable(tables.Table):
         ]
 
     def render_title(self, record: MvAccommodationRequest, value):
-        return format_html(
-            '<a class="govuk-body-s govuk-link" href="{}">{}</a>',
+        return render_govuk_link(
+            value,
             reverse(
                 "accommodation-requests:detail-overview",
                 args=[record.id],
-            )
-            + "?from=unassigned-accommodation-requests",
-            value,
+                query={"from": "unassigned-accommodation-requests"},
+            ),
         )
 
     def hide_link(self, record):
-        return format_html(
-            '<a class="govuk-body-s govuk-link govuk-link--no-visited-state" '
-            'href="{}">Hide<span class="govuk-visually-hidden"> {}</span></a>',
+        return render_govuk_link(
+            "Hide",
             reverse(
                 "unassigned-accommodation-requests:hide",
                 args=[record.id],
             ),
-            record.title,
+            no_visited_state=True,
+            visually_hidden_text=record.title,
         )
 
     def unhide_form(self, record):
-        return format_html(
-            '<form method="post" action={action_url} style="display: inline;">'
-            '<input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}">'
-            '<button type="submit" class="govuk-link govuk-link--no-visited-state">'
-            "Unhide"
-            '<span class="govuk-visually-hidden"> {record_name}</span>'
-            "</button>"
-            "</form>",
-            action_url=reverse(
+        return render_app_form_link(
+            self.request,
+            "unide-ar",
+            True,
+            record.title,
+            action=reverse(
                 "unassigned-accommodation-requests:unhide",
                 args=[record.id],
             ),
-            csrf_token=get_token(self.request),
-            record_name=record.title,
+            text="Unhide",
         )
 
     def render_hide(self, record: MvAccommodationRequest):
@@ -197,14 +193,17 @@ class UnassignedAccommodationRequestsFilter(FilterSet, FilterPanelMixin):
 
 
 class UnassignedAccommodationRequestsListView(
-    PermissionsMixin, SingleTableMixin, FilterView
+    SectionHeadingMixin,
+    PermissionsMixin,
+    SingleTableMixin,
+    PaginatorClassMixin,
+    FilterView,
 ):
     group_type = UNASSIGNED_ACCOMMODATION_REQUESTS_ALLOWED_GROUP_TYPES
     model = MvAccommodationRequest
     table_class = UnassignedAccommodationRequestsTable
     filterset_class = UnassignedAccommodationRequestsFilter
     table_pagination = {"per_page": os.environ.get("PAGINATION_PAGE_SIZE")}
-    paginator_class = LazyPaginator
     template_name = "unassigned_accommodation_requests/unassigned_accommodation_requests_list_page.html"  # noqa: E501
 
     def get_queryset(self):
@@ -321,12 +320,17 @@ ASSIGN_LOCAL_AUTHORITY_FORMS = [
 
 
 class AssignLocalAuthorityFormWizard(
+    WizardPageTitleMixin,
     PIISafeRecordNameMixin,
     PermissionsMixin,
     SingleObjectMixin,
     NamedUrlSessionWizardView,
 ):
     model = MvAccommodationRequest
+    step_headings = {
+        AssignLocalAuthorityFormSteps.REGION: "Select region",
+        AssignLocalAuthorityFormSteps.LOCAL_AUTHORITY: "Select local authority",
+    }
     group_type = UNASSIGNED_ACCOMMODATION_REQUESTS_ALLOWED_GROUP_TYPES
     template_name = (
         "unassigned_accommodation_requests/"

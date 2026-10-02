@@ -1,5 +1,5 @@
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import HTML, Field, Fieldset, Layout
+from crispy_forms_gds.layout import HTML, Button, Div, Field, Fieldset, Layout
 from crispy_forms_gds.layout.constants import Size
 from django import forms
 from django.forms import (
@@ -11,9 +11,6 @@ from django.forms import (
 )
 from django.forms.widgets import CheckboxSelectMultiple, Input
 from django.template.loader import render_to_string
-from django.urls import reverse
-from django.utils.html import format_html
-from django.utils.safestring import mark_safe
 
 from ontology.models import (
     MvAccommodation,
@@ -23,7 +20,15 @@ from ontology.models import (
     VisaApplication,
 )
 from webapp.formatting import format_date_value
+from webapp.layout import Link
 from webapp.mixins import ReadOnlyFieldsMixin
+from webapp.templatetags.component_renderers import (
+    render_app_concatenated_text,
+)
+from webapp.templatetags.tag_renderers import (
+    render_app_accommodation_checks_status_tag,
+    render_app_visa_status_tag,
+)
 
 
 class SelectRecordTypeForm(forms.Form):
@@ -35,30 +40,21 @@ class SelectRecordTypeForm(forms.Form):
             ("Sponsors and hosts", "Sponsors and hosts"),
         ]
         self.fields["object_choice"] = ChoiceField(
-            label="",
+            label="Select the type of record you want to fix",
             choices=choices,
             widget=RadioSelect(),
         )
-        home_url = reverse("webapp:landing-page")
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Field("object_choice"),
-            HTML(
-                '<p class="govuk-body">'
+            Field.radios("object_choice", legend_size=Size.SMALL),
+            HTML.p(
                 "Continue to find records using filter and search, "
-                "and deduplicate them.</p>"
+                "and deduplicate them."
             ),
-            HTML(
-                '<div class="govuk-button-group">'
-                '<button type="submit"'
-                'class="govuk-button">'
-                "Continue"
-                "</button>"
-                '<a class="govuk-button govuk-button--secondary "'
-                f"href={home_url}>"
-                "Cancel"
-                "</a>"
-                "</div>"
+            Div(
+                Button.primary("submit", "Continue"),
+                Link.cancel(),
+                css_class="govuk-button-group",
             ),
         )
 
@@ -98,25 +94,27 @@ class ViewSelectedRecordsStepForm(forms.Form):
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            HTML(
-                '<button class="govuk-button govuk-button--secondary"'
-                'name="wizard_goto_step"'
-                'type="submit"'
-                'value="{{ wizard.steps.prev }}"'
-                "{% if object_list|length > 1 %}disabled{% endif %}>"
-                "Select another record"
-                "</button>"
-            ),
-            HTML(
-                '<button type="submit"'
-                'class="govuk-button"'
-                "{% if object_list|length < 2 %}disabled{% endif %}>"
-                "Confirm selection"
-                "</button>"
-            ),
-            HTML(
-                '<a class="govuk-link govuk-link--no-visited-state" '
-                'href="{{ cancel_url }}">Cancel</a>'
+            Div(
+                HTML(
+                    render_to_string(
+                        "buttons/go_back_step.html",
+                        {
+                            "text": "Select another record",
+                            "value": "{{ wizard.steps.prev }}",
+                            "button_disabled": "{{ select_another_record_disabled }}",
+                        },
+                    )
+                ),
+                HTML(
+                    render_to_string(
+                        "buttons/confirm_selection.html",
+                        {
+                            "button_disabled": "{{ confirm_selection_disabled }}",
+                        },
+                    ),
+                ),
+                Link.cancel(),
+                css_class="govuk-button-group  govuk-!-margin-top-0",
             ),
         )
 
@@ -127,10 +125,10 @@ class ReviewSelectedRecordsStepForm(forms.Form):
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            HTML('<button type="submit"class="govuk-button">Continue</button>'),
-            HTML(
-                '<a class="govuk-link govuk-link--no-visited-state" '
-                'href="{{ cancel_url }}">Cancel</a>'
+            Div(
+                Button.primary("submit", "Continue"),
+                Link.cancel(),
+                css_class="govuk-button-group",
             ),
         )
 
@@ -169,17 +167,10 @@ class SelectAccommodationRequestStepForm(forms.Form):
                 Field.checkboxes("accommodation_request", legend_size=Size.SMALL),
                 legend_size=Size.SMALL,
             ),
-            HTML(
-                '<div class="govuk-button-group">'
-                '<button type="submit"'
-                'class="govuk-button">'
-                "Continue deduplication"
-                "</button>"
-                '<a class="govuk-link govuk-link--no-visited-state" '
-                'href="{{ cancel_url }}">'
-                "Cancel"
-                "</a>"
-                "</div>"
+            Div(
+                Button.primary("submit", "Continue deduplication"),
+                Link.cancel(),
+                css_class="govuk-button-group",
             ),
         )
 
@@ -219,14 +210,10 @@ class SelectCorrectDetailsStepForm(ReadOnlyFieldsMixin, forms.Form):
             self.append_guest_accommodation_request(layout_items)
 
         layout_items.append(
-            HTML(
-                '<div class="govuk-button-group">'
-                '    <button type="submit" class="govuk-button">'
-                "       Continue deduplication"
-                "    </button>"
-                '    <a class="govuk-link govuk-link--no-visited-state"\n'
-                '       href="{{ cancel_url }}">Cancel</a>'
-                "</div>"
+            Div(
+                Button.primary("submit", "Continue deduplication"),
+                Link.cancel(),
+                css_class="govuk-button-group",
             ),
         )
 
@@ -746,15 +733,8 @@ class SelectCorrectDetailsStepForm(ReadOnlyFieldsMixin, forms.Form):
                             for an in (record.application_number or [])
                         ],
                         "formatted_value": [
-                            format_html(
-                                "{} {}",
-                                an,
-                                mark_safe(
-                                    render_to_string(
-                                        "webapp/components/visa_status_tag/visa_status_tag.html",
-                                        {"visa_status": vs},
-                                    )
-                                ),
+                            render_app_concatenated_text(
+                                an, render_app_visa_status_tag(vs)
                             )
                             for an, vs in application_numbers_with_visa_status
                         ],
@@ -797,14 +777,10 @@ class SelectCorrectDetailsStepForm(ReadOnlyFieldsMixin, forms.Form):
                         "help_text": "This accommodation request you selected will be "
                         "linked to the new principal guest record.",
                         "value": ar.title,
-                        "formatted_value": format_html(
-                            "{} {}",
+                        "formatted_value": render_app_concatenated_text(
                             ar.title,
-                            mark_safe(
-                                render_to_string(
-                                    "webapp/components/checks_status_tag/accommodation_checks_status_tag.html",
-                                    {"accommodation_checks_status": ar.checks_status},
-                                )
+                            render_app_accommodation_checks_status_tag(
+                                ar.checks_status
                             ),
                         ),
                     },
@@ -962,17 +938,18 @@ class CheckAndCompleteStepForm(forms.Form):
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            HTML(
-                '<div class="govuk-button-group">'
-                '<button type="submit"class="govuk-button">'
-                "Yes, confirm and deduplicate</button>"
-                '<button type="submit"class="govuk-button govuk-button--secondary"'
-                'name="wizard_goto_step"'
-                'type="submit"'
-                'value="{{ wizard.steps.prev }}">'
-                "No, go back to select correct information"
-                "</button>"
-                "</div>"
+            Div(
+                Button.primary("submit", "Yes, confirm and deduplicate"),
+                HTML(
+                    render_to_string(
+                        "buttons/go_back_step.html",
+                        {
+                            "text": "No, go back to select correct information",
+                            "value": "{{ wizard.steps.prev }}",
+                        },
+                    )
+                ),
+                css_class="govuk-button-group",
             ),
         )
 
@@ -980,17 +957,14 @@ class CheckAndCompleteStepForm(forms.Form):
 class UndoDeduplicationRecordsStepForm(forms.Form):
     def __init__(self, *args, **kwargs):
         kwargs.pop("record_id")
-        self.cancel_url = kwargs.pop("cancel_url")
         super().__init__(*args, **kwargs)
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            HTML(
-                '<button type="submit"class="govuk-button">Undo deduplication</button>'
-            ),
-            HTML(
-                '<a class="govuk-link govuk-link--no-visited-state" '
-                f'href="{self.cancel_url}">Cancel</a>'
+            Div(
+                Button.primary("submit", "Undo deduplication"),
+                Link.cancel(),
+                css_class="govuk-button-group",
             ),
         )
 
@@ -998,19 +972,15 @@ class UndoDeduplicationRecordsStepForm(forms.Form):
 class UndoDeduplicateRecordsStepForm(forms.Form):
     def __init__(self, *args, **kwargs):
         kwargs.pop("record_id")
-        self.cancel_url = kwargs.pop("cancel_url")
         super().__init__(*args, **kwargs)
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            HTML(
-                '<button type="submit" class="govuk-button">'
-                "Yes, undo deduplication"
-                "</button>"
-            ),
-            HTML(
-                '<a class="govuk-button govuk-button--secondary" '
-                f'href="{self.cancel_url}">'
-                "No, return to the record</a>"
+            Div(
+                Button.primary("submit", "Yes, undo deduplication"),
+                Link.as_button(
+                    "No, return to the record", "{{ cancel_url }}", type="secondary"
+                ),
+                css_class="govuk-button-group",
             ),
         )

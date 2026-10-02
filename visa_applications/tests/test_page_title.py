@@ -27,20 +27,20 @@ class VisaApplicationsPageTitlesTestCase(TestSessionTokenMixin, BaseTestCase):
         pages_and_titles = [
             (
                 "visa-applications:detail-overview",
-                f"Visa applications: TG, Overview - {self.service_name}",
+                f"Visa applications: TG, Overview - {self.service_name} - GOV.UK",
             ),
             (
                 "visa-applications:detail-properties",
-                f"Visa applications: TG, Properties - {self.service_name}",
+                f"Visa applications: TG, Properties - {self.service_name} - GOV.UK",
             ),
             (
                 "visa-applications:detail-linked-records",
-                f"Visa applications: TG, Linked records - {self.service_name}",
+                f"Visa applications: TG, Linked records - {self.service_name} - GOV.UK",
             ),
             (
                 "visa-applications:detail-vir",
                 f"Visa applications: TG, Visa Information Request - "
-                f"{self.service_name}",
+                f"{self.service_name} - GOV.UK",
             ),
         ]
 
@@ -74,7 +74,7 @@ class VisaApplicationsPageTitlesTestCase(TestSessionTokenMixin, BaseTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.context["TITLE"],
-            f"Visa applications: T, Overview - {self.service_name}",
+            f"Visa applications: T, Overview - {self.service_name} - GOV.UK",
         )
 
     def test_guest_with_missing_names(self):
@@ -91,5 +91,5 @@ class VisaApplicationsPageTitlesTestCase(TestSessionTokenMixin, BaseTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.context["TITLE"],
-            f"Visa applications: Overview - {self.service_name}",
+            f"Visa applications: Overview - {self.service_name} - GOV.UK",
         )

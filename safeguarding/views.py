@@ -1,7 +1,7 @@
 import csv
 import io
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import Field, Fieldset, Layout
@@ -26,14 +26,12 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.formats import date_format
-from django.utils.html import format_html
 from django.views import View
 from django.views.generic import DetailView, FormView
 from django_filters import CharFilter, FilterSet, MultipleChoiceFilter
 from django_filters.views import FilterView
 from django_tables2 import (
     Column,
-    LazyPaginator,
     SingleTableMixin,
     tables,
 )
@@ -63,16 +61,36 @@ from webapp.mixins import (
     DetailViewMixin,
     FilterPanelMixin,
     GroupRequiredMixin,
+    PageTitleMixin,
+    PaginatorClassMixin,
     PermissionsMixin,
     PIISafeRecordNameMixin,
+    SectionHeadingMixin,
     UserActionsMixin,
 )
 from webapp.search import perform_search
 from webapp.templatetags.alerted_status_extras import alerted_status_to_tag_colour
+from webapp.templatetags.component_renderers import (
+    ConcatenatedTextSeparator,
+    render_app_concatenated_text,
+)
+from webapp.templatetags.link_renderers import render_govuk_link
+from webapp.templatetags.tag_renderers import (
+    render_app_accommodation_checks_status_tag,
+    render_app_accommodation_request_status_tag,
+    render_app_adverse_rematch_status_tag,
+    render_app_alerted_status_tag,
+    render_app_is_principal_tag,
+    render_app_is_uam_tag,
+    render_app_safeguarding_status_tag,
+    render_app_visa_status_tag,
+    render_app_will_notify_la_central_case_flag_tag,
+)
 from webapp.utils import (
     CustomDateColumn,
     CustomDateFromToRangeFilter,
     CustomDateTimeColumn,
+    date_hint_text,
 )
 from webapp.views import SummaryListRow, SummaryListView, TwoColumnSummaryListView
 from webapp.widgets import CheckboxSelectMultipleWithTags, DatePicker, StackedRangeInput
@@ -342,10 +360,9 @@ class EscalatedChecksTable(tables.Table):
         if not person:
             return ""
 
-        return format_html(
-            '<a class="govuk-body-s govuk-link" href="{url}">{value}</a>',
-            url=reverse("safeguarding:detail-overview", args=[person.id, record.id]),
-            value=person.get_full_name(),
+        return render_govuk_link(
+            person.get_full_name(),
+            reverse("safeguarding:detail-overview", args=[person.id, record.id]),
         )
 
     def render_passport_id(self, record: SafeguardingReferral):
@@ -363,7 +380,10 @@ class EscalatedChecksTable(tables.Table):
         gwfs = getattr(person, "gwf", None)
         if gwfs:
             if isinstance(gwfs, (list, tuple)):
-                return format_html("<br>".join(str(g) for g in gwfs if g))
+                return render_app_concatenated_text(
+                    *[str(g) for g in gwfs if g],
+                    separator=ConcatenatedTextSeparator.NEW_LINE,
+                )
             return str(gwfs)
         return ""
 
@@ -375,8 +395,9 @@ class EscalatedChecksTable(tables.Table):
         application_numbers = getattr(person, "application_number", None)
         if application_numbers:
             if isinstance(application_numbers, (list, tuple)):
-                return format_html(
-                    "<br>".join(str(a) for a in application_numbers if a)
+                return render_app_concatenated_text(
+                    *[str(a) for a in application_numbers if a],
+                    separator=ConcatenatedTextSeparator.NEW_LINE,
                 )
             return str(application_numbers)
         return ""
@@ -386,16 +407,10 @@ class EscalatedChecksTable(tables.Table):
         if not person:
             return ""
 
-        return render_to_string(
-            "webapp/components/visa_status_tag/visa_status_tag.html",
-            {"visa_status": person.visa_status},
-        )
+        return render_app_visa_status_tag(person.visa_status)
 
     def render_alerted_status(self, record: SafeguardingReferral):
-        return render_to_string(
-            "webapp/components/alerted_status_tag/alerted_status_tag.html",
-            {"alerted_status": record.alerted_status},
-        )
+        return render_app_alerted_status_tag(record.alerted_status)
 
     class Meta:
         model = SafeguardingReferral
@@ -446,16 +461,15 @@ class EscalatedChecksTableFilter(FilterPanelMixin, FilterSet):
         widget=StackedRangeInput(
             sub_widget=DatePicker,
             attrs={
-                "from_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=50)).strftime('%-d/%-m/%Y')}.",
-                "to_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
+                "from_help_text": date_hint_text(50),
+                "to_help_text": date_hint_text(20),
                 "from_label": "Date from",
                 "to_label": "Date to",
             },
         ),
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "'First shared to UKVI date from' must be before "
+            "'First shared to UKVI date to'.",
         },
     )
 
@@ -465,16 +479,15 @@ class EscalatedChecksTableFilter(FilterPanelMixin, FilterSet):
         widget=StackedRangeInput(
             sub_widget=DatePicker,
             attrs={
-                "from_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=50)).strftime('%-d/%-m/%Y')}.",
-                "to_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
+                "from_help_text": date_hint_text(50),
+                "to_help_text": date_hint_text(20),
                 "from_label": "Date from",
                 "to_label": "Date to",
             },
         ),
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "'Latest alert date from' must be before "
+            "'Latest alert date to'.",
         },
     )
 
@@ -484,16 +497,14 @@ class EscalatedChecksTableFilter(FilterPanelMixin, FilterSet):
         widget=StackedRangeInput(
             sub_widget=DatePicker,
             attrs={
-                "from_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=10000)).strftime('%-d/%-m/%Y')}.",
-                "to_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
+                "from_help_text": date_hint_text(10000),
+                "to_help_text": date_hint_text(20),
                 "from_label": "Date from",
                 "to_label": "Date to",
             },
         ),
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "'Date of birth from' must be before 'Date of birth to'.",
         },
     )
 
@@ -570,14 +581,18 @@ class EscalatedChecksTableFilter(FilterPanelMixin, FilterSet):
 
 
 class EscalatedChecksView(
-    UserActionsMixin, GroupRequiredMixin, SingleTableMixin, FilterView
+    SectionHeadingMixin,
+    UserActionsMixin,
+    GroupRequiredMixin,
+    SingleTableMixin,
+    PaginatorClassMixin,
+    FilterView,
 ):
     group_type = [GroupType.HOME_OFFICE, GroupType.MHCLG, GroupType.DEV]
     model = SafeguardingReferral
     table_class = EscalatedChecksTable
     filterset_class = EscalatedChecksTableFilter
     table_pagination = {"per_page": os.environ.get("PAGINATION_PAGE_SIZE")}
-    paginator_class = LazyPaginator
     template_name = "safeguarding/escalated_checks_list.html"
 
     def get_queryset(self):
@@ -1170,30 +1185,16 @@ class SafeguardingDetailPropertiesView(
     )
 
     def render_accommodation_request__status(self, value):
-        return render_to_string(
-            "webapp/components/"
-            "accommodation_request_status/accommodation_request_status.html",
-            {"accommodation_request_status": value},
-        )
+        return render_app_accommodation_request_status_tag(value)
 
     def render_accommodation_request__checks_status(self, value):
-        return render_to_string(
-            "webapp/components/checks_status_tag/accommodation_checks_status_tag.html",
-            {"accommodation_checks_status": value},
-        )
+        return render_app_accommodation_checks_status_tag(value)
 
     def render_accommodation_request__safeguarding_status(self, value):
-        return render_to_string(
-            "webapp/components/safeguarding_status_tag/safeguarding_status_tag.html",
-            {"accommodation_safeguarding_status": value},
-        )
+        return render_app_safeguarding_status_tag(value)
 
     def render_accommodation_request__linked_adverse_rematch(self, value):
-        return render_to_string(
-            "webapp/components/"
-            "adverse_rematch_status_tag/adverse_rematch_status_tag.html",
-            {"adverse_rematch_status": value},
-        )
+        return render_app_adverse_rematch_status_tag(value)
 
     def render_accommodation_request__central_case_flag(self, value):
         return render_to_string(
@@ -1202,16 +1203,10 @@ class SafeguardingDetailPropertiesView(
         )
 
     def render_accommodation_request__is_uam(self, value):
-        return render_to_string(
-            "webapp/components/is_uam_tag/is_uam_tag.html",
-            {"is_uam": value},
-        )
+        return render_app_is_uam_tag(value)
 
     def render_accommodation_request__is_principal(self, value):
-        return render_to_string(
-            "webapp/components/is_principal_tag/is_principal_tag.html",
-            {"is_principal": value},
-        )
+        return render_app_is_principal_tag(value)
 
     def render_accommodation_request__linked_adverse_hit(self, value):
         return render_to_string(
@@ -1220,12 +1215,7 @@ class SafeguardingDetailPropertiesView(
         )
 
     def render_accommodation_request__will_notify_la_central_case_flag(self, value):
-        return render_to_string(
-            "webapp/components/"
-            "will_notify_la_central_case_flag_tag/"
-            "will_notify_la_central_case_flag_tag.html",
-            {"will_notify_la_central_case_flag": value},
-        )
+        return render_app_will_notify_la_central_case_flag_tag(value)
 
     class Meta:
         fields = [
@@ -1346,11 +1336,7 @@ class CentralSafeguardingTable(tables.Table):
             )
 
         if display_value:
-            return format_html(
-                '<a class="govuk-body-s govuk-link" href="{}">{}</a>',
-                url,
-                display_value,
-            )
+            return render_govuk_link(display_value, url)
 
         return "Unknown alert type"
 
@@ -1477,8 +1463,10 @@ class SafeguardingDetailAlertedStatusView(SafeguardingDetailCentralSafeguardingV
 
 
 class SafeguardingDetailCentralSafeguardingAlertDetailView(
-    UserActionsMixin, GroupRequiredMixin, DetailView
+    PageTitleMixin, UserActionsMixin, GroupRequiredMixin, DetailView
 ):
+    page_heading = "Alert"
+    heading_labels_title = False
     group_type = [GroupType.HOME_OFFICE, GroupType.MHCLG, GroupType.DEV]
     template_name = "safeguarding/detail_view/central_safeguarding/check_detail.html"
     model = SafeguardingNotification

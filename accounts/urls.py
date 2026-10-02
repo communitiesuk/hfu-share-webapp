@@ -1,6 +1,7 @@
 from django.contrib.auth import views as auth_views
 from django.urls import path
 
+from accounts.views import GdsLoginView
 from case_management import settings
 
 from .forms import GdsAuthForm
@@ -19,7 +20,7 @@ else:
     urlpatterns = [
         path(
             "accounts/login/",
-            auth_views.LoginView.as_view(
+            GdsLoginView.as_view(
                 template_name="accounts/login.html", form_class=GdsAuthForm
             ),
             name="login",

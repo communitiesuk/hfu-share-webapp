@@ -1,41 +1,13 @@
 {% load django_tables2 %}
 {% load static %}
 {% load i18n l10n %}
-{% load filters %}
-<script nonce="{{request.csp_nonce}}">
-    document.addEventListener('DOMContentLoaded', () => {
-        const selectAllCheckbox = document.getElementById('select-all')
-        const table = selectAllCheckbox?.closest('table')
-        const tableBody = table?.querySelector('tbody')
-        const rowCheckboxes = tableBody ? Array.from(tableBody.getElementsByClassName('govuk-checkboxes__input')) : []
-
-        if (selectAllCheckbox) {
-            selectAllCheckbox.addEventListener('change', () => {
-                rowCheckboxes.forEach(checkbox => {
-                    if (checkbox.id !== "select-all") {
-                        checkbox.checked = selectAllCheckbox.checked
-                    }
-                })
-            })
-
-            rowCheckboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', () => {
-                  if (!checkbox.checked && selectAllCheckbox.checked) {
-                     selectAllCheckbox.checked = false
-                  }
-                })
-            })
-        }
-    })
-</script>
+{% load filters pagination_extras %}
 {% block table-wrapper %}
     {% if table.table_name %}<h1 class="govuk-heading-l">{{ table.table_name }}</h1>{% endif %}
     {% if table.empty_text and not table.data %}
         <p class="govuk-body govuk-!-margin-top-2">{{ table.empty_text }}</p>
     {% else %}
-        <div class="ui container table-container"
-             style="overflow-x: auto;
-                    overflow-y: visible">
+        <div class="ui container table-container app-table--container">
             {% block table %}
                 <table {% render_attrs table.attrs class="govuk-table" %}>
                     {% block table.thead %}
@@ -105,9 +77,7 @@
                                     <tr {{ row.attrs.as_html }} class="govuk-table__row">
                                         {% for column, cell in row.items %}
                                             <td {{ column.attrs.td.as_html }}
-                                                class="govuk-table__cell govuk-body-s govuk-!-margin-0"
-                                                style="vertical-align: top;
-                                                       text-align: left">
+                                                class="govuk-table__cell govuk-body-s govuk-!-margin-0 app-table--td">
                                                 {% for value in cell|ensure_list %}
                                                     {% if column.localize == None %}
                                                         {{ value }}
@@ -144,8 +114,7 @@
         </div>
         {% block pagination %}
             {% if table.page and table.paginator.num_pages > 1 %}
-                <nav class="govuk-pagination govuk-!-margin-top-4"
-                     style="justify-content: center"
+                <nav class="govuk-pagination govuk-!-margin-top-4 app-table-pagination--justify-center"
                      aria-label="Table pagination">
                     {% if table.page.has_previous %}
                         {% block pagination.previous %}
@@ -170,15 +139,14 @@
                     {% if table.page.has_previous or table.page.has_next %}
                         {% block pagination.range %}
                             <ul class="govuk-pagination__list">
-                                {% for p in table.page|table_page_range:table.paginator %}
-                                    <li class="govuk-pagination__item{% if p == table.page.number %} govuk-pagination__item--current{% endif %}{% if p == '...' %} govuk-pagination__item--ellipsis{% endif %}">
-                                        {% if p == '...' %}
+                                {% for p in table.page|govuk_page_range:table.paginator %}
+                                    <li class="govuk-pagination__item{% if p == table.page.number %} govuk-pagination__item--current{% endif %}{% if p == '...' or p == table.paginator.ELLIPSIS %} govuk-pagination__item--ellipsis{% endif %}">
+                                        {% if p == '...' or p == table.paginator.ELLIPSIS %}
                                             ⋯
                                         {% else %}
                                             <a href="{% querystring table.prefixed_page_field=p %}"
-                                               class="govuk-link govuk-link--no-visited-state govuk-pagination__link {% if p == table.page.number %}govuk-pagination__item--current{% endif %}">
-                                                {{ p }}
-                                            </a>
+                                               class="govuk-link govuk-link--no-visited-state govuk-pagination__link {% if p == table.page.number %}govuk-pagination__item--current{% endif %}"
+                                               aria-label="Page {{ p }}">{{ p }}</a>
                                         {% endif %}
                                     </li>
                                 {% endfor %}

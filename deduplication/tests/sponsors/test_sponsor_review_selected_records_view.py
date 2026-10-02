@@ -23,6 +23,7 @@ class DeduplicationSponsorSelectedViewTests(TestSessionTokenMixin, BaseTestCase)
             phone_number=["01134960698"],
             residential_postcodes=["OX1 1OX"],
             flag_unsuitable=False,
+            is_eoi=False,
             created_date=datetime(1981, 6, 10, tzinfo=timezone.utc),
             is_principal=True,
             sponsor_type=MvVolunteer.SponsorType.INDIVIDUAL,
@@ -37,6 +38,7 @@ class DeduplicationSponsorSelectedViewTests(TestSessionTokenMixin, BaseTestCase)
             phone_number=["04467123455"],
             residential_postcodes=["NW1 1WN"],
             flag_unsuitable=False,
+            is_eoi=False,
             created_date=datetime(1988, 6, 10, tzinfo=timezone.utc),
             is_principal=True,
             sponsor_type=MvVolunteer.SponsorType.INDIVIDUAL,
@@ -148,7 +150,8 @@ class DeduplicationSponsorSelectedViewTests(TestSessionTokenMixin, BaseTestCase)
 
         self.assertContains(
             response,
-            '<button class="govuk-button"type="submit">Continue</button>',
+            '<button name="submit" class="govuk-button" id="id_submit" '
+            'data-module="govuk-button">Continue</button>',
             html=True,
         )
 

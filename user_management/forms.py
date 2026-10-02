@@ -1,18 +1,25 @@
 from crispy_forms_gds.choices import Choice
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import HTML, Button, Div, Field, Layout, Size
+from crispy_forms_gds.layout import (
+    HTML,
+    Button,
+    ConditionalQuestion,
+    Div,
+    Field,
+    Layout,
+    Size,
+)
 from django import forms
 from django.core.exceptions import ValidationError
 from django.template.loader import render_to_string
-from django.urls import reverse
 
 from accounts.enums import GroupType
 from accounts.models import AccessRequest, GroupInfo
 from user_management.templatetags.access_request_extras import (
     render_name_label_from_group_info,
 )
-from webapp.fields import ConditionalRadioField
-from webapp.widgets import ConditionalRadioWidget, SearchableSelect
+from webapp.layout import ConditionalRadiosWithLegend, Link
+from webapp.widgets import SearchableSelect
 
 GROUP_TYPE_HINTS = {
     GroupType.LOCAL_AUTHORITY: (
@@ -63,13 +70,8 @@ class AccessRequestFormGroupTypeStep(forms.Form):
             Field.radios("group_type", legend_size=Size.EXTRA_LARGE, legend_tag="h1"),
             Div(
                 Button("button", "Next"),
-                HTML(
-                    render_to_string(
-                        "user_management/access_request_form/buttons/cancel_link.html",
-                        {"cancel_url": reverse("webapp:landing-page")},
-                    )
-                ),
-                style="display: flex; gap: 16px; align-items: baseline",
+                Link.cancel(),
+                css_class="govuk-button-group",
             ),
         )
 
@@ -194,54 +196,64 @@ class AccessRequestFormReviewStep(forms.Form):
 
 
 class AccessRequestApprovalForm(forms.Form):
-    approval_status = ConditionalRadioField(
+    approval_status = forms.ChoiceField(
         choices=[
-            (AccessRequest.Status.APPROVED, "Approve request"),
-            (AccessRequest.Status.REJECTED, "Deny request"),
+            Choice(
+                label="Approve request",
+                value=AccessRequest.Status.APPROVED,
+            ),
+            Choice(
+                label="Deny request",
+                value=AccessRequest.Status.REJECTED,
+            ),
         ],
-        widget=ConditionalRadioWidget(),
-        label="",
-        conditional_inputs={
-            AccessRequest.Status.REJECTED: [
-                {
-                    "type": "textarea",
-                    "label": "Reason",
-                    "required": True,
-                }
-            ],
-        },
+        label="Do you approve or deny this access request?",
+        widget=forms.RadioSelect(),
+    )
+
+    comment = forms.CharField(
+        label="Reason",
+        widget=forms.Textarea(attrs={"aria-describedby": ""}),
+        required=False,
+        max_length=500,
     )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Field("approval_status"),
+            ConditionalRadiosWithLegend(
+                "approval_status",
+                "Approve request",
+                ConditionalQuestion(
+                    "Deny request",
+                    Field.textarea(
+                        "comment",
+                        label_size=Size.SMALL,
+                        rows=5,
+                        max_characters=500,
+                    ),
+                ),
+                legend_size=Size.MEDIUM,
+            ),
             Div(
                 Button("submit", "Confirm"),
-                HTML(
-                    render_to_string(
-                        "user_management/access_request_form/buttons/cancel_link.html",
-                        {"cancel_url": reverse("user-management:access-requests")},
-                    )
-                ),
-                style="display: flex; gap: 16px; align-items: baseline",
+                Link.cancel(),
+                css_class="govuk-button-group",
             ),
         )
 
     def clean(self):
         cleaned_data = super().clean()
         approval_status = cleaned_data.get("approval_status")
-        approval_status_additional_text = self.data.get(
-            f"approval-approval_status_extra_{approval_status}", ""
-        )
+        approval_status_additional_text = self.data.get("approval-comment")
 
         if (
             approval_status == AccessRequest.Status.REJECTED
             and approval_status_additional_text.strip() == ""
         ):
             msg = "Please provide a reason."
-            self.add_error("approval_status", ValidationError(msg))
+            self.add_error("comment", ValidationError(msg))
 
         if approval_status == AccessRequest.Status.REJECTED:
             cleaned_data["rejection_justification"] = approval_status_additional_text

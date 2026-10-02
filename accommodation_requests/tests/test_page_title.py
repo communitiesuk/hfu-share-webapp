@@ -74,74 +74,79 @@ class AccommodationRequestPageTitlesTestCase(TestSessionTokenMixin, BaseTestCase
         pages_and_titles = [
             (
                 "accommodation-requests:detail-overview",
-                f"Accommodation requests: TT, Overview - {self.service_name}",
+                f"Accommodation requests: TT, Overview - {self.service_name} - GOV.UK",
                 self.ar.pk,
             ),
             (
                 "accommodation-requests:detail-safeguarding-checks",
                 f"Accommodation requests: TT, Safeguarding checks - "
-                f"{self.service_name}",
+                f"{self.service_name} - GOV.UK",
                 self.ar.pk,
             ),
             (
                 "accommodation-requests:update-safeguarding-checks",
                 f"Accommodation requests: TT, Safeguarding checks - "
-                f"{self.service_name}",
+                f"{self.service_name} - GOV.UK",
                 self.ar.pk,
             ),
             (
                 "accommodation-requests:detail-actions",
-                f"Accommodation requests: TT, Actions - {self.service_name}",
+                f"Accommodation requests: TT, Actions - {self.service_name} - GOV.UK",
                 self.ar.pk,
             ),
             (
                 "accommodation-requests:detail-linked-records",
-                f"Accommodation requests: TT, Linked records - {self.service_name}",
+                f"Accommodation requests: TT, Linked records - "
+                f"{self.service_name} - GOV.UK",
                 self.ar.pk,
             ),
             (
                 "accommodation-requests:detail-properties",
-                f"Accommodation requests: TT, Properties - {self.service_name}",
+                f"Accommodation requests: TT, Properties - "
+                f"{self.service_name} - GOV.UK",
                 self.ar.pk,
             ),
             (
                 "accommodation-requests:detail-history",
-                f"Accommodation requests: TT, History - {self.service_name}",
+                f"Accommodation requests: TT, History - {self.service_name} - GOV.UK",
                 self.ar.pk,
             ),
             (
                 "accommodation-requests:close-for-guests",
-                f"Accommodation requests: TT - {self.service_name}",
+                f"Accommodation requests: TT - {self.service_name} - GOV.UK",
                 self.ar.pk,
             ),
             (
                 "accommodation-requests:reopen",
-                f"Accommodation requests: TT - {self.service_name}",
+                f"Accommodation requests: TT - {self.service_name} - GOV.UK",
                 self.closed_left_prog_acc_req.pk,
             ),
             (
                 "accommodation-requests:withdraw-sponsor",
-                f"Accommodation requests: TT - {self.service_name}",
+                f"Accommodation requests: TT - {self.service_name} - GOV.UK",
                 self.all_active_sponsors_req.pk,
             ),
             (
                 "accommodation-requests:rematch-guests",
-                f"Accommodation requests: TT - {self.service_name}",
+                "Accommodation requests: TT, Select accommodation - "
+                f"{self.service_name} - GOV.UK",
                 self.one_guest_acc_req.pk,
             ),
             (
                 "accommodation-requests:reassign-guests",
-                f"Accommodation requests: TT - {self.service_name}",
+                "Accommodation requests: TT, Select country - "
+                f"{self.service_name} - GOV.UK",
                 self.one_guest_acc_req.pk,
             ),
             (
                 "accommodation-requests:move-guests",
-                f"Accommodation requests: TT - {self.service_name}",
+                "Accommodation requests: TT, Is the guest remaining within "
+                f"your local authority? - {self.service_name} - GOV.UK",
                 self.one_guest_acc_req.pk,
             ),
             (
                 "accommodation-requests:detail-comments",
-                f"Accommodation requests: TT, Comments - {self.service_name}",
+                f"Accommodation requests: TT, Comments - {self.service_name} - GOV.UK",
                 self.ar.pk,
             ),
         ]
@@ -176,7 +181,7 @@ class AccommodationRequestPageTitlesTestCase(TestSessionTokenMixin, BaseTestCase
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.context["TITLE"],
-            f"Accommodation requests: T, Overview - {self.service_name}",
+            f"Accommodation requests: T, Overview - {self.service_name} - GOV.UK",
         )
 
     def test_guest_with_missing_names(self):
@@ -193,5 +198,5 @@ class AccommodationRequestPageTitlesTestCase(TestSessionTokenMixin, BaseTestCase
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.context["TITLE"],
-            f"Accommodation requests: Overview - {self.service_name}",
+            f"Accommodation requests: Overview - {self.service_name} - GOV.UK",
         )

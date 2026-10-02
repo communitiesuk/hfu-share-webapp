@@ -1,5 +1,4 @@
 import os
-from datetime import datetime, timedelta
 
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import Field, Layout
@@ -7,7 +6,6 @@ from crispy_forms_gds.layout.constants import Size
 from django.http import Http404
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.utils.html import format_html
 from django.views import View
 from django.views.generic import DetailView
 from django.views.generic.detail import SingleObjectMixin
@@ -15,7 +13,6 @@ from django_filters import CharFilter, FilterSet
 from django_filters.views import FilterView
 from django_tables2 import (
     Column,
-    LazyPaginator,
     SingleTableMixin,
     tables,
 )
@@ -31,8 +28,10 @@ from webapp.constants import UAMS_SEARCH_FIELDS
 from webapp.mixins import (
     DetailViewMixin,
     FilterPanelMixin,
+    PaginatorClassMixin,
     PermissionsMixin,
     PIISafeRecordNameMixin,
+    SectionHeadingMixin,
 )
 from webapp.s3 import (
     get_govuk_forms_attachment_filepath,
@@ -40,10 +39,12 @@ from webapp.s3 import (
     s3_file_exists,
 )
 from webapp.search import perform_search
+from webapp.templatetags.link_renderers import render_govuk_link
 from webapp.utils import (
     CustomDateColumn,
     CustomDateFromToRangeFilter,
     CustomDateTimeColumn,
+    date_hint_text,
 )
 from webapp.views import SummaryListView
 from webapp.widgets import DatePicker, StackedRangeInput
@@ -61,10 +62,9 @@ class UamsTable(tables.Table):
     created_at = CustomDateTimeColumn(verbose_name="Created at")
 
     def render_sponsor_full_name(self, record: SponsorshipCertificationForm, value):
-        return format_html(
-            '<a class="govuk-body-s govuk-link" href="{url}">{value}</a>',
-            url=reverse("uams:detail-overview", args=[record.pk]),
-            value=value,
+        return render_govuk_link(
+            value,
+            reverse("uams:detail-overview", args=[record.pk]),
         )
 
     class Meta:
@@ -96,16 +96,15 @@ class UamsFilter(FilterSet, FilterPanelMixin):
         widget=StackedRangeInput(
             sub_widget=DatePicker,
             attrs={
-                "from_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20000)).strftime('%-d/%-m/%Y')}.",
-                "to_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=9500)).strftime('%-d/%-m/%Y')}.",
+                "from_help_text": date_hint_text(20000),
+                "to_help_text": date_hint_text(9500),
                 "from_label": "Date from",
                 "to_label": "Date to",
             },
         ),
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "'Sponsor date of birth from' must be before "
+            "'Sponsor date of birth to'.",
         },
     )
 
@@ -114,16 +113,15 @@ class UamsFilter(FilterSet, FilterPanelMixin):
         widget=StackedRangeInput(
             sub_widget=DatePicker,
             attrs={
-                "from_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=1600)).strftime('%-d/%-m/%Y')}.",
-                "to_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
+                "from_help_text": date_hint_text(1600),
+                "to_help_text": date_hint_text(20),
                 "from_label": "Date from",
                 "to_label": "Date to",
             },
         ),
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "'Created at date from' must be before "
+            "'Created at date to'.",
         },
     )
 
@@ -156,7 +154,13 @@ class UamsFilter(FilterSet, FilterPanelMixin):
         ]
 
 
-class UamsListView(PermissionsMixin, SingleTableMixin, FilterView):
+class UamsListView(
+    SectionHeadingMixin,
+    PermissionsMixin,
+    SingleTableMixin,
+    PaginatorClassMixin,
+    FilterView,
+):
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
@@ -169,7 +173,6 @@ class UamsListView(PermissionsMixin, SingleTableMixin, FilterView):
     table_class = UamsTable
     filterset_class = UamsFilter
     table_pagination = {"per_page": os.environ.get("PAGINATION_PAGE_SIZE")}
-    paginator_class = LazyPaginator
     template_name = "uams/uams_list_page.html"
 
     def get_queryset(self):

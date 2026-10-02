@@ -17,7 +17,7 @@
     {% endif %}
     {% with counter_str=forloop.counter|stringformat:"i" page_param=request.GET.page %}
         {% if request.GET.show_expanded_content == counter_str %}
-            <p id="event-content-{{ forloop.counter }}" class="govuk-body">{{ content|linebreaksbr }}</p>
+            <p id="event-content-{{ forloop.counter }}" class="govuk-body">{{ content }}</p>
             {% if content|length > 2000 %}
                 <a id="event-show-less-link-{{ forloop.counter }}"
                    class="govuk-link"
@@ -27,7 +27,7 @@
             {% endif %}
         {% else %}
             <p id="event-content-{{ forloop.counter }}"
-               class="govuk-body govuk-!-margin-top-2">{{ content|linebreaksbr|truncatechars:2000 }}</p>
+               class="govuk-body govuk-!-margin-top-2">{{ content|truncatechars:2000 }}</p>
             {% if content|length > 2000 %}
                 <a id="event-show-more-link-{{ forloop.counter }}"
                    class="govuk-link"

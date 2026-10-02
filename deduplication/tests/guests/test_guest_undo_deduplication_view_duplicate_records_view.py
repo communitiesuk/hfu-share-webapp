@@ -44,7 +44,7 @@ class UndoDeduplicationGuestViewDeduplicatedRecordsViewTestCase(
             arrival_date=datetime(2025, 12, 10, tzinfo=timezone.utc),
             visa_application_date_maximum=datetime(2030, 6, 20, tzinfo=timezone.utc),
             application_number=["4242-4242-4242-4242"],
-            is_principal=True,
+            is_principal=False,
         )
 
         self.second_guest = MvPersonFactory(
@@ -59,7 +59,7 @@ class UndoDeduplicationGuestViewDeduplicatedRecordsViewTestCase(
             arrival_date=datetime(2035, 9, 19, tzinfo=timezone.utc),
             visa_application_date_maximum=datetime(2032, 3, 3, tzinfo=timezone.utc),
             application_number=["9999-9999-9999-9999"],
-            is_principal=True,
+            is_principal=False,
         )
 
         self.new_principal_guest = MvPersonFactory(
@@ -271,15 +271,16 @@ class UndoDeduplicationGuestViewDeduplicatedRecordsViewTestCase(
 
         self.assertContains(
             response,
-            '<button class="govuk-button"type="submit">Undo deduplication</button>',
+            '<button name="submit" class="govuk-button" id="id_submit" '
+            'data-module="govuk-button">Undo deduplication</button>',
             html=True,
         )
 
-        self.assertRegex(
-            response.content.decode(),
-            r'<a class="govuk-link govuk-link--no-visited-state" '
-            r'href="/guests/\d+/actions\?reset=true">'
-            r"Cancel</a>",
+        self.assertContains(
+            response,
+            f'<a href="/guests/{self.new_principal_guest.pk}/actions?reset=true" '
+            'class="govuk-link govuk-link--no-visited-state">Cancel</a>',
+            html=True,
         )
 
 

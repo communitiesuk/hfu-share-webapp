@@ -1,3 +1,4 @@
+from bs4 import BeautifulSoup
 from django.urls import reverse
 from freezegun import freeze_time
 
@@ -16,7 +17,7 @@ class DownloadsViewGeneralTestCase(TestSessionTokenMixin, BaseTestCase):
 
         self.assertEqual(
             response.context["TITLE"],
-            "Download data - Share Homes for Ukraine data",
+            "Download data - Share Homes for Ukraine data - GOV.UK",
         )
 
     def test_download_view_loads_correctly_for_la_user(self):
@@ -67,12 +68,22 @@ class DownloadsViewGeneralTestCase(TestSessionTokenMixin, BaseTestCase):
 
         response = self.client.get(reverse("downloads:download-page"))
 
-        self.assertContains(response, 'aria-controls="conditional_download_type_0"')
-        self.assertContains(response, 'id="conditional_download_type_0"')
-        for position in range(1, 6):
-            self.assertNotContains(
-                response, f'aria-controls="conditional_download_type_{position}"'
+        html = response.content.decode()
+        soup = BeautifulSoup(html, "html.parser")
+
+        aria_controls_element = soup.select_one(
+            '[aria-controls="conditional_download_type"]'
+        )
+        aria_controled_element = soup.select_one("#conditional_download_type")
+
+        self.assertIsNotNone(aria_controls_element)
+        self.assertIsNotNone(aria_controled_element)
+
+        for position in range(2, 6):
+            postional_aria_controls_element = soup.select_one(
+                f'[aria-controls="conditional_download_type_{position}"]'
             )
+            self.assertIsNone(postional_aria_controls_element)
 
     def test_download_view_post_invalid_data(self):
         user = get_admin_user()
@@ -85,6 +96,9 @@ class DownloadsViewGeneralTestCase(TestSessionTokenMixin, BaseTestCase):
 
         self.assertContains(response, "govuk-error-summary")
         self.assertContains(response, "govuk-error-message")
+        soup = BeautifulSoup(response.content.decode(), "html.parser")
+        title = " ".join(soup.title.get_text().split())
+        self.assertTrue(title.startswith("Error: Download data"))
 
     @freeze_time("2024-07-01 12:00:00")
     def test_timestamp_in_bst_summer(self):

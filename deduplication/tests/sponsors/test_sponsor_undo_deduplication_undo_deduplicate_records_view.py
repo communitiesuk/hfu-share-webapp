@@ -160,14 +160,15 @@ class UndoDeduplicationSponsorUndoDeduplicatedRecordsViewTestCase(
 
         self.assertContains(
             response,
-            '<button class="govuk-button"type="submit">'
-            "Yes, undo deduplication"
-            "</button>",
+            '<button name="submit" class="govuk-button" id="id_submit" '
+            'data-module="govuk-button">Yes, undo deduplication</button>',
             html=True,
         )
 
-        self.assertRegex(
-            response.content.decode(),
-            r'<a class="govuk-button govuk-button--secondary" '
-            r'href="/sponsors/\d+/actions\?reset=true">No, return to the record</a>',
+        self.assertContains(
+            response,
+            f'<a href="/sponsors/{self.new_principal_sponsor.pk}/actions?reset=true" '
+            'class="govuk-button govuk-button--secondary" data-module="govuk-button">'
+            "No, return to the record</a>",
+            html=True,
         )

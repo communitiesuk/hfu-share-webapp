@@ -24,7 +24,7 @@ class AccommodationLinkedRecordsTestCase(TestSessionTokenMixin, BaseTestCase):
             first_name="Other LA Guest", last_name="Guest"
         )
         self.uan = VisaApplicationFactory(
-            ltla_name="ltla_somerset",
+            ltla_name="ltla_test",
             application_unique_application_number="123456",
             title="Visa Application for Guest",
         )
@@ -35,8 +35,8 @@ class AccommodationLinkedRecordsTestCase(TestSessionTokenMixin, BaseTestCase):
             title="Other LA Visa Application",
         )
         self.accommodation = MvAccommodationFactory(
-            ltla_name="ltla_somerset",
-            full_address="Somerset accommodation",
+            ltla_name="ltla_test",
+            full_address="Test accommodation",
             application_unique_application_number=[
                 self.uan.application_unique_application_number,
                 self.uan_other_la.application_unique_application_number,
@@ -44,14 +44,14 @@ class AccommodationLinkedRecordsTestCase(TestSessionTokenMixin, BaseTestCase):
         )
         self.accommodation.hosts.set([self.sponsor.id, self.host.id])
         self.ar = MvAccommodationRequestFactory(
-            title="LA Guest Guest to Somerset accom",
-            ltla_name=["ltla_somerset"],
-            utla_name=["utla_somerset"],
+            title="LA Guest Guest to Test accom",
+            ltla_name=["ltla_test"],
+            utla_name=["utla_test"],
             primary_accommodation=self.accommodation,
             accommodation_id=[self.accommodation.id],
         )
         self.ar_other_la = MvAccommodationRequestFactory(
-            title="Other LA Guest Guest to Somerset accom",
+            title="Other LA Guest Guest to Test accom",
             ltla_name=["Other LTLA"],
             utla_name=["Other UTLA"],
             primary_accommodation=self.accommodation,

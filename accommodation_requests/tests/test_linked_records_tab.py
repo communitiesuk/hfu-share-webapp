@@ -30,7 +30,7 @@ class AccommodationRequestLinkedRecordsTestCase(
             first_name="Other LA Guest", last_name="Guest"
         )
         self.accommodation = MvAccommodationFactory(
-            ltla_name="ltla_somerset", full_address="Somerset accommodation"
+            ltla_name="ltla_test", full_address="Test accommodation"
         )
         self.accommodation.hosts.set([self.sponsor.id, self.host.id])
         self.accommodation_other_la = MvAccommodationFactory(
@@ -42,7 +42,7 @@ class AccommodationRequestLinkedRecordsTestCase(
             [self.sponsor_other_la.id, self.host_other_la.id]
         )
         self.uan = VisaApplicationFactory(
-            ltla_name="ltla_somerset",
+            ltla_name="ltla_test",
             application_unique_application_number="123456",
             title="Visa Application for Guest",
         )
@@ -53,8 +53,8 @@ class AccommodationRequestLinkedRecordsTestCase(
             title="Other LA Visa Application",
         )
         self.uam = SponsorshipCertificationFormFactory(
-            ltla_name=["ltla_somerset"],
-            utla_name=["utla_somerset"],
+            ltla_name=["ltla_test"],
+            utla_name=["utla_test"],
             reference="UAM-111-222",
             given_name="John",
             family_name="Doe",
@@ -68,8 +68,8 @@ class AccommodationRequestLinkedRecordsTestCase(
             family_name="Doe",
         )
         self.ar = MvAccommodationRequestFactory(
-            ltla_name=["ltla_somerset"],
-            utla_name=["utla_somerset"],
+            ltla_name=["ltla_test"],
+            utla_name=["utla_test"],
             accommodation_id=[self.accommodation.id, self.accommodation_other_la.id],
             person_id=[self.guest.id, self.guest_other_la.id],
             number_of_people=1,
@@ -86,8 +86,8 @@ class AccommodationRequestLinkedRecordsTestCase(
             ],
         )
         self.ar_with_active_host_and_primary_sponsor = MvAccommodationRequestFactory(
-            ltla_name=["ltla_somerset"],
-            utla_name=["utla_somerset"],
+            ltla_name=["ltla_test"],
+            utla_name=["utla_test"],
             accommodation_id=[self.accommodation.id, self.accommodation_other_la.id],
             person_id=[self.guest.id, self.guest_other_la.id],
             number_of_people=1,
@@ -101,8 +101,8 @@ class AccommodationRequestLinkedRecordsTestCase(
         )
         self.ar_with_primary_sponsor_with_no_active_host = (
             MvAccommodationRequestFactory(
-                ltla_name=["ltla_somerset"],
-                utla_name=["utla_somerset"],
+                ltla_name=["ltla_test"],
+                utla_name=["utla_test"],
                 accommodation_id=[
                     self.accommodation.id,
                     self.accommodation_other_la.id,

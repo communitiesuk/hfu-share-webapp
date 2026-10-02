@@ -2,16 +2,15 @@ import os
 import subprocess
 import sys
 from pathlib import Path
-from urllib.parse import urlparse
+from typing import Type
 
 import pytest
 from dotenv import load_dotenv
 from playwright.sync_api import Page
 
-from browser_tests.pages.home_page import HomePage
-from browser_tests.pages.safeguarding_page import SafeguardingPage
-
-from .test_users import USER_TYPES, BrowserTestUserFactory
+from browser_tests.pages import CookiesPage, HomePage, SafeguardingPage, SharePage
+from hfurb_scripts.seeders.users import UserType, build_browser_test_user
+from test_utils.helpers import browser_test_url_is_local
 
 MANAGE_PY = Path(__file__).resolve().parent.parent / "manage.py"
 
@@ -24,68 +23,50 @@ def _verify_config():
         )
 
 
-def _browser_test_url_is_local() -> bool:
-    return urlparse(os.environ["BROWSER_TEST_URL"]).hostname in (
-        "localhost",
-        "127.0.0.1",
-    )
-
-
 def _run_seed_browser_test_la(*args: str) -> None:
-    subprocess.run(
-        [sys.executable, str(MANAGE_PY), "seed_browser_test_la", *args],
-        check=True,
-    )
+    if not os.getenv("SKIP_BROWSER_TEST_SEED"):
+        subprocess.run(
+            [sys.executable, str(MANAGE_PY), "seed_browser_test_la", *args],
+            check=True,
+        )
 
 
 def pytest_sessionstart(session):
     load_dotenv()
     _verify_config()
 
-    if _browser_test_url_is_local():
+    if browser_test_url_is_local():
         _run_seed_browser_test_la("--seed")
 
 
 @pytest.fixture
-def home_page_factory(page: Page):
-    def create(user_type):
-        home_page = HomePage(page, BrowserTestUserFactory.create(user_type))
-        return home_page
+def page_factory(page: Page):
+    def create(share_page_class: Type[SharePage], user_type: UserType):
+        share_page = share_page_class(page, build_browser_test_user(user_type))
+        return share_page
 
     return create
 
 
-@pytest.fixture
-def safeguarding_page_factory(page: Page):
-    def create(user_type):
-        safeguarding_page = SafeguardingPage(
-            page, BrowserTestUserFactory.create(user_type)
-        )
-        return safeguarding_page
-
-    return create
-
-
-def create_home_page_fixture(user_type: str):
+def create_page_fixture(share_page_class: Type[SharePage], user_type: UserType):
     @pytest.fixture
-    def fixture(home_page_factory):
-        return home_page_factory(user_type)
+    def fixture(page_factory):
+        return page_factory(share_page_class, user_type)
 
     return fixture
 
 
-def create_safeguarding_page_fixture(user_type: str):
-    @pytest.fixture
-    def fixture(safeguarding_page_factory):
-        return safeguarding_page_factory(user_type)
+for user_type in UserType:
+    fixture_param = (
+        f"_with_{user_type.value.lower()}user"
+        if user_type is not UserType.DEFAULT
+        else ""
+    )
 
-    return fixture
-
-
-for user_type in USER_TYPES:
-    fixture_param = f"_with_{user_type}_user" if user_type != "default" else ""
-
-    globals()[f"home_page{fixture_param}"] = create_home_page_fixture(user_type)
-    globals()[f"safeguarding_page{fixture_param}"] = create_safeguarding_page_fixture(
-        user_type
+    globals()[f"home_page{fixture_param}"] = create_page_fixture(HomePage, user_type)
+    globals()[f"safeguarding_page{fixture_param}"] = create_page_fixture(
+        SafeguardingPage, user_type
+    )
+    globals()[f"cookies_page{fixture_param}"] = create_page_fixture(
+        CookiesPage, user_type
     )

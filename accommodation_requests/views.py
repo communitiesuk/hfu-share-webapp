@@ -1,7 +1,6 @@
 import logging
 import os
 import uuid
-from datetime import datetime, timedelta
 from enum import StrEnum
 from typing import Any
 
@@ -16,11 +15,10 @@ from django.db import DatabaseError, transaction
 from django.db.models import OuterRef, Q, Subquery
 from django.forms import TextInput, widgets
 from django.http import Http404, HttpRequest, HttpResponse, HttpResponseRedirect
-from django.middleware.csrf import get_token
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
-from django.utils.html import escape, format_html
+from django.utils.html import escape
 from django.views.generic import DetailView, FormView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
 from django_filters import (
@@ -31,7 +29,7 @@ from django_filters import (
     NumberFilter,
 )
 from django_filters.views import FilterView
-from django_tables2 import Column, LazyPaginator, SingleTableMixin, tables
+from django_tables2 import Column, SingleTableMixin, tables
 from formtools.wizard.views import NamedUrlSessionWizardView
 
 from accommodation_requests.forms import (
@@ -80,17 +78,31 @@ from webapp.mixins import (
     FilterPanelMixin,
     InteractionWithFilesTimelineEventsMixin,
     MultiLABannerMixin,
+    PageTitleMixin,
+    PaginatorClassMixin,
     PermissionsMixin,
     PIISafeRecordNameMixin,
+    SectionHeadingMixin,
     UserActionsMixinProtocol,
+    WizardPageTitleMixin,
 )
 from webapp.s3 import get_presigned_download_url, s3_file_exists
 from webapp.search import perform_search
 from webapp.templatetags.checks_status_extras import (
     accommodation_checks_status_label_to_tag_colour,
 )
+from webapp.templatetags.link_renderers import render_app_form_link, render_govuk_link
+from webapp.templatetags.tag_renderers import (
+    render_app_accommodation_checks_status_tag,
+    render_govuk_tag,
+)
 from webapp.templatetags.timeline_extras import TimelineEventType
-from webapp.utils import CustomDateColumn, CustomDateFromToRangeFilter, LazyChoiceFilter
+from webapp.utils import (
+    CustomDateColumn,
+    CustomDateFromToRangeFilter,
+    LazyChoiceFilter,
+    date_hint_text,
+)
 from webapp.views import (
     Action,
     ActionsListView,
@@ -189,20 +201,16 @@ class AccommodationRequestsTable(tables.Table):
     utla_name = Column(verbose_name="Upper tier LA")
 
     def render_title(self, record: MvAccommodationRequest, value):
-        return format_html(
-            '<a class="govuk-body-s govuk-link" href="{}">{}</a>',
+        return render_govuk_link(
+            value,
             reverse(
                 "accommodation-requests:detail-overview",
                 args=[record.id],
             ),
-            value,
         )
 
     def render_checks_status(self, value):
-        return render_to_string(
-            "webapp/components/checks_status_tag/accommodation_checks_status_tag.html",
-            {"accommodation_checks_status": value},
-        )
+        return render_app_accommodation_checks_status_tag(value)
 
     def format_array_as_string(self, value):
         output = ""
@@ -251,17 +259,16 @@ class AccommodationRequestsFilter(FilterSet, FilterPanelMixin):
         widget=StackedRangeInput(
             sub_widget=DatePicker,
             attrs={
-                "from_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=1600)).strftime('%-d/%-m/%Y')}.",
-                "to_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
+                "from_help_text": date_hint_text(1600),
+                "to_help_text": date_hint_text(20),
                 "from_label": "Date from",
                 "to_label": "Date to",
             },
         ),
         distinct=True,
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "'Date of application from' must be before "
+            "'Date of application to'",
         },
     )
 
@@ -357,7 +364,13 @@ class AccommodationRequestsFilter(FilterSet, FilterPanelMixin):
         ]
 
 
-class AccommodationRequestsListView(PermissionsMixin, SingleTableMixin, FilterView):
+class AccommodationRequestsListView(
+    SectionHeadingMixin,
+    PermissionsMixin,
+    SingleTableMixin,
+    PaginatorClassMixin,
+    FilterView,
+):
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
@@ -370,7 +383,6 @@ class AccommodationRequestsListView(PermissionsMixin, SingleTableMixin, FilterVi
     table_class = AccommodationRequestsTable
     filterset_class = AccommodationRequestsFilter
     table_pagination = {"per_page": os.environ.get("PAGINATION_PAGE_SIZE")}
-    paginator_class = LazyPaginator
     template_name = "accommodation_requests/accommodation_requests_list_page.html"
 
     def get_queryset(self):
@@ -461,15 +473,10 @@ class AccommodationRequestDetailOverviewView(
             not ar.get_sponsors_restrict_for_user(user).exists()
             and ar.has_any_active_sponsors()
         ):
-            sponsors = format_html(
-                (
-                    '<strong class="govuk-tag {tag_colour_class}" '
-                    'style="display:inline">'
-                    "{tag_text}"
-                    "</strong>"
-                ),
-                tag_colour_class="govuk-tag--red",
-                tag_text="Sponsor is not in your LA",
+            sponsors = render_govuk_tag(
+                text="Sponsor is not in your LA",
+                colour="red",
+                css_class="app--display-inline",
             )
         else:
             sponsors = [
@@ -482,14 +489,7 @@ class AccommodationRequestDetailOverviewView(
             ]
 
         context["fields"] = [
-            (
-                "Status",
-                render_to_string(
-                    "webapp/components/checks_status_tag/"
-                    "accommodation_checks_status_tag.html",
-                    {"accommodation_checks_status": ar.checks_status},
-                ),
-            ),
+            ("Status", render_app_accommodation_checks_status_tag(ar.checks_status)),
             (
                 "Host",
                 (host := ar.get_host_restrict_for_user(user))
@@ -498,7 +498,6 @@ class AccommodationRequestDetailOverviewView(
                     {
                         "value": host.get_full_name(),
                         "tag_text": "Current host",
-                        "tag_colour": "green",
                         "tag_position": "below",
                     },
                 ),
@@ -535,7 +534,6 @@ class AccommodationRequestDetailOverviewView(
                             {
                                 "value": accommodation.full_address,
                                 "tag_text": "Current accommodation",
-                                "tag_colour": "green",
                                 "tag_position": "below",
                             },
                         )
@@ -554,15 +552,14 @@ class AccommodationRequestDetailOverviewView(
         ):
             return None
 
-        return format_html(
-            '<a class="govuk-link govuk-link--no-visited-state" href="{}">'
-            "Assign local authority"
-            "</a>",
+        return render_govuk_link(
+            "Assign local authority",
             reverse(
                 "unassigned-accommodation-requests:assign-local-authority",
                 kwargs={"pk": self.object.id},
-            )
-            + "?reset=true",
+                query={"reset": "true"},
+            ),
+            no_visited_state=True,
         )
 
 
@@ -635,7 +632,7 @@ class AccommodationRequestDetailActionsView(
                     TagAction(
                         label="Move guests (rematch or reassign)",
                         tag_text="All guests moved",
-                        tag_colour_class="govuk-tag--red",
+                        tag_colour_class="red",
                     )
                 )
             else:
@@ -700,7 +697,7 @@ class AccommodationRequestDetailActionsView(
                     TagAction(
                         label="Withdraw sponsor",
                         tag_text="Sponsor is not in your LA",
-                        tag_colour_class="govuk-tag--red",
+                        tag_colour_class="red",
                     )
                 )
             else:
@@ -708,7 +705,7 @@ class AccommodationRequestDetailActionsView(
                     TagAction(
                         label="Withdraw sponsor",
                         tag_text="All sponsors withdrawn",
-                        tag_colour_class="govuk-tag--red",
+                        tag_colour_class="red",
                     )
                 )
 
@@ -755,23 +752,17 @@ class AccommodationRequestDetailActionsView(
                 [escape(g.get_full_name()) for g in pending_reassignment.guests.all()]
             )
             destination = escape(pending_reassignment.destination_ltla_name)
-            reassignments_link = format_html(
-                '<a class="govuk-link govuk-link" href="{}">{}</a>',
-                reverse(
-                    "reassignment-requests:detail-received",
-                    kwargs={"pk": pending_reassignment.id},
-                ),
-                "pending request to move guests",
-            )
-            reassignment_message = format_html(
-                '<p class="govuk-notification-banner__heading max-width-none">'
-                "You sent a request to move {} to {}.<br><br>"
-                "You cannot take any actions on this accommodation request "
-                "while there is a {}."
-                "</p>",
-                guest_names,
-                destination,
-                reassignments_link,
+            reassignment_message = render_to_string(
+                "accommodation_requests/move_guests/"
+                "accommodation_requests_move_guests_notification_banner_content.html",
+                {
+                    "guest_names": guest_names,
+                    "destination": destination,
+                    "reassignments_link": reverse(
+                        "reassignment-requests:detail-received",
+                        kwargs={"pk": pending_reassignment.id},
+                    ),
+                },
             )
             messages.info(
                 self.request,
@@ -965,8 +956,13 @@ class AccommodationRequestDetailHistoryView(
 
 
 class AccommodationRequestCloseForGuests(
-    PIISafeRecordNameMixin, PermissionsMixin, SingleObjectMixin, FormView
+    PageTitleMixin,
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    SingleObjectMixin,
+    FormView,
 ):
+    heading_labels_title = False
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
@@ -1017,7 +1013,7 @@ class AccommodationRequestCloseForGuests(
         reason = form.cleaned_data["reason"]
         comment = form.cleaned_data["comment"]
 
-        if selected_guests and accommodation_request.number_of_people != len(
+        if selected_guests and len(accommodation_request.person_id or []) != len(
             selected_guests
         ):
             accommodation_request = accommodation_request.split_guests(selected_guests)
@@ -1068,8 +1064,13 @@ class AccommodationRequestCloseForGuests(
 
 
 class AccommodationRequestReopenRequestView(
-    PIISafeRecordNameMixin, PermissionsMixin, SingleObjectMixin, FormView
+    PageTitleMixin,
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    SingleObjectMixin,
+    FormView,
 ):
+    heading_labels_title = False
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
@@ -1198,8 +1199,13 @@ class AccommodationRequestUpdateSafeguardingChecksView(
 
 
 class AccommodationRequestWithdrawSponsorView(
-    PIISafeRecordNameMixin, PermissionsMixin, SingleObjectMixin, FormView
+    PageTitleMixin,
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    SingleObjectMixin,
+    FormView,
 ):
+    heading_labels_title = False
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
@@ -1293,12 +1299,18 @@ class AccommodationRequestWithdrawSponsorView(
 
 
 class RematchGuestsFormWizard(
+    WizardPageTitleMixin,
     PIISafeRecordNameMixin,
     PermissionsMixin,
     SingleObjectMixin,
     NamedUrlSessionWizardView,
 ):
     model = MvAccommodationRequest
+    step_headings = {
+        RematchGuestsFormSteps.GUESTS: "Select guests to move",
+        RematchGuestsFormSteps.SELECT_ACCOMMODATION: "Select accommodation",
+        RematchGuestsFormSteps.CONFIRMATION: "Check and confirm",
+    }
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
@@ -1407,7 +1419,7 @@ class RematchGuestsFormWizard(
 
         try:
             with transaction.atomic():
-                if ar.number_of_people != len(guests_to_move):
+                if len(ar.person_id or []) != len(guests_to_move):
                     pre_split_ar = ar
                     pre_split_person_id = list(pre_split_ar.person_id or [])
                     ar = ar.split_guests(guest_ids)
@@ -1593,12 +1605,20 @@ class RematchGuestsFormWizard(
 
 
 class ReassignGuestsFormWizard(
+    WizardPageTitleMixin,
     PIISafeRecordNameMixin,
     PermissionsMixin,
     SingleObjectMixin,
     NamedUrlSessionWizardView,
 ):
     model = MvAccommodationRequest
+    step_headings = {
+        ReassignGuestsFormSteps.GUESTS: "Select guests to move",
+        ReassignGuestsFormSteps.COUNTRY: "Select country",
+        ReassignGuestsFormSteps.LOCAL_AUTHORITY: "Select local authority",
+        ReassignGuestsFormSteps.REASON: "Reason for moving",
+        ReassignGuestsFormSteps.CONFIRMATION: "Check and confirm",
+    }
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
@@ -1743,12 +1763,19 @@ class ReassignGuestsFormWizard(
 
 
 class SelectPrimaryAccommodationAndHostWizard(
+    WizardPageTitleMixin,
     PIISafeRecordNameMixin,
     PermissionsMixin,
     SingleObjectMixin,
     NamedUrlSessionWizardView,
 ):
     model = MvAccommodationRequest
+    step_headings = {
+        SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION: (
+            "Select current accommodation"
+        ),
+        SelectPrimaryAccommodationAndHostSteps.HOST: "Select current host",
+    }
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
@@ -1890,28 +1917,19 @@ class AccommodationTable(tables.Table):
     )
 
     def render_full_address(self, record: MvAccommodation, value):
-        return format_html(
-            '<a class="govuk-body-s govuk-link" href="{}" '
-            'rel="noreferrer noopener" target="_blank">{} '
-            '<span class="govuk-visually-hidden">(opens in new tab)</span></a>',
-            reverse("accommodations:detail-overview", args=[record.id]),
+        return render_govuk_link(
             value,
+            reverse("accommodations:detail-overview", args=[record.id]),
+            opens_in_new_tab=True,
         )
 
     def render_select(self, value, record):
-        return format_html(
-            '<form method="post">'
-            "{management_form}"
-            '<input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}"/>'
-            '<input type="hidden" name="select_accommodation-accommodation" '
-            'id="id_select_accommodation-accommodation" value="{value}"/>'
-            '<button type="submit" name="submit" class="govuk-link">Select'
-            '<span class="govuk-visually-hidden"> {record_name}</span></button>'
-            "</form>",
-            management_form=self.context["wizard"]["management_form"],
-            value=value,
-            csrf_token=get_token(self.request),
-            record_name=record.full_address,
+        return render_app_form_link(
+            self.request,
+            "select_accommodation-accommodation",
+            value,
+            record.full_address,
+            self.context["wizard"]["management_form"],
         )
 
     class Meta:
@@ -2009,8 +2027,16 @@ class RematchSelectAccommodationFormStepView(
 
 
 class MoveGuestsIsStayingInLaFormView(
-    PIISafeRecordNameMixin, PermissionsMixin, SingleObjectMixin, FormView
+    PageTitleMixin,
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    SingleObjectMixin,
+    FormView,
 ):
+    def get_page_heading(self) -> str | None:
+        label = self.form_class.base_fields["within_la"].label
+        return str(label) if label else None
+
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,

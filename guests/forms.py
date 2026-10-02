@@ -1,11 +1,12 @@
 from datetime import datetime, timedelta
 
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import HTML, Field, Fieldset, Layout
+from crispy_forms_gds.layout import HTML, Button, Div, Field, Fieldset, Layout
 from crispy_forms_gds.layout.constants import Size
 from django import forms
 
 from ontology.models import MvPerson
+from webapp.layout import Link
 from webapp.mixins import ReadOnlyFieldsMixin
 from webapp.widgets import DatePicker, MultiValueWidget
 
@@ -46,12 +47,10 @@ class GuestBaseForm(ReadOnlyFieldsMixin, forms.ModelForm):
 
     def get_button_layout(self):
         return [
-            HTML(
-                '<div class="govuk-button-group">'
-                '    <button type="submit" class="govuk-button">Update</button>'
-                '    <a class="govuk-link govuk-link--no-visited-state"\n'
-                '       href="{{ cancel_url }}">Cancel</a>'
-                "</div>"
+            Div(
+                Button.primary("submit", "Update"),
+                Link.cancel(),
+                css_class="govuk-button-group",
             ),
         ]
 
@@ -59,24 +58,21 @@ class GuestBaseForm(ReadOnlyFieldsMixin, forms.ModelForm):
 class GuestEditForm(GuestBaseForm):
     first_name = forms.CharField(
         label="First Name",
-        widget=forms.Textarea(attrs={"required": True, "rows": 1}),
         error_messages={"required": "Please enter a valid name"},
     )
     last_name = forms.CharField(
         label="Last Name",
-        widget=forms.Textarea(attrs={"required": True, "rows": 1}),
         error_messages={"required": "Please enter a valid last name"},
     )
     date_of_birth = forms.DateField(
         label="Date of Birth",
-        widget=DatePicker(
-            attrs={
-                "required": True,
-                "hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=4000)).strftime('%-d/%-m/%Y')}.",
-            }
-        ),
-        error_messages={"required": "Please enter a valid date of birth"},
+        help_text=f"For example, "
+        f"{(datetime.today() - timedelta(days=4000)).strftime('%-d/%-m/%Y')}.",
+        widget=DatePicker(),
+        error_messages={
+            "required": "Please enter a valid date of birth",
+            "invalid": "Enter a valid date for 'Date of birth'",
+        },
     )
     gender = forms.ChoiceField(
         choices=GENDERS,
@@ -85,10 +81,11 @@ class GuestEditForm(GuestBaseForm):
         required=False,
     )
     email = forms.Field(
-        label="Email address",
+        label="",
+        help_text="Enter up to 5 email addresses.",
         required=True,
         widget=MultiValueWidget(
-            attrs={"label": "email", "required": True, "input_type": "email"}
+            "Email address", attrs={"label": "email", "input_type": "email"}
         ),
         error_messages={
             "required": "Please enter an email address",
@@ -96,14 +93,18 @@ class GuestEditForm(GuestBaseForm):
         },
     )
     phone = forms.Field(
-        label="Phone number (optional)",
+        label="",
+        help_text="Enter up to 5 phone numbers.",
         required=False,
-        widget=MultiValueWidget(attrs={"label": "phone number"}),
+        widget=MultiValueWidget(
+            "Phone number", attrs={"label": "phone number", "required": False}
+        ),
     )
     passport_id = forms.Field(
-        label="Passport number",
+        label="",
+        help_text="Enter up to 5 passport numbers.",
         required=True,
-        widget=MultiValueWidget(attrs={"label": "passport number", "required": True}),
+        widget=MultiValueWidget("Passport number", attrs={"label": "passport number"}),
     )
     disability_flag = forms.BooleanField(
         label="Yes",
@@ -133,26 +134,20 @@ class GuestEditForm(GuestBaseForm):
                 "gender",
                 context={"label_size": "govuk-fieldset__legend--s"},
             ),
-            Field(
+            Fieldset(
                 "email",
-                context={
-                    "label_size": "govuk-fieldset__legend--s",
-                    "hint": "Enter up to 5 email addresses",
-                },
+                legend="Email address",
+                legend_size=Size.SMALL,
             ),
-            Field(
+            Fieldset(
                 "phone",
-                context={
-                    "label_size": "govuk-fieldset__legend--s",
-                    "hint": "Enter up to 5 phone numbers",
-                },
+                legend="Phone number (optional)",
+                legend_size=Size.SMALL,
             ),
-            Field(
+            Fieldset(
                 "passport_id",
-                context={
-                    "label_size": "govuk-fieldset__legend--s",
-                    "hint": "Enter up to 5 passport numbers",
-                },
+                legend="Passport number",
+                legend_size=Size.SMALL,
             ),
             Fieldset(
                 Field.checkboxes("disability_flag", legend_size=Size.SMALL),

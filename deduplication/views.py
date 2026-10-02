@@ -1,6 +1,6 @@
 import logging
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import StrEnum
 from typing import Any, List
 
@@ -10,18 +10,14 @@ from django.contrib import messages
 from django.db.models import Count, Q
 from django.forms import CheckboxInput, CheckboxSelectMultiple
 from django.http import Http404, HttpRequest
-from django.middleware.csrf import get_token
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
-from django.utils.html import format_html
-from django.utils.safestring import mark_safe
 from django.views.generic import FormView, TemplateView
 from django_filters import BooleanFilter, CharFilter, FilterSet, MultipleChoiceFilter
 from django_filters.views import FilterView
 from django_tables2 import (
     Column,
-    LazyPaginator,
     MultiTableMixin,
     SingleTableMixin,
     SingleTableView,
@@ -66,12 +62,30 @@ from webapp.constants import (
     GUEST_SEARCH_FIELDS,
     visa_status_list,
 )
-from webapp.mixins import FilterPanelMixin, PermissionsMixin, TableRendererMixin
+from webapp.mixins import (
+    FilterPanelMixin,
+    PaginatorClassMixin,
+    PermissionsMixin,
+    SectionHeadingMixin,
+    TableRendererMixin,
+    WizardPageTitleMixin,
+)
 from webapp.search import perform_search
+from webapp.templatetags.field_renderers import render_app_hidden_input
+from webapp.templatetags.link_renderers import (
+    render_app_form_link,
+    render_app_record_link,
+    render_govuk_link,
+)
+from webapp.templatetags.tag_renderers import (
+    render_app_accommodation_checks_status_tag,
+    render_app_visa_status_tag,
+)
 from webapp.utils import (
     CustomDateColumn,
     CustomDateFromToRangeFilter,
     CustomDateTimeColumn,
+    date_hint_text,
 )
 from webapp.widgets import CheckboxSelectMultipleWithTags, DatePicker, StackedRangeInput
 
@@ -145,6 +159,19 @@ SELECT_AND_REVIEW_RECORDS_FORMS = [
     (SelectAndReviewRecordsStep.CHECK_AND_COMPLETE, CheckAndCompleteStepForm),
 ]
 
+SELECT_AND_REVIEW_STEP_HEADINGS = {
+    SelectAndReviewRecordsStep.REVIEW_SELECTED_RECORDS: (
+        "Deduplicate selected records"
+    ),
+    SelectAndReviewRecordsStep.SELECT_ACCOMMODATION_REQUEST: (
+        "Select accommodation request"
+    ),
+    SelectAndReviewRecordsStep.SELECT_CORRECT_DETAILS: "Select correct details",
+    SelectAndReviewRecordsStep.CHECK_AND_COMPLETE: (
+        "Check details and complete deduplication"
+    ),
+}
+
 SELECT_AND_REVIEW_FORM_TEMPLATES = {
     SelectAndReviewRecordsStep.SELECT_RECORD: "select_records_list_step.html",  # noqa: E501
     SelectAndReviewRecordsStep.VIEW_SELECTED_RECORDS: "view_selected_records_list_step.html",  # noqa: E501
@@ -176,6 +203,7 @@ UNDO_DEDUPLICATION_RECORDS_FORMS = [
     ),
 ]
 
+
 UNDO_DEDUPLICATION_FORM_TEMPLATES = {
     UndoDeduplicationRecordsStep.VIEW_DUPLICATE_RECORDS: "view_duplicate_records_list_step.html",  # noqa: E501
     UndoDeduplicationRecordsStep.UNDO_DEDUPLICATE_RECORDS: "undo_deduplicate_records_step.html",  # noqa: E501
@@ -185,7 +213,7 @@ UNDO_DEDUPLICATION_FORM_TEMPLATES = {
 
 ## DEDUPLICATION
 # Select object type
-class SelectRecordTypeView(PermissionsMixin, FormView):
+class SelectRecordTypeView(SectionHeadingMixin, PermissionsMixin, FormView):
     template_name = "select_duplicate_record_type.html"
     form_class = SelectRecordTypeForm
     group_type = list(FIX_DUPLICATE_RECORDS_ALLOWED_GROUP_TYPES)
@@ -209,6 +237,11 @@ class SelectRecordTypeView(PermissionsMixin, FormView):
             )
 
         return redirect(redirect_url)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["cancel_url"] = reverse("webapp:landing-page")
+        return context
 
 
 # Select records for deduplication
@@ -269,17 +302,15 @@ class ManualSponsorDeduplicationFilter(FilterSet, FilterPanelMixin):
         widget=StackedRangeInput(
             sub_widget=DatePicker,
             attrs={
-                "from_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20000)).strftime('%-d/%-m/%Y')}.",
-                "to_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=9500)).strftime('%-d/%-m/%Y')}.",
+                "from_help_text": date_hint_text(20000),
+                "to_help_text": date_hint_text(9500),
                 "from_label": "Date from",
                 "to_label": "Date to",
             },
         ),
         distinct=True,
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "'Date of birth from' must be before 'Date of birth to'.",
         },
     )
 
@@ -301,17 +332,15 @@ class ManualSponsorDeduplicationFilter(FilterSet, FilterPanelMixin):
         widget=StackedRangeInput(
             sub_widget=DatePicker,
             attrs={
-                "from_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=1000)).strftime('%-d/%-m/%Y')}.",
-                "to_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
+                "from_help_text": date_hint_text(1000),
+                "to_help_text": date_hint_text(20),
                 "from_label": "Date from",
                 "to_label": "Date to",
             },
         ),
         distinct=True,
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "'Date added from' must be before 'Date added to'.",
         },
     )
 
@@ -382,43 +411,25 @@ class ManualSponsorDeduplicationTable(dj_tables.Table):
     )
 
     def render_full_name(self, record: MvVolunteer, value):
-        return format_html(
-            '<a class="govuk-body-s govuk-link" href="{url}">{value}</a>',
-            url=reverse("sponsors:detail-overview", args=[record.id]),
-            value=value,
+        return render_govuk_link(
+            value, reverse("sponsors:detail-overview", args=[record.id])
         )
 
     def render_is_eoi(self, value):
         return "True" if value is True else "False"
 
     def render_select(self, value, record):
-        hidden_sponsor_inputs = mark_safe(
-            "".join(
-                [
-                    format_html(
-                        '<input type="hidden" name="select-record-sponsor_record" '
-                        'id="id_select-record-sponsor_record" value="{value}"/>',
-                        value=pk,
-                    )
-                    for pk in self.context["selected_ids"]
-                ]
-            )
-        )
-        return format_html(
-            '<form method="post">'
-            "{management_form}"
-            "{hidden_sponsor_inputs}"
-            '<input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}"/>'
-            '<input type="hidden" name="select-record-sponsor_record"'
-            'id="id_select-record-sponsor_record" value="{value}"/>'
-            '<button type="submit" name="submit" class="govuk-link">Select'
-            '<span class="govuk-visually-hidden"> {record_name}</span></button>'
-            "</form>",
-            management_form=self.context["wizard"]["management_form"],
-            value=value,
-            csrf_token=get_token(self.request),
-            hidden_sponsor_inputs=hidden_sponsor_inputs,
-            record_name=record.get_full_name(),
+        hidden_sponsor_inputs = [
+            render_app_hidden_input("select-record-sponsor_record", pk)
+            for pk in self.context["selected_ids"]
+        ]
+        return render_app_form_link(
+            self.request,
+            "select-record-sponsor_record",
+            value,
+            record.get_full_name(),
+            self.context["wizard"]["management_form"],
+            *hidden_sponsor_inputs,
         )
 
     class Meta:
@@ -437,13 +448,12 @@ class ManualSponsorDeduplicationTable(dj_tables.Table):
 
 
 class SelectAndReviewRecordsSponsorListStepView(
-    PermissionsMixin, SingleTableMixin, FilterView
+    PermissionsMixin, SingleTableMixin, PaginatorClassMixin, FilterView
 ):
     model = MvVolunteer
     table_class = ManualSponsorDeduplicationTable
     filterset_class = ManualSponsorDeduplicationFilter
     table_pagination = {"per_page": os.environ.get("PAGINATION_PAGE_SIZE")}
-    paginator_class = LazyPaginator
     template_name = "select_records_list_step.html"
 
     def __init__(self, **kwargs):
@@ -542,17 +552,15 @@ class ManualGuestDeduplicationFilter(FilterSet, FilterPanelMixin):
         widget=StackedRangeInput(
             sub_widget=DatePicker,
             attrs={
-                "from_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=10000)).strftime('%-d/%-m/%Y')}.",
-                "to_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
+                "from_help_text": date_hint_text(10000),
+                "to_help_text": date_hint_text(20),
                 "from_label": "Date from",
                 "to_label": "Date to",
             },
         ),
         distinct=True,
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "'Date of birth from' must be before 'Date of birth to'.",
         },
     )
 
@@ -570,17 +578,16 @@ class ManualGuestDeduplicationFilter(FilterSet, FilterPanelMixin):
         widget=StackedRangeInput(
             sub_widget=DatePicker,
             attrs={
-                "from_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=10000)).strftime('%-d/%-m/%Y')}.",
-                "to_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
+                "from_help_text": date_hint_text(10000),
+                "to_help_text": date_hint_text(20),
                 "from_label": "Date from",
                 "to_label": "Date to",
             },
         ),
         distinct=True,
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "'First arrival date from' must be before "
+            "'First arrival date to'.",
         },
     )
 
@@ -590,17 +597,16 @@ class ManualGuestDeduplicationFilter(FilterSet, FilterPanelMixin):
         widget=StackedRangeInput(
             sub_widget=DatePicker,
             attrs={
-                "from_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=10000)).strftime('%-d/%-m/%Y')}.",
-                "to_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
+                "from_help_text": date_hint_text(10000),
+                "to_help_text": date_hint_text(20),
                 "from_label": "Date from",
                 "to_label": "Date to",
             },
         ),
         distinct=True,
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "'Latest visa application date from' must be before "
+            "'Latest visa application date to'.",
         },
     )
 
@@ -683,47 +689,26 @@ class ManualGuestDeduplicationTable(dj_tables.Table):
     )
 
     def render_get_full_name(self, record: MvPerson, value):
-        return format_html(
-            '<a class="govuk-body-s govuk-link" href="{url}">{value}</a>',
-            url=reverse("guests:detail-overview", args=[record.id]),
-            value=value,
+        return render_govuk_link(
+            value, reverse("guests:detail-overview", args=[record.id])
         )
 
     def render_select(self, value, record):
-        hidden_guest_inputs = mark_safe(
-            "".join(
-                [
-                    format_html(
-                        '<input type="hidden" name="select-record-guest_record" '
-                        'id="id_select-record-guest_record" value="{value}"/>',
-                        value=pk,
-                    )
-                    for pk in self.context["selected_ids"]
-                ]
-            )
-        )
-        return format_html(
-            '<form method="post">'
-            "{management_form}"
-            "{hidden_guest_inputs}"
-            '<input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}"/>'
-            '<input type="hidden" name="select-record-guest_record"'
-            'id="id_select-record-guest_record" value="{value}"/>'
-            '<button type="submit" name="submit" class="govuk-link">Select'
-            '<span class="govuk-visually-hidden"> {record_name}</span></button>'
-            "</form>",
-            management_form=self.context["wizard"]["management_form"],
-            value=value,
-            csrf_token=get_token(self.request),
-            hidden_guest_inputs=hidden_guest_inputs,
-            record_name=record.get_full_name(),
+        hidden_guest_inputs = [
+            render_app_hidden_input("select-record-guest_record", pk)
+            for pk in self.context["selected_ids"]
+        ]
+        return render_app_form_link(
+            self.request,
+            "select-record-guest_record",
+            value,
+            record.get_full_name(),
+            self.context["wizard"]["management_form"],
+            *hidden_guest_inputs,
         )
 
     def render_visa_status(self, value):
-        return render_to_string(
-            "webapp/components/visa_status_tag/visa_status_tag.html",
-            {"visa_status": value},
-        )
+        return render_app_visa_status_tag(value)
 
     class Meta:
         model = MvPerson
@@ -742,13 +727,12 @@ class ManualGuestDeduplicationTable(dj_tables.Table):
 
 
 class SelectAndReviewRecordsGuestListStepView(
-    PermissionsMixin, SingleTableMixin, FilterView
+    PermissionsMixin, SingleTableMixin, PaginatorClassMixin, FilterView
 ):
     model = MvPerson
     table_class = ManualGuestDeduplicationTable
     filterset_class = ManualGuestDeduplicationFilter
     table_pagination = {"per_page": os.environ.get("PAGINATION_PAGE_SIZE")}
-    paginator_class = LazyPaginator
     template_name = "select_records_list_step.html"
 
     def __init__(self, **kwargs):
@@ -859,41 +843,24 @@ class ManualAccommodationDeduplicationTable(dj_tables.Table, TableRendererMixin)
     )
 
     def render_full_address(self, record: MvAccommodation, value):
-        return format_html(
-            '<a class="govuk-body-s govuk-link--no-visited-state" href="{}">{}</a>',
-            reverse("accommodations:detail-overview", args=[record.id]),
+        return render_govuk_link(
             value,
+            reverse("accommodations:detail-overview", args=[record.id]),
+            no_visited_state=True,
         )
 
     def render_select(self, value, record):
-        hidden_accommodation_inputs = mark_safe(
-            "".join(
-                [
-                    format_html(
-                        '<input type="hidden" '
-                        'name="select-record-accommodation_record" '
-                        'id="id_select-record-accommodation_record" value="{value}"/>',
-                        value=pk,
-                    )
-                    for pk in self.context["selected_ids"]
-                ]
-            )
-        )
-        return format_html(
-            '<form method="post">'
-            "{management_form}"
-            "{hidden_accommodation_inputs}"
-            '<input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}"/>'
-            '<input type="hidden" name="select-record-accommodation_record"'
-            'id="id_select-record-accommodation_record" value="{value}"/>'
-            '<button type="submit" name="submit" class="govuk-link">Select'
-            '<span class="govuk-visually-hidden"> {record_name}</span></button>'
-            "</form>",
-            management_form=self.context["wizard"]["management_form"],
-            value=value,
-            csrf_token=get_token(self.request),
-            hidden_accommodation_inputs=hidden_accommodation_inputs,
-            record_name=record.full_address,
+        hidden_accommodation_inputs = [
+            render_app_hidden_input("select-record-accommodation_record", pk)
+            for pk in self.context["selected_ids"]
+        ]
+        return render_app_form_link(
+            self.request,
+            "select-record-accommodation_record",
+            value,
+            record.full_address,
+            self.context["wizard"]["management_form"],
+            *hidden_accommodation_inputs,
         )
 
     class Meta:
@@ -903,13 +870,12 @@ class ManualAccommodationDeduplicationTable(dj_tables.Table, TableRendererMixin)
 
 
 class SelectAndReviewRecordsAccommodationListStepView(
-    PermissionsMixin, SingleTableMixin, FilterView
+    PermissionsMixin, SingleTableMixin, PaginatorClassMixin, FilterView
 ):
     model = MvAccommodation
     table_class = ManualAccommodationDeduplicationTable
     filterset_class = ManualAccommodationDeduplicationFilter
     table_pagination = {"per_page": os.environ.get("PAGINATION_PAGE_SIZE")}
-    paginator_class = LazyPaginator
     template_name = "select_records_list_step.html"
 
     def __init__(self, **kwargs):
@@ -987,30 +953,21 @@ class ManualViewSelectedSponsorsTable(dj_tables.Table):
                 column.column.orderable = False
 
     def render_full_name(self, record: MvVolunteer, value):
-        return format_html(
-            '<a class="govuk-body-s govuk-link" href="{url}">{value}</a>',
-            url=reverse("sponsors:detail-overview", args=[record.id]),
-            value=value,
+        return render_govuk_link(
+            value, reverse("sponsors:detail-overview", args=[record.id])
         )
 
     def render_is_eoi(self, value):
         return "True" if value is True else "False"
 
     def render_remove(self, value, record):
-        return format_html(
-            '<form method="post">'
-            "{management_form}"
-            '<input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}"/>'
-            '<input type="hidden" '
-            'name="review-selected-records-sponsor_record_to_remove"'
-            'id="id_review-selected-records-sponsor_record_to_remove" value="{value}"/>'
-            '<button type="submit" name="submit" class="govuk-link">Remove'
-            '<span class="govuk-visually-hidden"> {record_name}</span></button>'
-            "</form>",
-            management_form=self.context["wizard"]["management_form"],
-            value=value,
-            csrf_token=get_token(self.request),
-            record_name=record.get_full_name(),
+        return render_app_form_link(
+            self.request,
+            "review-selected-records-sponsor_record_to_remove",
+            value,
+            record.get_full_name(),
+            self.context["wizard"]["management_form"],
+            text="Remove",
         )
 
     class Meta:
@@ -1096,33 +1053,22 @@ class ManualViewSelectedGuestsTable(dj_tables.Table):
                 column.column.orderable = False
 
     def render_get_full_name(self, record: MvPerson, value):
-        return format_html(
-            '<a class="govuk-body-s govuk-link" href="{url}">{value}</a>',
-            url=reverse("guests:detail-overview", args=[record.id]),
-            value=value,
+        return render_govuk_link(
+            value, reverse("guests:detail-overview", args=[record.id])
         )
 
     def render_remove(self, value, record):
-        return format_html(
-            '<form method="post">'
-            "{management_form}"
-            '<input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}"/>'
-            '<input type="hidden" name="review-selected-records-guest_record_to_remove"'
-            'id="id_review-selected-records-guest_record_to_remove" value="{value}"/>'
-            '<button type="submit" name="submit" class="govuk-link">Remove'
-            '<span class="govuk-visually-hidden"> {record_name}</span></button>'
-            "</form>",
-            management_form=self.context["wizard"]["management_form"],
-            value=value,
-            csrf_token=get_token(self.request),
-            record_name=record.get_full_name(),
+        return render_app_form_link(
+            self.request,
+            "review-selected-records-guest_record_to_remove",
+            value,
+            record.get_full_name(),
+            self.context["wizard"]["management_form"],
+            text="Remove",
         )
 
     def render_visa_status(self, value):
-        return render_to_string(
-            "webapp/components/visa_status_tag/visa_status_tag.html",
-            {"visa_status": value},
-        )
+        return render_app_visa_status_tag(value)
 
     class Meta:
         model = MvPerson
@@ -1201,28 +1147,20 @@ class ManualViewSelectedAccommodationsTable(dj_tables.Table, TableRendererMixin)
                 column.column.orderable = False
 
     def render_full_address(self, record: MvAccommodation, value):
-        return format_html(
-            '<a class="govuk-body-s govuk-link--no-visited-state" href="{}">{}</a>',
-            reverse("accommodations:detail-overview", args=[record.id]),
+        return render_govuk_link(
             value,
+            reverse("accommodations:detail-overview", args=[record.id]),
+            no_visited_state=True,
         )
 
     def render_remove(self, value, record):
-        return format_html(
-            '<form method="post">'
-            "{management_form}"
-            '<input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}"/>'
-            '<input type="hidden" '
-            'name="review-selected-records-accommodation_record_to_remove"'
-            'id="id_review-selected-records-accommodation_record_to_remove" '
-            'value="{value}"/>'
-            '<button type="submit" name="submit" class="govuk-link">Remove'
-            '<span class="govuk-visually-hidden"> {record_name}</span></button>'
-            "</form>",
-            management_form=self.context["wizard"]["management_form"],
-            value=value,
-            csrf_token=get_token(self.request),
-            record_name=record.full_address,
+        return render_app_form_link(
+            self.request,
+            "review-selected-records-accommodation_record_to_remove",
+            value,
+            record.full_address,
+            self.context["wizard"]["management_form"],
+            text="Remove",
         )
 
     class Meta:
@@ -1276,10 +1214,8 @@ class ManualReviewSelectedSponsorsTable(dj_tables.Table):
     created_date = CustomDateTimeColumn(verbose_name="Date added", orderable=False)
 
     def render_full_name(self, record: MvVolunteer, value):
-        return format_html(
-            '<a class="govuk-body-s govuk-link" href="{url}">{value}</a>',
-            url=reverse("sponsors:detail-overview", args=[record.id]),
-            value=value,
+        return render_govuk_link(
+            value, reverse("sponsors:detail-overview", args=[record.id])
         )
 
     def render_is_eoi(self, value):
@@ -1358,17 +1294,12 @@ class ManualReviewSelectedGuestsTable(dj_tables.Table):
     )
 
     def render_get_full_name(self, record: MvPerson, value):
-        return format_html(
-            '<a class="govuk-body-s govuk-link" href="{url}">{value}</a>',
-            url=reverse("guests:detail-overview", args=[record.id]),
-            value=value,
+        return render_govuk_link(
+            value, reverse("guests:detail-overview", args=[record.id])
         )
 
     def render_visa_status(self, value):
-        return render_to_string(
-            "webapp/components/visa_status_tag/visa_status_tag.html",
-            {"visa_status": value},
-        )
+        return render_app_visa_status_tag(value)
 
     class Meta:
         model = MvPerson
@@ -1478,20 +1409,16 @@ class ManualSelectAccommodationRequestTable(dj_tables.Table):
     utla_name = Column(verbose_name="Upper tier LA", orderable=False)
 
     def render_title(self, record: MvAccommodationRequest, value):
-        return format_html(
-            '<a class="govuk-body-s govuk-link" href="{}">{}</a>',
+        return render_govuk_link(
+            value,
             reverse(
                 "accommodation-requests:detail-overview",
                 args=[record.id],
             ),
-            value,
         )
 
     def render_checks_status(self, value):
-        return render_to_string(
-            "webapp/components/checks_status_tag/accommodation_checks_status_tag.html",
-            {"accommodation_checks_status": value},
-        )
+        return render_app_accommodation_checks_status_tag(value)
 
     class Meta:
         model = MvAccommodationRequest
@@ -1628,17 +1555,12 @@ class ManualSelectCorrectDetailsGuestsTable(dj_tables.Table):
         super().__init__(*args, **kwargs)
 
     def render_get_full_name(self, record: MvPerson, value):
-        return format_html(
-            '<a class="govuk-body-s govuk-link" href="{url}">{value}</a>',
-            url=reverse("guests:detail-overview", args=[record.id]),
-            value=value,
+        return render_govuk_link(
+            value, reverse("guests:detail-overview", args=[record.id])
         )
 
     def render_visa_status(self, value):
-        return render_to_string(
-            "webapp/components/visa_status_tag/visa_status_tag.html",
-            {"visa_status": value},
-        )
+        return render_app_visa_status_tag(value)
 
     class Meta:
         model = MvPerson
@@ -1795,10 +1717,7 @@ class ManualCheckAndCompleteGuestsTable(dj_tables.Table):
     )
 
     def render_visa_status(self, value):
-        return render_to_string(
-            "webapp/components/visa_status_tag/visa_status_tag.html",
-            {"visa_status": value},
-        )
+        return render_app_visa_status_tag(value)
 
     class Meta:
         model = MvPerson
@@ -1877,12 +1796,8 @@ class ManualViewDeduplicatedSponsorsTable(dj_tables.Table):
         super().__init__(*args, **kwargs)
 
     def render_full_name(self, record: MvVolunteer, value):
-        return format_html(
-            '<a class="govuk-body-s govuk-link" href="{url}">{value}</a>'
-            '<div class="govuk-hint govuk-!-font-size-16 govuk-!-margin-top-1'
-            ' govuk-!-margin-bottom-0">Duplicate</div>',
-            url=reverse("sponsors:detail-overview", args=[record.id]),
-            value=value,
+        return render_app_record_link(
+            record, value, reverse("sponsors:detail-overview", args=[record.id])
         )
 
     class Meta:
@@ -2003,19 +1918,12 @@ class ManualViewDeduplicatedGuestsTable(dj_tables.Table):
         super().__init__(*args, **kwargs)
 
     def render_get_full_name(self, record: MvPerson, value):
-        return format_html(
-            '<a class="govuk-body-s govuk-link" href="{url}">{value}</a>'
-            '<div class="govuk-hint govuk-!-font-size-16 govuk-!-margin-top-1'
-            ' govuk-!-margin-bottom-0">Duplicate</div>',
-            url=reverse("guests:detail-overview", args=[record.id]),
-            value=value,
+        return render_app_record_link(
+            record, value, reverse("guests:detail-overview", args=[record.id])
         )
 
     def render_visa_status(self, value):
-        return render_to_string(
-            "webapp/components/visa_status_tag/visa_status_tag.html",
-            {"visa_status": value},
-        )
+        return render_app_visa_status_tag(value)
 
     class Meta:
         model = MvPerson
@@ -2129,12 +2037,8 @@ class ManualViewDeduplicatedAccommodationTable(dj_tables.Table, TableRendererMix
     utla_name = Column(verbose_name="Upper tier LA", orderable=False)
 
     def render_full_address(self, record: MvAccommodation, value):
-        return format_html(
-            '<a class="govuk-body-s govuk-link" href="{url}">{value}</a>'
-            '<div class="govuk-hint govuk-!-font-size-16 govuk-!-margin-top-1'
-            ' govuk-!-margin-bottom-0">Duplicate</div>',
-            url=reverse("accommodations:detail-overview", args=[record.id]),
-            value=value,
+        return render_app_record_link(
+            record, value, reverse("accommodations:detail-overview", args=[record.id])
         )
 
     def __init__(self, *args, **kwargs):
@@ -2229,6 +2133,7 @@ class UndoDeduplicationAccommodationRecordsRecordsRestoredStepView(
 
 # Form Wizards
 class SelectAndViewRecordsFormWizard(
+    WizardPageTitleMixin,
     PermissionsMixin,
     FormView,
     NamedUrlSessionWizardView,
@@ -2274,9 +2179,16 @@ class SelectAndViewRecordsFormWizard(
         kwargs = super().get_form_kwargs(step)
         return kwargs
 
-    def get_context_data(self, form, **kwargs):
-        context = super().get_context_data(form=form, **kwargs)
-        return context
+    def get_step_heading(self, context: dict) -> str:
+        step = self.steps.current
+        if step == SelectAndReviewRecordsStep.SELECT_RECORD:
+            if context.get("selected_ids"):
+                return "Select next record"
+            return f"Fix duplicate {context.get('type', '')} records"
+        if step == SelectAndReviewRecordsStep.VIEW_SELECTED_RECORDS:
+            plural = "s" if len(context.get("object_list") or []) > 1 else ""
+            return f"View selected record{plural}"
+        return SELECT_AND_REVIEW_STEP_HEADINGS.get(step, "")
 
     def get(self, request, *args, **kwargs):
         if "reset" in request.GET:
@@ -2324,6 +2236,7 @@ class SelectAndViewRecordsFormWizard(
 
 
 class UndoDeduplicationRecordsFormWizard(
+    WizardPageTitleMixin,
     PermissionsMixin,
     FormView,
     NamedUrlSessionWizardView,
@@ -2332,6 +2245,15 @@ class UndoDeduplicationRecordsFormWizard(
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+    def get_step_heading(self, context: dict) -> str:
+        step = self.steps.current
+        record_type = context.get("type", "")
+        if step == UndoDeduplicationRecordsStep.VIEW_DUPLICATE_RECORDS:
+            return f"View duplicate {record_type} records"
+        if step == UndoDeduplicationRecordsStep.UNDO_DEDUPLICATE_RECORDS:
+            return f"Undo deduplicate {record_type} records"
+        return "Deduplicated records restored"
 
     def get_step_url(self, step):
         kwargs = self.get_url_kwargs()
@@ -2359,7 +2281,6 @@ class UndoDeduplicationRecordsFormWizard(
     def get_form_kwargs(self, step=None):
         kwargs = super().get_form_kwargs(step)
         kwargs["record_id"] = self.kwargs["id"]
-        kwargs["cancel_url"] = self.get_cancel_url()
         return kwargs
 
     def get(self, *args, **kwargs):
@@ -2467,6 +2388,12 @@ class SelectAndReviewSponsorRecordsFormWizard(SelectAndViewRecordsFormWizard):
             ]
             self.get_view_selected_records_step_view().request = self.request
             context |= self.get_view_selected_records_step_view().get_context_data()
+            context["select_another_record_disabled"] = (
+                "disabled" if context["object_list"].count() > 1 else ""
+            )
+            context["confirm_selection_disabled"] = (
+                "disabled" if context["object_list"].count() < 2 else ""
+            )
 
         if self.steps.current == SelectAndReviewRecordsStep.REVIEW_SELECTED_RECORDS:
             self.get_review_selected_records_step_view().selected_sponsor_ids = [
@@ -2882,6 +2809,12 @@ class SelectAndReviewGuestRecordsFormWizard(SelectAndViewRecordsFormWizard):
             ]
             self.get_view_selected_records_step_view().request = self.request
             context |= self.get_view_selected_records_step_view().get_context_data()
+            context["select_another_record_disabled"] = (
+                "disabled" if context["object_list"].count() > 1 else ""
+            )
+            context["confirm_selection_disabled"] = (
+                "disabled" if context["object_list"].count() < 2 else ""
+            )
 
         if self.steps.current == SelectAndReviewRecordsStep.REVIEW_SELECTED_RECORDS:
             self.get_review_selected_records_step_view().selected_guest_ids = [
@@ -3319,6 +3252,12 @@ class SelectAndReviewAccommodationRecordsFormWizard(SelectAndViewRecordsFormWiza
             ]
             self.get_view_selected_records_step_view().request = self.request
             context |= self.get_view_selected_records_step_view().get_context_data()
+            context["select_another_record_disabled"] = (
+                "disabled" if context["object_list"].count() > 1 else ""
+            )
+            context["confirm_selection_disabled"] = (
+                "disabled" if context["object_list"].count() < 2 else ""
+            )
 
         if self.steps.current == SelectAndReviewRecordsStep.REVIEW_SELECTED_RECORDS:
             self.get_review_selected_records_step_view().selected_accommodation_ids = [

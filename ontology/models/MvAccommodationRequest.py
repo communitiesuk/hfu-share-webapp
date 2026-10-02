@@ -1240,7 +1240,7 @@ class MvAccommodationRequest(models.Model):
 
         # Link guests to new ar
         MvPerson.objects.filter(id__in=guest_ids).update(
-            accommodation_request=new_request
+            accommodation_request=new_request, edited_in_app=True
         )
 
         for guest in guest_ids:

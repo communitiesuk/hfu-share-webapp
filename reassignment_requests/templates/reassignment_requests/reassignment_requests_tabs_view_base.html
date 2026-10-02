@@ -9,8 +9,11 @@
 {% block content %}
     {% include "webapp/components/notification_banner/notification_banner_from_messages.html" %}
     <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-half">{% error_summary filter.form %}</div>
+    </div>
+    <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            {% include "webapp/components/heading/heading.html" with page_heading="Requests to move guests to different local authorities" %}
+            {% include "webapp/components/heading/heading.html" with page_heading=page_heading %}
         </div>
     </div>
     <div class="govuk-grid-row">
@@ -32,34 +35,4 @@
             </div>
         </div>
     </div>
-    <script nonce="{{ request.csp_nonce }}">
-        document.addEventListener('DOMContentLoaded', function() {
-            const filterContainer = document.getElementById('filter-container');
-            const showFilterLink = document.getElementById('show-filter-link');
-            const input = document.getElementById('show_filters_panel');
-            const viewKey = 'filtersPanelOpen_' + window.location.pathname;
-            const isOpen = localStorage.getItem(viewKey);
-            const reassignmentRequestsTabsContent = document.getElementById('reassignment-requests-tabs-content');
-
-            if (isOpen === 'true') {
-                reassignmentRequestsTabsContent.classList.remove('govuk-grid-column-two-thirds');
-                reassignmentRequestsTabsContent.classList.add('govuk-grid-column-three-quarters');
-            } else {
-                reassignmentRequestsTabsContent.classList.remove('govuk-grid-column-three-quarters');
-                reassignmentRequestsTabsContent.classList.add('govuk-grid-column-two-thirds');
-            }
-
-            showFilterLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                const currentlyOpen = filterContainer.style.display === 'block';
-                if (currentlyOpen) {
-                    reassignmentRequestsTabsContent.classList.remove('govuk-grid-column-two-thirds');
-                    reassignmentRequestsTabsContent.classList.add('govuk-grid-column-three-quarters');
-                } else {
-                    reassignmentRequestsTabsContent.classList.remove('govuk-grid-column-three-quarters');
-                    reassignmentRequestsTabsContent.classList.add('govuk-grid-column-two-thirds');
-                }
-            });
-        });
-    </script>
 {% endblock content %}

@@ -79,6 +79,20 @@ def test_parallel():
         sys.exit(error.returncode)
 
 
+def seed_groups():
+    from hfurb_scripts.seeders import seed_group as seed_group_run  # noqa: E402
+
+    seed_group_run()
+
+
+def seed_browser_test_users():
+    from hfurb_scripts.seeders import (
+        seed_browser_test_users as seed_browser_test_users_run,  # noqa: E402
+    )
+
+    seed_browser_test_users_run()
+
+
 def test_browser():
     suite = os.environ.get("BROWSER_TEST_SUITE", "default")
     marker = (

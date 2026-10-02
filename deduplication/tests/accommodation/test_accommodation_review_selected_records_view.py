@@ -13,8 +13,8 @@ class DeduplicationAccommodationSelectedViewTests(TestSessionTokenMixin, BaseTes
 
         self.first_accommodation = MvAccommodationFactory(
             full_address="A Test Address 1",
-            ltla_name="ltla_somerset",
-            utla_name="utla_somerset",
+            ltla_name="ltla_test",
+            utla_name="utla_test",
             postcode=MvUkPostcodeFactory(postcode="ABC123"),
             is_principal=True,
         )
@@ -132,7 +132,8 @@ class DeduplicationAccommodationSelectedViewTests(TestSessionTokenMixin, BaseTes
         )
         self.assertContains(
             response,
-            '<button class="govuk-button"type="submit">Continue</button>',
+            '<button name="submit" class="govuk-button" id="id_submit" '
+            'data-module="govuk-button">Continue</button>',
             html=True,
         )
         self.assertContains(

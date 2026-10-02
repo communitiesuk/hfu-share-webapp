@@ -17,7 +17,7 @@
 {% load crispy_forms_filters crispy_forms_tags crispy_forms_gds %}
 {% block form-content %}
     {% include "webapp/components/heading/heading.html" with page_heading=title %}
-    <form method="post">
+    <form method="post" novalidate>
         {% csrf_token %}
         {{ wizard.management_form }}
         {% include "webapp/components/access_request/access_request_summary_list.html" with access_request_summary=form_data.items %}

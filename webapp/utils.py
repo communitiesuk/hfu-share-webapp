@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from typing import Callable
 
 import django_tables2 as tables
@@ -83,3 +84,10 @@ class CustomDateTimeColumn(tables.Column):
 
 def normalize_empty_to_none(value):
     return value or None
+
+
+def date_hint_text(days: int) -> str:
+    return (
+        "For example, "
+        f"{(datetime.today() - timedelta(days=days)).strftime('%-d/%-m/%Y')}."
+    )

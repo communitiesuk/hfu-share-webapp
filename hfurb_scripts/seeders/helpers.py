@@ -70,7 +70,7 @@ def create_mv_uk_postcode(
     )
 
 
-ADDRESS_TOWN_OVERRIDES = {BROWSER_TEST_LTLA_NAMES[0]: "Hobbiton"}
+ADDRESS_TOWN_OVERRIDES = {name: name.split(" (")[0] for name in BROWSER_TEST_LTLA_NAMES}
 
 
 def create_mv_accommodation(

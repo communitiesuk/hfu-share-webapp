@@ -47,7 +47,7 @@ class AccessRequestsDetailPageTestCase(TestSessionTokenMixin, BaseTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.context["TITLE"],
-            f"Review access request: TU - {self.service_name}",
+            f"Review access request: TU - {self.service_name} - GOV.UK",
         )
 
     def test_access_request_tab_title_with_no_last_name(self):
@@ -61,7 +61,8 @@ class AccessRequestsDetailPageTestCase(TestSessionTokenMixin, BaseTestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
-            response.context["TITLE"], f"Review access request: T - {self.service_name}"
+            response.context["TITLE"],
+            f"Review access request: T - {self.service_name} - GOV.UK",
         )
 
     def test_access_request_tab_title_with_no_names(self):
@@ -75,7 +76,8 @@ class AccessRequestsDetailPageTestCase(TestSessionTokenMixin, BaseTestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
-            response.context["TITLE"], f"Review access request - {self.service_name}"
+            response.context["TITLE"],
+            f"Review access request - {self.service_name} - GOV.UK",
         )
 
 
@@ -117,7 +119,8 @@ class UserDetailPageTitleTestCase(TestSessionTokenMixin, BaseTestCase):
 
         self.assertEqual(response.status_code, http.client.OK)
         self.assertEqual(
-            response.context["TITLE"], f"User account: TU - {self.service_name}"
+            response.context["TITLE"],
+            f"User account: TU - {self.service_name} - GOV.UK",
         )
 
     def test_user_detail_page_title_surname_only(self):
@@ -130,7 +133,7 @@ class UserDetailPageTitleTestCase(TestSessionTokenMixin, BaseTestCase):
 
         self.assertEqual(response.status_code, http.client.OK)
         self.assertEqual(
-            response.context["TITLE"], f"User account: U - {self.service_name}"
+            response.context["TITLE"], f"User account: U - {self.service_name} - GOV.UK"
         )
 
     def test_user_detail_page_title_email_only(self):
@@ -143,7 +146,8 @@ class UserDetailPageTitleTestCase(TestSessionTokenMixin, BaseTestCase):
 
         self.assertEqual(response.status_code, http.client.OK)
         self.assertEqual(
-            response.context["TITLE"], f"User account: ema - {self.service_name}"
+            response.context["TITLE"],
+            f"User account: ema - {self.service_name} - GOV.UK",
         )
 
 
@@ -165,5 +169,5 @@ class GroupDetailPageTitleTestCase(TestSessionTokenMixin, BaseTestCase):
         self.assertEqual(response.status_code, http.client.OK)
         self.assertEqual(
             response.context["TITLE"],
-            f"Group details: test_group - {self.service_name}",
+            f"Group details: test_group - {self.service_name} - GOV.UK",
         )

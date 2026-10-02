@@ -8,17 +8,13 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.test import override_settings
 from faker import Faker
 
-from accounts.enums import (
-    BROWSER_TEST_LA_GROUP_NAME,
-    BROWSER_TEST_LTLA_NAMES,
-    GroupType,
-)
-from accounts.tests.factories import GroupFactory, UserFactory
+from accounts.tests.factories import UserFactory
 from hfurb_scripts.seeders import helpers
 from hfurb_scripts.seeders.stages.seed_browser_test_la import (
     BROWSER_TEST_ID_PREFIX,
     seed_browser_test_la,
 )
+from hfurb_scripts.seeders.tests.factories import create_browser_test_la_groups
 from hfurb_scripts.tests.base import BaseScriptTestCase
 from ontology.models import (
     DevCheckV2,
@@ -72,14 +68,8 @@ _original_create_mv_person = helpers.create_mv_person
 class BrowserTestSeederDeterminismTestCase(BaseScriptTestCase):
     def setUp(self):
         super().setUp()
-        group = GroupFactory(
-            name=BROWSER_TEST_LA_GROUP_NAME,
-            groupinfo__ltla_name=BROWSER_TEST_LTLA_NAMES[0],
-            groupinfo__utla_name="Hobbiton (Browser test UTLA)",
-            groupinfo__da_name="England",
-            groupinfo__group_type=GroupType.LOCAL_AUTHORITY_BROWSER_TEST,
-        )
-        UserFactory().groups.add(group)
+        groups = create_browser_test_la_groups()
+        UserFactory().groups.add(groups[0])
 
     def test_reseeding_produces_identical_records(self):
         seed_browser_test_la()

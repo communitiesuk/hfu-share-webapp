@@ -8,7 +8,7 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-one-half">
             {% with suffix=object_list|length|pluralize %}
-                {% include "webapp/components/heading/heading.html" with page_heading="View selected record"|add:suffix %}
+                {% include "webapp/components/heading/heading.html" with page_heading=page_heading %}
             {% endwith %}
             {% if object_list|length > 1 %}<p class="govuk-body">You can now review your selected records.</p>{% endif %}
         </div>
@@ -23,7 +23,7 @@
             {% elif object_list|length <= 1 %}
                 <p class="govuk-body">Select another record from the same lower tier local authority to review.</p>
             {% endif %}
-            <form class="govuk-button-group" method="post">
+            <form class="govuk-button-group" method="post" novalidate>
                 {% csrf_token %}
                 {{ wizard.management_form }}
                 {% crispy form %}

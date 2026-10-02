@@ -26,7 +26,7 @@ class FilterUamsTestCase(BaseTestCase):
         filter_set = UamsFilter(
             queryset=SponsorshipCertificationForm.objects.all(),
             data={
-                "sponsor_date_of_birth_0": "1980-05-01",
+                "sponsor_date_of_birth": "1980-05-01",
                 "sponsor_date_of_birth_1": "1980-05-31",
             },
         )
@@ -40,7 +40,7 @@ class FilterUamsTestCase(BaseTestCase):
         filter_set = UamsFilter(
             queryset=SponsorshipCertificationForm.objects.all(),
             data={
-                "created_at_0": "2025-08-15",
+                "created_at": "2025-08-15",
                 "created_at_1": "2025-09-15",
             },
         )

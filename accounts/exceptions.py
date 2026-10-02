@@ -17,3 +17,7 @@ class FlowError(EntraAuthException):
 
     def __str__(self):
         return f"{self.message}"
+
+
+class StateMismatchError(EntraAuthException):
+    """The auth response state does not match the flow we started."""

@@ -19,8 +19,6 @@ from django.db.models import (
 )
 from django.db.models.functions import Coalesce
 from django.urls import reverse
-from django.utils.html import format_html, format_html_join
-from django.utils.safestring import mark_safe
 
 from ontology.actions.reassignment_request_actions import (
     fill_missing_ltla_utla,
@@ -60,6 +58,14 @@ from ontology.models import (
     VisaInformationRequest,
     VisaInformationRequestComments,
 )
+from webapp.constants import REDACTED_VALUE
+from webapp.templatetags.component_renderers import (
+    ConcatenatedTextSeparator,
+    render_app_concatenated_text,
+)
+from webapp.templatetags.link_renderers import render_app_admin_link
+
+logger = logging.getLogger(__name__)
 
 
 @admin.action(description="Create stub safeguarding checks")
@@ -80,22 +86,22 @@ def create_safeguarding_checks(_, __, queryset: QuerySet[MvAccommodationRequest]
 
 
 def devcheckv2_detail_view(obj):
-    checks = obj.devcheckv2_set.all()
+    checks = obj.checks.all()
     if not checks:
         return "(None)"
-    return format_html_join(
-        mark_safe("<br>"),
-        '<a href={} target="_blank">{}</a>',
-        [
-            (
+    return render_app_concatenated_text(
+        *[
+            render_app_admin_link(
+                check.check_type,
                 reverse(
                     f"admin:{check._meta.app_label}_{check._meta.model_name}_change",
                     args=[check.id],
                 ),
-                check.check_type,
+                opens_in_new_tab=True,
             )
             for check in checks
         ],
+        separator=ConcatenatedTextSeparator.NEW_LINE,
     )
 
 
@@ -191,9 +197,10 @@ class AccommodationRequestAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
 
     def detail_view(self, obj):
         if obj.pk:
-            return format_html(
-                '<a href={} target="_blank">Detail page</a>',
+            return render_app_admin_link(
+                "Detail page",
                 reverse("accommodation-requests:detail-overview", args=[obj.pk]),
+                opens_in_new_tab=True,
             )
         return "-"
 
@@ -221,7 +228,7 @@ class MvPersonAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
 
     @admin.action(description="Update selected guest titles")
     def update_guest_titles_action(self, request, queryset):
-        success_count = 0
+        updated_record_ids = []
         already_correct_count = 0
         error_count = 0
 
@@ -230,15 +237,23 @@ class MvPersonAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
                 result = process_update_guest_titles(person)
 
                 if result:
-                    success_count += 1
+                    updated_record_ids.append(person.pk)
                 else:
                     already_correct_count += 1
             except DatabaseError:
                 error_count += 1
 
+        user = request.user
+
+        logger.info(
+            "User ID %s has updated the titles of the records: %s",
+            user.pk,
+            updated_record_ids,
+        )
+
         summary = (
             f"Guest title processing complete: "
-            f"{success_count} updated successfully, "
+            f"{len(updated_record_ids)} updated successfully, "
             f"{already_correct_count} already correct (skipped), "
             f"{error_count} failed due to errors."
         )
@@ -272,9 +287,10 @@ class AccommodationAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
 
     def detail_view(self, obj):
         if obj.pk:
-            return format_html(
-                '<a href={} target="_blank">Detail page</a>',
+            return render_app_admin_link(
+                "Detail page",
                 reverse("accommodations:detail-overview", args=[obj.pk]),
+                opens_in_new_tab=True,
             )
         return "-"
 
@@ -311,9 +327,10 @@ class ReassignmentRequestAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
 
     def detail_view(self, obj):
         if obj.pk:
-            return format_html(
-                '<a href={} target="_blank">Detail page</a>',
+            return render_app_admin_link(
+                "Detail page",
                 reverse("reassignment-requests:detail-made", args=[obj.pk]),
+                opens_in_new_tab=True,
             )
         return "-"
 
@@ -327,9 +344,10 @@ class UamAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
 
     def detail_view(self, obj):
         if obj.pk:
-            return format_html(
-                '<a href={} target="_blank">Detail page</a>',
+            return render_app_admin_link(
+                "Detail page",
                 reverse("uams:detail-overview", args=[obj.pk]),
+                opens_in_new_tab=True,
             )
         return "-"
 
@@ -395,9 +413,41 @@ class MvVolunteerAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
     ]
     search_fields = ["full_name", "email", "application_unique_application_number"]
     list_filter = ["sponsor_type", "is_sponsor", "notional_data", "is_principal"]
+    actions = ["redact_personal_information"]
 
     def get_queryset(self, request):
         return MvVolunteer.objects_including_archived.all()
+
+    @admin.action(
+        description="Redact personal information",
+        permissions=["redact_personal_information"],
+    )
+    def redact_personal_information(self, request, queryset):
+        queryset.update(
+            first_name=REDACTED_VALUE,
+            last_name=REDACTED_VALUE,
+            full_name=REDACTED_VALUE,
+            email=REDACTED_VALUE,
+            family_situation=REDACTED_VALUE,
+            sex=REDACTED_VALUE,
+            age=None,
+            date_of_birth=None,
+            national_identity_card_number=None,
+            nationality=None,
+            other_nationalities=None,
+            passport_details=None,
+            phone_number=None,
+            residential_postcodes=None,
+            edited_in_app=True,
+        )
+        user = request.user
+        record_ids = list(queryset.values_list("pk", flat=True))
+
+        logger.info("User ID %s has redacted the records: %s", user.pk, record_ids)
+        self.message_user(request, "Successfully redacted personal information.")
+
+    def has_redact_personal_information_permission(self, request):
+        return request.user.is_superuser
 
 
 class MvInteractionAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
@@ -440,20 +490,20 @@ class SafeguardingNotificationAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
     @admin.display(description="Accommodation request")
     def linked_ar(self, obj):
         if obj.ar:
-            url = reverse(
-                "admin:ontology_mvaccommodationrequest_change", args=[obj.ar.id]
+            return render_app_admin_link(
+                obj.ar.title or obj.ar.id,
+                reverse(
+                    "admin:ontology_mvaccommodationrequest_change", args=[obj.ar.id]
+                ),
             )
-            return format_html('<a href="{}">{}</a>', url, obj.ar.title or obj.ar.id)
         return "-"
 
     @admin.display(description="Linked safeguarding check")
     def linked_check(self, obj):
         if obj.dev_check_v2:
-            url = reverse(
-                "admin:ontology_devcheckv2_change", args=[obj.dev_check_v2.id]
-            )
-            return format_html(
-                '<a href="{}">{}</a>', url, obj.dev_check_v2.get_check_failed_title()
+            return render_app_admin_link(
+                obj.dev_check_v2.get_check_failed_title(),
+                reverse("admin:ontology_devcheckv2_change", args=[obj.dev_check_v2.id]),
             )
 
     @admin.display(description="Linked sponsor")
@@ -462,15 +512,17 @@ class SafeguardingNotificationAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
             return "-"
 
         sponsors = MvVolunteer.objects.filter(id__in=obj.sponsor_ids)
-        links = []
 
-        for sponsor in sponsors:
-            url = reverse("admin:ontology_mvvolunteer_change", args=[sponsor.id])
-            links.append(
-                format_html('<a href="{}">{}</a>', url, sponsor.get_full_name())
-            )
-
-        return format_html(", ".join(links))
+        return render_app_concatenated_text(
+            *[
+                render_app_admin_link(
+                    sponsor.get_full_name(),
+                    reverse("admin:ontology_mvvolunteer_change", args=[sponsor.id]),
+                )
+                for sponsor in sponsors
+            ],
+            separator=ConcatenatedTextSeparator.COMMA_SPACE,
+        )
 
 
 class SafeguardingReferralAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):

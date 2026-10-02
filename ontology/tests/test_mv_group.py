@@ -1,3 +1,4 @@
+from ontology.models import MvPerson
 from ontology.tests.factories import MvGroupFactory, MvPersonFactory
 from test_utils.base import BaseTestCase
 
@@ -346,3 +347,21 @@ class MvGroupSplitMethodsTest(BaseTestCase):
         self.assertEqual(person_1.group_id, new_group.id)
         self.assertEqual(person_2.group_id, new_group.id)
         self.assertEqual(person_3.group_id, original_group.id)
+
+    def test_split_group_flags_moved_persons_as_edited_in_app(self):
+        original_group = MvGroupFactory(id="original-group")
+
+        moving_person = MvPersonFactory(id="person-1", group=original_group, age=25)
+        staying_person = MvPersonFactory(id="person-2", group=original_group, age=30)
+
+        MvPerson.objects.filter(id__in=["person-1", "person-2"]).update(
+            edited_in_app=False
+        )
+
+        original_group.split_group(["person-1"])
+
+        moving_person.refresh_from_db()
+        staying_person.refresh_from_db()
+
+        self.assertTrue(moving_person.edited_in_app)
+        self.assertFalse(staying_person.edited_in_app)

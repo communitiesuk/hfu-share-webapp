@@ -299,7 +299,7 @@ class UnassignedAccommodationRequestListViewTestCase(
         self.assertEqual(
             self.get_page().context["TITLE"],
             "Manage unassigned accommodation requests: List view "
-            "- Share Homes for Ukraine data",
+            "- Share Homes for Ukraine data - GOV.UK",
         )
 
     def test_admin_users_can_access(self):

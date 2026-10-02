@@ -1,7 +1,6 @@
 import math
 import os
 import uuid
-from datetime import datetime, timedelta
 from typing import Any
 
 from crispy_forms_gds.helper import FormHelper
@@ -11,10 +10,8 @@ from django.contrib import messages
 from django.db.models import QuerySet
 from django.forms.widgets import CheckboxSelectMultiple
 from django.shortcuts import redirect
-from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.html import format_html
 from django.views.generic import DetailView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import FormView
@@ -22,7 +19,6 @@ from django_filters import CharFilter, FilterSet, MultipleChoiceFilter
 from django_filters.views import FilterView
 from django_tables2 import (
     Column,
-    LazyPaginator,
     SingleTableMixin,
     tables,
 )
@@ -56,15 +52,24 @@ from webapp.constants import (
 from webapp.mixins import (
     DetailViewMixin,
     FilterPanelMixin,
+    PageTitleMixin,
+    PaginatorClassMixin,
     PermissionsMixin,
     PIISafeRecordNameMixin,
+    SectionHeadingMixin,
 )
 from webapp.search import perform_search
+from webapp.templatetags.link_renderers import render_govuk_link
+from webapp.templatetags.tag_renderers import (
+    render_app_vir_status_tag,
+    render_app_visa_status_tag,
+)
 from webapp.utils import (
     CustomDateColumn,
     CustomDateFromToRangeFilter,
     CustomDateTimeColumn,
     LazyChoiceFilter,
+    date_hint_text,
 )
 from webapp.views import SummaryListView, SummaryListViewBase
 from webapp.widgets import (
@@ -105,23 +110,15 @@ class VisaApplicationsTable(tables.Table):
     gwf = Column(verbose_name="Global web form number (GWF)")
 
     def render_visa_status(self, value):
-        return render_to_string(
-            "webapp/components/visa_status_tag/visa_status_tag.html",
-            {"visa_status": value},
-        )
+        return render_app_visa_status_tag(value)
 
     def render_title(self, record, value):
-        return format_html(
-            (
-                '<a class="govuk-body-s govuk-link"'
-                'style="white-space: normal" href="{}">'
-                "{}"
-                "</a>"
-            ),
+        return render_govuk_link(
+            value,
             reverse(
                 "visa-applications:detail-overview", args=[record.visa_application_id]
             ),
-            value,
+            css_class="app-text--white-space-normal",
         )
 
     class Meta:
@@ -154,16 +151,15 @@ class VisaApplicationsTableFilter(FilterSet, FilterPanelMixin):
         widget=StackedRangeInput(
             sub_widget=DatePicker,
             attrs={
-                "from_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=1600)).strftime('%-d/%-m/%Y')}.",
-                "to_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
+                "from_help_text": date_hint_text(1600),
+                "to_help_text": date_hint_text(20),
                 "from_label": "Date from",
                 "to_label": "Date to",
             },
         ),
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "'Application date from' must be before "
+            "'Application date to'",
         },
     )
 
@@ -172,16 +168,14 @@ class VisaApplicationsTableFilter(FilterSet, FilterPanelMixin):
         widget=StackedRangeInput(
             sub_widget=DatePicker,
             attrs={
-                "from_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=1600)).strftime('%-d/%-m/%Y')}.",
-                "to_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
+                "from_help_text": date_hint_text(1600),
+                "to_help_text": date_hint_text(20),
                 "from_label": "Date from",
                 "to_label": "Date to",
             },
         ),
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "'Decision date from' must be before 'Decision date to'",
         },
     )
 
@@ -242,7 +236,13 @@ class VisaApplicationsTableFilter(FilterSet, FilterPanelMixin):
         ]
 
 
-class VisaApplicationListView(PermissionsMixin, SingleTableMixin, FilterView):
+class VisaApplicationListView(
+    SectionHeadingMixin,
+    PermissionsMixin,
+    SingleTableMixin,
+    PaginatorClassMixin,
+    FilterView,
+):
     group_type = [
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
@@ -256,7 +256,6 @@ class VisaApplicationListView(PermissionsMixin, SingleTableMixin, FilterView):
     filterset_class = VisaApplicationsTableFilter
     template_name = "visa_applications/visa_applications.html"
     paginate_by = os.environ.get("PAGINATION_PAGE_SIZE")
-    paginator_class = LazyPaginator
 
     def get_queryset(self):
         fields_needed = [
@@ -780,33 +779,20 @@ class VIRTable(tables.Table):
     )
 
     def render_visa_status(self, value):
-        return render_to_string(
-            "webapp/components/visa_status_tag/visa_status_tag.html",
-            {"visa_status": value},
-        )
+        return render_app_visa_status_tag(value)
 
     def render_name(self, record, value):
-        return format_html(
-            (
-                '<a class="govuk-body-s govuk-link"'
-                'style="white-space: normal" href="{}">'
-                "{}"
-                "</a>"
-            ),
+        return render_govuk_link(
+            value,
             reverse(
                 "visa-applications:detail-overview",
                 args=[record.visa_application.visa_application_id],
             ),
-            value,
+            css_class="app-text--white-space-normal",
         )
 
     def render_vir_status(self, record):
-        value = record.request_status
-        label = VisaInformationRequest.RequestStatus(value).label
-        return render_to_string(
-            "webapp/components/vir_status_tag/vir_status_tag.html",
-            {"vir_status": value, "vir_status_label": label},
-        )
+        return render_app_vir_status_tag(record.request_status)
 
     class Meta:
         template_name = "webapp/components/tables/table.html"
@@ -853,17 +839,15 @@ class VIRFilter(FilterSet, FilterPanelMixin):
         widget=StackedRangeInput(
             sub_widget=DatePicker,
             attrs={
-                "from_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=10000)).strftime('%-d/%-m/%Y')}.",
-                "to_hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
+                "from_help_text": date_hint_text(10000),
+                "to_help_text": date_hint_text(20),
                 "from_label": "Date from",
                 "to_label": "Date to",
             },
         ),
         distinct=True,
         error_messages={
-            "invalid_range": "'Date from' must be before 'Date to'.",
+            "invalid_range": "'VIR start date from' must be before 'VIR start date to'",
         },
     )
 
@@ -945,7 +929,9 @@ class VIRFilter(FilterSet, FilterPanelMixin):
         }
 
 
-class VIRListView(PermissionsMixin, SingleTableMixin, FilterView):
+class VIRListView(PageTitleMixin, PermissionsMixin, SingleTableMixin, FilterView):
+    page_heading = "Visa Information Requests"
+    heading_labels_title = False
     group_type = [
         GroupType.DEV,
         GroupType.MHCLG,
@@ -984,7 +970,14 @@ class VIRListView(PermissionsMixin, SingleTableMixin, FilterView):
         return ctx
 
 
-class VIRCloseConfirmView(PermissionsMixin, SingleObjectMixin, FormView):
+class VIRCloseConfirmView(
+    PageTitleMixin,
+    PermissionsMixin,
+    SingleObjectMixin,
+    FormView,
+):
+    page_heading = "Close VIR"
+    heading_labels_title = False
     group_type = [
         GroupType.DEV,
         GroupType.HOME_OFFICE,
@@ -1002,7 +995,7 @@ class VIRCloseConfirmView(PermissionsMixin, SingleObjectMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["return_url"] = reverse(
+        context["cancel_url"] = reverse(
             "visa-applications:detail-vir", args=[self.object.pk]
         )
         return context
@@ -1036,7 +1029,14 @@ class VIRCloseConfirmView(PermissionsMixin, SingleObjectMixin, FormView):
         return self.render_to_response(context)
 
 
-class VIRReopenConfirmView(PermissionsMixin, SingleObjectMixin, FormView):
+class VIRReopenConfirmView(
+    PageTitleMixin,
+    PermissionsMixin,
+    SingleObjectMixin,
+    FormView,
+):
+    page_heading = "Re-open VIR"
+    heading_labels_title = False
     group_type = [
         GroupType.DEV,
         GroupType.HOME_OFFICE,
@@ -1054,7 +1054,7 @@ class VIRReopenConfirmView(PermissionsMixin, SingleObjectMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["return_url"] = reverse(
+        context["cancel_url"] = reverse(
             "visa-applications:detail-vir", args=[self.object.pk]
         )
         return context

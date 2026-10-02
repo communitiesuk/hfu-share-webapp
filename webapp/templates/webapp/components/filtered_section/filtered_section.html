@@ -1,8 +1,8 @@
 {% load crispy_forms_filters crispy_forms_tags crispy_forms_gds %}
 {% load filters %}
-<div>
+<div data-module="filtered-section">
     {% if filter %}
-        <div style="display: flex; align-items: center;">
+        <div class="app-display--flex app-align-items--center">
             <a id="show-filter-link"
                class="govuk-button govuk-button--secondary"
                role="button"
@@ -15,19 +15,16 @@
             {% endblock extra_buttons %}
         </div>
     {% endif %}
-    <div style="display: flex;">
+    <div class="app-display--flex">
         {% if filter %}
             <div>
-                <form action="" method="get" id="filter-form">
+                <form action="" method="get" id="filter-form" novalidate>
                     <input type="hidden"
                            id="show_filters_panel"
                            name="show_filters_panel"
                            value="{{ filter.show_filters_panel|yesno:'True,False' }}">
                     <div id="filter-container"
-                         style="display: {{ filter.show_filters_panel|yesno:"block,none" }};
-                                width: 400px;
-                                margin-right: 16px"
-                         class="moj-filter">
+                         class="moj-filter app-filter app-display--{{ filter.show_filters_panel|yesno:"block,none" }}">
                         <div class="moj-filter__header">
                             <div class="moj-filter__header-title">
                                 <h2 class="govuk-heading-m">Filters</h2>
@@ -75,82 +72,3 @@
         {% endblock data_view %}
     </div>
 </div>
-<script nonce="{{ request.csp_nonce }}">
-    class Filter {
-        optionSets = {
-            open: {
-                filterContainerStyle: "block",
-                showFilterLinkText: "Hide filters",
-                showFilterAriaExpandedStatus: true,
-                inputValue: "True",
-                localStorageValue: "true",
-            },
-            hidden: {
-                filterContainerStyle: "none",
-                showFilterLinkText: "Show filters",
-                showFilterAriaExpandedStatus: false,
-                inputValue: "False",
-                localStorageValue: "false",
-            },
-        };
-        showFiltersPanelParam = "show_filters_panel";
-
-        constructor() {
-            this.filterContainer = document.getElementById("filter-container");
-            this.showFilterLink = document.getElementById("show-filter-link");
-            this.input = document.getElementById("show_filters_panel");
-            this.viewKey = `filtersPanelOpen_${window.location.pathname}`;
-        }
-
-        init() {
-            if (!this.filterContainer || !this.showFilterLink) return;
-
-            this.showHideFilter(this.getStateFromUrl() ?? this.getStateFromStorage());
-
-            this.removeFilterFromUrl();
-
-            this.showFilterLink.addEventListener("click", (e) => this.handleClickEvent(e));
-        }
-
-        handleClickEvent(e) {
-            e.preventDefault();
-            this.showHideFilter(!this.getStateFromStorage());
-        }
-
-        getStateFromStorage() {
-            return localStorage.getItem(this.viewKey) === "true";
-        }
-
-        getStateFromUrl() {
-            const url = new URL(window.location.href);
-
-            const currentValue = url.searchParams.get(this.showFiltersPanelParam);
-
-            if (!currentValue) return null;
-
-            return currentValue === "True";
-        }
-
-        showHideFilter(open) {
-            const optionSet = open ? this.optionSets.open : this.optionSets.hidden;
-
-            this.filterContainer.style.display = optionSet.filterContainerStyle;
-            this.showFilterLink.textContent = optionSet.showFilterLinkText;
-            this.showFilterLink.setAttribute("aria-expanded", optionSet.showFilterAriaExpandedStatus);
-            if (this.input) this.input.value = optionSet.inputValue;
-
-            localStorage.setItem(this.viewKey, optionSet.localStorageValue);
-        }
-
-        removeFilterFromUrl() {
-            const url = new URL(window.location.href);
-
-            if (url.searchParams.has(this.showFiltersPanelParam)) {
-                url.searchParams.delete(this.showFiltersPanelParam);
-                window.history.replaceState({}, "", url);
-            }
-        }
-    }
-
-    document.addEventListener("DOMContentLoaded", () => new Filter().init());
-</script>

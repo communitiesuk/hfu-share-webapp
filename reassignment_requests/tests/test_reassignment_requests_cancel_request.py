@@ -24,7 +24,7 @@ class ReassignmentRequestsCancelRequestTestCase(ReassignmentRequestsBaseTestCase
         response = self.client.get(
             reverse(
                 "reassignment_requests:cancel-made",
-                kwargs={"pk": self.pending_request_somerset_source_single_guest.pk},
+                kwargs={"pk": self.pending_request_test_source_single_guest.pk},
             )
         )
 
@@ -34,11 +34,9 @@ class ReassignmentRequestsCancelRequestTestCase(ReassignmentRequestsBaseTestCase
         self.assertContains(
             response,
             f"Are you sure you want to cancel the request to move "
-            f"{
-                self.pending_request_somerset_source_single_guest.formatted_guest_names()
-            }"
+            f"{self.pending_request_test_source_single_guest.formatted_guest_names()}"
             f" to {
-                self.pending_request_somerset_source_single_guest.destination_ltla_name
+                self.pending_request_test_source_single_guest.destination_ltla_name
             }?",
             html=True,
         )
@@ -51,7 +49,7 @@ class ReassignmentRequestsCancelRequestTestCase(ReassignmentRequestsBaseTestCase
         response = self.client.get(
             reverse(
                 "reassignment_requests:cancel-made",
-                kwargs={"pk": self.pending_request_somerset_source_multiple_guests.pk},
+                kwargs={"pk": self.pending_request_test_source_multiple_guests.pk},
             )
         )
 
@@ -62,10 +60,10 @@ class ReassignmentRequestsCancelRequestTestCase(ReassignmentRequestsBaseTestCase
             response,
             f"Are you sure you want to cancel the request to move "
             f"{
-                self.pending_request_somerset_source_multiple_guests.formatted_guest_names()
+                self.pending_request_test_source_multiple_guests.formatted_guest_names()
             }"
             f" to {
-                self.pending_request_somerset_source_multiple_guests.destination_ltla_name
+                self.pending_request_test_source_multiple_guests.destination_ltla_name
             }?",
             html=True,
         )
@@ -78,7 +76,7 @@ class ReassignmentRequestsCancelRequestTestCase(ReassignmentRequestsBaseTestCase
         response = self.client.post(
             reverse(
                 "reassignment_requests:cancel-made",
-                kwargs={"pk": self.pending_request_somerset_source_multiple_guests.pk},
+                kwargs={"pk": self.pending_request_test_source_multiple_guests.pk},
             ),
             data={"submit": ""},
             follow=True,
@@ -93,13 +91,13 @@ class ReassignmentRequestsCancelRequestTestCase(ReassignmentRequestsBaseTestCase
         response = self.client.post(
             reverse(
                 "reassignment_requests:cancel-made",
-                kwargs={"pk": self.pending_request_somerset_source_multiple_guests.pk},
+                kwargs={"pk": self.pending_request_test_source_multiple_guests.pk},
             ),
             data={"confirmation": "on", "submit": ""},
             follow=True,
         )
 
-        ar = self.pending_request_somerset_source_multiple_guests.accommodation_request
+        ar = self.pending_request_test_source_multiple_guests.accommodation_request
         self.assertRedirects(
             response,
             reverse(
@@ -115,7 +113,7 @@ class ReassignmentRequestsCancelRequestTestCase(ReassignmentRequestsBaseTestCase
         response = self.client.post(
             reverse(
                 "reassignment_requests:cancel-made",
-                kwargs={"pk": self.pending_request_somerset_source_multiple_guests.pk},
+                kwargs={"pk": self.pending_request_test_source_multiple_guests.pk},
             ),
             data={"confirmation": "on", "submit": ""},
             follow=True,
@@ -125,16 +123,16 @@ class ReassignmentRequestsCancelRequestTestCase(ReassignmentRequestsBaseTestCase
             response,
             f"You have cancelled the request to move "
             f"{
-                self.pending_request_somerset_source_multiple_guests.formatted_guest_names()
+                self.pending_request_test_source_multiple_guests.formatted_guest_names()
             }"
             f" to {
-                self.pending_request_somerset_source_multiple_guests.destination_ltla_name
+                self.pending_request_test_source_multiple_guests.destination_ltla_name
             }",
         )
 
     def test_reassignment_request_correctly_updated_after_cancellation(self):
         reassignment_request: ReassignmentRequest = (
-            self.pending_request_somerset_source_multiple_guests
+            self.pending_request_test_source_multiple_guests
         )
 
         user = get_admin_user()
@@ -166,7 +164,7 @@ class ReassignmentRequestsCancelRequestTestCase(ReassignmentRequestsBaseTestCase
         response = self.client.get(
             reverse(
                 "reassignment_requests:cancel-made",
-                kwargs={"pk": self.pending_request_somerset_source_multiple_guests.pk},
+                kwargs={"pk": self.pending_request_test_source_multiple_guests.pk},
             )
         )
 
@@ -184,7 +182,7 @@ class ReassignmentRequestsCancelRequestTestCase(ReassignmentRequestsBaseTestCase
         response = self.client.get(
             reverse(
                 "reassignment_requests:cancel-made",
-                kwargs={"pk": self.pending_request_somerset_source_multiple_guests.pk},
+                kwargs={"pk": self.pending_request_test_source_multiple_guests.pk},
             )
         )
 
@@ -196,7 +194,7 @@ class ReassignmentRequestsCancelRequestTestCase(ReassignmentRequestsBaseTestCase
         response = self.client.get(
             reverse(
                 "reassignment_requests:cancel-made",
-                kwargs={"pk": self.pending_request_somerset_source_multiple_guests.pk},
+                kwargs={"pk": self.pending_request_test_source_multiple_guests.pk},
             )
         )
 
@@ -208,7 +206,7 @@ class ReassignmentRequestsCancelRequestTestCase(ReassignmentRequestsBaseTestCase
         response = self.client.get(
             reverse(
                 "reassignment_requests:cancel-made",
-                kwargs={"pk": self.pending_request_somerset_source_multiple_guests.pk},
+                kwargs={"pk": self.pending_request_test_source_multiple_guests.pk},
             )
         )
 
@@ -220,7 +218,7 @@ class ReassignmentRequestsCancelRequestTestCase(ReassignmentRequestsBaseTestCase
         response = self.client.get(
             reverse(
                 "reassignment_requests:cancel-made",
-                kwargs={"pk": self.pending_request_somerset_source_multiple_guests.pk},
+                kwargs={"pk": self.pending_request_test_source_multiple_guests.pk},
             )
         )
 
@@ -245,7 +243,7 @@ class ReassignmentRequestsCancelRequestTestCase(ReassignmentRequestsBaseTestCase
         self.client.post(
             reverse(
                 "reassignment_requests:cancel-made",
-                kwargs={"pk": self.pending_request_somerset_source_multiple_guests.pk},
+                kwargs={"pk": self.pending_request_test_source_multiple_guests.pk},
             ),
             data={"confirmation": "on", "submit": ""},
         )

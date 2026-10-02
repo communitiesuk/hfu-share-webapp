@@ -1,4 +1,3 @@
-from django.test import SimpleTestCase
 from django.urls import get_resolver
 
 from browser_tests.accessibility_pages import (
@@ -6,6 +5,7 @@ from browser_tests.accessibility_pages import (
     NOT_SCANNABLE,
     STATIC_PAGES,
 )
+from test_utils.base import BaseSimpleTestCase
 
 SKIPPED_PREFIXES = ("/admin/", "/__debug__/", "/assets/")
 
@@ -28,7 +28,7 @@ def parameterless_paths():
         yield path
 
 
-class AccessibilityPageCoverageTest(SimpleTestCase):
+class AccessibilityPageCoverageTest(BaseSimpleTestCase):
     def test_every_parameterless_page_is_axe_scanned_or_excluded(self):
         covered = (
             {path for path, _ in STATIC_PAGES}

@@ -33,23 +33,23 @@ class GuestsPageTitlesTestCase(TestSessionTokenMixin, BaseTestCase):
         pages_and_titles = [
             (
                 "guests:detail-overview",
-                "Guests: JD, Overview - Share Homes for Ukraine data",
+                "Guests: JD, Overview - Share Homes for Ukraine data - GOV.UK",
             ),
             (
                 "guests:detail-actions",
-                "Guests: JD, Actions - Share Homes for Ukraine data",
+                "Guests: JD, Actions - Share Homes for Ukraine data - GOV.UK",
             ),
             (
                 "guests:detail-linked-records",
-                "Guests: JD, Linked records - Share Homes for Ukraine data",
+                "Guests: JD, Linked records - Share Homes for Ukraine data - GOV.UK",
             ),
             (
                 "guests:detail-properties",
-                "Guests: JD, Properties - Share Homes for Ukraine data",
+                "Guests: JD, Properties - Share Homes for Ukraine data - GOV.UK",
             ),
             (
                 "guests:detail-history",
-                "Guests: JD, History - Share Homes for Ukraine data",
+                "Guests: JD, History - Share Homes for Ukraine data - GOV.UK",
             ),
         ]
 
@@ -82,7 +82,7 @@ class GuestsPageTitlesTestCase(TestSessionTokenMixin, BaseTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.context["TITLE"],
-            "Guests: J, Overview - Share Homes for Ukraine data",
+            "Guests: J, Overview - Share Homes for Ukraine data - GOV.UK",
         )
 
     def test_guest_with_missing_names(self):
@@ -98,5 +98,6 @@ class GuestsPageTitlesTestCase(TestSessionTokenMixin, BaseTestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
-            response.context["TITLE"], "Guests: Overview - Share Homes for Ukraine data"
+            response.context["TITLE"],
+            "Guests: Overview - Share Homes for Ukraine data - GOV.UK",
         )

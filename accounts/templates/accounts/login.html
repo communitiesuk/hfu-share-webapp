@@ -6,7 +6,7 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-one-half">
             {% error_summary form %}
-            {% include "webapp/components/heading/heading.html" with page_heading="Sign in" tag="Entra ID disabled" %}
+            {% include "webapp/components/heading/heading.html" with page_heading=page_heading tag="Entra ID disabled" %}
             {% crispy form %}
         </div>
     </div>

@@ -75,7 +75,7 @@ class SponsorFilterDateOfBirthTestCase(BaseTestCase):
         filter_set = SponsorsFilter(
             queryset=MvVolunteer.objects.all(),
             data={
-                "date_of_birth_0": "2025-09-30",
+                "date_of_birth": "2025-09-30",
                 "date_of_birth_1": "2025-10-02",
             },
         )
@@ -91,7 +91,7 @@ class SponsorFilterDateOfBirthTestCase(BaseTestCase):
         filter_set = SponsorsFilter(
             queryset=MvVolunteer.objects.all(),
             data={
-                "date_of_birth_0": "2025-09-29",
+                "date_of_birth": "2025-09-29",
                 "date_of_birth_1": "2025-09-30",
             },
         )
@@ -121,7 +121,7 @@ class SponsorFilterCreatedDateTestCase(BaseTestCase):
         filter_set = SponsorsFilter(
             queryset=MvVolunteer.objects.all(),
             data={
-                "created_date_0": "2025-09-30",
+                "created_date": "2025-09-30",
                 "created_date_1": "2025-10-02",
             },
         )
@@ -137,7 +137,7 @@ class SponsorFilterCreatedDateTestCase(BaseTestCase):
         filter_set = SponsorsFilter(
             queryset=MvVolunteer.objects.all(),
             data={
-                "created_date_0": "2025-09-29",
+                "created_date": "2025-09-29",
                 "created_date_1": "2025-09-30",
             },
         )

@@ -5,6 +5,7 @@ from crispy_forms_gds.choices import Choice
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import (
     HTML,
+    Button,
     ConditionalQuestion,
     Div,
     Field,
@@ -27,28 +28,22 @@ class DownloadType(StrEnum):
 
 
 class DownloadsTypeForm(forms.Form):
-    date_to = forms.DateField(
-        required=False,
-        label="Date to",
-        widget=DatePicker(
-            attrs={
-                "required": False,
-                "hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
-            }
-        ),
-    )
-
     date_from = forms.DateField(
         required=False,
-        label="Date from",
-        widget=DatePicker(
-            attrs={
-                "required": False,
-                "hint": f"For example, "
-                f"{(datetime.today() - timedelta(days=1600)).strftime('%-d/%-m/%Y')}.",
-            }
-        ),
+        label="Date from (optional)",
+        help_text=f"For example, "
+        f"{(datetime.today() - timedelta(days=1600)).strftime('%-d/%-m/%Y')}.",
+        widget=DatePicker(),
+        error_messages={"invalid": "Enter a valid date for 'Date from'."},
+    )
+
+    date_to = forms.DateField(
+        required=False,
+        label="Date to (optional)",
+        help_text=f"For example, "
+        f"{(datetime.today() - timedelta(days=20)).strftime('%-d/%-m/%Y')}.",
+        widget=DatePicker(),
+        error_messages={"invalid": "Enter a valid date for 'Date to'."},
     )
 
     download_type = forms.ChoiceField(
@@ -122,29 +117,13 @@ class DownloadsTypeForm(forms.Form):
                 legend_size=Size.MEDIUM,
             ),
             Div(
-                HTML(
-                    '<p class="govuk-body">'
+                HTML.p(
                     "Your data will be downloaded to your device in a comma separated"
                     " value (CSV) file."
-                    "</p>"
-                    '<div class="govuk-warning-text">'
-                    '    <span class="govuk-warning-text__icon" aria-hidden="true">'
-                    "    !"
-                    "    </span>"
-                    '    <strong class="govuk-warning-text__text">'
-                    '        <span class="govuk-visually-hidden">Warning</span>'
-                    "        Stay on this page until your download is complete."
-                    "    </strong>"
-                    "</div>"
                 ),
+                HTML.warning("Stay on this page until your download is complete."),
             ),
-            HTML(
-                f'<div class="govuk-button-group">'
-                f'    <button type="submit" class="govuk-button"'
-                f"{'' if user_can_download else ' disabled'}"
-                f">Download data</button>"
-                "</div>"
-            ),
+            Button.primary("submit", "Download data", disabled=not user_can_download),
         )
 
     def clean(self):
@@ -154,7 +133,7 @@ class DownloadsTypeForm(forms.Form):
             if df and dt and df > dt:
                 self.add_error(
                     "date_to",
-                    "The end date must be the same as or later than the start date.",
+                    "'Date from' must be before 'Date to'.",
                 )
         else:
             cleaned["date_from"] = None
