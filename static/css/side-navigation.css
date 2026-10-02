@@ -1,0 +1,105 @@
+/* Side navigation on record detail pages, based on the MOJ side-navigation
+   component. Horizontal scrolling row on mobile. */
+.app-side-navigation {
+  font-family: "GDS Transport", arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.1428571429;
+}
+
+@media (max-width: 40.0525em) {
+  .app-side-navigation {
+    display: flex;
+    overflow-x: scroll;
+  }
+
+  .app-side-navigation__list {
+    display: flex;
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  .app-side-navigation__item {
+    display: flex;
+  }
+
+  .app-side-navigation__item a,
+  .app-side-navigation__item a:link,
+  .app-side-navigation__item a:visited {
+    border-bottom: 4px solid transparent;
+    padding: 15px 15px 11px;
+  }
+}
+
+@media (min-width: 40.0625em) {
+  .app-side-navigation {
+    display: block;
+    font-size: 1rem;
+    line-height: 1.25;
+    padding: 0;
+  }
+
+  .app-side-navigation__list {
+    margin-bottom: 20px;
+  }
+
+  .app-side-navigation__item a,
+  .app-side-navigation__item a:link,
+  .app-side-navigation__item a:visited {
+    border-left: 4px solid transparent;
+    padding: 10px;
+  }
+}
+
+.app-side-navigation__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.app-side-navigation__item a,
+.app-side-navigation__item a:link,
+.app-side-navigation__item a:visited {
+  background-color: inherit;
+  color: var(--govuk-link-colour);
+  display: block;
+  text-decoration: none;
+}
+
+.app-side-navigation__item a:hover {
+  color: var(--govuk-link-hover-colour);
+}
+
+.app-side-navigation__item a:focus {
+  background-color: var(--govuk-focus-colour);
+  border-color: var(--govuk-focus-text-colour);
+  color: var(--govuk-focus-text-colour);
+  position: relative;
+}
+
+.app-side-navigation__item--active a:link,
+.app-side-navigation__item--active a:visited {
+  border-color: var(--govuk-link-colour);
+  color: var(--govuk-link-colour);
+  font-weight: 700;
+}
+
+@media (min-width: 40.0625em) {
+  .app-side-navigation__item--active a:link,
+  .app-side-navigation__item--active a:visited {
+    background-color: #f3f2f1;
+  }
+}
+
+.app-side-navigation__item--active a:hover {
+  border-color: var(--govuk-link-hover-colour);
+  color: var(--govuk-link-hover-colour);
+}
+
+.app-side-navigation__item--active a:focus {
+  background-color: var(--govuk-focus-colour);
+  border-color: var(--govuk-focus-text-colour);
+  color: var(--govuk-focus-text-colour);
+}
