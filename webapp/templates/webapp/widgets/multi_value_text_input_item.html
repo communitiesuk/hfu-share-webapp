@@ -1,0 +1,22 @@
+<div class="array-input-item app-multi-value--item {% if template %}array-input-template app-display--none{% endif %}">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <label class="array-input-item-label govuk-visually-hidden"
+                   for="id_{{ name }}{% if count > 0 %}-{{ count }}{% endif %}">
+                {{ field_label }} <span class="array-input-item-label--counter">{{ number }}</span>
+            </label>
+            <input type="{{ count }}"
+                   name="{% if template %}{% else %}{{ name }}-{{ count }}{% endif %}"
+                   id="id_{{ name }}{% if count > 0 %}-{{ count }}{% endif %}"
+                   value="{{ val }}"
+                   class="govuk-!-margin-bottom-2 form-control govuk-input app-flex--1" />
+        </div>
+        <div class="govuk-grid-column-one-third">
+            <button data-moudle="govuk-button"
+                    class="govuk-!-margin-bottom-2 remove-array-item govuk-button govuk-button--secondary app-text--white-space-nowrap">
+                Remove
+                {% if label %}<span class="govuk-visually-hidden">{{ label }}</span>{% endif %}
+            </button>
+        </div>
+    </div>
+</div>
