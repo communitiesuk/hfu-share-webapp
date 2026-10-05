@@ -51,11 +51,11 @@ class TestFixNullArrayForLas(BaseScriptTestCaseWithSession):
     def assert_ltla_and_utla_values(
         self,
         ar: MvAccommodationRequest,
-        expected_ltal: List[str],
+        expected_ltla: List[str],
         expected_utla: List[str],
     ):
         ar.refresh_from_db()
-        self.assertEqual(ar.ltla_name, expected_ltal)
+        self.assertEqual(ar.ltla_name, expected_ltla)
         self.assertEqual(ar.utla_name, expected_utla)
 
     def assert_no_change_for_okay_ars(self):
