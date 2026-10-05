@@ -10,6 +10,7 @@ import django
 from django.db import DatabaseError, transaction
 from dotenv import load_dotenv
 
+from hfurb_scripts.script_utils import percentage
 from ontology.models import MvAccommodationRequest, MvPerson
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -124,10 +125,6 @@ def determine_scenario(
     # so we have to skip it
 
     return None
-
-
-def percentage(count: int, total: int) -> float:
-    return count / total * 100 if total else 0.0
 
 
 def log_scenario_stats(scenario_number: int, counts: Counter):
