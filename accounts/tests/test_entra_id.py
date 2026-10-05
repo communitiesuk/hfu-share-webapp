@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib.auth import SESSION_KEY
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.http import HttpResponseForbidden
-from django.test import RequestFactory
+from django.test import Client, RequestFactory
 from django.urls import reverse
 
 from accounts.authentication import Authentication
@@ -252,6 +252,29 @@ class EntraIdStateMismatchTestCase(TestSessionTokenMixin, BaseTestCase):
             self.client.post(reverse("accounts:callback"))
 
         self.assertEqual(self.client.session[SESSION_KEY], str(entra_user.pk))
+
+
+class EntraCallbackCsrfTestCase(BaseTestCase):
+    # Enable real CSRF validation; the default test client skips it.
+    def setUp(self):
+        self.client = Client(enforce_csrf_checks=True)
+
+    @patch("accounts.authentication.Authentication.get_token_from_flow")
+    @patch("accounts.views.authenticate")
+    def test_entra_callback_succeeds_without_a_csrf_token(
+        self, mock_authenticate, mock_get_token_from_flow
+    ):
+        mock_get_token_from_flow.return_value = "token"
+        entra_user = get_admin_user()
+        entra_user.backend = "accounts.backend.EntraBackend"
+        mock_authenticate.return_value = entra_user
+
+        with self.settings(ENTRA_ID_ENABLED=True):
+            response = self.client.post(reverse("accounts:callback"))
+
+        self.assertRedirects(
+            response, settings.LOGIN_REDIRECT_URL, fetch_redirect_response=False
+        )
 
 
 class GetTokenFromFlowStateTestCase(BaseTestCase):

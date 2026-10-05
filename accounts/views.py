@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_not_required
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponseRedirect
 from django.utils.http import url_has_allowed_host_and_scheme
+from django.views.decorators.csrf import csrf_exempt
 
 from webapp.mixins import SectionHeadingMixin
 
@@ -54,6 +55,9 @@ def entra_logout(request: HttpRequest):
 
 
 @login_not_required
+# Entra ID POSTs the OAuth callback directly to this view. CSRF is
+# enforced via OAuth state validation in get_token_from_flow().
+@csrf_exempt
 def entra_callback(request: HttpRequest):
     try:
         token = Authentication(request).get_token_from_flow()

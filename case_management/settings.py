@@ -350,6 +350,11 @@ if ENTRA_ID_ENABLED:
 # Session Settings
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
+# Required for Entra ID's form_post callback. Without SameSite=None,
+# the session cookie is not sent on the cross-site POST and the OAuth
+# state cannot be validated. This weakens session-cookie CSRF
+# protection, so Django's CSRF middleware remains essential.
+SESSION_COOKIE_SAMESITE = "None"
 
 # Logging configuration
 LOGGING: dict[str, Any] = {
