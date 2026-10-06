@@ -4,6 +4,7 @@ from copy import deepcopy
 from datetime import datetime, timezone
 
 from django.contrib import admin
+from django.db import DatabaseError
 from django.db.models import Q, QuerySet
 
 from accommodation_requests.safeguarding_utils import NotificationData, loop_and_raise
@@ -19,6 +20,51 @@ from ontology.models import (
 
 logger = logging.getLogger(__name__)
 GO_LIVE_DATE = datetime(2025, 9, 15, tzinfo=timezone.utc)
+
+
+@admin.action(description="Fix [Null] LTLA/UTLA name arrays (replace [None] with [])")
+def fix_null_array_for_las(
+    modeladmin, request, queryset: QuerySet[MvAccommodationRequest]
+):
+    fixed = 0
+    skipped = 0
+    failed_ids = []
+    for accommodation_request in queryset:
+        ltla_is_null_array = accommodation_request.ltla_name == [None]
+        utla_is_null_array = accommodation_request.utla_name == [None]
+
+        if not (ltla_is_null_array or utla_is_null_array):
+            skipped += 1
+            continue
+
+        if ltla_is_null_array:
+            accommodation_request.ltla_name = []
+        if utla_is_null_array:
+            accommodation_request.utla_name = []
+
+        try:
+            accommodation_request.save(update_fields=["ltla_name", "utla_name"])
+            fixed += 1
+        except DatabaseError as exc:
+            failed_ids.append(str(accommodation_request.id))
+            logger.exception(
+                "Exception in fix_null_array_for_las for AR id %s: %s",
+                accommodation_request.id,
+                exc,
+            )
+
+    msg = (
+        f"Fixed {fixed} record{'s' if fixed != 1 else ''}. "
+        f"Skipped {skipped} record{'s' if skipped != 1 else ''} "
+        "with no [Null] LTLA/UTLA array."
+    )
+    if failed_ids:
+        count = len(failed_ids)
+        msg += (
+            f" Failed to update {count} record{'s' if count != 1 else ''}, "
+            f"id{'s' if count != 1 else ''}: {', '.join(failed_ids)}"
+        )
+    modeladmin.message_user(request, msg)
 
 
 @admin.action(description="Duplicate check onto the principal record")

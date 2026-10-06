@@ -64,6 +64,30 @@ class ARsCreatedOrModifiedSinceShareGoLiveFilter(SimpleListFilter):
             )
 
 
+class LtlaNameIsNullArrayFilter(SimpleListFilter):
+    title = "LTLA name is [Null]"
+    parameter_name = "ltla_name_is_null_array"
+
+    def lookups(self, request, model_admin):
+        return (("yes", "Yes"),)
+
+    def queryset(self, request, queryset):
+        if self.value() == "yes":
+            return queryset.filter(ltla_name=[None])
+
+
+class UtlaNameIsNullArrayFilter(SimpleListFilter):
+    title = "UTLA name is [Null]"
+    parameter_name = "utla_name_is_null_array"
+
+    def lookups(self, request, model_admin):
+        return (("yes", "Yes"),)
+
+    def queryset(self, request, queryset):
+        if self.value() == "yes":
+            return queryset.filter(utla_name=[None])
+
+
 class GuestsWithIncorrectTitlesExcludingDuplicatesFilter(SimpleListFilter):
     title = "Incorrect titles"
     parameter_name = "incorrect_titles"

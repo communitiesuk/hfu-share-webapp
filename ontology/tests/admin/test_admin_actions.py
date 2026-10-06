@@ -1,12 +1,21 @@
+from unittest import mock
+
 from django.utils.dateparse import parse_datetime
 
 from ontology.admin_actions import (
+    fix_null_array_for_las,
     process_single_accommodation_exists_check,
     process_single_accommodation_suitable_check,
     process_single_sponsor_check,
     process_update_guest_titles,
 )
-from ontology.models import CheckType, DevCheckV2, MvPerson, SafeguardingReferral
+from ontology.models import (
+    CheckType,
+    DevCheckV2,
+    MvAccommodationRequest,
+    MvPerson,
+    SafeguardingReferral,
+)
 from ontology.tests.factories import (
     AccommodationMasterRecordFactory,
     DevCheckV2Factory,
@@ -785,3 +794,64 @@ class ProcessUpdateGuestTitlesTest(BaseTestCase):
         guest.refresh_from_db()
         self.assertEqual(guest.title, "Guest")
         self.assertTrue(result)
+
+
+class FixNullArrayForLasTest(BaseTestCase):
+    def _run_action(self, queryset):
+        modeladmin = mock.Mock()
+        request = mock.Mock()
+        fix_null_array_for_las(modeladmin, request, queryset)
+        return modeladmin
+
+    def test_it_replaces_null_array_ltla_name_with_empty_array(self):
+        ar = MvAccommodationRequestFactory(ltla_name=[None], utla_name=["Cardiff"])
+
+        self._run_action(MvAccommodationRequest.objects.filter(id=ar.id))
+
+        ar.refresh_from_db()
+        self.assertEqual(ar.ltla_name, [])
+        self.assertEqual(ar.utla_name, ["Cardiff"])
+
+    def test_it_replaces_null_array_utla_name_with_empty_array(self):
+        ar = MvAccommodationRequestFactory(ltla_name=["Cardiff"], utla_name=[None])
+
+        self._run_action(MvAccommodationRequest.objects.filter(id=ar.id))
+
+        ar.refresh_from_db()
+        self.assertEqual(ar.ltla_name, ["Cardiff"])
+        self.assertEqual(ar.utla_name, [])
+
+    def test_it_replaces_both_null_arrays(self):
+        ar = MvAccommodationRequestFactory(ltla_name=[None], utla_name=[None])
+
+        self._run_action(MvAccommodationRequest.objects.filter(id=ar.id))
+
+        ar.refresh_from_db()
+        self.assertEqual(ar.ltla_name, [])
+        self.assertEqual(ar.utla_name, [])
+
+    def test_it_does_not_change_already_healthy_records(self):
+        ar = MvAccommodationRequestFactory(ltla_name=["Cardiff"], utla_name=[])
+
+        modeladmin = self._run_action(MvAccommodationRequest.objects.filter(id=ar.id))
+
+        ar.refresh_from_db()
+        self.assertEqual(ar.ltla_name, ["Cardiff"])
+        self.assertEqual(ar.utla_name, [])
+        message = modeladmin.message_user.call_args[0][1]
+        self.assertIn("Fixed 0 record", message)
+        self.assertIn("Skipped 1 record", message)
+
+    def test_it_reports_fixed_and_skipped_counts(self):
+        fixed_ar = MvAccommodationRequestFactory(ltla_name=[None], utla_name=[])
+        skipped_ar = MvAccommodationRequestFactory(
+            ltla_name=["Cardiff"], utla_name=["Cardiff"]
+        )
+
+        modeladmin = self._run_action(
+            MvAccommodationRequest.objects.filter(id__in=[fixed_ar.id, skipped_ar.id])
+        )
+
+        message = modeladmin.message_user.call_args[0][1]
+        self.assertIn("Fixed 1 record", message)
+        self.assertIn("Skipped 1 record", message)

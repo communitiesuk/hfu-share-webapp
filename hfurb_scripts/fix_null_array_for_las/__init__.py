@@ -43,9 +43,9 @@ def fix_null_array_for_las(dry_run=True):
 
     for accommodation_request, ltla_error, utla_error in find_records():
         if ltla_error:
-            accommodation_request.ltla_name = None
+            accommodation_request.ltla_name = []
         if utla_error:
-            accommodation_request.utla_name = None
+            accommodation_request.utla_name = []
 
         try:
             with transaction.atomic():
