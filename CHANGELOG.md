@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.23.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.22.0...2.23.0) (2026-10-06)
+
+
+### Features
+
+* HFURB-3373 create script to fix ARs where the LA name is [Null] ([#260](https://github.com/communitiesuk/hfu-share-webapp/issues/260)) ([395a15f](https://github.com/communitiesuk/hfu-share-webapp/commit/395a15f08de20dbba65023b051fc2b1f746a11dc))
+
+
+### Bug Fixes
+
+* HFURB-3373 add admin filters and actions to fix [Null] ltla or utla names ([#262](https://github.com/communitiesuk/hfu-share-webapp/issues/262)) ([7d4dc98](https://github.com/communitiesuk/hfu-share-webapp/commit/7d4dc9832dbb199d9f4d884b30b06f623c72488e))
+* load all custom JS from a single file and remove unused JS ([#256](https://github.com/communitiesuk/hfu-share-webapp/issues/256)) ([2a3e08a](https://github.com/communitiesuk/hfu-share-webapp/commit/2a3e08a122b8c625131e6f4f24c074babc2e145e))
+
 ## [2.22.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.21.0...2.22.0) (2026-10-01)
 
 
