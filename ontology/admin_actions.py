@@ -26,7 +26,7 @@ GO_LIVE_DATE = datetime(2025, 9, 15, tzinfo=timezone.utc)
 def fix_null_array_for_las(
     modeladmin, request, queryset: QuerySet[MvAccommodationRequest]
 ):
-    fixed = 0
+    fixed_details = []
     skipped = 0
     failed_ids = []
     for accommodation_request in queryset:
@@ -37,14 +37,19 @@ def fix_null_array_for_las(
             skipped += 1
             continue
 
+        fields_fixed = []
         if ltla_is_null_array:
             accommodation_request.ltla_name = []
+            fields_fixed.append("ltla_name")
         if utla_is_null_array:
             accommodation_request.utla_name = []
+            fields_fixed.append("utla_name")
 
         try:
             accommodation_request.save(update_fields=["ltla_name", "utla_name"])
-            fixed += 1
+            fixed_details.append(
+                {"id": str(accommodation_request.id), "fields": fields_fixed}
+            )
         except DatabaseError as exc:
             failed_ids.append(str(accommodation_request.id))
             logger.exception(
@@ -53,6 +58,22 @@ def fix_null_array_for_las(
                 exc,
             )
 
+    user = request.user
+    logger.info(
+        "User ID %s ran fix_null_array_for_las and fixed %s record(s): %s",
+        user.pk,
+        len(fixed_details),
+        fixed_details,
+    )
+    if failed_ids:
+        logger.error(
+            "User ID %s ran fix_null_array_for_las and failed to fix %s record(s): %s",
+            user.pk,
+            len(failed_ids),
+            failed_ids,
+        )
+
+    fixed = len(fixed_details)
     msg = (
         f"Fixed {fixed} record{'s' if fixed != 1 else ''}. "
         f"Skipped {skipped} record{'s' if skipped != 1 else ''} "

@@ -799,7 +799,7 @@ class ProcessUpdateGuestTitlesTest(BaseTestCase):
 class FixNullArrayForLasTest(BaseTestCase):
     def _run_action(self, queryset):
         modeladmin = mock.Mock()
-        request = mock.Mock()
+        request = mock.Mock(user=mock.Mock(pk=42))
         fix_null_array_for_las(modeladmin, request, queryset)
         return modeladmin
 
@@ -855,3 +855,26 @@ class FixNullArrayForLasTest(BaseTestCase):
         message = modeladmin.message_user.call_args[0][1]
         self.assertIn("Fixed 1 record", message)
         self.assertIn("Skipped 1 record", message)
+
+    def test_it_logs_the_user_and_records_fixed(self):
+        ar = MvAccommodationRequestFactory(ltla_name=[None], utla_name=["Cardiff"])
+
+        with self.assertLogs("ontology.admin_actions", level="INFO") as logs:
+            self._run_action(MvAccommodationRequest.objects.filter(id=ar.id))
+
+        self.assertIn(
+            "User ID 42 ran fix_null_array_for_las and fixed 1 record(s): "
+            f"[{{'id': '{ar.id}', 'fields': ['ltla_name']}}]",
+            logs.output[0],
+        )
+
+    def test_it_does_not_log_untouched_records_as_fixed(self):
+        ar = MvAccommodationRequestFactory(ltla_name=["Cardiff"], utla_name=[])
+
+        with self.assertLogs("ontology.admin_actions", level="INFO") as logs:
+            self._run_action(MvAccommodationRequest.objects.filter(id=ar.id))
+
+        self.assertIn(
+            "User ID 42 ran fix_null_array_for_las and fixed 0 record(s): []",
+            logs.output[0],
+        )
