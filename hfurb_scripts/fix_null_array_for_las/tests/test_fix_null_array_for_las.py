@@ -128,18 +128,18 @@ class TestFixNullArrayForLas(BaseScriptTestCaseWithSession):
         self.assert_no_change_for_okay_ars()
         self.assert_ltla_and_utla_values(
             self.ars[3],
-            None,
-            None,
+            [],
+            [],
         )
         self.assert_ltla_and_utla_values(
             self.ars[4],
-            None,
+            [],
             None,
         )
         self.assert_ltla_and_utla_values(
             self.ars[5],
             [],
-            None,
+            [],
         )
 
         self.assertCountEqual(
