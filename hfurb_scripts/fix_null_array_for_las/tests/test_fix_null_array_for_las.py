@@ -3,7 +3,7 @@ from unittest import mock
 
 from django.db import DatabaseError
 
-from hfurb_scripts.fix_null_array_for_las import run
+from hfurb_scripts.fix_null_array_for_las import fix_null_array_for_las
 from hfurb_scripts.tests.base import BaseScriptTestCaseWithSession
 from ontology.models import MvAccommodationRequest
 from ontology.tests.factories import MvAccommodationRequestFactory
@@ -76,7 +76,7 @@ class TestFixNullArrayForLas(BaseScriptTestCaseWithSession):
         )
 
     def test_dry_run_function_does_not_change_anything(self, mock_logger):
-        run()
+        fix_null_array_for_las()
 
         self.assert_no_change_for_okay_ars()
         self.assert_ltla_and_utla_values(
@@ -123,7 +123,7 @@ class TestFixNullArrayForLas(BaseScriptTestCaseWithSession):
         self.assertCountEqual(mock_logger.exception.call_args_list, [])
 
     def test_runing_function_updates_for_ars_3_4_and_5(self, mock_logger):
-        run(dry_run=False)
+        fix_null_array_for_las(dry_run=False)
 
         self.assert_no_change_for_okay_ars()
         self.assert_ltla_and_utla_values(
@@ -174,7 +174,7 @@ class TestFixNullArrayForLas(BaseScriptTestCaseWithSession):
         database_error = DatabaseError("Database down")
         mock_save.side_effect = database_error
 
-        run(dry_run=False)
+        fix_null_array_for_las(dry_run=False)
 
         self.assert_no_change_for_okay_ars()
         self.assert_ltla_and_utla_values(

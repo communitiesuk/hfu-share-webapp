@@ -72,21 +72,3 @@ def recalculate_checks_status(dry_run=True):
             logger.error("Some ARs were not updated during the script run")
 
     logger.info("End recalculate_checks_status with dry_run=%s", dry_run)
-
-
-def run(dry_run=True):
-    """
-    Usage from within ECS container:
-        # Normal run (makes changes):
-        python manage.py shell \
-        -c "from hfurb_scripts.recalculate_checks_status import run; \
-        run(dry_run=False)"
-
-
-        # Dry run (shows what would be changed):
-        python manage.py shell \
-        -c "from hfurb_scripts.recalculate_checks_status import run; \
-        run()"
-    """
-
-    recalculate_checks_status(dry_run=dry_run)

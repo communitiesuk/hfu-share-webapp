@@ -2,7 +2,9 @@ from unittest import mock
 
 from django.db import DatabaseError
 
-from hfurb_scripts.fix_guest_records_pointing_to_wrong_ars import run
+from hfurb_scripts.fix_guest_records_pointing_to_wrong_ars import (
+    fix_guest_records_pointing_to_wrong_ars,
+)
 from hfurb_scripts.tests.base import BaseScriptTestCaseWithSession
 from ontology.models import MvAccommodationRequest, MvPerson
 from ontology.tests.factories import MvAccommodationRequestFactory, MvPersonFactory
@@ -251,7 +253,7 @@ class TestFixGuestRecordsPointingToWrongARs(BaseScriptTestCaseWithSession):
         )
 
     def test_dry_run_function_does_not_change_anything(self, mock_logger):
-        run()
+        fix_guest_records_pointing_to_wrong_ars()
 
         self.assert_no_change_for_correct_guest()
         self.assert_no_change_for_scenario_1()
@@ -316,7 +318,7 @@ class TestFixGuestRecordsPointingToWrongARs(BaseScriptTestCaseWithSession):
         self.assertCountEqual(mock_logger.exception.call_args_list, [])
 
     def test_runing_function_updates_for_scenario_1_2_and_3(self, mock_logger):
-        run(dry_run=False)
+        fix_guest_records_pointing_to_wrong_ars(dry_run=False)
 
         self.assert_no_change_for_correct_guest()
         self.assert_changes_for_scenario_1()
@@ -385,7 +387,7 @@ class TestFixGuestRecordsPointingToWrongARs(BaseScriptTestCaseWithSession):
         database_error = DatabaseError("Database down")
         mock_save.side_effect = database_error
 
-        run(dry_run=False)
+        fix_guest_records_pointing_to_wrong_ars(dry_run=False)
 
         self.assert_no_change_for_correct_guest()
         self.assert_no_change_for_scenario_1()
