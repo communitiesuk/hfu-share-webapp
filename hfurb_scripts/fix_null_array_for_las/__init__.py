@@ -74,21 +74,3 @@ def fix_null_array_for_las(dry_run=True):
         counts["failed"],
         percentage(counts["failed"], counts.total()),
     )
-
-
-def run(dry_run=True):
-    """
-    Usage from within ECS container:
-        # Normal run (makes changes):
-        python manage.py shell \
-        -c "from hfurb_scripts.fix_null_array_for_las import run; \
-        run(dry_run=False)"
-
-
-        # Dry run (shows what would be changed):
-        python manage.py shell \
-        -c "from hfurb_scripts.fix_null_array_for_las import run; \
-        run()"
-    """
-
-    fix_null_array_for_las(dry_run=dry_run)
