@@ -78,7 +78,7 @@ class Filter {
 }
 
 const initFilteredSection = () => {
-    $('[data-module="filtered-section"]').each(() => {
+    $('[data-module="moj-filter"]').each(() => {
         new Filter().init()
     })
 }
