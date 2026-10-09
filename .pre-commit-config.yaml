@@ -11,7 +11,7 @@ repos:
     -   id: check-added-large-files
     -   id: name-tests-test
         args: [--pytest-test-first]
-        exclude: "tests/.*(base|factories),webapp/templates/webapp/components/links/link.html"
+        exclude: "tests/.*(base|factories)"
     -   id: no-commit-to-branch
         args: [--branch=main]
 -   repo: https://github.com/astral-sh/ruff-pre-commit
