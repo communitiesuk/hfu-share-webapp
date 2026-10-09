@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib.auth import SESSION_KEY
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.http import HttpResponseForbidden
-from django.test import RequestFactory
+from django.test import Client, RequestFactory
 from django.urls import reverse
 
 from accounts.authentication import Authentication
@@ -40,7 +40,7 @@ class EntraIdMissingSessionTokenTestCase(BaseTestCase):
     def test_entra_callback_raises_403_error_if_no_user(self):
         with self.settings(ENTRA_ID_ENABLED=True):
             with self.assertRaises(Exception) as context:
-                self.client.get(reverse("accounts:callback"))
+                self.client.post(reverse("accounts:callback"))
                 assert context.exception is HttpResponseForbidden
                 assert context.msg == "You are not allowed to access this application."
 
@@ -53,7 +53,7 @@ class EntraIdMissingSessionTokenTestCase(BaseTestCase):
         )
 
         with self.settings(ENTRA_ID_ENABLED=True):
-            response = self.client.get(reverse("accounts:callback"))
+            response = self.client.post(reverse("accounts:callback"))
 
         self.assertEqual(response.status_code, 403)
         self.assertTemplateUsed(response, "403.html")
@@ -68,7 +68,7 @@ class EntraIdMissingSessionTokenTestCase(BaseTestCase):
         )
 
         with self.settings(ENTRA_ID_ENABLED=True):
-            response = self.client.get(reverse("accounts:callback"))
+            response = self.client.post(reverse("accounts:callback"))
 
         self.assertEqual(response.status_code, 403)
         self.assertTemplateUsed(response, "403.html")
@@ -83,7 +83,7 @@ class EntraIdMissingSessionTokenTestCase(BaseTestCase):
         mock_authenticate.return_value = None
 
         with self.settings(ENTRA_ID_ENABLED=True):
-            response = self.client.get(reverse("accounts:callback"))
+            response = self.client.post(reverse("accounts:callback"))
 
         self.assertEqual(response.status_code, 403)
         self.assertTemplateUsed(response, "403.html")
@@ -112,7 +112,7 @@ class EntraIdRedirectsUserToPageTheyWantedToVisitTestCase(BaseTestCase):
             self.assertEqual(login_response.status_code, 302)
             self.assertEqual(self.client.session[LOGIN_REDIRECT_SESSION_KEY], test_url)
 
-            callback_response = self.client.get(reverse("accounts:callback"))
+            callback_response = self.client.post(reverse("accounts:callback"))
             self.assertRedirects(
                 callback_response, test_url, fetch_redirect_response=False
             )
@@ -141,7 +141,7 @@ class EntraIdRedirectsUserToPageTheyWantedToVisitTestCase(BaseTestCase):
                     self.client.get(reverse("accounts:login"), {"next": next_url})
                     self.assertNotIn(LOGIN_REDIRECT_SESSION_KEY, self.client.session)
 
-                    response = self.client.get(reverse("accounts:callback"))
+                    response = self.client.post(reverse("accounts:callback"))
                     self.assertRedirects(
                         response,
                         settings.LOGIN_REDIRECT_URL,
@@ -165,7 +165,7 @@ class EntraIdRedirectsUserToPageTheyWantedToVisitTestCase(BaseTestCase):
             self.client.get(reverse("accounts:login"))
             self.assertNotIn(LOGIN_REDIRECT_SESSION_KEY, self.client.session)
 
-            response = self.client.get(reverse("accounts:callback"))
+            response = self.client.post(reverse("accounts:callback"))
             self.assertRedirects(
                 response, settings.LOGIN_REDIRECT_URL, fetch_redirect_response=False
             )
@@ -189,7 +189,7 @@ class EntraIdSessionTokenTestCase(TestSessionTokenMixin, BaseTestCase):
         mock_authenticate.return_value = entra_user
 
         with self.settings(ENTRA_ID_ENABLED=True):
-            response = self.client.get(reverse("accounts:callback"))
+            response = self.client.post(reverse("accounts:callback"))
             self.assertRedirects(
                 response, settings.LOGIN_REDIRECT_URL, fetch_redirect_response=False
             )
@@ -206,7 +206,7 @@ class EntraIdSessionTokenTestCase(TestSessionTokenMixin, BaseTestCase):
 
         request_passed_to_authenticate = ANY
         with self.settings(ENTRA_ID_ENABLED=True):
-            self.client.get(reverse("accounts:callback"))
+            self.client.post(reverse("accounts:callback"))
 
         mock_authenticate.assert_called_once_with(
             request_passed_to_authenticate, token="token"
@@ -223,7 +223,7 @@ class EntraIdSessionTokenTestCase(TestSessionTokenMixin, BaseTestCase):
         mock_authenticate.return_value = entra_user
 
         with self.settings(ENTRA_ID_ENABLED=True):
-            self.client.get(reverse("accounts:callback"))
+            self.client.post(reverse("accounts:callback"))
 
         session_user_id = self.client.session[SESSION_KEY]
         self.assertEqual(session_user_id, str(entra_user.pk))
@@ -231,7 +231,7 @@ class EntraIdSessionTokenTestCase(TestSessionTokenMixin, BaseTestCase):
     def test_logout_redirects_to_entra_id_logout(self):
         with self.settings(ENTRA_ID_ENABLED=True):
             self.client.force_login(get_admin_user())
-            response = self.client.get(reverse("accounts:logout"))
+            response = self.client.post(reverse("accounts:logout"))
             self.assertRedirects(
                 response,
                 f"{settings.ENTRA_AUTH['AUTHORITY']}/oauth2/v2.0/logout?",
@@ -249,14 +249,37 @@ class EntraIdStateMismatchTestCase(TestSessionTokenMixin, BaseTestCase):
         self.client.force_login(entra_user)
 
         with self.settings(ENTRA_ID_ENABLED=True):
-            self.client.get(reverse("accounts:callback"))
+            self.client.post(reverse("accounts:callback"))
 
         self.assertEqual(self.client.session[SESSION_KEY], str(entra_user.pk))
 
 
+class EntraCallbackCsrfTestCase(BaseTestCase):
+    # Enable real CSRF validation; the default test client skips it.
+    def setUp(self):
+        self.client = Client(enforce_csrf_checks=True)
+
+    @patch("accounts.authentication.Authentication.get_token_from_flow")
+    @patch("accounts.views.authenticate")
+    def test_entra_callback_succeeds_without_a_csrf_token(
+        self, mock_authenticate, mock_get_token_from_flow
+    ):
+        mock_get_token_from_flow.return_value = "token"
+        entra_user = get_admin_user()
+        entra_user.backend = "accounts.backend.EntraBackend"
+        mock_authenticate.return_value = entra_user
+
+        with self.settings(ENTRA_ID_ENABLED=True):
+            response = self.client.post(reverse("accounts:callback"))
+
+        self.assertRedirects(
+            response, settings.LOGIN_REDIRECT_URL, fetch_redirect_response=False
+        )
+
+
 class GetTokenFromFlowStateTestCase(BaseTestCase):
-    def _get_authentication(self, flow, query):
-        request = RequestFactory().get(reverse("accounts:callback"), query)
+    def _get_authentication(self, flow, form):
+        request = RequestFactory().post(reverse("accounts:callback"), form)
         SessionMiddleware(lambda _request: None).process_request(request)
         request.session["auth_flow"] = flow
         return Authentication(request)
@@ -265,7 +288,7 @@ class GetTokenFromFlowStateTestCase(BaseTestCase):
     def test_raises_if_the_response_state_does_not_match_the_flow(self, mock_msal_app):
         authentication = self._get_authentication(
             flow={"state": "the-state-we-issued"},
-            query={"state": "a-different-state", "code": "some-code"},
+            form={"state": "a-different-state", "code": "some-code"},
         )
 
         with self.assertRaises(StateMismatchError):
@@ -281,7 +304,7 @@ class GetTokenFromFlowStateTestCase(BaseTestCase):
         }
         authentication = self._get_authentication(
             flow={"state": "the-state-we-issued"},
-            query={"state": "the-state-we-issued", "code": "some-code"},
+            form={"state": "the-state-we-issued", "code": "some-code"},
         )
 
         token = authentication.get_token_from_flow()
