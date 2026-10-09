@@ -55,7 +55,12 @@ class SeedBrowserTestLaCommandTestCase(BaseScriptTestCase):
             num_guests=1, ltla_name="Realshire"
         )
 
-        call_command("seed_browser_test_la", "--wipe")
+        with self.assertLogs(
+            "ontology.management.commands.seed_browser_test_la", level="INFO"
+        ) as logs:
+            call_command("seed_browser_test_la", "--wipe")
+
+        self.assertIn("Browser test data was wiped", logs.output[-1])
 
         self.assertFalse(
             MvAccommodationRequest.objects.filter(
@@ -82,7 +87,12 @@ class SeedBrowserTestLaCommandTestCase(BaseScriptTestCase):
             VisaApplication.objects.count(),
         )
 
-        call_command("seed_browser_test_la", "--dry-run")
+        with self.assertLogs(
+            "ontology.management.commands.seed_browser_test_la", level="INFO"
+        ) as logs:
+            call_command("seed_browser_test_la", "--dry-run")
+
+        self.assertIn("Dry run complete, nothing was deleted.", logs.output[-1])
 
         counts_after = (
             MvAccommodationRequest.objects.count(),
