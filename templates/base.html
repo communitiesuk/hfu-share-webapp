@@ -25,7 +25,8 @@
         <link rel="manifest" href="{% static 'gds/assets/manifest.json' %}">
         <link rel="stylesheet"
               href="{% static 'gds/govuk-frontend-6.5.1.min.css' %}">
-        <link rel="stylesheet" href="{% static 'moj-frontend/all.min.css' %}">
+        <link rel="stylesheet"
+              href="{% static 'moj-frontend/moj-frontend-11.1.0.min.css' %}">
         <link rel="stylesheet" href="{% static 'css/styles.css' %}">
         <link rel="stylesheet"
               href="{% static 'accessible-autocomplete/accessible-autocomplete.min.css' %}">
@@ -83,8 +84,14 @@
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"
                 integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
                 crossorigin="anonymous"></script>
-        <script src="{% static 'moj-frontend/moj-frontend.min.js' %}"></script>
-        <script nonce="{{request.csp_nonce}}">window.MOJFrontend.initAll();</script>
+        <script type="module"
+                src="{% static 'moj-frontend/moj-frontend-11.1.0.min.js' %}"></script>
+        <script type="module" nonce="{{request.csp_nonce}}">
+            import {
+              initAll
+            } from "{% static 'moj-frontend/moj-frontend-11.1.0.min.js' %}"
+            initAll()
+        </script>
         <script src="{% static 'accessible-autocomplete/accessible-autocomplete.min.js' %}"></script>
         <script type="module" nonce="{{request.csp_nonce}}">
             import {

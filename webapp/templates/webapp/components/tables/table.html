@@ -7,7 +7,7 @@
     {% if table.empty_text and not table.data %}
         <p class="govuk-body govuk-!-margin-top-2">{{ table.empty_text }}</p>
     {% else %}
-        <div class="ui container table-container app-table--container">
+        <div class="ui container table-container moj-scrollable-pane">
             {% block table %}
                 <table {% render_attrs table.attrs class="govuk-table" %}>
                     {% block table.thead %}
