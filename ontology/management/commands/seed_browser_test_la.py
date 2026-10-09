@@ -1,3 +1,5 @@
+import logging
+
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
@@ -6,6 +8,8 @@ from hfurb_scripts.seeders.stages.seed_browser_test_la import (
     seed_browser_test_la,
     wipe_browser_test_la_data,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -38,13 +42,13 @@ class Command(BaseCommand):
             with transaction.atomic():
                 wipe_browser_test_la_data()
                 transaction.set_rollback(True)
-            self.stdout.write("Dry run complete, nothing was deleted.")
+            logger.info("Dry run complete, nothing was deleted.")
             return
 
         if options["wipe"]:
             with transaction.atomic():
                 wipe_browser_test_la_data()
-            self.stdout.write("Browser test data was wiped")
+            logger.info("Browser test data was wiped")
             return
 
         seed_browser_test_la()
