@@ -6,8 +6,6 @@ from freezegun import freeze_time
 from accounts.models import User
 from hfurb_scripts.tests.base import BaseScriptTestCase
 from hfurb_scripts.toggle_non_admin_user_access import (
-    disable_users,
-    enable_users,
     toggle_non_admin_user_access,
 )
 from user_management.tests.base import (
@@ -92,8 +90,8 @@ class TestToggleUserAccess(BaseScriptTestCase):
             assert user.is_active
 
     def test_toggle_user_access_doesnt_reenable_suspended_user(self):
-        disable_users()
-        enable_users()
+        toggle_non_admin_user_access(disable=True)
+        toggle_non_admin_user_access(enable=True)
 
         self.suspended_user.refresh_from_db()
 
@@ -102,8 +100,8 @@ class TestToggleUserAccess(BaseScriptTestCase):
     def test_toggle_user_access_doesnt_reenable_no_group_user(self):
         self.assertFalse(self.user_no_groups.is_active)
 
-        disable_users()
-        enable_users()
+        toggle_non_admin_user_access(disable=True)
+        toggle_non_admin_user_access(enable=True)
 
         self.user_no_groups.refresh_from_db()
 

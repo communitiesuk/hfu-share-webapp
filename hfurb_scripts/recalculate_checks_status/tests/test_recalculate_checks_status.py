@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 from django.urls import reverse
 
-from hfurb_scripts.recalculate_checks_status import run
+from hfurb_scripts.recalculate_checks_status import recalculate_checks_status
 from hfurb_scripts.tests.base import BaseScriptTestCaseWithSession
 from ontology.models import CheckType, DevCheckV2, MvAccommodationRequest
 from ontology.tests.factories import (
@@ -60,7 +60,7 @@ class TestRecalculateChecksStatus(BaseScriptTestCaseWithSession):
         self.ar_2.save()
 
     def test_dry_run_function(self):
-        run()
+        recalculate_checks_status()
 
         self.ar_1.refresh_from_db()
 
@@ -73,7 +73,7 @@ class TestRecalculateChecksStatus(BaseScriptTestCaseWithSession):
             self.ar_1.checks_status, MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED
         )
 
-        run(dry_run=False)
+        recalculate_checks_status(dry_run=False)
 
         self.ar_1.refresh_from_db()
 
@@ -87,7 +87,7 @@ class TestRecalculateChecksStatus(BaseScriptTestCaseWithSession):
             self.ar_2.checks_status, MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED
         )
 
-        run(dry_run=False)
+        recalculate_checks_status(dry_run=False)
 
         self.ar_2.refresh_from_db()
 
@@ -98,7 +98,7 @@ class TestRecalculateChecksStatus(BaseScriptTestCaseWithSession):
     def test_audit_log_displays_correctly(self):
         job_username = "recalculate_checks_status_job"
 
-        run(dry_run=False)
+        recalculate_checks_status(dry_run=False)
 
         user = get_admin_user()
         self.client.force_login(user)
@@ -136,7 +136,7 @@ class TestRecalculateChecksStatus(BaseScriptTestCaseWithSession):
             "hfurb_scripts.recalculate_checks_status", level="ERROR"
         ) as log_capture:
             # test doesn't raise Exception
-            run(dry_run=False)
+            recalculate_checks_status(dry_run=False)
 
             self.ar_1.refresh_from_db()
 
