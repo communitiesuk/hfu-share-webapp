@@ -478,11 +478,6 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
   text-align: right;
 }
 
-.app-table--container {
-  overflow-x: auto;
-  overflow-y: visible;
-}
-
 .app-table--td {
   vertical-align: top;
   text-align: left
@@ -533,11 +528,6 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
   align-items: center;
 }
 
-.app-filter {
-  width: 400px;
-  margin-right: 16px;
-}
-
 .app-guidance-and-support--border-top {
   border-top: 8px solid var(--app-brand-colour);
 }
@@ -553,11 +543,6 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
   justify-content: space-between;
   align-items: center;
   width: 100%;
-}
-
-.app-table-container {
-  min-width: 0;
-  flex-grow: 1;
 }
 
 .app-checkbox-with-tags--label {

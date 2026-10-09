@@ -4,7 +4,7 @@ from django import template
 from django.middleware.csrf import get_token
 from django.template.loader import render_to_string
 
-from webapp.component_builders import AdminLinkBuilder, LinkBuilder
+from webapp.component_builders import AdminLinkBuilder, LinkAsButtonBuilder, LinkBuilder
 
 register = template.Library()
 
@@ -33,6 +33,29 @@ def render_govuk_link(
                 visually_hidden_text=visually_hidden_text,
                 no_visited_state=no_visited_state,
                 opens_in_new_tab=opens_in_new_tab,
+                **kwargs,
+            ),
+        },
+    )
+
+
+@register.simple_tag
+def render_govuk_link_as_button(
+    text: str,
+    href: str,
+    *,
+    css_class: str = "",
+    type: str = "primary",
+    **kwargs,
+):
+    return render_to_string(
+        LINK_TEMPLATE_PATH,
+        {
+            "link": LinkAsButtonBuilder(
+                text,
+                href,
+                css_class=css_class,
+                type=type,
                 **kwargs,
             ),
         },
