@@ -24,11 +24,7 @@ from django_filters import MultipleChoiceFilter
 from django_tables2 import LazyPaginator
 
 from accounts.enums import GroupType
-from accounts.mixins import (
-    GroupRequiredMixin,
-    user_in_any_group_names,
-    user_in_any_group_types,
-)
+from accounts.mixins import GroupRequiredMixin
 from case_management.settings import FILE_DOWNLOAD_S3_BUCKET_NAME
 from deduplication.models import (
     AccommodationDuplicateGroup,
@@ -997,43 +993,26 @@ class Tab(TypedDict):
     current: bool
 
 
+# Temporary, for the new record layout rollout. Everyone gets the new layout,
+# and the banner switch lets a user go back to the classic one, remembered in
+# a cookie. When the classic layout is retired, delete this class, its entry
+# in DetailViewMixin's bases, the classic templates and the cookie's row on
+# the cookies page.
 class DetailLayoutMixin:
-    """
-    Temporary, for the new record layout rollout: the early adopters group
-    plus the Home Office and MHCLG group types default to the new detail
-    layout, everyone else to the classic one.
-    detail_layout_switch_enabled additionally shows a banner line above the
-    detail pages letting any user switch layout for themselves, remembered in
-    the session. Delete this class, its entry in DetailViewMixin's bases and
-    the classic templates when the rollout completes.
-    """
-
     request: HttpRequest
 
     detail_layouts = ("classic", "new")
-    detail_layout_groups = ["local_authority_early_adopters"]
-    detail_layout_group_types = [GroupType.HOME_OFFICE, GroupType.MHCLG]
-    detail_layout_switch_enabled = False
-
-    @property
-    def detail_layout_default(self) -> str:
-        user = getattr(self.request, "user", None)
-        if user is None:
-            return "classic"
-        if user_in_any_group_names(user, self.detail_layout_groups):
-            return "new"
-        if user_in_any_group_types(user, self.detail_layout_group_types):
-            return "new"
-        return "classic"
+    detail_layout_default = "new"
+    detail_layout_switch_enabled = True
+    detail_layout_cookie_name = "detail_layout"
+    detail_layout_cookie_max_age = 60 * 60 * 24 * 90
 
     @property
     def detail_layout(self) -> str:
         if self.detail_layout_switch_enabled:
-            session = getattr(self.request, "session", None)
-            if session is not None:
-                chosen = session.get("detail_layout")
-                if chosen in self.detail_layouts:
-                    return chosen
+            chosen = self.request.COOKIES.get(self.detail_layout_cookie_name)
+            if chosen in self.detail_layouts:
+                return chosen
         return self.detail_layout_default
 
     def dispatch(self, request, *args, **kwargs):
@@ -1043,7 +1022,6 @@ class DetailLayoutMixin:
             and request.method == "GET"
             and requested in self.detail_layouts
         ):
-            request.session["detail_layout"] = requested
             logger.info(
                 "Detail layout switched to %s by user ID %s.",
                 requested,
@@ -1058,7 +1036,18 @@ class DetailLayoutMixin:
                 url, allowed_hosts={request.get_host()}
             ):
                 url = request.path
-            return HttpResponseRedirect(url)
+            response = HttpResponseRedirect(url)
+            # Lax rather than Strict so the choice still applies when a user
+            # opens a record from a link in an email or another site.
+            response.set_cookie(
+                self.detail_layout_cookie_name,
+                requested,
+                max_age=self.detail_layout_cookie_max_age,
+                secure=True,
+                httponly=True,
+                samesite="Lax",
+            )
+            return response
         return super().dispatch(request, *args, **kwargs)
 
     def add_detail_layout(self, context: Context) -> None:
