@@ -11,7 +11,7 @@
         <div class="govuk-summary-card">
             <div class="govuk-summary-card__title-wrapper">
                 <h2 class="govuk-summary-card__title">Safeguarding checks</h2>
-                {% if user_can_add_update and request.GET.add_check != "button" %}
+                {% if user_can_add_update %}
                     <ul class="govuk-summary-card__actions">
                         <li class="govuk-summary-card__action">
                             <a class="govuk-link"
@@ -22,24 +22,7 @@
             </div>
             <div class="govuk-summary-card__content">
                 {% include "webapp/components/record_tabs/record_summary_list.html" with fields=fields %}
-                {% if user_can_add_update and request.GET.add_check == "button" %}
-                    <a href="{% url 'accommodation-requests:update-safeguarding-checks' object.id %}"
-                       class="govuk-button govuk-button--primary govuk-!-margin-top-4 govuk-!-margin-bottom-1">Add safeguarding check</a>
-                {% endif %}
             </div>
         </div>
     {% endif %}
 {% endblock selected_tab %}
-{% block demo_controls %}
-    <p class="govuk-body-s app-demo-controls">
-        <strong class="govuk-tag app-tag--small">Demo controls</strong>
-        Add check placement:
-        {% if request.GET.add_check == "button" %}
-            <a class="govuk-link" href="{{ request.path }}">Header link</a>
-            | <strong>Bottom button</strong>
-        {% else %}
-            <strong>Header link</strong>
-            | <a class="govuk-link" href="{{ request.path }}?add_check=button">Bottom button</a>
-        {% endif %}
-    </p>
-{% endblock demo_controls %}
