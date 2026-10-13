@@ -1,16 +1,9 @@
 {% extends "accommodation_requests/move_guests/accommodation_requests_move_guests_base.html" %}
-{% load crispy_forms_gds %}
 {% load crispy_forms_tags %}
-{% block form %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-one-half">
-            {% error_summary form %}
-            {% include "webapp/components/heading/heading.html" with caption="Move guests for" page_heading=object.title %}
-            <form method="post" novalidate>
-                {% csrf_token %}
-                {{ wizard.management_form }}
-                {% crispy form %}
-            </form>
-        </div>
-    </div>
-{% endblock form %}
+{% block narrow_content %}
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {{ wizard.management_form }}
+        {% crispy form %}
+    </form>
+{% endblock narrow_content %}
