@@ -39,10 +39,10 @@ class GuestBaseForm(ReadOnlyFieldsMixin, forms.ModelForm):
             ),
             HTML(
                 self.render_readonly_field(
-                    "Unique Application Number (UAN)", "application_number"
+                    "Unique application number (UAN)", "application_number"
                 )
             ),
-            HTML(self.render_readonly_field("Global Web Form number (GWF)", "gwf")),
+            HTML(self.render_readonly_field("Global web form number (GWF)", "gwf")),
         ]
 
     def get_button_layout(self):

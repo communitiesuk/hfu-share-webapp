@@ -200,7 +200,7 @@ class DeduplicationSponsorListViewTestCase(TestSessionTokenMixin, BaseTestCase):
         self.assertContains(response, "Visa status")
         self.assertContains(response, "First arrival date")
         self.assertContains(response, "Latest visa application date")
-        self.assertContains(response, "Unique Application Number (UAN)")
+        self.assertContains(response, "Unique application number (UAN)")
         self.assertNotContains(response, self.multi_ltla_guest.get_full_name())
 
     def test_renders_guest_list_content(self):

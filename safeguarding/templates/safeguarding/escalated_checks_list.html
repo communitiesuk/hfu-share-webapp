@@ -8,6 +8,9 @@
         <div class="govuk-grid-column-one-half">{% error_summary filter.form %}</div>
     </div>
     {% include "webapp/components/heading/heading.html" with page_heading=page_heading %}
+    <p class="govuk-body">
+        Review failed safeguarding checks and escalations to UK Visas and Immigration (UKVI). The table shows all unique application numbers (UANs) and global web form numbers (GWFs) that are linked to each guest.
+    </p>
     {% if user_can_download %}
         <div class="govuk-body">
             You can download the data on this table as well as other data, including sponsor details, guest details and deferral statuses.
