@@ -1086,7 +1086,6 @@ class DetailViewMixin(OldLayoutMixin, ABC):
     }
     views_with_full_width_tab_content = {
         "properties",
-        "central-safeguarding",
     }
 
     @property
