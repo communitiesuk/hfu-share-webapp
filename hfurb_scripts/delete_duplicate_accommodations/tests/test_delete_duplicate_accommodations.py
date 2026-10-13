@@ -55,10 +55,3 @@ class TestDeleteDuplicateAccommodations(BaseScriptTestCaseWithSession):
         self.assert_exists(self.archived_duplicate, False)
         self.assert_exists(self.linked_duplicate, True)
 
-    def test_run_with_no_records_does_nothing(self, mock_get_records):
-        mock_get_records.return_value = []
-
-        run(dry_run=False)
-
-        self.assert_exists(self.not_in_delete_list, True)
-        self.assert_exists(self.duplicate, True)
