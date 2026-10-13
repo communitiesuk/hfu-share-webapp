@@ -32,8 +32,8 @@ class AccommodationOverviewTestCase(
             utla_name="UTLA",
         )
         self.ltla_accommodation = MvAccommodationFactory(
-            full_address="Somerset LTLA Address",
-            ltla_name="ltla_somerset",
+            full_address="Test LTLA Address",
+            ltla_name="ltla_test",
         )
         self.da_accommodation = MvAccommodationFactory(
             full_address="Scotland DA address",

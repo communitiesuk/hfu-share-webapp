@@ -32,8 +32,8 @@ class SponsorsHistoryTestCase(TestSessionTokenMixin, BaseTestCase):
         )
 
         self.accommodation = MvAccommodationFactory(
-            ltla_name="ltla_somerset",
-            full_address="Somerset accommodation",
+            ltla_name="ltla_test",
+            full_address="Test accommodation",
         )
 
         self.accommodation.hosts.set([self.sponsor.id])

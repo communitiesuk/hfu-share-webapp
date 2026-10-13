@@ -25,6 +25,7 @@ from ontology.actions.reassignment_request_actions import (
     normalise_outcome_values,
 )
 from ontology.admin_actions import (
+    fix_null_array_for_las,
     process_update_guest_titles,
     solve_duplicate_record_sponsor_checks,
 )
@@ -33,6 +34,8 @@ from ontology.admin_filters import (
     ChecksSinceShareGoLiveFilter,
     DateRangeFilter,
     GuestsWithIncorrectTitlesExcludingDuplicatesFilter,
+    LtlaNameIsNullArrayFilter,
+    UtlaNameIsNullArrayFilter,
 )
 from ontology.models import (
     Announcement,
@@ -188,12 +191,18 @@ class AccommodationRequestAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
         "edited_in_app",
         "is_principal",
         ARsCreatedOrModifiedSinceShareGoLiveFilter,
+        LtlaNameIsNullArrayFilter,
+        UtlaNameIsNullArrayFilter,
     ]
     readonly_fields = [
         "detail_view",
         "devcheckv2_detail_view",
     ]
-    actions = [create_safeguarding_checks, recalculate_checks_status]
+    actions = [
+        create_safeguarding_checks,
+        recalculate_checks_status,
+        fix_null_array_for_las,
+    ]
 
     def detail_view(self, obj):
         if obj.pk:

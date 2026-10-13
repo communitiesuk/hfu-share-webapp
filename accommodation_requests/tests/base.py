@@ -254,8 +254,8 @@ class AccommodationRequestsBaseTestCase(BaseTestCase):
             ],
             sponsor_withdrawn=[],
             group=self.group,
-            ltla_name=["ltla_somerset"],
-            utla_name=["utla_somerset"],
+            ltla_name=["ltla_test"],
+            utla_name=["utla_test"],
         )
 
         self.safeguarding_checks_accomodation_request = AccReqFactory(
@@ -273,8 +273,8 @@ class AccommodationRequestsBaseTestCase(BaseTestCase):
             active_host=self.active_host,
             group=self.group,
             number_of_people=0,
-            ltla_name=["ltla_somerset"],
-            utla_name=["utla_somerset"],
+            ltla_name=["ltla_test"],
+            utla_name=["utla_test"],
         )
 
         self.accommodation_suitable_check = DevCheckV2Factory(

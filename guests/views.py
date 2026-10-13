@@ -11,6 +11,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from django.utils.html import escape
+from django.utils.safestring import mark_safe
 from django.views.generic import DetailView, UpdateView
 from django_filters import (
     BooleanFilter,
@@ -407,6 +408,7 @@ class GuestDetailOverviewView(
     model = MvPerson
 
     email = Column(verbose_name="Email address")
+    upe_visa_status = Column(verbose_name=MvPerson.UPE_VISA_STATUS_FULL_LABEL)
 
     def show_upe_visa_status(self):
         user = self.request.user
@@ -669,7 +671,7 @@ class GuestDetailPropertiesView(
     model = MvPerson
 
     email = Column(verbose_name="Email address")
-    upe_visa_status = Column(verbose_name="Ukraine Extension Scheme (UPE) visa status")
+    upe_visa_status = Column(verbose_name=MvPerson.UPE_VISA_STATUS_FULL_LABEL)
 
     def render_upe_visa_status(self, value, record):
         if value:
@@ -740,7 +742,21 @@ class GuestDetailHistoryView(
             "This history shows the dates a change was made to the guest record "
             "on the system."
         )
+        self.expand_first_upe_mention(context["events"].object_list)
         return context
+
+    @staticmethod
+    def expand_first_upe_mention(events):
+        for event in events:
+            if MvPerson.UPE_VISA_STATUS_LABEL in event.content:
+                event.content = mark_safe(  # noqa:S308
+                    event.content.replace(
+                        MvPerson.UPE_VISA_STATUS_LABEL,
+                        MvPerson.UPE_VISA_STATUS_FULL_LABEL,
+                        1,
+                    )
+                )
+                return
 
 
 class GuestEditView(

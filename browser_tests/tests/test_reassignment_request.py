@@ -63,7 +63,7 @@ class TestReassignmentRequestJourney(BrowserTest):
         home_page.click_button("Continue")
 
         # Select local authority
-        home_page.enter_text_into_form_field(
+        home_page.enter_text_into_searchable_select(
             "Select local authority", DESTINATION_LA_SEARCH_TEXT
         )
         home_page.main_page.get_by_role(

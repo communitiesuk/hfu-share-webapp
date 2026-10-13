@@ -35,34 +35,4 @@
             </div>
         </div>
     </div>
-    <script nonce="{{ request.csp_nonce }}">
-        document.addEventListener('DOMContentLoaded', function() {
-            const filterContainer = document.getElementById('filter-container');
-            const showFilterLink = document.getElementById('show-filter-link');
-            const input = document.getElementById('show_filters_panel');
-            const viewKey = 'filtersPanelOpen_' + window.location.pathname;
-            const isOpen = localStorage.getItem(viewKey);
-            const reassignmentRequestsTabsContent = document.getElementById('reassignment-requests-tabs-content');
-
-            if (isOpen === 'true') {
-                reassignmentRequestsTabsContent.classList.remove('govuk-grid-column-two-thirds');
-                reassignmentRequestsTabsContent.classList.add('govuk-grid-column-three-quarters');
-            } else {
-                reassignmentRequestsTabsContent.classList.remove('govuk-grid-column-three-quarters');
-                reassignmentRequestsTabsContent.classList.add('govuk-grid-column-two-thirds');
-            }
-
-            showFilterLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                const currentlyOpen = filterContainer.classList.contains('app-display--block');
-                if (currentlyOpen) {
-                    reassignmentRequestsTabsContent.classList.remove('govuk-grid-column-two-thirds');
-                    reassignmentRequestsTabsContent.classList.add('govuk-grid-column-three-quarters');
-                } else {
-                    reassignmentRequestsTabsContent.classList.remove('govuk-grid-column-three-quarters');
-                    reassignmentRequestsTabsContent.classList.add('govuk-grid-column-two-thirds');
-                }
-            });
-        });
-    </script>
 {% endblock content %}

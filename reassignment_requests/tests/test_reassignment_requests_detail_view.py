@@ -25,7 +25,7 @@ from user_management.tests.base import (
 class ReassignmentRequestsDetailViewTestCase(ReassignmentRequestsBaseTestCase):
     def setUp(self):
         super().setUp()
-        self.reassignment_request = self.pending_request_somerset_source_multiple_guests
+        self.reassignment_request = self.pending_request_test_source_multiple_guests
 
     def get_detail_page_response(
         self,
@@ -153,7 +153,7 @@ class ReassignmentRequestsDetailViewTestCase(ReassignmentRequestsBaseTestCase):
         self,
     ):
         response = self.get_detail_page_response(
-            reassignment_request=self.pending_request_somerset_source_multiple_guests
+            reassignment_request=self.pending_request_test_source_multiple_guests
         )
         self.assertContains(response, "Cancel request")
 
@@ -161,11 +161,11 @@ class ReassignmentRequestsDetailViewTestCase(ReassignmentRequestsBaseTestCase):
         self,
     ):
         response = self.get_detail_page_response(
-            reassignment_request=self.request_to_somerset,
+            reassignment_request=self.request_to_test,
             user=get_user_with_groups(
                 [
                     UserGroup(
-                        name=self.request_to_somerset.destination_ltla_name,
+                        name=self.request_to_test.destination_ltla_name,
                         type=GroupType.LOCAL_AUTHORITY,
                     )
                 ]
@@ -175,19 +175,19 @@ class ReassignmentRequestsDetailViewTestCase(ReassignmentRequestsBaseTestCase):
 
     def test_cancel_request_button_is_not_shown_when_request_is_accepted(self):
         response = self.get_detail_page_response(
-            reassignment_request=self.accepted_request_somerset_source
+            reassignment_request=self.accepted_request_test_source
         )
         self.assertNotContains(response, "Cancel request")
 
     def test_cancel_request_button_is_not_shown_when_request_is_rejected(self):
         response = self.get_detail_page_response(
-            reassignment_request=self.rejected_request_somerset_source
+            reassignment_request=self.rejected_request_test_source
         )
         self.assertNotContains(response, "Cancel request")
 
     def test_cancel_request_button_is_not_shown_when_request_needs_ar(self):
         response = self.get_detail_page_response(
-            reassignment_request=self.needs_ar_request_somerset_source
+            reassignment_request=self.needs_ar_request_test_source
         )
         self.assertNotContains(response, "Cancel request")
 
@@ -205,12 +205,12 @@ class ReassignmentRequestsDetailViewTestCase(ReassignmentRequestsBaseTestCase):
             user=get_user_with_groups(
                 [
                     UserGroup(
-                        name=self.request_to_somerset.destination_ltla_name,
+                        name=self.request_to_test.destination_ltla_name,
                         type=GroupType.LOCAL_AUTHORITY,
                     )
                 ]
             ),
-            reassignment_request=self.request_to_somerset,
+            reassignment_request=self.request_to_test,
         )
 
         # Should show the accept/reject form
@@ -223,12 +223,12 @@ class ReassignmentRequestsDetailViewTestCase(ReassignmentRequestsBaseTestCase):
             user=get_user_with_groups(
                 [
                     UserGroup(
-                        name=self.request_to_somerset.destination_ltla_name,
+                        name=self.request_to_test.destination_ltla_name,
                         type=GroupType.LOCAL_AUTHORITY,
                     )
                 ]
             ),
-            reassignment_request=self.accepted_request_somerset_source,
+            reassignment_request=self.accepted_request_test_source,
         )
 
         self.assertNotContains(response, "Accept request")
@@ -238,7 +238,7 @@ class ReassignmentRequestsDetailViewTestCase(ReassignmentRequestsBaseTestCase):
     def test_accept_reject_form_wont_show_for_user_that_doesnt_match_destination(self):
         # A user for the destination LA
         response = self.get_detail_page_response(
-            reassignment_request=self.request_to_somerset
+            reassignment_request=self.request_to_test
         )
 
         # Should not show the accept/reject form
@@ -251,7 +251,7 @@ class ReassignmentRequestsDetailViewTestCase(ReassignmentRequestsBaseTestCase):
 
         pending_request_no_source_ltla_name = ReassignmentRequestFactory(
             source_ltla_name=[None],
-            source_utla_name=["utla_somerset"],
+            source_utla_name=["utla_test"],
             destination_ltla_name="ltla_destination",
             destination_utla_name="utla_destination",
             outcome=ReassignmentRequest.Outcome.PENDING,

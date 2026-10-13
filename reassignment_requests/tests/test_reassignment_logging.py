@@ -36,13 +36,13 @@ class AcceptReassignmentLoggingTestCase(ReassignmentRequestsBaseTestCase):
         self.ar = MvAccommodationRequestFactory(
             number_of_people=2,
             person_id=[self.guest_a.id, self.guest_b.id],
-            ltla_name=["ltla_somerset"],
-            utla_name=["utla_somerset"],
+            ltla_name=["ltla_test"],
+            utla_name=["utla_test"],
             accommodation_id=[acc.id],
             primary_accommodation=acc,
             active_host=MvVolunteerFactory(),
         )
-        self.request = self.pending_request_somerset_source_multiple_guests
+        self.request = self.pending_request_test_source_multiple_guests
         self.request.accommodation_request = self.ar
         self.request.save()
         self.url = reverse(
@@ -194,14 +194,14 @@ class AcceptPartialReassignmentLoggingTestCase(ReassignmentRequestsBaseTestCase)
         self.ar = MvAccommodationRequestFactory(
             number_of_people=3,
             person_id=[self.guest_a.id, self.guest_b.id, self.guest_c.id],
-            ltla_name=["ltla_somerset"],
-            utla_name=["utla_somerset"],
+            ltla_name=["ltla_test"],
+            utla_name=["utla_test"],
             accommodation_id=[acc.id],
             primary_accommodation=acc,
             active_host=MvVolunteerFactory(),
         )
         # RR only covers guest_a and guest_b (partial - guest_c stays)
-        self.request = self.pending_request_somerset_source_multiple_guests
+        self.request = self.pending_request_test_source_multiple_guests
         self.request.accommodation_request = self.ar
         self.request.save()
         self.url = reverse(
@@ -295,9 +295,9 @@ class RejectReassignmentLoggingTestCase(ReassignmentRequestsBaseTestCase):
         self.ar = MvAccommodationRequestFactory(
             number_of_people=2,
             person_id=[self.guest_a.id, self.guest_b.id],
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
         )
-        self.request = self.pending_request_somerset_source_multiple_guests
+        self.request = self.pending_request_test_source_multiple_guests
         self.request.accommodation_request = self.ar
         self.request.save()
         self.url = reverse(
@@ -359,11 +359,11 @@ class CancelReassignmentLoggingTestCase(ReassignmentRequestsBaseTestCase):
         super().setUp()
         self.client.force_login(
             get_user_with_groups(
-                [UserGroup(name="ltla_somerset", type=GroupType.LOCAL_AUTHORITY)]
+                [UserGroup(name="ltla_test", type=GroupType.LOCAL_AUTHORITY)]
             )
         )
         self.ar = MvAccommodationRequestFactory()
-        self.request = self.pending_request_somerset_source_single_guest
+        self.request = self.pending_request_test_source_single_guest
         self.request.accommodation_request = self.ar
         self.request.save()
         self.url = reverse(

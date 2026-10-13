@@ -28,7 +28,7 @@ class GuestEditViewTests(TestSessionTokenMixin, BaseTestCase):
         super().setUp()
         self.user = get_admin_user()
         self.accommodation_request = MvAccommodationRequestFactory(
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
             person_id=["person-1"],
             number_of_people=1,
         )
@@ -48,8 +48,8 @@ class GuestEditViewTests(TestSessionTokenMixin, BaseTestCase):
             group=self.group,
         )
         self.ltla_group = GroupFactory(
-            name="ltla_somerset",
-            groupinfo__ltla_name="ltla_somerset",
+            name="ltla_test",
+            groupinfo__ltla_name="ltla_test",
             groupinfo__group_type=GroupType.LOCAL_AUTHORITY,
         )
 
@@ -223,7 +223,7 @@ class GuestEditViewTests(TestSessionTokenMixin, BaseTestCase):
         self.client.force_login(ukvi_user)
         response = self.client.get(self.edit_url)
         self.assertEqual(response.status_code, http.client.OK)
-        self.assertContains(response, "UPE visa status")
+        self.assertContains(response, "Ukraine Permission Extension (UPE) visa status")
 
     def test_edit_view_content_for_admin_user(self):
         admin_user = get_admin_user()
@@ -231,7 +231,14 @@ class GuestEditViewTests(TestSessionTokenMixin, BaseTestCase):
         self.client.force_login(admin_user)
         response = self.client.get(self.edit_url)
         self.assertEqual(response.status_code, http.client.OK)
-        self.assertContains(response, "UPE visa status")
+        self.assertContains(response, "Ukraine Permission Extension (UPE) visa status")
+
+    def test_upe_visa_status_required_error_spells_out_upe(self):
+        form = GuestEditUKVIForm(data={}, instance=self.guest)
+        self.assertEqual(
+            form.errors["upe_visa_status"],
+            ["Please select a Ukraine Permission Extension (UPE) visa status"],
+        )
 
     def test_get_form_class_for_la_user(self):
         la_user = get_la_user()

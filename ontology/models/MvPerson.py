@@ -64,6 +64,10 @@ class MvPerson(models.Model):
         REJECTED = "UPE_VISA_REJECTED", "UPE visa rejected"
         WITHDRAWN = "UPE_VISA_WITHDRAWN", "UPE visa withdrawn"
 
+    # "UPE" must be spelled out on its first mention on a page (accessibility).
+    UPE_VISA_STATUS_LABEL = "UPE visa status"
+    UPE_VISA_STATUS_FULL_LABEL = "Ukraine Permission Extension (UPE) visa status"
+
     objects = MvPersonExcludingArchivedManager()
     objects_including_archived = MvPersonManager()
     checks: QuerySet[DevCheckV2]
@@ -252,7 +256,7 @@ class MvPerson(models.Model):
         null=True,
         blank=True,
         db_column="upe_visa_status",
-        verbose_name="UPE visa status",
+        verbose_name=UPE_VISA_STATUS_LABEL,
         choices=UPEVisaStatus.choices,
     )
     viewer_group_names = ArrayField(

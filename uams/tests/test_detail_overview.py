@@ -31,7 +31,7 @@ class UamDetailOverviewViewTests(TestSessionTokenMixin, UamsBaseTestCase):
             identification_type=id_type,
             identification_number="0987654321",
             residential_postcode="NW5 1TL",
-            ltla_name=["Somerset"],
+            ltla_name=["Test"],
             reference="000000",
             certificate_reference="111111",
             created_at=datetime(2025, 8, 1, tzinfo=timezone.utc),
@@ -71,7 +71,7 @@ class UamDetailOverviewViewTests(TestSessionTokenMixin, UamsBaseTestCase):
         self.assertContains(response, "Postcode")
         self.assertContains(response, "NW5 1TL")
         self.assertContains(response, "Local authority")
-        self.assertContains(response, "Somerset")
+        self.assertContains(response, "Test")
         self.assertContains(response, "Application number")
         self.assertContains(response, "000000")
         self.assertContains(response, "Child sponsorship approval number")
