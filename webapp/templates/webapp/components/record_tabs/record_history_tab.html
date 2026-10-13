@@ -1,5 +1,5 @@
 {% load timeline_extras %}
-{% if detail_layout == "classic" %}
+{% if old_layout %}
     <h4 class="govuk-heading-l">History</h4>
     <p class="govuk-body">{{ history_description }}</p>
     {% if events|length == 0 %}

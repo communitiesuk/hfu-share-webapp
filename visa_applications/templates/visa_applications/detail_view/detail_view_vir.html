@@ -1,7 +1,7 @@
 {% extends "webapp/components/record_tabs/record_overview_base.html" %}
 {% load crispy_forms_filters crispy_forms_tags crispy_forms_gds visa_application_extras %}
 {% block selected_tab %}
-    {% if detail_layout == "classic" %}
+    {% if old_layout %}
         {% if virs|length == 0 %}
             <h2 class="govuk-heading-l">Start a VIR</h2>
             <form method="post" novalidate>
@@ -68,7 +68,7 @@
     {% endif %}
 {% endblock selected_tab %}
 {% block back_button %}
-    {% if detail_layout == "new" and virs|length > 0 %}
+    {% if not old_layout and virs|length > 0 %}
         <a href="{% url 'visa-applications:visa-information-requests' %}"
            class="govuk-button govuk-button--secondary">Back to visa information request list</a>
     {% else %}

@@ -1,6 +1,6 @@
 {% extends "webapp/components/record_tabs/record_overview_base.html" %}
 {% block selected_tab %}
-    {% if detail_layout == "classic" %}
+    {% if old_layout %}
         <h4 class="govuk-heading-l">Properties</h4>
         {% include "webapp/components/record_tabs/record_summary_list_two_columns.html" with left_fields=properties_left right_fields=properties_right %}
         <h4 class="govuk-heading-l govuk-!-margin-top-8">Questions</h4>

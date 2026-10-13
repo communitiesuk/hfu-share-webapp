@@ -1,7 +1,7 @@
 {% extends "webapp/components/record_tabs/record_overview_base.html" %}
 {% load timeline_extras %}
 {% block selected_tab %}
-    {% if detail_layout == "classic" %}
+    {% if old_layout %}
         <h4 class="govuk-heading-l">Comments</h4>
         <p>
             This page shows details of previous comments, before the Share system launched. You can view previous comments, but you cannot add new comments manually.

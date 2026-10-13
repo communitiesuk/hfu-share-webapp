@@ -692,7 +692,7 @@ class SafeguardingDetailViewMixin(DetailViewMixin):
 
     def should_show_tab_for_user(self, view_name: str) -> bool:
         if view_name == "alerted-status":
-            return self.detail_layout == "new" and self.alerted_status_layout == "tab"
+            return not self.old_layout and self.alerted_status_layout == "tab"
         return True
 
     def get_context_data(self, **kwargs):

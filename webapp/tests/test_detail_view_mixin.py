@@ -180,7 +180,7 @@ class DetailViewMixinTests(BaseTestCase):
         self.assertTrue(context["use_full_width"])
 
 
-class DetailLayoutMixinTests(BaseTestCase):
+class OldLayoutMixinTests(BaseTestCase):
     def setUp(self):
         self.factory = RequestFactory()
 
@@ -191,36 +191,32 @@ class DetailLayoutMixinTests(BaseTestCase):
 
     def make_request_with_cookie(self, value):
         request = self.factory.get("/records/1/")
-        request.COOKIES["detail_layout"] = value
+        request.COOKIES["old_layout"] = value
         return request
 
-    def test_detail_layout_is_new_without_cookie(self):
+    def test_old_layout_is_off_without_cookie(self):
         view = self.make_view(self.factory.get("/records/1/"))
 
-        self.assertEqual(view.detail_layout, "new")
+        self.assertFalse(view.old_layout)
 
-    def test_detail_layout_follows_cookie(self):
-        for value in ("classic", "new"):
-            with self.subTest(value=value):
-                view = self.make_view(self.make_request_with_cookie(value))
+    def test_old_layout_is_on_with_cookie(self):
+        view = self.make_view(self.make_request_with_cookie("on"))
 
-                self.assertEqual(view.detail_layout, value)
+        self.assertTrue(view.old_layout)
 
-    def test_detail_layout_ignores_unknown_cookie_value(self):
+    def test_old_layout_ignores_unknown_cookie_value(self):
         view = self.make_view(self.make_request_with_cookie("fancy"))
 
-        self.assertEqual(view.detail_layout, "new")
+        self.assertFalse(view.old_layout)
 
-    def test_detail_layout_ignores_cookie_when_switch_disabled(self):
-        view = self.make_view(self.make_request_with_cookie("classic"))
+    def test_old_layout_ignores_cookie_when_switch_disabled(self):
+        view = self.make_view(self.make_request_with_cookie("on"))
 
-        with patch.object(TestOverviewView, "detail_layout_switch_enabled", False):
-            self.assertEqual(view.detail_layout, "new")
+        with patch.object(TestOverviewView, "old_layout_switch_enabled", False):
+            self.assertFalse(view.old_layout)
 
-    def test_switch_sets_cookie_logs_and_redirects_without_parameter(self):
-        request = self.factory.get(
-            "/records/1/", {"detail_layout": "classic", "page": "2"}
-        )
+    def test_switching_on_sets_cookie_logs_and_redirects_without_parameter(self):
+        request = self.factory.get("/records/1/", {"old_layout": "on", "page": "2"})
         request.user = SimpleNamespace(pk=7)
         view = self.make_view(request)
 
@@ -229,18 +225,32 @@ class DetailLayoutMixinTests(BaseTestCase):
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/records/1/?page=2")
-        cookie = response.cookies["detail_layout"]
-        self.assertEqual(cookie.value, "classic")
+        cookie = response.cookies["old_layout"]
+        self.assertEqual(cookie.value, "on")
         self.assertEqual(cookie["max-age"], 60 * 60 * 24 * 90)
         self.assertTrue(cookie["secure"])
         self.assertTrue(cookie["httponly"])
         self.assertEqual(cookie["samesite"], "Lax")
-        self.assertIn("Detail layout switched to classic by user ID 7.", logs.output[0])
+        self.assertIn("Old record layout turned on by user ID 7.", logs.output[0])
+
+    def test_switching_off_deletes_cookie_and_logs(self):
+        request = self.factory.get("/records/1/", {"old_layout": "off"})
+        request.user = SimpleNamespace(pk=7)
+        view = self.make_view(request)
+
+        with self.assertLogs("webapp.mixins", level="INFO") as logs:
+            response = view.dispatch(request)
+
+        self.assertEqual(response.url, "/records/1/")
+        cookie = response.cookies["old_layout"]
+        self.assertEqual(cookie.value, "")
+        self.assertEqual(cookie["max-age"], 0)
+        self.assertIn("Old record layout turned off by user ID 7.", logs.output[0])
 
     def test_dispatch_renders_page_without_cookie_when_switch_not_valid(self):
         cases = (
-            ("unknown layout", {"detail_layout": "fancy"}, True),
-            ("switch disabled", {"detail_layout": "classic"}, False),
+            ("unknown value", {"old_layout": "fancy"}, True),
+            ("switch disabled", {"old_layout": "on"}, False),
         )
         for name, params, switch_enabled in cases:
             with self.subTest(name):
@@ -250,7 +260,7 @@ class DetailLayoutMixinTests(BaseTestCase):
                 with (
                     patch.object(
                         TestOverviewView,
-                        "detail_layout_switch_enabled",
+                        "old_layout_switch_enabled",
                         switch_enabled,
                     ),
                     patch(
@@ -261,19 +271,35 @@ class DetailLayoutMixinTests(BaseTestCase):
                     response = view.dispatch(request)
 
                 parent_dispatch.assert_called_once()
-                self.assertNotIn("detail_layout", response.cookies)
+                self.assertNotIn("old_layout", response.cookies)
 
-    def test_add_detail_layout_uses_layout_base_and_offers_the_other_layout(self):
-        view = self.make_view(self.make_request_with_cookie("classic"))
-        context = {}
-
-        view.add_detail_layout(context)
-
-        self.assertEqual(context["detail_layout"], "classic")
-        self.assertEqual(
-            context["detail_layout_base"],
-            "webapp/components/record_tabs/record_overview_base_classic.html",
+    def test_add_old_layout_picks_template_and_toggle_url(self):
+        cases = (
+            (
+                "off",
+                None,
+                False,
+                "webapp/components/record_tabs/record_overview_layout.html",
+                "/records/1/?old_layout=on",
+            ),
+            (
+                "on",
+                "on",
+                True,
+                "webapp/components/record_tabs/record_overview_layout_old.html",
+                "/records/1/?old_layout=off",
+            ),
         )
-        self.assertEqual(
-            context["detail_layout_toggle_url"], "/records/1/?detail_layout=new"
-        )
+        for name, cookie, expected_old_layout, template, toggle_url in cases:
+            with self.subTest(name):
+                request = self.factory.get("/records/1/")
+                if cookie:
+                    request.COOKIES["old_layout"] = cookie
+                view = self.make_view(request)
+                context = {}
+
+                view.add_old_layout(context)
+
+                self.assertEqual(context["old_layout"], expected_old_layout)
+                self.assertEqual(context["record_layout_template"], template)
+                self.assertEqual(context["old_layout_toggle_url"], toggle_url)
