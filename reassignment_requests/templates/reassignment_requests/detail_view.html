@@ -1,5 +1,4 @@
-{% extends "base.html" %}
-{% load crispy_forms_gds %}
+{% extends "page_base.html" %}
 {% load crispy_forms_tags %}
 {% block breadcrumb_content %}
     <li class="govuk-breadcrumbs__list-item">
@@ -7,28 +6,18 @@
     </li>
     <li class="govuk-breadcrumbs__list-item">Review request</li>
 {% endblock breadcrumb_content %}
-{% block content %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            {% error_summary form %}
-            {% include "webapp/components/heading/heading.html" with page_heading=page_heading %}
-            {% include "webapp/components/record_tabs/record_summary_list.html" with fields=fields %}
+{% block narrow_content %}
+    {% include "webapp/components/record_tabs/record_summary_list.html" with fields=fields %}
+    {% if show_accept_reject_form %}
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {% crispy form %}
+        </form>
+    {% endif %}
+    {% if show_cancel_request_button %}
+        <div class="govuk-button-group">
+            <a class="govuk-button govuk-button--secondary" href="../">Return to list of requests</a>
+            <a class="govuk-button govuk-button--warning" href="./cancel">Cancel request</a>
         </div>
-    </div>
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-one-third">
-            {% if show_accept_reject_form %}
-                <form method="post" novalidate>
-                    {% csrf_token %}
-                    {% crispy form %}
-                </form>
-            {% endif %}
-            {% if show_cancel_request_button %}
-                <div class="govuk-button-group">
-                    <a class="govuk-button govuk-button--secondary" href="../">Return to list of requests</a>
-                    <a class="govuk-button govuk-button--warning" href="./cancel">Cancel request</a>
-                </div>
-            {% endif %}
-        </div>
-    </div>
-{% endblock content %}
+    {% endif %}
+{% endblock narrow_content %}
