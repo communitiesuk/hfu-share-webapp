@@ -6,7 +6,7 @@
 {% endblock breadcrumb_content %}
 {% block form %}
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-one-half">
+        <div class="govuk-grid-column-two-thirds">
             {% with suffix=object_list|length|pluralize %}
                 {% include "webapp/components/heading/heading.html" with page_heading=page_heading %}
             {% endwith %}
@@ -17,7 +17,7 @@
         <div class="govuk-grid-column-full">{% include table_template_url %}</div>
     </div>
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-one-half">
+        <div class="govuk-grid-column-two-thirds">
             {% if object_list|length == 0 %}
                 <p class="govuk-body">All selected records have been removed.</p>
             {% elif object_list|length <= 1 %}
