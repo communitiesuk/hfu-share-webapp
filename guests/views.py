@@ -894,7 +894,7 @@ class GuestVisaApplicationsListView(
         ctx = super().get_context_data(**kwargs)
         ctx["object"] = get_object_or_404(MvPerson, pk=self.kwargs["pk"])
         ctx["page_heading"] = (
-            f"Visa applications referencing {ctx['object'].get_full_name()}"
+            f"Visa applications associated with {ctx['object'].get_full_name()}"
         )
         return ctx
 
