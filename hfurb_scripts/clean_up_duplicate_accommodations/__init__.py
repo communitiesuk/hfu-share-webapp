@@ -151,7 +151,10 @@ def clean_up_duplicate_accommodations(dry_run=True):
 
     records_to_process = get_records_to_process()
 
-    for row_number, row in records_to_process:
+    for row in records_to_process:
+        # Identify the row in the logs by its master, as rows can be very long
+        master_id = row[0] if row else None
+
         try:
             # Each row is all or nothing so a failure never leaves a half done row
             with transaction.atomic():
@@ -159,17 +162,19 @@ def clean_up_duplicate_accommodations(dry_run=True):
                 if dry_run:
                     transaction.set_rollback(True)
         except SkipRow as reason:
-            logger.warning("Skipping row %s: %s", row_number, reason)
+            logger.warning("Skipping row with master %s: %s", master_id, reason)
             counts["rows_skipped"] += 1
             continue
         except Exception as exc:
-            logger.exception("Exception processing row %s; error: %s", row_number, exc)
+            logger.exception(
+                "Exception processing row with master %s; error: %s", master_id, exc
+            )
             counts["rows_failed"] += 1
             continue
 
         logger.info(
-            "Processed row %s: %s deleted, %s deduplicated",
-            row_number,
+            "Processed row with master %s: %s deleted, %s deduplicated",
+            master_id,
             deleted,
             deduplicated,
         )
