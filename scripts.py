@@ -4,6 +4,11 @@ import os
 import subprocess
 import sys
 
+# Silence msal's form_post recommendation warning raised during Entra ID tests
+MSAL_WARNING_FILTER = (
+    "ignore:response_mode='form_post' is recommended:UserWarning:msal.oauth2cli.oauth2"
+)
+
 
 def lint():
     try:
@@ -45,7 +50,9 @@ def test():
         subprocess.run(
             ["coverage", "run", "manage.py", "test"] + sys.argv[1:],
             check=True,
-            env=dict(os.environ, ENTRA_ID_ENABLED="True"),
+            env=dict(
+                os.environ, ENTRA_ID_ENABLED="True", PYTHONWARNINGS=MSAL_WARNING_FILTER
+            ),
         )
         subprocess.run(["coverage", "report"], check=True)
     except subprocess.CalledProcessError as error:
@@ -70,7 +77,9 @@ def test_parallel():
             ]
             + sys.argv[1:],
             check=True,
-            env=dict(os.environ, ENTRA_ID_ENABLED="True"),
+            env=dict(
+                os.environ, ENTRA_ID_ENABLED="True", PYTHONWARNINGS=MSAL_WARNING_FILTER
+            ),
         )
         subprocess.run(["coverage", "report"], check=True)
     except subprocess.CalledProcessError as error:

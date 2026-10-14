@@ -97,7 +97,7 @@ class GuestDetailOverviewViewTests(TestSessionTokenMixin, BaseTestCase):
         self.client.force_login(ukvi_user)
         response = self.client.get(self.overview_url)
         self.assertEqual(response.status_code, http.client.OK)
-        self.assertContains(response, "UPE visa status")
+        self.assertContains(response, "Ukraine Permission Extension (UPE) visa status")
 
     def test_overview_page_shows_upe_visa_status_for_admin_user(self):
         admin_user = get_admin_user()
@@ -105,7 +105,7 @@ class GuestDetailOverviewViewTests(TestSessionTokenMixin, BaseTestCase):
         self.client.force_login(admin_user)
         response = self.client.get(self.overview_url)
         self.assertEqual(response.status_code, http.client.OK)
-        self.assertContains(response, "UPE visa status")
+        self.assertContains(response, "Ukraine Permission Extension (UPE) visa status")
 
     def test_overview_page_hides_upe_visa_status_for_la_user(self):
         la_user = get_la_user()

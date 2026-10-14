@@ -364,6 +364,48 @@ class GuestDetailHistoryViewTests(TestSessionTokenMixin, BaseTestCase):
         self.assertContains(response, f"By {user.email}")
         self.assertContains(
             response,
-            "UPE visa status changed: was No UPE visa application outcome now UPE "
-            "visa accepted.",
+            "Ukraine Permission Extension (UPE) visa status changed: was No UPE visa "
+            "application outcome now UPE visa accepted.",
         )
+
+    def test_audit_logs_spell_out_upe_only_on_first_mention(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        for timestamp, old, new in [
+            (
+                timezone.now() - datetime.timedelta(days=1),
+                MvPerson.UPEVisaStatus.NO_OUTCOME,
+                MvPerson.UPEVisaStatus.ACCEPTED,
+            ),
+            (
+                timezone.now(),
+                MvPerson.UPEVisaStatus.ACCEPTED,
+                MvPerson.UPEVisaStatus.WITHDRAWN,
+            ),
+        ]:
+            AuditLogEntryFactory(
+                timestamp=timestamp,
+                actor=user,
+                content_type=ContentType.objects.get_for_model(self.guest),
+                object_pk=self.guest.pk,
+                object_repr=str(self.guest),
+                action=LogEntry.Action.UPDATE,
+                changes={"upe_visa_status": [old, new]},
+            )
+
+        response = self.client.get(self.history_url)
+        content = response.content.decode()
+
+        newest = (
+            "Ukraine Permission Extension (UPE) visa status changed: was UPE visa "
+            "accepted now UPE visa withdrawn."
+        )
+        oldest = (
+            "UPE visa status changed: was No UPE visa application outcome now UPE "
+            "visa accepted."
+        )
+        self.assertContains(response, newest)
+        self.assertContains(response, oldest)
+        self.assertEqual(content.count("Ukraine Permission Extension"), 1)
+        self.assertLess(content.index(newest), content.index(oldest))

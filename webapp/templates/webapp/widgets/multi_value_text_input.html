@@ -3,41 +3,13 @@
      data-max="{{ widget.max_values }}"
      data-required="{% if widget.attrs.required == False %}false{% else %}true{% endif %}">
     {% for val in widget.values %}
-        <div class="array-input-item app-multi-value--item app-display--flex">
-            <label class="array-input-item-label govuk-visually-hidden"
-                   for="id_{{ widget.name }}{% if forloop.counter0 > 0 %}-{{ forloop.counter0 }}{% endif %}">
-                {{ widget.field_label }} <span class="array-input-item-label--counter">{{ forloop.counter }}</span>
-            </label>
-            <input type="{{ widget.attrs.input_type }}"
-                   name="{{ widget.name }}-{{ forloop.counter0 }}"
-                   id="id_{{ widget.name }}{% if forloop.counter0 > 0 %}-{{ forloop.counter0 }}{% endif %}"
-                   value="{{ val }}"
-                   class="form-control d-inline-block govuk-input app-flex--1" />
-            <a href="#"
-               class="remove-array-item govuk-link app-text--white-space-nowrap">Remove
-                {% if widget.attrs.label %}<span class="govuk-visually-hidden">{{ widget.attrs.label }}</span>{% endif %}
-            </a>
-        </div>
+        {% include "webapp/widgets/multi_value_text_input_item.html" with name=widget.name count=forloop.counter0 number=forloop.counter field_label=widget.field_label val=val label=widget.attrs.label %}
     {% endfor %}
     <!-- Hidden template item to clone -->
-    <div class="array-input-item array-input-template app-multi-value--item app-display--none">
-        <label class="array-input-item-label govuk-visually-hidden"
-               for="id_{{ widget.name }}-template">
-            {{ widget.field_label }} <span class="array-input-item-label--counter">{{ forloop.counter }}</span>
-        </label>
-        <input type="{{ widget.attrs.input_type }}"
-               name=""
-               id="id_{{ widget.name }}-template"
-               value=""
-               class="form-control d-inline-block govuk-input app-multi-value--input" />
-        <a href="#"
-           class="remove-array-item govuk-link app-text--white-space-nowrap">Remove
-            {% if widget.attrs.label %}<span class="govuk-visually-hidden">{{ widget.attrs.label }}</span>{% endif %}
-        </a>
-    </div>
-    <a href="#"
-       class="add-array-item govuk-link{% if widget.values|length >= widget.max_values %} app-display--none{% endif %}">
+    {% include "webapp/widgets/multi_value_text_input_item.html" with name=widget.name count=99 number=100 field_label=widget.field_label val="" label=widget.attrs.label template=True %}
+    <button data-moudle="govuk-button"
+            class="add-array-item govuk-button govuk-button--secondary{% if widget.values|length >= widget.max_values %} app-display--none{% endif %}">
         Add
         {% if widget.attrs.label %}{{ widget.attrs.label }}{% endif %}
-    </a>
+    </button>
 </div>

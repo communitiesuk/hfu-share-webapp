@@ -49,7 +49,6 @@ const initArrayWidget = (container) => {
 
         const clone = template.cloneNode(true);
         clone.classList.remove("array-input-template", "app-display--none");
-        clone.classList.add("app-display--flex");
         clone.querySelector("input").value = "";
         container.insertBefore(clone, addLink);
         updateIndices(container);
@@ -72,11 +71,9 @@ const initArrayWidget = (container) => {
 
 const updateElementVisibility = (element, isVisible) => {
     if (isVisible) {
-        element.classList.add("app-display--block");
         element.classList.remove("app-display--none");
     } else {
         element.classList.add("app-display--none");
-        element.classList.remove("app-display--block");
     }
 };
 
