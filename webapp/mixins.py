@@ -1,3 +1,4 @@
+import logging
 import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
@@ -12,12 +13,13 @@ from django.contrib import messages
 from django.core.exceptions import ImproperlyConfigured
 from django.core.paginator import Paginator
 from django.db.models import Field, Model, OuterRef, QuerySet, Subquery
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.http.request import QueryDict
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.datastructures import MultiValueDict
+from django.utils.http import url_has_allowed_host_and_scheme
 from django_filters import MultipleChoiceFilter
 from django_tables2 import LazyPaginator
 
@@ -49,6 +51,8 @@ from webapp.templatetags.timeline_extras import (
     format_interaction_content,
     render_app_timeline_change_item,
 )
+
+logger = logging.getLogger(__name__)
 
 NONE_TYPES = {None, "None", "", "None None", "[]"}
 GO_LIVE_CUTOFF = datetime(2025, 9, 15, tzinfo=dt_timezone.utc)
@@ -989,7 +993,79 @@ class Tab(TypedDict):
     current: bool
 
 
-class DetailViewMixin(ABC):
+# Temporary, while users can switch back to the old record layout, remembered
+# in a cookie. To retire the old layout, delete everything named old_layout:
+# this class and its entry in DetailViewMixin's bases,
+# record_overview_layout_old.html, the {% if old_layout %} branches in the
+# record templates and the cookie's row on the cookies page. Then point the
+# extends in record_overview_base.html at record_overview_layout.html.
+class OldLayoutMixin:
+    request: HttpRequest
+
+    old_layout_switch_enabled = True
+    old_layout_cookie_name = "old_layout"
+    old_layout_cookie_max_age = 60 * 60 * 24 * 90
+
+    @property
+    def old_layout(self) -> bool:
+        return (
+            self.old_layout_switch_enabled
+            and self.request.COOKIES.get(self.old_layout_cookie_name) == "on"
+        )
+
+    def dispatch(self, request, *args, **kwargs):
+        requested = request.GET.get("old_layout")
+        if (
+            self.old_layout_switch_enabled
+            and request.method == "GET"
+            and requested in ("on", "off")
+        ):
+            logger.info(
+                "Old record layout turned %s by user ID %s.",
+                requested,
+                request.user.pk,
+            )
+            params = request.GET.copy()
+            del params["old_layout"]
+            url = request.path
+            if params:
+                url = f"{url}?{params.urlencode()}"
+            if not url_has_allowed_host_and_scheme(
+                url, allowed_hosts={request.get_host()}
+            ):
+                url = request.path
+            response = HttpResponseRedirect(url)
+            if requested == "on":
+                # Lax rather than Strict so the choice still applies when a
+                # user opens a record from a link in an email or another site.
+                response.set_cookie(
+                    self.old_layout_cookie_name,
+                    "on",
+                    max_age=self.old_layout_cookie_max_age,
+                    secure=True,
+                    httponly=True,
+                    samesite="Lax",
+                )
+            else:
+                response.delete_cookie(self.old_layout_cookie_name, samesite="Lax")
+            return response
+        return super().dispatch(request, *args, **kwargs)
+
+    def add_old_layout(self, context: Context) -> None:
+        old_layout = self.old_layout
+        context["old_layout"] = old_layout
+        context["old_layout_switch_enabled"] = self.old_layout_switch_enabled
+        context["old_layout_toggle_url"] = (
+            f"{self.request.path}?old_layout={'off' if old_layout else 'on'}"
+        )
+        context["record_layout_template"] = (
+            "webapp/components/record_tabs/record_overview_layout_old.html"
+            if old_layout
+            else "webapp/components/record_tabs/record_overview_layout.html"
+        )
+
+
+class DetailViewMixin(OldLayoutMixin, ABC):
     request: HttpRequest
     object: Any
     view_name: ClassVar[str]
@@ -1092,6 +1168,7 @@ class DetailViewMixin(ABC):
         self.add_back_button(context)
         self.add_tabs_navigation(context)
         self.add_page_headings(context)
+        self.add_old_layout(context)
         context["use_full_width"] = (
             self.view_name in self.views_with_full_width_tab_content
         )

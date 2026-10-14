@@ -23,6 +23,19 @@ class CookiesPageTests(TestSessionTokenMixin, BaseTestCase):
             "webapp/pages/cookies/cookies.html",
         )
 
+    def test_cookies_page_lists_old_layout_cookie(self):
+        user = get_user_with_no_access()
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("webapp:cookies"))
+
+        self.assertContains(response, "old_layout")
+        self.assertContains(
+            response,
+            "We use this to remember if you chose the old layout for navigation "
+            "on record pages.",
+        )
+
     @patch("case_management.settings.GOOGLE_ANALYTICS_ENABLED", "Enabled")
     @patch("case_management.settings.GOOGLE_ANALYTICS_ID", "G-1234")
     def test_cookies_page_includes_analytics_info_if_enabled(self):

@@ -1,0 +1,15 @@
+{% if attachments and attachments|length > 0 %}
+    <dl class="govuk-summary-list app-border--top-colour-grey">
+        {% for attachment in attachments %}
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">{{ attachment.name }}</dt>
+                <dd class="govuk-summary-list__value">
+                    <a href="{{ attachment.url }}"
+                       class="govuk-link govuk-link--no-visited-state">Download file<span class="govuk-visually-hidden">{{ attachment.name }}</span></a>
+                </dd>
+            </div>
+        {% endfor %}
+    </dl>
+{% else %}
+    <p class="govuk-body">No files uploaded.</p>
+{% endif %}
