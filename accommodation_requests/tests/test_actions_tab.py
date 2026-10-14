@@ -316,10 +316,6 @@ class ConfirmCurrentAccommodationActionTestCase(
             title="Single LA DA acc req",
             ltla_name=["Aberdeenshire"],
         )
-        self.single_la_da_ar = AccReqFactory(
-            title="Single LA DA acc req",
-            ltla_name=["Aberdeenshire"],
-        )
         self.multi_la_ar = AccReqFactory(
             title="Multi LA acc req",
             checks_status=MvAccommodationRequest.ChecksStatus.CHECKS_REQUIRED,
