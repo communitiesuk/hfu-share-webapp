@@ -149,7 +149,9 @@ def clean_up_duplicate_accommodations(dry_run=True):
         deduplicated=0,
     )
 
-    for row_number, row in enumerate(get_records_to_process()):
+    records_to_process = get_records_to_process()
+
+    for row_number, row in records_to_process:
         try:
             # Each row is all or nothing so a failure never leaves a half done row
             with transaction.atomic():
