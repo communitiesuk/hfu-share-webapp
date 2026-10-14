@@ -10,9 +10,7 @@
                 </p>
                 {% include "safeguarding/detail_view/central_safeguarding/checks_list.html" %}
             </div>
-            <div class="govuk-grid-column-one-third">
-                {% include "safeguarding/detail_view/central_safeguarding/alerted_status_form.html" %}
-            </div>
+            <div class="govuk-grid-column-one-third">{% crispy form %}</div>
         </div>
     {% else %}
         <div class="govuk-summary-card">
@@ -30,9 +28,7 @@
             <div class="govuk-summary-card__title-wrapper">
                 <h2 class="govuk-summary-card__title">Alerted status</h2>
             </div>
-            <div class="govuk-summary-card__content">
-                {% include "safeguarding/detail_view/central_safeguarding/alerted_status_form.html" %}
-            </div>
+            <div class="govuk-summary-card__content">{% crispy form %}</div>
         </div>
     {% endif %}
 {% endblock selected_tab %}

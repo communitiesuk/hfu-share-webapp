@@ -1,6 +1,0 @@
-{% load crispy_forms_tags %}
-<form method="post" novalidate>
-    {% csrf_token %}
-    {{ wizard.management_form }}
-    {% crispy form %}
-</form>
