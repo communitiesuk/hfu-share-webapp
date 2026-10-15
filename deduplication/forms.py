@@ -168,7 +168,7 @@ class SelectAccommodationRequestStepForm(forms.Form):
                 legend_size=Size.SMALL,
             ),
             Div(
-                Button.primary("submit", "Continue deduplication"),
+                Button.primary("submit", "Continue"),
                 Link.cancel(),
                 css_class="govuk-button-group",
             ),
@@ -211,7 +211,7 @@ class SelectCorrectDetailsStepForm(ReadOnlyFieldsMixin, forms.Form):
 
         layout_items.append(
             Div(
-                Button.primary("submit", "Continue deduplication"),
+                Button.primary("submit", "Continue"),
                 Link.cancel(),
                 css_class="govuk-button-group",
             ),
@@ -962,7 +962,7 @@ class UndoDeduplicationRecordsStepForm(forms.Form):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
-                Button.primary("submit", "Undo deduplication"),
+                Button.primary("submit", "Continue"),
                 Link.cancel(),
                 css_class="govuk-button-group",
             ),
