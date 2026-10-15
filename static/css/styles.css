@@ -627,11 +627,7 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
 }
 
 /* Record section content, focused by detail-view-focus.js after a side
-   navigation click. scroll-margin keeps the record heading in view. */
-.app-record-detail-content {
-  scroll-margin-top: 120px;
-}
-
+   navigation click. */
 .app-record-detail-content:focus {
   outline: none;
 }
