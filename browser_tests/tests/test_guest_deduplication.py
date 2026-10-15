@@ -110,12 +110,12 @@ class TestGuestDeduplicationJourney(BrowserTest):
         guest_deduplication_page.check_field(
             GUEST_CONFIRMED_VISA_CHECKS_REQUIRED.accommodation_request_title
         )
-        guest_deduplication_page.click_button("Continue deduplication")
+        guest_deduplication_page.click_button("Continue")
 
         # Choose the correct details for the new principal record
         guest_deduplication_page.assert_has_heading("Select correct details")
         _choose_correct_details(guest_deduplication_page)
-        guest_deduplication_page.click_button("Continue deduplication")
+        guest_deduplication_page.click_button("Continue")
 
         # Final confirmation page
         guest_deduplication_page.assert_has_heading(

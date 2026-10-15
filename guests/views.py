@@ -819,9 +819,9 @@ class RedactedVisaApplicationsTable(tables.Table):
     Q44g_full_name = Column(verbose_name="Guest name")
     ltla_name = Column(verbose_name="Local authority")
     Q97c_sponsor_name = Column(verbose_name="Sponsor name")
-    gwf = Column(verbose_name="Global Web Form number (GWF)")
+    gwf = Column(verbose_name="Global web form number (GWF)")
     application_unique_application_number = Column(
-        verbose_name="Unique Application Number (UAN)"
+        verbose_name="Unique application number (UAN)"
     )
 
     def render_visa_status(self, value):
@@ -893,9 +893,8 @@ class GuestVisaApplicationsListView(
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["object"] = get_object_or_404(MvPerson, pk=self.kwargs["pk"])
-        ctx["page_heading"] = (
-            f"Visa applications referencing {ctx['object'].get_full_name()}"
-        )
+        ctx["caption"] = "Visa applications associated with"
+        ctx["page_heading"] = ctx["object"].get_full_name()
         return ctx
 
     def get_queryset(self):

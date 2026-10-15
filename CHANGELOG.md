@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.23.1](https://github.com/communitiesuk/hfu-share-webapp/compare/2.23.0...2.23.1) (2026-10-13)
+
+
+### Bug Fixes
+
+* fix incorrect exclude value in pre commit hook ([#269](https://github.com/communitiesuk/hfu-share-webapp/issues/269)) ([44f7e66](https://github.com/communitiesuk/hfu-share-webapp/commit/44f7e66d2cbb865a18dca361d3d602c8031d8fa1))
+* HFURB-4168 - replace links with buttons and use shared template for add another item ([#257](https://github.com/communitiesuk/hfu-share-webapp/issues/257)) ([d630557](https://github.com/communitiesuk/hfu-share-webapp/commit/d630557340444387d14972b22ddc3cb1c1aa354c))
+* silence the msal form_post warning in test output (HFURB-3919) ([#271](https://github.com/communitiesuk/hfu-share-webapp/issues/271)) ([8ae108a](https://github.com/communitiesuk/hfu-share-webapp/commit/8ae108a4536712f37716483e0fa2bd09e5adc1f4))
+* update method for entering text into searchable select in reassignment request tests ([#263](https://github.com/communitiesuk/hfu-share-webapp/issues/263)) ([a437b35](https://github.com/communitiesuk/hfu-share-webapp/commit/a437b35791ceedb7044a79f7f114db728cd71e0d))
+* update UPE acronym to be full on first instance (HFURB-4227) ([#261](https://github.com/communitiesuk/hfu-share-webapp/issues/261)) ([d4aed85](https://github.com/communitiesuk/hfu-share-webapp/commit/d4aed8514e83f1c04c248839c75920a4307115b0))
+
 ## [2.23.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.22.0...2.23.0) (2026-10-06)
 
 

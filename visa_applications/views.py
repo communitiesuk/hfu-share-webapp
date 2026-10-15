@@ -768,7 +768,7 @@ class VIRTable(tables.Table):
         accessor="visa_application__ltla_name", verbose_name="Local authority"
     )
     gwf = Column(
-        accessor="visa_application__gwf", verbose_name="Global Web Form number (GWF)"
+        accessor="visa_application__gwf", verbose_name="Global web form number (GWF)"
     )
     requested_at = CustomDateColumn(
         accessor="requested_at", verbose_name="VIR start date"
