@@ -243,7 +243,7 @@ class DeduplicationGuestSelectedViewTests(TestSessionTokenMixin, BaseTestCase):
         self.assertContains(response, "Phone number")
         self.assertContains(response, "Passport number")
         self.assertContains(response, "Visa status")
-        self.assertContains(response, "Unique Application Number (UAN)")
+        self.assertContains(response, "Unique application number (UAN)")
         self.assertContains(response, "Accommodation request")
 
         self.assertContains(

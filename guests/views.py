@@ -819,9 +819,9 @@ class RedactedVisaApplicationsTable(tables.Table):
     Q44g_full_name = Column(verbose_name="Guest name")
     ltla_name = Column(verbose_name="Local authority")
     Q97c_sponsor_name = Column(verbose_name="Sponsor name")
-    gwf = Column(verbose_name="Global Web Form number (GWF)")
+    gwf = Column(verbose_name="Global web form number (GWF)")
     application_unique_application_number = Column(
-        verbose_name="Unique Application Number (UAN)"
+        verbose_name="Unique application number (UAN)"
     )
 
     def render_visa_status(self, value):

@@ -138,7 +138,7 @@ class DeduplicationGuestSelectedViewTests(TestSessionTokenMixin, BaseTestCase):
         self.assertContains(response, "Visa status")
         self.assertContains(response, "First arrival date")
         self.assertContains(response, "Latest visa application date")
-        self.assertContains(response, "Unique Application Number (UAN)")
+        self.assertContains(response, "Unique application number (UAN)")
         self.assertContains(
             response,
             "Click 'Continue' to proceed or 'Cancel' to keep the records separate.",
