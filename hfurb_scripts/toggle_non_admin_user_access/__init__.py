@@ -50,11 +50,3 @@ def toggle_non_admin_user_access(disable=False, enable=False):
             user.is_active = True
             user.save()
     logging.info("Script complete.")
-
-
-def disable_users():
-    toggle_non_admin_user_access(disable=True, enable=False)
-
-
-def enable_users():
-    toggle_non_admin_user_access(disable=False, enable=True)

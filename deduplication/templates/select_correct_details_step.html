@@ -6,7 +6,7 @@
 {% endblock breadcrumb_content %}
 {% block form %}
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-one-half">
+        <div class="govuk-grid-column-two-thirds">
             {% error_summary form %}
             {% include "webapp/components/heading/heading.html" with page_heading=page_heading %}
         </div>
@@ -22,7 +22,7 @@
         </div>
     </div>
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-one-half">
+        <div class="govuk-grid-column-two-thirds">
             <div class="govuk-inset-text">
                 Deduplication will create a new principal record based on the records above. Select which details to use for the new principal {{ type }} record.
                 <br>

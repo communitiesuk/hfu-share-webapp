@@ -680,7 +680,7 @@ class ManualGuestDeduplicationTable(dj_tables.Table):
     visa_application_date_maximum = CustomDateColumn(
         verbose_name="Latest visa application date"
     )
-    application_number = Column(verbose_name="Unique Application Number (UAN)")
+    application_number = Column(verbose_name="Unique application number (UAN)")
     select = Column(
         accessor="pk",
         verbose_name="Actions",
@@ -1037,7 +1037,7 @@ class ManualViewSelectedGuestsTable(dj_tables.Table):
     visa_application_date_maximum = CustomDateColumn(
         verbose_name="Latest visa application date"
     )
-    application_number = Column(verbose_name="Unique Application Number (UAN)")
+    application_number = Column(verbose_name="Unique application number (UAN)")
     remove = Column(
         accessor="pk",
         verbose_name="Actions",
@@ -1290,7 +1290,7 @@ class ManualReviewSelectedGuestsTable(dj_tables.Table):
         verbose_name="Latest visa application date", orderable=False
     )
     application_number = Column(
-        verbose_name="Unique Application Number (UAN)", orderable=False
+        verbose_name="Unique application number (UAN)", orderable=False
     )
 
     def render_get_full_name(self, record: MvPerson, value):
@@ -1545,7 +1545,7 @@ class ManualSelectCorrectDetailsGuestsTable(dj_tables.Table):
     passport_id = Column(verbose_name="Passport number", orderable=False)
     visa_status = Column(verbose_name="Visa status", orderable=False)
     application_number = Column(
-        verbose_name="Unique Application Number (UAN)", orderable=False
+        verbose_name="Unique application number (UAN)", orderable=False
     )
     accommodation_request = Column(
         verbose_name="Accommodation request", orderable=False
@@ -1710,7 +1710,7 @@ class ManualCheckAndCompleteGuestsTable(dj_tables.Table):
     passport_id = Column(verbose_name="Passport number", orderable=False)
     visa_status = Column(verbose_name="Visa status", orderable=False)
     application_number = Column(
-        verbose_name="Unique Application Number (UAN)", orderable=False
+        verbose_name="Unique application number (UAN)", orderable=False
     )
     accommodation_request = Column(
         verbose_name="Accommodation request", orderable=False
@@ -1911,7 +1911,7 @@ class ManualViewDeduplicatedGuestsTable(dj_tables.Table):
         verbose_name="Latest visa application date", orderable=False
     )
     application_number = Column(
-        verbose_name="Unique Application Number (UAN)", orderable=False
+        verbose_name="Unique application number (UAN)", orderable=False
     )
 
     def __init__(self, *args, **kwargs):

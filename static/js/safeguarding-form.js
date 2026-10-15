@@ -125,7 +125,7 @@ class Comments extends GovUKFormGroup {
             this.$inputElement.attr("required", true);
             this.$hint.attr("aria-live", "polite");
             this.$hint.text(
-                "You must add a reason if you select 'Sponsor is not suitable - other reasons' from the list for UKVI to review the comments. For any other reason selected adding a comment is optional.",
+                "You must add a reason if you select ‘Sponsor is not suitable - other reasons’ from the list for UKVI to review the comments. For any other reason selected adding a comment is optional.",
             );
         } else {
             this.$inputElement.removeAttr("required");
