@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.24.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.23.1...2.24.0) (2026-10-15)
+
+
+### Features
+
+* HFURB-4167 move the scripts into a command class to be run with python manage ([#268](https://github.com/communitiesuk/hfu-share-webapp/issues/268)) ([d658f93](https://github.com/communitiesuk/hfu-share-webapp/commit/d658f93aabab17a35271a8f7a5b85059cd44d6cb))
+
+
+### Bug Fixes
+
+* HFURB-4226 expand ukvi acronym ([#252](https://github.com/communitiesuk/hfu-share-webapp/issues/252)) ([129ba27](https://github.com/communitiesuk/hfu-share-webapp/commit/129ba27dd0293a8891c3e7af24e4900394ab312d))
+* make some simple copy fixes as per the design ([#273](https://github.com/communitiesuk/hfu-share-webapp/issues/273)) ([aa16481](https://github.com/communitiesuk/hfu-share-webapp/commit/aa1648184c2375d78e6a76040730d3a6b12af43b))
+* use support_js_module_import_aggregation to enable fingerprinting of asset files imported in the JS ([#275](https://github.com/communitiesuk/hfu-share-webapp/issues/275)) ([4123ca6](https://github.com/communitiesuk/hfu-share-webapp/commit/4123ca68d67a3c91741d4b74a665d928c60a8c41))
+
 ## [2.23.1](https://github.com/communitiesuk/hfu-share-webapp/compare/2.23.0...2.23.1) (2026-10-13)
 
 
