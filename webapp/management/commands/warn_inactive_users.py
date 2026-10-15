@@ -1,3 +1,5 @@
+import argparse
+
 from django.core.management.base import BaseCommand
 
 from hfurb_scripts.warn_inactive_users import (
@@ -8,15 +10,16 @@ from hfurb_scripts.warn_inactive_users import (
 class Command(BaseCommand):
     help = (
         "Warn users who have been inatcive for a certain period of time that "
-        "there account will be suspended"
+        "there account will be suspended (dry run by default)"
     )
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--commit",
-            action="store_true",
-            help="Send messages to users, otherwise rollback after a dry run",
+            "--dry-run",
+            action=argparse.BooleanOptionalAction,
+            default=True,
+            help="Run without saving changes (default: True).",
         )
 
     def handle(self, *args, **options):
-        warn_inactive_users(not options["commit"])
+        warn_inactive_users(options["dry_run"])

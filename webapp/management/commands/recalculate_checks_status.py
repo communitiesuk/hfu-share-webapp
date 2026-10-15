@@ -1,3 +1,5 @@
+import argparse
+
 from django.core.management.base import BaseCommand
 
 from hfurb_scripts.recalculate_checks_status import (
@@ -8,15 +10,16 @@ from hfurb_scripts.recalculate_checks_status import (
 class Command(BaseCommand):
     help = (
         "Recalculate the checks status on accommodation request "
-        "marked as needing it recalulated"
+        "marked as needing it recalulated (dry run by default)"
     )
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--commit",
-            action="store_true",
-            help="Commit changes to database, otherwise rollback after a dry run",
+            "--dry-run",
+            action=argparse.BooleanOptionalAction,
+            default=True,
+            help="Run without saving changes (default: True).",
         )
 
     def handle(self, *args, **options):
-        recalculate_checks_status(not options["commit"])
+        recalculate_checks_status(options["dry_run"])
