@@ -240,10 +240,11 @@ STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# Enable asset fingerprinting
+# Enable asset fingerprinting, including rewriting ES module import/export
+# paths inside JS files to point at their fingerprinted equivalents.
 STORAGES = {
     "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.ManifestStaticFilesStorage",
+        "BACKEND": "webapp.storage.ManifestStaticFilesStorageWithJsImports",
     },
 }
 
