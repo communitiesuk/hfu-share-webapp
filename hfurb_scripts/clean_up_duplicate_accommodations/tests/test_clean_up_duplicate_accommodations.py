@@ -1,14 +1,11 @@
 from unittest import mock
 
-from deduplication.models import AccommodationDuplicateGroup
+from django.db import DatabaseError
+
 from deduplication.tests.factories import AccommodationDuplicateGroupFactory
-from hfurb_scripts.clean_up_duplicate_accommodations import AUTHOR, run
+from hfurb_scripts.clean_up_duplicate_accommodations import run
 from hfurb_scripts.tests.base import BaseScriptTestCaseWithSession
-from ontology.models import (
-    MvAccommodation,
-    MvInteraction,
-    MvVolunteer,
-)
+from ontology.models import MvAccommodation, MvInteraction
 from ontology.tests.factories import (
     DevCheckV2Factory,
     MvAccommodationFactory,
@@ -22,20 +19,19 @@ class TestCleanUpDuplicateAccommodations(BaseScriptTestCaseWithSession):
     def setUp(self):
         super().setUp()
 
-        self.master = MvAccommodationFactory(is_principal=True)
-        self.duplicate = MvAccommodationFactory(is_principal=True)
-        self.other_duplicate = MvAccommodationFactory(is_principal=True)
-        self.not_in_list = MvAccommodationFactory(is_principal=True)
+        self.master = MvAccommodationFactory()
+        self.duplicate = MvAccommodationFactory()
+        self.other_duplicate = MvAccommodationFactory()
+        self.not_in_list = MvAccommodationFactory()
 
     def run_script(self, dry_run=False):
         run(dry_run=dry_run)
 
-    def exists(self, accommodation: MvAccommodation) -> bool:
-        return MvAccommodation.objects_including_archived.filter(
-            id=accommodation.id
-        ).exists()
+    def is_archived(self, accommodation: MvAccommodation) -> bool:
+        accommodation.refresh_from_db()
+        return accommodation.is_archived
 
-    def test_deletes_duplicates_nothing_depends_on(self, mock_get_records):
+    def test_archives_duplicates_without_linked_records(self, mock_get_records):
         sponsor = MvVolunteerFactory()
         self.duplicate.hosts.add(sponsor)
         mock_get_records.return_value = [
@@ -44,19 +40,17 @@ class TestCleanUpDuplicateAccommodations(BaseScriptTestCaseWithSession):
 
         self.run_script()
 
-        self.assertTrue(self.exists(self.master))
-        self.assertFalse(self.exists(self.duplicate))
-        self.assertFalse(self.exists(self.other_duplicate))
-        self.assertTrue(self.exists(self.not_in_list))
-        self.assertTrue(MvVolunteer.objects.filter(id=sponsor.id).exists())
-        self.assertFalse(AccommodationDuplicateGroup.objects.exists())
+        self.assertFalse(self.is_archived(self.master))
+        self.assertTrue(self.is_archived(self.duplicate))
+        self.assertTrue(self.is_archived(self.other_duplicate))
+        self.assertFalse(self.is_archived(self.not_in_list))
+        self.assertIsNotNone(self.duplicate.archived_at)
+        self.assertTrue(self.duplicate.edited_in_app)
+        self.assertEqual(list(self.duplicate.hosts.all()), [sponsor])
 
-    def test_deduplicates_duplicates_with_dependencies(self, mock_get_records):
+    def test_skips_duplicates_with_linked_records(self, mock_get_records):
         def link_ar(accommodation):
-            MvAccommodationRequestFactory(
-                primary_accommodation=accommodation,
-                accommodation_id=[accommodation.id],
-            )
+            MvAccommodationRequestFactory(primary_accommodation=accommodation)
 
         def link_interaction(accommodation):
             MvInteraction.objects.create(linked_accommodation=accommodation)
@@ -67,60 +61,44 @@ class TestCleanUpDuplicateAccommodations(BaseScriptTestCaseWithSession):
         def link_dedup_group(accommodation):
             AccommodationDuplicateGroupFactory(principal_record=accommodation)
 
-        for link in [
-            link_ar,
-            link_interaction,
-            link_check,
-            link_dedup_group,
-        ]:
+        for link in [link_ar, link_interaction, link_check, link_dedup_group]:
             with self.subTest(link.__name__):
-                master = MvAccommodationFactory(is_principal=True)
-                linked = MvAccommodationFactory(is_principal=True)
-                unlinked = MvAccommodationFactory(is_principal=True)
+                master = MvAccommodationFactory()
+                linked = MvAccommodationFactory()
+                unlinked = MvAccommodationFactory()
                 link(linked)
                 mock_get_records.return_value = [[master.id, linked.id, unlinked.id]]
 
                 self.run_script()
 
-                self.assertFalse(self.exists(unlinked))
-                group = AccommodationDuplicateGroup.objects.get(accommodations=linked)
-                self.assertCountEqual(group.accommodations.all(), [master, linked])
-                self.assertEqual(
-                    group.principal_record.full_address, master.full_address
-                )
-                master.refresh_from_db()
-                linked.refresh_from_db()
-                self.assertFalse(master.is_principal)
-                self.assertFalse(linked.is_principal)
+                self.assertFalse(self.is_archived(linked))
+                self.assertTrue(self.is_archived(unlinked))
 
-    def test_deduplicate_moves_ar_to_new_principal(self, mock_get_records):
-        ar = MvAccommodationRequestFactory(
-            primary_accommodation=self.duplicate,
-            accommodation_id=[self.duplicate.id],
-        )
-        mock_get_records.return_value = [[self.master.id, self.duplicate.id]]
+    def test_skips_duplicates_that_are_not_editable(self, mock_get_records):
+        not_editable = MvAccommodationFactory()
+        MvAccommodation.objects.filter(id=not_editable.id).update(is_editable=False)
+        mock_get_records.return_value = [
+            [self.master.id, not_editable.id, self.duplicate.id]
+        ]
 
         self.run_script()
 
-        group = AccommodationDuplicateGroup.objects.get()
-        ar.refresh_from_db()
-        self.assertEqual(ar.primary_accommodation_id, group.principal_record_id)
+        self.assertFalse(self.is_archived(not_editable))
+        self.assertTrue(self.is_archived(self.duplicate))
 
     def test_dry_run_does_not_change_anything(self, mock_get_records):
-        MvAccommodationRequestFactory(primary_accommodation=self.duplicate)
         mock_get_records.return_value = [
             [self.master.id, self.duplicate.id, self.other_duplicate.id]
         ]
 
         self.run_script(dry_run=True)
 
-        self.assertTrue(self.exists(self.duplicate))
-        self.assertTrue(self.exists(self.other_duplicate))
-        self.assertFalse(AccommodationDuplicateGroup.objects.exists())
-        self.master.refresh_from_db()
-        self.assertTrue(self.master.is_principal)
+        self.assertFalse(self.is_archived(self.duplicate))
+        self.assertFalse(self.is_archived(self.other_duplicate))
 
-    def test_skips_invalid_rows(self, mock_get_records):
+    def test_missing_duplicate_does_not_stop_others_being_archived(
+        self, mock_get_records
+    ):
         mock_get_records.return_value = [
             [],
             [self.master.id],
@@ -129,53 +107,44 @@ class TestCleanUpDuplicateAccommodations(BaseScriptTestCaseWithSession):
 
         self.run_script()
 
-        self.assertTrue(self.exists(self.master))
-        self.assertTrue(self.exists(self.duplicate))
+        self.assertFalse(self.is_archived(self.master))
+        self.assertTrue(self.is_archived(self.duplicate))
 
-    def test_skips_row_needing_dedupe_with_non_principal_record(self, mock_get_records):
-        # Already merged into another group, so can't be deleted or deduplicated
-        already_merged = MvAccommodationFactory(is_principal=False)
-        AccommodationDuplicateGroupFactory().accommodations.add(already_merged)
+    def test_lists_every_duplicate_not_archived_by_reason(self, mock_get_records):
+        linked = MvAccommodationFactory()
+        MvInteraction.objects.create(linked_accommodation=linked)
+        not_editable = MvAccommodationFactory()
+        MvAccommodation.objects.filter(id=not_editable.id).update(is_editable=False)
+        already_archived = MvAccommodationFactory()
+        MvAccommodation.objects.filter(id=already_archived.id).update(is_archived=True)
+        failing = MvAccommodationFactory()
         mock_get_records.return_value = [
-            [self.master.id, already_merged.id, self.duplicate.id]
+            [self.master.id, linked.id, not_editable.id, self.duplicate.id],
+            [self.not_in_list.id, already_archived.id, failing.id, "does-not-exist"],
         ]
+        original_save = MvAccommodation.save
 
-        self.run_script()
+        def fail_on_failing(accommodation, *args, **kwargs):
+            if accommodation.id == failing.id:
+                raise DatabaseError("Database down")
+            original_save(accommodation, *args, **kwargs)
 
-        self.assertTrue(self.exists(already_merged))
-        self.assertTrue(self.exists(self.duplicate))
-        self.assertEqual(AccommodationDuplicateGroup.objects.count(), 1)
+        with (
+            mock.patch.object(MvAccommodation, "save", fail_on_failing),
+            self.assertLogs(
+                "hfurb_scripts.clean_up_duplicate_accommodations", level="INFO"
+            ) as logs,
+        ):
+            self.run_script()
 
-    @mock.patch.object(AccommodationDuplicateGroup, "deduplicate")
-    def test_failed_row_is_rolled_back_and_next_row_runs(
-        self, mock_deduplicate, mock_get_records
-    ):
-        mock_deduplicate.side_effect = Exception("Database down")
-        MvAccommodationRequestFactory(primary_accommodation=self.duplicate)
-        next_master = MvAccommodationFactory(is_principal=True)
-        next_duplicate = MvAccommodationFactory(is_principal=True)
-        mock_get_records.return_value = [
-            [self.master.id, self.duplicate.id, self.other_duplicate.id],
-            [next_master.id, next_duplicate.id],
-        ]
-
-        self.run_script()
-
-        self.assertTrue(self.exists(self.other_duplicate))
-        self.assertFalse(self.exists(next_duplicate))
-
-    def test_deduplication_is_recorded_against_system(self, mock_get_records):
-        ar = MvAccommodationRequestFactory(
-            primary_accommodation=self.duplicate,
-            accommodation_id=[self.duplicate.id],
+        summary = "\n".join(logs.output[-6:])
+        self.assertIn("Accommodations: 1 archived, 5 not archived", summary)
+        self.assertIn(f"1 not archived as it has linked records: {linked.id}", summary)
+        self.assertIn(
+            f"1 not archived as it is not editable: {not_editable.id}", summary
         )
-        mock_get_records.return_value = [[self.master.id, self.duplicate.id]]
-
-        self.run_script()
-
-        group = AccommodationDuplicateGroup.objects.get()
-        ar.refresh_from_db()
-        self.assertEqual(ar.last_modified_by, AUTHOR)
-        self.assertEqual(group.principal_record.created_by, AUTHOR)
-        interaction = MvInteraction.objects.get(linked_accommodation=self.duplicate)
-        self.assertIsNone(interaction.created_by)
+        self.assertIn(
+            f"1 not archived as it is already archived: {already_archived.id}", summary
+        )
+        self.assertIn(f"1 not archived as it failed to archive: {failing.id}", summary)
+        self.assertIn("1 not archived as it was not found: does-not-exist", summary)

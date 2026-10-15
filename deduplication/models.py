@@ -783,9 +783,7 @@ class AccommodationDuplicateGroup(models.Model):
 
     @record_operation_outcome("accommodation")
     @transaction.atomic
-    def deduplicate(  # noqa: C901
-        self, principal_record_values: dict[str, Any], user: User | str
-    ):
+    def deduplicate(self, principal_record_values: dict[str, Any], user: User):  # noqa: C901
         handle_deduplication_exceptions(
             user, self.principal_record, self.accommodations
         )
@@ -795,7 +793,7 @@ class AccommodationDuplicateGroup(models.Model):
         log_dedup_event(
             "AccommodationDuplicateGroup.deduplicate: started",
             group_id=self.pk,
-            user=getattr(user, "pk", user),
+            user=user.pk,
             duplicate_record_count=len(accommodations),
             duplicate_record_pks=[a.pk for a in accommodations],
         )
@@ -867,7 +865,7 @@ class AccommodationDuplicateGroup(models.Model):
             ),
             default=None,
         )
-        principal_record_values["created_by"] = getattr(user, "email", user)
+        principal_record_values["created_by"] = user.email
         principal_record_values["created_date"] = min(
             (
                 accommodation.created_date
@@ -1130,7 +1128,7 @@ class AccommodationDuplicateGroup(models.Model):
             MvInteraction.objects.create(
                 interaction_contact=MvInteraction.InteractionContact.RECORD_DEDUPLICATED,
                 interaction_type=MvInteraction.InteractionContact.RECORD_DEDUPLICATED,
-                created_by=user if isinstance(user, User) else None,
+                created_by=user,
                 title="Record deduplicated",
                 interaction_notes=note,
                 linked_accommodation=record,
@@ -1139,7 +1137,7 @@ class AccommodationDuplicateGroup(models.Model):
         MvInteraction.objects.create(
             interaction_contact=MvInteraction.InteractionContact.RECORD_DEDUPLICATED,
             interaction_type=MvInteraction.InteractionContact.RECORD_DEDUPLICATED,
-            created_by=user if isinstance(user, User) else None,
+            created_by=user,
             title="Record deduplicated",
             interaction_notes=(
                 f"This record was created after accommodation records "
@@ -1265,7 +1263,7 @@ class AccommodationDuplicateGroup(models.Model):
         self,
         new_principal: MvAccommodation,
         accommodations: list[MvAccommodation],
-        user: User | str,
+        user: User,
     ):
         """
         Links the accommodation requests of accommodations to the new principal, stores
@@ -1302,9 +1300,7 @@ class AccommodationDuplicateGroup(models.Model):
 
                 ar.checks_status = ar.determine_checks_status_from_linked_objects()
                 ar.last_modified_at = timezone.now()
-                ar.last_modified_by = (
-                    user.get_full_name() if hasattr(user, "get_full_name") else user
-                )
+                ar.last_modified_by = user.get_full_name()
 
                 ar.save()
 

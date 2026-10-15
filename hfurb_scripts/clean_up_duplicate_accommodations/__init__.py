@@ -1,12 +1,13 @@
 import logging
 import os
 import sys
-from collections import Counter
+from collections import defaultdict
 from pathlib import Path
 
 import django
 from django.db import transaction
 from django.db.models import Q
+from django.utils import timezone
 from dotenv import load_dotenv
 
 from deduplication.models import AccommodationDuplicateGroup
@@ -29,11 +30,12 @@ django.setup()
 logger = logging.getLogger(__name__)
 
 
-AUTHOR = "clean_up_duplicate_accommodations_job"
-
-
-class SkipRow(Exception):
-    pass
+# Reasons a duplicate is not archived
+NOT_FOUND = "it was not found"
+ALREADY_ARCHIVED = "it is already archived"
+NOT_EDITABLE = "it is not editable"
+HAS_LINKED_RECORDS = "it has linked records"
+FAILED = "it failed to archive"
 
 
 # TODO: replace with the real source of IDs once decided, either a temporary
@@ -46,7 +48,7 @@ def get_records_to_process() -> list[list[str]]:
 
 def has_dependencies(accommodation: MvAccommodation) -> bool:
     """
-    Returns True if deleting the accommodation would lose a linked record
+    Returns True if the accommodation has linked records, so is not safe to archive
     """
     if MvAccommodationRequest.objects.filter(
         Q(accommodation_id__contains=[accommodation.id])
@@ -68,132 +70,84 @@ def has_dependencies(accommodation: MvAccommodation) -> bool:
     ).exists()
 
 
-def get_principal_record_values(master: MvAccommodation) -> dict:
-    return {
-        "full_address": master.full_address,
-        "postcode": master.postcode,
-        "ltla_name": master.ltla_name,
-        "utla_name": master.utla_name,
-    }
+def get_reason_not_to_archive(accommodation: MvAccommodation) -> str | None:
+    if accommodation.is_archived:
+        return ALREADY_ARCHIVED
+
+    # save() refuses accommodations that are not editable
+    if not accommodation.is_editable:
+        return NOT_EDITABLE
+
+    if has_dependencies(accommodation):
+        return HAS_LINKED_RECORDS
+
+    return None
 
 
-def process_row(row: list[str]) -> tuple[int, int]:
+def archive(accommodation: MvAccommodation, dry_run: bool):
+    with transaction.atomic():
+        accommodation.is_archived = True
+        accommodation.archived_at = timezone.now()
+        accommodation.save()
+        if dry_run:
+            transaction.set_rollback(True)
+
+
+def archive_duplicate(accommodation: MvAccommodation, dry_run: bool) -> str | None:
     """
-    Deletes the duplicates nothing depends on, and deduplicates the master with
-    the rest. Returns the number of records deleted and deduplicated
+    Archives the duplicate if it is safe to, otherwise returns the reason it was
+    not archived
     """
-    if len(row) < 2:
-        raise SkipRow("needs a master and at least one duplicate")
+    try:
+        reason = get_reason_not_to_archive(accommodation)
+        if reason:
+            return reason
 
-    accommodations = MvAccommodation.objects_including_archived.in_bulk(row)
-    missing = [
-        accommodation_id
-        for accommodation_id in row
-        if accommodation_id not in accommodations
-    ]
-    if missing:
-        raise SkipRow(f"accommodations not found: {missing}")
-
-    master, *duplicates = [accommodations[accommodation_id] for accommodation_id in row]
-
-    to_delete = []
-    to_deduplicate = []
-
-    for duplicate in duplicates:
-        if has_dependencies(duplicate):
-            logger.info(
-                "Accommodation: %s will be deduplicated as it has linked records",
-                duplicate.id,
-            )
-            to_deduplicate.append(duplicate)
-        else:
-            to_delete.append(duplicate)
-
-    # Deduplication only accepts principal records, the same rule as the app
-    if to_deduplicate:
-        non_principal = [
-            accommodation.id
-            for accommodation in [master, *to_deduplicate]
-            if not accommodation.is_principal
-        ]
-        if non_principal:
-            raise SkipRow(f"non principal records need deduplicating: {non_principal}")
-
-    for duplicate in to_delete:
-        # Django clears the ID on delete, so keep it for logging
-        duplicate_id = duplicate.id
-        duplicate.delete()
-        logger.info("Deleted Accommodation: %s", duplicate_id)
-
-    if to_deduplicate:
-        group = AccommodationDuplicateGroup.objects.create()
-        group.accommodations.set([master, *to_deduplicate])
-        group.deduplicate(get_principal_record_values(master), user=AUTHOR)
-        logger.info(
-            "Deduplicated Accommodations: %s into new principal: %s",
-            [master.id, *[duplicate.id for duplicate in to_deduplicate]],
-            group.principal_record_id,
+        archive(accommodation, dry_run)
+    except Exception as exc:
+        logger.exception(
+            "Exception archiving Accommodation: %s; error: %s", accommodation.id, exc
         )
+        return FAILED
 
-    return len(to_delete), len(to_deduplicate)
+    return None
 
 
 def clean_up_duplicate_accommodations(dry_run=True):
     logger.info("Start clean_up_duplicate_accommodations with dry_run=%s", dry_run)
 
-    counts = Counter(
-        rows_succeeded=0,
-        rows_skipped=0,
-        rows_failed=0,
-        deleted=0,
-        deduplicated=0,
-    )
+    archived_count = 0
+    # Duplicates we want to archive but can't, grouped by the reason why
+    not_archived_ids: dict[str, list[str]] = defaultdict(list)
 
     records_to_process = get_records_to_process()
 
     for row in records_to_process:
-        # Identify the row in the logs by its master, as rows can be very long
-        master_id = row[0] if row else None
+        # The master is first in the row and is never archived
+        duplicate_ids = row[1:]
+        duplicates = MvAccommodation.objects_including_archived.in_bulk(duplicate_ids)
 
-        try:
-            # Each row is all or nothing so a failure never leaves a half done row
-            with transaction.atomic():
-                deleted, deduplicated = process_row(row)
-                if dry_run:
-                    transaction.set_rollback(True)
-        except SkipRow as reason:
-            logger.warning("Skipping row with master %s: %s", master_id, reason)
-            counts["rows_skipped"] += 1
-            continue
-        except Exception as exc:
-            logger.exception(
-                "Exception processing row with master %s; error: %s", master_id, exc
-            )
-            counts["rows_failed"] += 1
-            continue
+        for duplicate_id in duplicate_ids:
+            duplicate = duplicates.get(duplicate_id)
+            reason = archive_duplicate(duplicate, dry_run) if duplicate else NOT_FOUND
 
-        logger.info(
-            "Processed row with master %s: %s deleted, %s deduplicated",
-            master_id,
-            deleted,
-            deduplicated,
-        )
-        counts["rows_succeeded"] += 1
-        counts["deleted"] += deleted
-        counts["deduplicated"] += deduplicated
+            if reason:
+                logger.info(
+                    "Not archiving Accommodation: %s as %s", duplicate_id, reason
+                )
+                not_archived_ids[reason].append(duplicate_id)
+            else:
+                logger.info("Archived Accommodation: %s", duplicate_id)
+                archived_count += 1
 
     logger.info("End clean_up_duplicate_accommodations with dry_run=%s", dry_run)
     logger.info(
-        "Rows: %s succeeded, %s skipped, %s failed",
-        counts["rows_succeeded"],
-        counts["rows_skipped"],
-        counts["rows_failed"],
+        "Accommodations: %s archived, %s not archived",
+        archived_count,
+        sum(len(ids) for ids in not_archived_ids.values()),
     )
-    logger.info(
-        "Accommodations: %s deleted, %s deduplicated",
-        counts["deleted"],
-        counts["deduplicated"],
-    )
+    for reason, ids in not_archived_ids.items():
+        logger.info("%s not archived as %s: %s", len(ids), reason, ", ".join(ids))
 
 
 def run(dry_run=True):
