@@ -126,14 +126,10 @@
                  tabindex="-1"
                  role="alert"
                  hidden>
-                <div class="govuk-grid-row">
-                    <div class="govuk-grid-column-two-thirds">
-                        {% load notification_banner_extras %}
-                        {% with "success"|notification_banner_variant_to_message_level as level %}
-                            {% include "webapp/components/notification_banner/notification_banner.html" with heading="Your preferences have been saved" body="You can change your cookie settings at any time by returning to this page." %}
-                        {% endwith %}
-                    </div>
-                </div>
+                {% load notification_banner_extras %}
+                {% with "success"|notification_banner_variant_to_message_level as level %}
+                    {% include "webapp/components/notification_banner/notification_banner.html" with heading="Your preferences have been saved" body="You can change your cookie settings at any time by returning to this page." %}
+                {% endwith %}
             </div>
         {% endif %}
     </div>

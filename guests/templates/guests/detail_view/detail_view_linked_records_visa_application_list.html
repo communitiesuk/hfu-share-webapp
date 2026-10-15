@@ -16,6 +16,8 @@
     {% block visa_applications_list_table %}
         {% include "webapp/components/tables/table.html" %}
     {% endblock visa_applications_list_table %}
+{% endblock wide_content %}
+{% block narrow_footer_content %}
     <a href="{% url 'guests:detail-linked-records' object.pk %}"
        class="govuk-button govuk-button--secondary">Back to guest record</a>
-{% endblock wide_content %}
+{% endblock narrow_footer_content %}

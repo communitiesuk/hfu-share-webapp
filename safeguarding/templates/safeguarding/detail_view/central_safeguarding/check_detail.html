@@ -49,11 +49,9 @@
             {% endif %}
         </div>
     </div>
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-one-half">
-            <a href="{{ central_safeguarding_url }}"
-               class="govuk-button govuk-button--primary"
-               role="button">Back to central safeguarding</a>
-        </div>
-    </div>
 {% endblock wide_content %}
+{% block narrow_footer_content %}
+    <a href="{{ central_safeguarding_url }}"
+       class="govuk-button govuk-button--primary"
+       role="button">Back to central safeguarding</a>
+{% endblock narrow_footer_content %}

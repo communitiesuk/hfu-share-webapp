@@ -10,9 +10,13 @@
                     {% error_summary form %}
                 {% endif %}
             {% endblock error_summary %}
-            {% block notifications %}
-                {% include "webapp/components/notification_banner/notification_banner_from_messages.html" %}
-            {% endblock notifications %}
+        </div>
+    </div>
+    {% block notifications %}
+        {% include "webapp/components/notification_banner/notification_banner_from_messages.html" %}
+    {% endblock notifications %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
             {% block page_heading %}
                 {% include "webapp/components/heading/heading.html" with caption=page_caption page_heading=page_heading tag=page_heading_tag %}
             {% endblock page_heading %}
@@ -24,6 +28,12 @@
         <div class="govuk-grid-column-full">
             {% block wide_content %}
             {% endblock wide_content %}
+        </div>
+    </div>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {% block narrow_footer_content %}
+            {% endblock narrow_footer_content %}
         </div>
     </div>
 {% endblock content %}

@@ -1,52 +1,36 @@
-{% extends "select_records_list_step.html" %}
-{% load crispy_forms_gds %}
+{% extends "select_and_review_records_base.html" %}
 {% load crispy_forms_tags %}
 {% load django_tables2 %}
 {% block breadcrumb_content %}
     <li class="govuk-breadcrumbs__list-item">Fix duplicate records</li>
 {% endblock breadcrumb_content %}
-{% block form %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            {% include "webapp/components/heading/heading.html" with page_heading=page_heading %}
+{% block wide_content %}
+    <div class="govuk-summary-card">
+        <div class="govuk-summary-card__title-wrapper">
+            <h2 class="govuk-summary-card__title">Original records to be deduplicated</h2>
         </div>
+        <div class="govuk-summary-card__content">{% render_table tables.0 %}</div>
     </div>
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            <div class="govuk-summary-card">
-                <div class="govuk-summary-card__title-wrapper">
-                    <h2 class="govuk-summary-card__title">Original records to be deduplicated</h2>
-                </div>
-                <div class="govuk-summary-card__content">{% render_table tables.0 %}</div>
-            </div>
+    <div class="govuk-summary-card">
+        <div class="govuk-summary-card__title-wrapper">
+            <h2 class="govuk-summary-card__title">Check the details are correct for the new principal record</h2>
         </div>
+        <div class="govuk-summary-card__content">{% render_table tables.1 %}</div>
     </div>
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            <div class="govuk-summary-card">
-                <div class="govuk-summary-card__title-wrapper">
-                    <h2 class="govuk-summary-card__title">Check the details are correct for the new principal record</h2>
-                </div>
-                <div class="govuk-summary-card__content">{% render_table tables.1 %}</div>
-            </div>
-        </div>
+{% endblock wide_content %}
+{% block narrow_footer_content %}
+    <h2 class="govuk-heading-s">Are you sure you want to complete the deduplication?</h2>
+    <p class="govuk-body">Check that the correct details are selected for the new principal record.</p>
+    <div class="govuk-warning-text">
+        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+        <strong class="govuk-warning-text__text">
+            <span class="govuk-visually-hidden">Warning</span>
+            This will create a new principal record with the information shown. The original {{ type }} records will be marked as duplicates and you will not be able to change them, unless you first undo the deduplication.
+        </strong>
     </div>
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            <h2 class="govuk-heading-s">Are you sure you want to complete the deduplication?</h2>
-            <p class="govuk-body">Check that the correct details are selected for the new principal record.</p>
-            <div class="govuk-warning-text">
-                <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-                <strong class="govuk-warning-text__text">
-                    <span class="govuk-visually-hidden">Warning</span>
-                    This will create a new principal record with the information shown. The original {{ type }} records will be marked as duplicates and you will not be able to change them, unless you first undo the deduplication.
-                </strong>
-            </div>
-            <form method="post" novalidate>
-                {% csrf_token %}
-                {{ wizard.management_form }}
-                {% crispy form %}
-            </form>
-        </div>
-    </div>
-{% endblock form %}
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {{ wizard.management_form }}
+        {% crispy form %}
+    </form>
+{% endblock narrow_footer_content %}

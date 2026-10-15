@@ -1,33 +1,23 @@
-{% extends "select_records_list_step.html" %}
-{% load crispy_forms_gds %}
+{% extends "select_and_review_records_base.html" %}
 {% load crispy_forms_tags %}
 {% block breadcrumb_content %}
     <li class="govuk-breadcrumbs__list-item">Fix duplicate records</li>
 {% endblock breadcrumb_content %}
-{% block form %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            {% with suffix=object_list|length|pluralize %}
-                {% include "webapp/components/heading/heading.html" with page_heading=page_heading %}
-            {% endwith %}
-            {% if object_list|length > 1 %}<p class="govuk-body">You can now review your selected records.</p>{% endif %}
-        </div>
-    </div>
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">{% include table_template_url %}</div>
-    </div>
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            {% if object_list|length == 0 %}
-                <p class="govuk-body">All selected records have been removed.</p>
-            {% elif object_list|length <= 1 %}
-                <p class="govuk-body">Select another record from the same lower tier local authority to review.</p>
-            {% endif %}
-            <form class="govuk-button-group" method="post" novalidate>
-                {% csrf_token %}
-                {{ wizard.management_form }}
-                {% crispy form %}
-            </form>
-        </div>
-    </div>
-{% endblock form %}
+{% block narrow_content %}
+    {% if object_list|length > 1 %}<p class="govuk-body">You can now review your selected records.</p>{% endif %}
+{% endblock narrow_content %}
+{% block wide_content %}
+    {% include table_template_url %}
+{% endblock wide_content %}
+{% block narrow_footer_content %}
+    {% if object_list|length == 0 %}
+        <p class="govuk-body">All selected records have been removed.</p>
+    {% elif object_list|length <= 1 %}
+        <p class="govuk-body">Select another record from the same lower tier local authority to review.</p>
+    {% endif %}
+    <form class="govuk-button-group" method="post" novalidate>
+        {% csrf_token %}
+        {{ wizard.management_form }}
+        {% crispy form %}
+    </form>
+{% endblock narrow_footer_content %}
