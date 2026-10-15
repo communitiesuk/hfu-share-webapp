@@ -113,8 +113,8 @@ def archive_duplicate(accommodation: MvAccommodation, dry_run: bool) -> str | No
     return None
 
 
-def clean_up_duplicate_accommodations(dry_run=True):
-    logger.info("Start clean_up_duplicate_accommodations with dry_run=%s", dry_run)
+def archive_duplicate_accommodations(dry_run=True):
+    logger.info("Start archive_duplicate_accommodations with dry_run=%s", dry_run)
 
     archived_count = 0
     # Duplicates we want to archive but can't, grouped by the reason why
@@ -140,7 +140,7 @@ def clean_up_duplicate_accommodations(dry_run=True):
                 logger.info("Archived Accommodation: %s", duplicate_id)
                 archived_count += 1
 
-    logger.info("End clean_up_duplicate_accommodations with dry_run=%s", dry_run)
+    logger.info("End archive_duplicate_accommodations with dry_run=%s", dry_run)
     logger.info(
         "Accommodations: %s archived, %s not archived",
         archived_count,
@@ -155,14 +155,14 @@ def run(dry_run=True):
     Usage from within ECS container:
         # Normal run (makes changes):
         python manage.py shell \
-        -c "from hfurb_scripts.clean_up_duplicate_accommodations import run; \
+        -c "from hfurb_scripts.archive_duplicate_accommodations import run; \
         run(dry_run=False)"
 
 
         # Dry run (shows what would be changed):
         python manage.py shell \
-        -c "from hfurb_scripts.clean_up_duplicate_accommodations import run; \
+        -c "from hfurb_scripts.archive_duplicate_accommodations import run; \
         run()"
     """
 
-    clean_up_duplicate_accommodations(dry_run=dry_run)
+    archive_duplicate_accommodations(dry_run=dry_run)

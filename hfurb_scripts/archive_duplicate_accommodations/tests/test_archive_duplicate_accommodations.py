@@ -3,7 +3,7 @@ from unittest import mock
 from django.db import DatabaseError
 
 from deduplication.tests.factories import AccommodationDuplicateGroupFactory
-from hfurb_scripts.clean_up_duplicate_accommodations import run
+from hfurb_scripts.archive_duplicate_accommodations import run
 from hfurb_scripts.tests.base import BaseScriptTestCaseWithSession
 from ontology.models import MvAccommodation, MvInteraction
 from ontology.tests.factories import (
@@ -14,8 +14,8 @@ from ontology.tests.factories import (
 )
 
 
-@mock.patch("hfurb_scripts.clean_up_duplicate_accommodations.get_records_to_process")
-class TestCleanUpDuplicateAccommodations(BaseScriptTestCaseWithSession):
+@mock.patch("hfurb_scripts.archive_duplicate_accommodations.get_records_to_process")
+class TestArchiveDuplicateAccommodations(BaseScriptTestCaseWithSession):
     def setUp(self):
         super().setUp()
 
@@ -132,7 +132,7 @@ class TestCleanUpDuplicateAccommodations(BaseScriptTestCaseWithSession):
         with (
             mock.patch.object(MvAccommodation, "save", fail_on_failing),
             self.assertLogs(
-                "hfurb_scripts.clean_up_duplicate_accommodations", level="INFO"
+                "hfurb_scripts.archive_duplicate_accommodations", level="INFO"
             ) as logs,
         ):
             self.run_script()
