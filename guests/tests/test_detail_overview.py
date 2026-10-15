@@ -221,3 +221,22 @@ class GuestDetailOverviewViewTests(TestSessionTokenMixin, BaseTestCase):
         self.assertNotContains(
             response, "This record is a duplicate and cannot be changed."
         )
+
+    def test_overview_page_shows_record_sections_as_side_navigation(self):
+        admin_user = get_admin_user()
+        admin_user.groups.add(self.ltla_group)
+        self.client.force_login(admin_user)
+        properties_url = reverse(
+            "guests:detail-properties", kwargs={"pk": self.guest.pk}
+        )
+
+        response = self.client.get(self.overview_url)
+
+        content = response.content.decode()
+        self.assertContains(response, 'aria-label="Record sections"')
+        self.assertInHTML(
+            f'<a href="{self.overview_url}" aria-current="location">Overview</a>',
+            content,
+        )
+        self.assertInHTML(f'<a href="{properties_url}">Properties</a>', content)
+        self.assertNotContains(response, "govuk-tabs")
