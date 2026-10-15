@@ -1,9 +1,16 @@
+import os
 from unittest import mock
 
+import boto3
 from django.db import DatabaseError
+from moto import mock_aws
 
 from deduplication.tests.factories import AccommodationDuplicateGroupFactory
-from hfurb_scripts.archive_duplicate_accommodations import run
+from hfurb_scripts.archive_duplicate_accommodations import (
+    DuplicateSet,
+    get_records_to_process,
+    run,
+)
 from hfurb_scripts.tests.base import BaseScriptTestCaseWithSession
 from ontology.models import MvAccommodation, MvInteraction
 from ontology.tests.factories import (
@@ -12,6 +19,16 @@ from ontology.tests.factories import (
     MvAccommodationRequestFactory,
     MvVolunteerFactory,
 )
+
+
+def duplicate_sets(rows: list[list[str]]) -> list[DuplicateSet]:
+    """
+    Builds the records to process from lists of IDs, with the master first
+    """
+    return [
+        DuplicateSet(f"ref-{index}", master_id, duplicate_ids)
+        for index, (master_id, *duplicate_ids) in enumerate(rows)
+    ]
 
 
 @mock.patch("hfurb_scripts.archive_duplicate_accommodations.get_records_to_process")
@@ -34,9 +51,9 @@ class TestArchiveDuplicateAccommodations(BaseScriptTestCaseWithSession):
     def test_archives_duplicates_without_linked_records(self, mock_get_records):
         sponsor = MvVolunteerFactory()
         self.duplicate.hosts.add(sponsor)
-        mock_get_records.return_value = [
-            [self.master.id, self.duplicate.id, self.other_duplicate.id]
-        ]
+        mock_get_records.return_value = duplicate_sets(
+            [[self.master.id, self.duplicate.id, self.other_duplicate.id]]
+        )
 
         self.run_script()
 
@@ -67,7 +84,9 @@ class TestArchiveDuplicateAccommodations(BaseScriptTestCaseWithSession):
                 linked = MvAccommodationFactory()
                 unlinked = MvAccommodationFactory()
                 link(linked)
-                mock_get_records.return_value = [[master.id, linked.id, unlinked.id]]
+                mock_get_records.return_value = duplicate_sets(
+                    [[master.id, linked.id, unlinked.id]]
+                )
 
                 self.run_script()
 
@@ -77,9 +96,9 @@ class TestArchiveDuplicateAccommodations(BaseScriptTestCaseWithSession):
     def test_skips_duplicates_that_are_not_editable(self, mock_get_records):
         not_editable = MvAccommodationFactory()
         MvAccommodation.objects.filter(id=not_editable.id).update(is_editable=False)
-        mock_get_records.return_value = [
-            [self.master.id, not_editable.id, self.duplicate.id]
-        ]
+        mock_get_records.return_value = duplicate_sets(
+            [[self.master.id, not_editable.id, self.duplicate.id]]
+        )
 
         self.run_script()
 
@@ -87,9 +106,9 @@ class TestArchiveDuplicateAccommodations(BaseScriptTestCaseWithSession):
         self.assertTrue(self.is_archived(self.duplicate))
 
     def test_dry_run_does_not_change_anything(self, mock_get_records):
-        mock_get_records.return_value = [
-            [self.master.id, self.duplicate.id, self.other_duplicate.id]
-        ]
+        mock_get_records.return_value = duplicate_sets(
+            [[self.master.id, self.duplicate.id, self.other_duplicate.id]]
+        )
 
         self.run_script(dry_run=True)
 
@@ -99,11 +118,12 @@ class TestArchiveDuplicateAccommodations(BaseScriptTestCaseWithSession):
     def test_missing_duplicate_does_not_stop_others_being_archived(
         self, mock_get_records
     ):
-        mock_get_records.return_value = [
-            [],
-            [self.master.id],
-            [self.master.id, self.duplicate.id, "does-not-exist"],
-        ]
+        mock_get_records.return_value = duplicate_sets(
+            [
+                [self.master.id],
+                [self.master.id, self.duplicate.id, "does-not-exist"],
+            ]
+        )
 
         self.run_script()
 
@@ -118,10 +138,17 @@ class TestArchiveDuplicateAccommodations(BaseScriptTestCaseWithSession):
         already_archived = MvAccommodationFactory()
         MvAccommodation.objects.filter(id=already_archived.id).update(is_archived=True)
         failing = MvAccommodationFactory()
-        mock_get_records.return_value = [
-            [self.master.id, linked.id, not_editable.id, self.duplicate.id],
-            [self.not_in_list.id, already_archived.id, failing.id, "does-not-exist"],
-        ]
+        mock_get_records.return_value = duplicate_sets(
+            [
+                [self.master.id, linked.id, not_editable.id, self.duplicate.id],
+                [
+                    self.not_in_list.id,
+                    already_archived.id,
+                    failing.id,
+                    "does-not-exist",
+                ],
+            ]
+        )
         original_save = MvAccommodation.save
 
         def fail_on_failing(accommodation, *args, **kwargs):
@@ -148,3 +175,48 @@ class TestArchiveDuplicateAccommodations(BaseScriptTestCaseWithSession):
         )
         self.assertIn(f"1 not archived as it failed to archive: {failing.id}", summary)
         self.assertIn("1 not archived as it was not found: does-not-exist", summary)
+
+
+@mock.patch(
+    "hfurb_scripts.archive_duplicate_accommodations.RECORDS_FILE_KEY", "records.csv"
+)
+@mock.patch(
+    "hfurb_scripts.archive_duplicate_accommodations.RECORDS_BUCKET_NAME", "test-bucket"
+)
+class TestGetRecordsToProcess(BaseScriptTestCaseWithSession):
+    @mock.patch.dict(
+        os.environ, {"AWS_ENDPOINT_URL": "https://s3.eu-west-2.amazonaws.com"}
+    )
+    @mock_aws
+    def test_returns_master_first_followed_by_its_duplicates(self):
+        s3 = boto3.client("s3", region_name="eu-west-2")
+        s3.create_bucket(
+            Bucket="test-bucket",
+            CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},
+        )
+        s3.put_object(
+            Bucket="test-bucket",
+            Key="records.csv",
+            Body=(
+                "reference,id,ids_list\n"
+                'ref-1,accommodation-1,"[""accommodation-1"",""accommodation-2"",'
+                '""accommodation-3""]"\n'
+                # Matches the real file, where the master is not always first
+                "VNB3E9Y7,accommodation-80C7D3B4_BH10,"
+                '"[""accommodation-CA158A27_BH10"",""accommodation-80C7D3B4_BH10""]"\n'
+            ),
+        )
+
+        self.assertEqual(
+            get_records_to_process(),
+            [
+                DuplicateSet(
+                    "ref-1", "accommodation-1", ["accommodation-2", "accommodation-3"]
+                ),
+                DuplicateSet(
+                    "VNB3E9Y7",
+                    "accommodation-80C7D3B4_BH10",
+                    ["accommodation-CA158A27_BH10"],
+                ),
+            ],
+        )

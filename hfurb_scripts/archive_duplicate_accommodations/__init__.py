@@ -1,8 +1,11 @@
+import csv
+import json
 import logging
 import os
 import sys
 from collections import defaultdict
 from pathlib import Path
+from typing import NamedTuple
 
 import django
 from django.db import transaction
@@ -17,6 +20,7 @@ from ontology.models import (
     MvAccommodationRequest,
     MvInteraction,
 )
+from webapp.s3 import get_s3_client
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(BASE_DIR))
@@ -38,11 +42,41 @@ HAS_LINKED_RECORDS = "it has linked records"
 FAILED = "it failed to archive"
 
 
-# TODO: replace with the real source of IDs once decided, either a temporary
-# table populated with the records to process or a file read from S3.
-# Each row is a list of duplicate accommodation IDs with the "master" record first
-def get_records_to_process() -> list[list[str]]:
-    records_to_process: list[list[str]] = []
+class DuplicateSet(NamedTuple):
+    reference: str
+    master_id: str
+    duplicate_ids: list[str]
+
+
+# TODO: set to where the duplicates file lives
+RECORDS_BUCKET_NAME = ""
+RECORDS_FILE_KEY = ""
+
+
+def get_records_to_process() -> list[DuplicateSet]:
+    """
+    Reads the CSV of duplicates from S3, which has one row per set of duplicates
+    with the columns reference, id (the master) and ids_list (the master and all
+    of its duplicates). Returns a DuplicateSet per row
+    """
+    response = get_s3_client().get_object(
+        Bucket=RECORDS_BUCKET_NAME, Key=RECORDS_FILE_KEY
+    )
+    lines = response["Body"].read().decode("utf-8").splitlines()
+
+    records_to_process = []
+    for row in csv.DictReader(lines):
+        master_id = row["id"].strip()
+        # Remove the master by ID, so it is never archived even if it is not first
+        duplicate_ids = [
+            accommodation_id
+            for accommodation_id in json.loads(row["ids_list"])
+            if accommodation_id != master_id
+        ]
+        records_to_process.append(
+            DuplicateSet(row["reference"].strip(), master_id, duplicate_ids)
+        )
+
     return records_to_process
 
 
@@ -122,9 +156,8 @@ def archive_duplicate_accommodations(dry_run=True):
 
     records_to_process = get_records_to_process()
 
-    for row in records_to_process:
-        # The master is first in the row and is never archived
-        duplicate_ids = row[1:]
+    for duplicate_set in records_to_process:
+        duplicate_ids = duplicate_set.duplicate_ids
         duplicates = MvAccommodation.objects_including_archived.in_bulk(duplicate_ids)
 
         for duplicate_id in duplicate_ids:
@@ -133,11 +166,18 @@ def archive_duplicate_accommodations(dry_run=True):
 
             if reason:
                 logger.info(
-                    "Not archiving Accommodation: %s as %s", duplicate_id, reason
+                    "Reference %s: not archiving Accommodation %s as %s",
+                    duplicate_set.reference,
+                    duplicate_id,
+                    reason,
                 )
                 not_archived_ids[reason].append(duplicate_id)
             else:
-                logger.info("Archived Accommodation: %s", duplicate_id)
+                logger.info(
+                    "Reference %s: archived Accommodation %s",
+                    duplicate_set.reference,
+                    duplicate_id,
+                )
                 archived_count += 1
 
     logger.info("End archive_duplicate_accommodations with dry_run=%s", dry_run)
