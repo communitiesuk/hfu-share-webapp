@@ -35,6 +35,7 @@ class CentralSafeguardingAlertedStatusForm(forms.Form):
             self.fields["alerted_status"].initial = alerted_status
 
         self.helper = FormHelper()
+        self.helper.attrs = {"novalidate": ""}
         self.helper.layout = Layout(
             Field.radios(
                 "alerted_status",
