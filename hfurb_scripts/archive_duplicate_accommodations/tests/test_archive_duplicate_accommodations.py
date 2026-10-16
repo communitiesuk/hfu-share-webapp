@@ -2,14 +2,16 @@ import os
 from unittest import mock
 
 import boto3
+from django.conf import settings
 from django.db import DatabaseError
 from moto import mock_aws
 
 from deduplication.tests.factories import AccommodationDuplicateGroupFactory
 from hfurb_scripts.archive_duplicate_accommodations import (
+    RECORDS_FILE_KEY,
     DuplicateSet,
+    archive_duplicate_accommodations,
     get_records_to_process,
-    run,
 )
 from hfurb_scripts.tests.base import BaseScriptTestCaseWithSession
 from ontology.models import MvAccommodation, MvInteraction
@@ -42,7 +44,7 @@ class TestArchiveDuplicateAccommodations(BaseScriptTestCaseWithSession):
         self.not_in_list = MvAccommodationFactory()
 
     def run_script(self, dry_run=False):
-        run(dry_run=dry_run)
+        archive_duplicate_accommodations(dry_run=dry_run)
 
     def is_archived(self, accommodation: MvAccommodation) -> bool:
         accommodation.refresh_from_db()
@@ -177,12 +179,6 @@ class TestArchiveDuplicateAccommodations(BaseScriptTestCaseWithSession):
         self.assertIn("1 not archived as it was not found: does-not-exist", summary)
 
 
-@mock.patch(
-    "hfurb_scripts.archive_duplicate_accommodations.RECORDS_FILE_KEY", "records.csv"
-)
-@mock.patch(
-    "hfurb_scripts.archive_duplicate_accommodations.RECORDS_BUCKET_NAME", "test-bucket"
-)
 class TestGetRecordsToProcess(BaseScriptTestCaseWithSession):
     @mock.patch.dict(
         os.environ, {"AWS_ENDPOINT_URL": "https://s3.eu-west-2.amazonaws.com"}
@@ -191,12 +187,12 @@ class TestGetRecordsToProcess(BaseScriptTestCaseWithSession):
     def test_returns_master_first_followed_by_its_duplicates(self):
         s3 = boto3.client("s3", region_name="eu-west-2")
         s3.create_bucket(
-            Bucket="test-bucket",
+            Bucket=settings.MANUAL_DATA_IMPORTS_S3_BUCKET_NAME,
             CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},
         )
         s3.put_object(
-            Bucket="test-bucket",
-            Key="records.csv",
+            Bucket=settings.MANUAL_DATA_IMPORTS_S3_BUCKET_NAME,
+            Key=RECORDS_FILE_KEY,
             Body=(
                 "reference,id,ids_list\n"
                 'ref-1,accommodation-1,"[""accommodation-1"",""accommodation-2"",'

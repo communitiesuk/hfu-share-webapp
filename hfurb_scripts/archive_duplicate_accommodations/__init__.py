@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import NamedTuple
 
 import django
+from django.conf import settings
 from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
@@ -48,9 +49,7 @@ class DuplicateSet(NamedTuple):
     duplicate_ids: list[str]
 
 
-# TODO: set to where the duplicates file lives
-RECORDS_BUCKET_NAME = ""
-RECORDS_FILE_KEY = ""
+RECORDS_FILE_KEY = "duplicate_accommodation_ids_to_remove_10_26.csv"
 
 
 def get_records_to_process() -> list[DuplicateSet]:
@@ -60,7 +59,7 @@ def get_records_to_process() -> list[DuplicateSet]:
     of its duplicates). Returns a DuplicateSet per row
     """
     response = get_s3_client().get_object(
-        Bucket=RECORDS_BUCKET_NAME, Key=RECORDS_FILE_KEY
+        Bucket=settings.MANUAL_DATA_IMPORTS_S3_BUCKET_NAME, Key=RECORDS_FILE_KEY
     )
     lines = response["Body"].read().decode("utf-8").splitlines()
 
@@ -188,21 +187,3 @@ def archive_duplicate_accommodations(dry_run=True):
     )
     for reason, ids in not_archived_ids.items():
         logger.info("%s not archived as %s: %s", len(ids), reason, ", ".join(ids))
-
-
-def run(dry_run=True):
-    """
-    Usage from within ECS container:
-        # Normal run (makes changes):
-        python manage.py shell \
-        -c "from hfurb_scripts.archive_duplicate_accommodations import run; \
-        run(dry_run=False)"
-
-
-        # Dry run (shows what would be changed):
-        python manage.py shell \
-        -c "from hfurb_scripts.archive_duplicate_accommodations import run; \
-        run()"
-    """
-
-    archive_duplicate_accommodations(dry_run=dry_run)
