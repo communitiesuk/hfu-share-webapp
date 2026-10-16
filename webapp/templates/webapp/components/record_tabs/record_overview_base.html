@@ -28,7 +28,7 @@
                 <ul class="moj-side-navigation__list">
                     {% for tab in tabs %}
                         <li class="moj-side-navigation__item {% if tab.current %}moj-side-navigation__item--active{% endif %}">
-                            <a href="{{ tab.url }}"
+                            <a href="{{ tab.url }}#record-detail-content"
                                {% if tab.current %}aria-current="location"{% endif %}>{{ tab.text }}</a>
                         </li>
                     {% endfor %}
