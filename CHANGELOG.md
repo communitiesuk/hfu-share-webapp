@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.25.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.24.0...2.25.0) (2026-10-16)
+
+
+### Features
+
+* create process duplicate accommodations script ([#272](https://github.com/communitiesuk/hfu-share-webapp/issues/272)) ([a5b1651](https://github.com/communitiesuk/hfu-share-webapp/commit/a5b16514285fa005c819089aaf32ef93f5c7542d))
+
 ## [2.24.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.23.1...2.24.0) (2026-10-15)
 
 
