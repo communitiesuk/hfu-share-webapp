@@ -731,7 +731,7 @@ class TestFaviconRedirect(TestSessionTokenMixin, BaseTestCase):
         self.client.force_login(user)
         response = self.client.get(reverse("webapp:favicon_redirect"))
 
-        target_url = staticfiles_storage.url("gds/assets/images/favicon.ico")
+        target_url = staticfiles_storage.url("govuk-frontend/assets/images/favicon.ico")
 
         self.assertRedirects(
             response, target_url, status_code=302, fetch_redirect_response=False
