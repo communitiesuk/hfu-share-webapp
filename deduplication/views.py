@@ -3285,7 +3285,11 @@ class SelectAndReviewAccommodationRecordsFormWizard(SelectAndViewRecordsFormWiza
                 "full_address": MvAccommodation.objects.only("full_address", "postcode")
                 .get(id=ps["full_address"])
                 .full_address,
-                "postcode": MvUkPostcode.objects.get(id=ps["postcode"]),
+                "postcode": (
+                    MvUkPostcode.objects.get(id=ps["postcode"])
+                    if ps["postcode"]
+                    else None
+                ),
                 "ltla_name": ps["ltla_name"],
                 "utla_name": ps["utla_name"],
             }
@@ -3338,7 +3342,11 @@ class SelectAndReviewAccommodationRecordsFormWizard(SelectAndViewRecordsFormWiza
                 "full_address": MvAccommodation.objects.only("full_address", "postcode")
                 .get(id=ps["full_address"])
                 .full_address,
-                "postcode": MvUkPostcode.objects.get(id=ps["postcode"]),
+                "postcode": (
+                    MvUkPostcode.objects.get(id=ps["postcode"])
+                    if ps["postcode"]
+                    else None
+                ),
                 "ltla_name": ps["ltla_name"],
                 "utla_name": ps["utla_name"],
             }
