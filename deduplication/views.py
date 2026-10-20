@@ -1,6 +1,5 @@
 import logging
 import os
-from datetime import datetime
 from enum import StrEnum
 from typing import Any, List
 
@@ -45,11 +44,15 @@ from deduplication.models import (
     GuestDuplicateGroup,
     SponsorDuplicateGroup,
 )
+from deduplication.utils import (
+    build_principle_accommodation_record,
+    build_principle_guest_record,
+    build_principle_sponsor_record,
+)
 from ontology.models import (
     MvAccommodation,
     MvAccommodationRequest,
     MvPerson,
-    MvUkPostcode,
     MvVolunteer,
     ReassignmentRequest,
 )
@@ -2416,20 +2419,9 @@ class SelectAndReviewSponsorRecordsFormWizard(SelectAndViewRecordsFormWizard):
             ps = self.get_cleaned_data_for_step(
                 SelectAndReviewRecordsStep.SELECT_CORRECT_DETAILS
             )
-            if ps["date_of_birth"]:
-                date_of_birth_str = ps["date_of_birth"].split(" (")[0]
-                date_of_birth = datetime.strptime(date_of_birth_str, "%d %B %Y").date()
-            else:
-                date_of_birth = ps["date_of_birth"]
-            self.get_check_and_complete_step_view().principal_sponsor = {
-                "full_name": f"{ps['first_name']} {ps['last_name']}",
-                "sex": ps["sex"],
-                "date_of_birth": date_of_birth,
-                "email": ps["email_address"],
-                "phone_number": ps["phone_numbers"],
-                "residential_postcodes": ps["residential_postcodes"],
-                "flag_unsuitable": False,
-            }
+            self.get_check_and_complete_step_view().principal_sponsor = (
+                build_principle_sponsor_record(ps, use_full_name=True)
+            )
             self.get_check_and_complete_step_view().request = self.request
             context |= self.get_check_and_complete_step_view().get_context_data()
 
@@ -2471,21 +2463,7 @@ class SelectAndReviewSponsorRecordsFormWizard(SelectAndViewRecordsFormWizard):
             ps = self.get_cleaned_data_for_step(
                 SelectAndReviewRecordsStep.SELECT_CORRECT_DETAILS
             )
-            if ps["date_of_birth"]:
-                date_of_birth_str = ps["date_of_birth"].split(" (")[0]
-                date_of_birth = datetime.strptime(date_of_birth_str, "%d %B %Y").date()
-            else:
-                date_of_birth = None
-            principal_sponsor_details = {
-                "first_name": f"{ps['first_name']}",
-                "last_name": f"{ps['last_name']}",
-                "sex": ps["sex"],
-                "date_of_birth": date_of_birth,
-                "email": ps["email_address"],
-                "phone_number": ps["phone_numbers"],
-                "residential_postcodes": ps["residential_postcodes"],
-                "flag_unsuitable": False,
-            }
+            principal_sponsor_details = build_principle_sponsor_record(ps)
 
             dedup_sponsor_group = SponsorDuplicateGroup.objects.create()
             dedup_sponsor_group.sponsors.set(selected_sponsors)
@@ -2847,24 +2825,12 @@ class SelectAndReviewGuestRecordsFormWizard(SelectAndViewRecordsFormWizard):
             self.get_check_and_complete_step_view().selected_guest_ids = [
                 guest.pk for guest in selected_guests
             ]
-            ps = self.get_cleaned_data_for_step(
+            pg = self.get_cleaned_data_for_step(
                 SelectAndReviewRecordsStep.SELECT_CORRECT_DETAILS
             )
-            if ps["date_of_birth"]:
-                date_of_birth_str = ps["date_of_birth"].split(" (")[0]
-                date_of_birth = datetime.strptime(date_of_birth_str, "%d %B %Y").date()
-            else:
-                date_of_birth = ps["date_of_birth"]
-            self.get_check_and_complete_step_view().principal_guest = {
-                "full_name": f"{ps['first_name']} {ps['last_name']}",
-                "gender": ps["sex"],
-                "date_of_birth": date_of_birth,
-                "email": ps["email_address"],
-                "phone": ps["phone_numbers"],
-                "passport_id": ps["passport_number"],
-                "visa_status": ps["visa_status"],
-                "application_number": ps["application_numbers"],
-            }
+            self.get_check_and_complete_step_view().principal_guest = (
+                build_principle_guest_record(pg, use_full_name=True)
+            )
             if (
                 SelectAndReviewRecordsStep.SELECT_ACCOMMODATION_REQUEST
                 in self.get_form_list()
@@ -2915,25 +2881,10 @@ class SelectAndReviewGuestRecordsFormWizard(SelectAndViewRecordsFormWizard):
                     non_principal_guests
                 )
 
-            ps = self.get_cleaned_data_for_step(
+            pg = self.get_cleaned_data_for_step(
                 SelectAndReviewRecordsStep.SELECT_CORRECT_DETAILS
             )
-            if ps["date_of_birth"]:
-                date_of_birth_str = ps["date_of_birth"].split(" (")[0]
-                date_of_birth = datetime.strptime(date_of_birth_str, "%d %B %Y").date()
-            else:
-                date_of_birth = None
-            principal_guest_details = {
-                "first_name": ps["first_name"],
-                "last_name": ps["last_name"],
-                "gender": ps["sex"],
-                "date_of_birth": date_of_birth,
-                "email": ps["email_address"],
-                "phone": ps["phone_numbers"],
-                "passport_id": ps["passport_number"],
-                "visa_status": ps["visa_status"],
-                "application_number": ps["application_numbers"],
-            }
+            principal_guest_details = build_principle_guest_record(pg)
 
             if (
                 SelectAndReviewRecordsStep.SELECT_ACCOMMODATION_REQUEST
@@ -3277,22 +3228,13 @@ class SelectAndReviewAccommodationRecordsFormWizard(SelectAndViewRecordsFormWiza
             self.get_check_and_complete_step_view().selected_accommodation_ids = [
                 ac.pk for ac in selected_accommodations
             ]
-            ps = self.get_cleaned_data_for_step(
+            pa = self.get_cleaned_data_for_step(
                 SelectAndReviewRecordsStep.SELECT_CORRECT_DETAILS
             )
 
-            self.get_check_and_complete_step_view().principal_accommodation = {
-                "full_address": MvAccommodation.objects.only("full_address", "postcode")
-                .get(id=ps["full_address"])
-                .full_address,
-                "postcode": (
-                    MvUkPostcode.objects.get(id=ps["postcode"])
-                    if ps["postcode"]
-                    else None
-                ),
-                "ltla_name": ps["ltla_name"],
-                "utla_name": ps["utla_name"],
-            }
+            self.get_check_and_complete_step_view().principal_accommodation = (
+                build_principle_accommodation_record(pa)
+            )
             self.get_check_and_complete_step_view().request = self.request
             context |= self.get_check_and_complete_step_view().get_context_data()
 
@@ -3335,21 +3277,10 @@ class SelectAndReviewAccommodationRecordsFormWizard(SelectAndViewRecordsFormWiza
                     non_principal_accommodations
                 )
 
-            ps = self.get_cleaned_data_for_step(
+            pa = self.get_cleaned_data_for_step(
                 SelectAndReviewRecordsStep.SELECT_CORRECT_DETAILS
             )
-            principal_accommodation_details = {
-                "full_address": MvAccommodation.objects.only("full_address", "postcode")
-                .get(id=ps["full_address"])
-                .full_address,
-                "postcode": (
-                    MvUkPostcode.objects.get(id=ps["postcode"])
-                    if ps["postcode"]
-                    else None
-                ),
-                "ltla_name": ps["ltla_name"],
-                "utla_name": ps["utla_name"],
-            }
+            principal_accommodation_details = build_principle_accommodation_record(pa)
 
             dedup_accommodation_group = AccommodationDuplicateGroup.objects.create()
             dedup_accommodation_group.accommodations.set(selected_accommodations)
