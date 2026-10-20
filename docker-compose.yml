@@ -6,6 +6,7 @@ services:
     command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8010"
     volumes:
       - ./:/usr/src/app/
+      - /usr/src/app/.venv
     ports:
       - "8010:8010"
     env_file:
