@@ -19,15 +19,15 @@ permissions:
   contents: read
 
 jobs:
-  poetry-cache-setup:
-    name: Poetry Cache Setup
+  uv-cache-setup:
+    name: UV Cache Setup
     runs-on: ubuntu-latest
 
     steps:
       - name: Check out code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
-      - name: Setup Poetry cache if required
+      - name: Setup UV cache if required
         uses: ./.github/actions/setup-python-uv
         with:
           role-session-name: BuildAndTest-Lint-${{ github.run_id }}
@@ -36,16 +36,36 @@ jobs:
           aws-codeartifact-account-id: ${{ secrets.AWS_CODEARTIFACT_ACCOUNT_ID }}
           install-tooling: 'false'
 
-  lint:
-    name: Lint
-    needs: poetry-cache-setup
+  uv-check:
+    name: Check uv.lock up to date
+    needs: uv-cache-setup
     runs-on: ubuntu-latest
 
     steps:
       - name: Check out code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
-      - name: Setup Python and Poetry + Restore Poetry cache
+      - name: Setup Python and UV + Restore UV cache
+        uses: ./.github/actions/setup-python-uv
+        with:
+          role-session-name: BuildAndTest-Lint-${{ github.run_id }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          aws-role-to-assume: ${{ secrets.AWS_TESTING_ROLE_TO_ASSUME }}
+          aws-codeartifact-account-id: ${{ secrets.AWS_CODEARTIFACT_ACCOUNT_ID }}
+
+      - name: UV check
+        run: uv lock --check
+
+  lint:
+    name: Lint
+    needs: uv-check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+      - name: Setup Python and UV + Restore UV cache
         uses: ./.github/actions/setup-python-uv
         with:
           role-session-name: BuildAndTest-Lint-${{ github.run_id }}
@@ -54,14 +74,14 @@ jobs:
           aws-codeartifact-account-id: ${{ secrets.AWS_CODEARTIFACT_ACCOUNT_ID }}
 
       - name: Lint
-        run: poetry run lint
+        run: uv run lint
 
       - name: Lint shell scripts
-        run: poetry run lint-shell
+        run: uv run lint-shell
 
   migrations:
     name: Migration checks
-    needs: poetry-cache-setup
+    needs: uv-check
     runs-on: ubuntu-latest
     env:
       DB_HOST: 'localhost'
@@ -87,7 +107,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Python and Poetry + Restore Poetry cache
+      - name: Setup Python and UV + Restore UV cache
         uses: ./.github/actions/setup-python-uv
         with:
           role-session-name: BuildAndTest-Migrations-${{ github.run_id }}
@@ -97,7 +117,7 @@ jobs:
 
       - name: Check for un-made migrations
         run: |
-          poetry run python manage.py makemigrations --check --dry-run
+          uv run python manage.py makemigrations --check --dry-run
 
       # Set has_migration_changes to true if there are migration file changes
       - name: Check for migration file changes
@@ -118,16 +138,16 @@ jobs:
         run: |
           # Check out main branch, then run migrations
           git checkout main
-          poetry run python manage.py migrate
+          uv run python manage.py migrate
 
           # Check out PR branch and run migrations
           git checkout ${{ github.head_ref }}
-          poetry run python manage.py migrate
+          uv run python manage.py migrate
 
   test-parallel:
     name: Test app
     uses: ./.github/workflows/unit-tests.yml
-    needs: poetry-cache-setup
+    needs: uv-check
     secrets: inherit
     with:
       session_id: ${{ github.run_id }}
@@ -136,7 +156,7 @@ jobs:
   test-scripts-parallel:
     name: Test scripts
     uses: ./.github/workflows/unit-tests.yml
-    needs: poetry-cache-setup
+    needs: uv-check
     secrets: inherit
     with:
       session_id: ${{ github.run_id }}
@@ -145,14 +165,14 @@ jobs:
   test-browser:
     name: Test features in browser
     uses: ./.github/workflows/feature-tests.yml
-    needs: poetry-cache-setup
+    needs: uv-check
     secrets: inherit
     with:
       session_id: ${{ github.run_id }}
 
   test-image-build:
     name: Test image build
-    needs: poetry-cache-setup
+    needs: uv-check
     runs-on: ubuntu-latest
     steps:
       - name: Check out code

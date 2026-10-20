@@ -27,7 +27,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
-      - name: Setup Python and Poetry + Restore Poetry cache
+      - name: Setup Python and UV + Restore UV cache
         uses: ./.github/actions/setup-python-uv
         with:
           role-session-name: BuildAndTest-Tests-${{ inputs.session_id }}
@@ -40,12 +40,12 @@ jobs:
         id: playwright-cache
         with:
           path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('poetry.lock') }}
+          key: ${{ runner.os }}-playwright-${{ hashFiles('uv.lock') }}
 
       - name: Install Chrome driver
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: |
-          poetry run playwright install --with-deps chromium
+          uv run playwright install --with-deps chromium
 
       - name: Set up environment
         run: |
@@ -59,15 +59,15 @@ jobs:
 
       - name: Seed browser test users
         run: |
-          poetry run seed-groups
-          poetry run seed-browser-test-users
-          poetry run python manage.py seed_browser_test_la --seed
+          uv run seed-groups
+          uv run seed-browser-test-users
+          uv run python manage.py seed_browser_test_la --seed
 
       - parallel:
           - name: Browser tests
             run: |
-              poetry run test-browser
+              uv run test-browser
 
           - name: Browser accessibility tests
             run: |
-              poetry run test-browser-accessibility
+              uv run test-browser-accessibility

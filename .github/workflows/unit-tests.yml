@@ -38,7 +38,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
-      - name: Setup Python and Poetry + Restore Poetry cache
+      - name: Setup Python and UV + Restore UV cache
         uses: ./.github/actions/setup-python-uv
         with:
           role-session-name: BuildAndTest-Tests-${{ inputs.session_id }}
@@ -48,8 +48,8 @@ jobs:
 
       - name: Test
         run: |
-          poetry run python manage.py collectstatic --noinput
-          poetry run test-parallel ${{ inputs.test_args }}
+          uv run python manage.py collectstatic --noinput
+          uv run test-parallel ${{ inputs.test_args }}
         env:
           SECRET_KEY: 'a_very_long_and_random_string_for_tests'
           ENTRA_AUTHORITY: 'https://login.microsoftonline.com/organizations'
