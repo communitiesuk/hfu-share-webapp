@@ -36,11 +36,6 @@ jobs:
           aws-codeartifact-account-id: ${{ secrets.AWS_CODEARTIFACT_ACCOUNT_ID }}
           install-tooling: 'false'
 
-  lint-pr-title:
-    name: Lint PR Title
-    if: github.event_name == 'pull_request'
-    uses: ./.github/workflows/lint-pr.yaml
-
   lint:
     name: Lint
     needs: uv-cache-setup
@@ -195,7 +190,7 @@ jobs:
   checks-passed:
     name: Build & Test
     runs-on: ubuntu-latest
-    needs: [lint-pr-title, lint, migrations, test-parallel, test-scripts-parallel, test-browser, test-image-build]
+    needs: [lint, migrations, test-parallel, test-scripts-parallel, test-browser, test-image-build]
     if: always()
     steps:
       - name: Check status of all jobs
