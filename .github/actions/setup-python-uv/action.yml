@@ -32,7 +32,9 @@ runs:
       id: cache-uv
       uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
       with:
-        path: ~/.cache/uv
+        path: |
+          ~/.cache/uv
+          .venv
         key: uv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('uv.lock') }}
         restore-keys: |
           uv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-
