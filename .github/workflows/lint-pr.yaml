@@ -1,7 +1,14 @@
 name: "Lint PR Title"
 
 on:
-  workflow_call:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - edited
+      - reopened
+      - synchronize
 
 jobs:
   validate-title:
@@ -15,7 +22,7 @@ jobs:
           # Regex for Conventional Commits:
           # type(scope optional)(! breaking optional): description
           set -euo pipefail
-          REGEX="^(feat|fix|docs|style|refactor|perf|test|build|Build|ci|chore|revert)(\([a-z0-9_\-]+\))?!?: .+$"
+          REGEX="^(feat|fix|docs|style|refactor|perf|test|ci|chore|revert)(\([A-Za-z0-9_\-]+\))?!?: .+$"
 
           echo "Checking PR Title: '$PR_TITLE'"
 
