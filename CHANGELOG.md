@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.26.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.25.0...2.26.0) (2026-10-20)
+
+
+### Features
+
+* HFURB-4278 update MOJ Frontend to v11.1.0 ([#279](https://github.com/communitiesuk/hfu-share-webapp/issues/279)) ([b4767a6](https://github.com/communitiesuk/hfu-share-webapp/commit/b4767a61ef59abe44da0d4959d9522ca6ff7dad1))
+
+
+### Bug Fixes
+
+* HFURB-3844 allow two accommodations without postcodes to be selected for deduplication ([#285](https://github.com/communitiesuk/hfu-share-webapp/issues/285)) ([8744daa](https://github.com/communitiesuk/hfu-share-webapp/commit/8744daacaad6a7a4d269fab39555c8be21c83c91))
+
 ## [2.25.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.24.0...2.25.0) (2026-10-16)
 
 
