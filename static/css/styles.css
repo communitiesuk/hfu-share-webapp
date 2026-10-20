@@ -596,36 +596,6 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
   background-color: var(--app-light-grey);
 }
 
-/* Record side navigation. MOJ Frontend hard-codes the GOV.UK link colours
-   from before the brand refresh, so the link states are pointed at the
-   GOV.UK Frontend colour variables. Focus is restated last so it still
-   wins over the link colours. */
-.moj-side-navigation__item a:link,
-.moj-side-navigation__item a:visited {
-  color: var(--govuk-link-colour);
-}
-
-.moj-side-navigation__item a:hover {
-  color: var(--govuk-link-hover-colour);
-}
-
-.moj-side-navigation__item--active a:link,
-.moj-side-navigation__item--active a:visited {
-  border-color: var(--govuk-link-colour);
-  color: var(--govuk-link-colour);
-}
-
-.moj-side-navigation__item--active a:hover {
-  border-color: var(--govuk-link-hover-colour);
-  color: var(--govuk-link-hover-colour);
-}
-
-.moj-side-navigation__item a:focus,
-.moj-side-navigation__item--active a:focus {
-  border-color: var(--govuk-focus-text-colour);
-  color: var(--govuk-focus-text-colour);
-}
-
 /* Record section content, focused by detail-view-focus.js after a side
    navigation click. */
 .app-record-detail-content:focus {
