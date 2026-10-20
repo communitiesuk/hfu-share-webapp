@@ -78,6 +78,10 @@ class SafeguardingDetailCentralSafeguardingViewTestCase(
             "safeguarding:detail-central-safeguarding",
             args=[self.person.pk, str(self.referral.id)],
         )
+        self.alerted_status_url = reverse(
+            "safeguarding:detail-alerted-status",
+            args=[self.person.pk, str(self.referral.id)],
+        )
 
     def test_central_safeguarding_page_loads(self):
         response = self.client.get(self.url)
@@ -85,12 +89,27 @@ class SafeguardingDetailCentralSafeguardingViewTestCase(
         self.assertContains(response, "Central safeguarding")
         self.assertContains(response, "GWF999999")
 
-    def test_alerted_status_selected(self):
+    def test_central_safeguarding_page_does_not_show_alerted_status_form(self):
         response = self.client.get(self.url)
+        self.assertNotContains(response, 'name="alerted_status"')
+
+    def test_alerted_status_selected(self):
+        response = self.client.get(self.alerted_status_url)
         self.assertRegex(response.content.decode(), r'value="Alerted"\s+checked')
 
+    def test_saving_alerted_status_returns_to_alerted_status_section(self):
+        response = self.client.post(
+            self.alerted_status_url, {"alerted_status": "Not Alerted"}
+        )
+
+        self.assertRedirects(
+            response, self.alerted_status_url, fetch_redirect_response=False
+        )
+        self.referral.refresh_from_db()
+        self.assertEqual(self.referral.alerted_status, "Not Alerted")
+
     def test_alerted_status_form_is_not_nested_in_another_form(self):
-        response = self.client.get(self.url)
+        response = self.client.get(self.alerted_status_url)
 
         card = response.content.decode().split("app-alerted-status-card", 1)[1]
         form_markup = card.split("</form>", 1)[0]
