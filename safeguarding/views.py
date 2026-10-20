@@ -669,6 +669,7 @@ class SafeguardingDetailViewMixin(DetailViewMixin):
         return (
             SafeguardingDetailOverviewView,
             SafeguardingDetailCentralSafeguardingView,
+            SafeguardingDetailAlertedStatusView,
             SafeguardingDetailSafeguardingChecksView,
             SafeguardingDetailLinkedRecordsView,
             SafeguardingDetailPropertiesView,
@@ -1418,6 +1419,22 @@ class SafeguardingDetailCentralSafeguardingView(
         _, _, notifications = self.get_details()
 
         return notifications
+
+
+class SafeguardingDetailAlertedStatusView(SafeguardingDetailCentralSafeguardingView):
+    view_name = "alerted-status"
+
+    def get_success_url(self) -> str:
+        return reverse(
+            "safeguarding:detail-alerted-status",
+            kwargs={
+                "pk": self.get_object().pk,
+                "referral_id": self.kwargs.get("referral_id"),
+            },
+        )
+
+    def get_cancel_url(self) -> str:
+        return self.get_success_url()
 
 
 class SafeguardingDetailCentralSafeguardingAlertDetailView(
