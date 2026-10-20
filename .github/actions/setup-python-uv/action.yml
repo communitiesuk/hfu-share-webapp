@@ -70,8 +70,12 @@ runs:
       if: steps.cache-uv.outputs.cache-hit != 'true'
       shell: bash
       env:
-        UV_INDEX: https://mhclg-prod-domain-${{ inputs.aws-codeartifact-account-id }}.d.codeartifact.eu-west-2.amazonaws.com/pypi/mhclg-prod-pypi/simple/
-        AWS_CODEARTIFACT_TOKEN: ${{ steps.codeartifact_token.outputs.token }}
+        CODEARTIFACT_URL: https://mhclg-prod-domain-${{ inputs.aws-codeartifact-account-id }}.d.codeartifact.eu-west-2.amazonaws.com/pypi/mhclg-prod-pypi/simple/
+        TOKEN: ${{ steps.codeartifact_token.outputs.token }}
       run: |
+        export UV_INDEX="codeartifact=$CODEARTIFACT_URL"
+        export UV_INDEX_CODEARTIFACT_USERNAME=aws
+        export UV_INDEX_CODEARTIFACT_PASSWORD="$TOKEN"
+
         uv lock --locked
         uv sync --locked
