@@ -13,23 +13,17 @@ MSAL_WARNING_FILTER = (
 def lint():
     try:
         # Run Ruff for linting
-        print("ruff check")
         subprocess.run(["ruff", "check", "."], check=True)
         # Run Ruff for formatting
-        print("ruff format")
         subprocess.run(["ruff", "format", "--check", "."], check=True)
         # Run Pylint only for the custom format_html f-string check
-        print("pylint")
         subprocess.run(["pylint", "."], check=True)
         # Run mypy for type checking
-        print("mypy")
         subprocess.run(
             ["mypy", ".", "--disable-error-code", "annotation-unchecked"], check=True
         )
         # Run djlint for Django template linting
-        print("djlint")
         subprocess.run(["djlint", "."], check=True)
-        print("djlint check")
         subprocess.run(["djlint", "--check", "."], check=True)  # check formatting
     except subprocess.CalledProcessError as error:
         print("Error linting: ")
