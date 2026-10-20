@@ -6,62 +6,62 @@ from ontology.models import (
 )
 
 
-def _get_record_date_of_birth(principle_record):
-    if principle_record["date_of_birth"]:
-        date_of_birth_str = principle_record["date_of_birth"].split(" (")[0]
+def _get_record_date_of_birth(principal_record):
+    if principal_record["date_of_birth"]:
+        date_of_birth_str = principal_record["date_of_birth"].split(" (")[0]
         return datetime.strptime(date_of_birth_str, "%d %B %Y").date()
 
     return None
 
 
-def _get_record_name(principle_record, use_full_name):
+def _get_record_name(principal_record, use_full_name):
     if use_full_name:
         return {
             "full_name": (
-                f"{principle_record['first_name']} {principle_record['last_name']}"
+                f"{principal_record['first_name']} {principal_record['last_name']}"
             )
         }
     return {
-        "first_name": principle_record["first_name"],
-        "last_name": principle_record["last_name"],
+        "first_name": principal_record["first_name"],
+        "last_name": principal_record["last_name"],
     }
 
 
-def build_principle_guest_record(principle_guest, *, use_full_name=False):
+def build_principal_guest_record(principal_guest, *, use_full_name=False):
     return {
-        **_get_record_name(principle_guest, use_full_name),
-        "gender": principle_guest["sex"],
-        "date_of_birth": _get_record_date_of_birth(principle_guest),
-        "email": principle_guest["email_address"],
-        "phone": principle_guest["phone_numbers"],
-        "passport_id": principle_guest["passport_number"],
-        "visa_status": principle_guest["visa_status"],
-        "application_number": principle_guest["application_numbers"],
+        **_get_record_name(principal_guest, use_full_name),
+        "gender": principal_guest["sex"],
+        "date_of_birth": _get_record_date_of_birth(principal_guest),
+        "email": principal_guest["email_address"],
+        "phone": principal_guest["phone_numbers"],
+        "passport_id": principal_guest["passport_number"],
+        "visa_status": principal_guest["visa_status"],
+        "application_number": principal_guest["application_numbers"],
     }
 
 
-def build_principle_sponsor_record(principle_sponsor, *, use_full_name=False):
+def build_principal_sponsor_record(principal_sponsor, *, use_full_name=False):
     return {
-        **_get_record_name(principle_sponsor, use_full_name),
-        "sex": principle_sponsor["sex"],
-        "date_of_birth": _get_record_date_of_birth(principle_sponsor),
-        "email": principle_sponsor["email_address"],
-        "phone_number": principle_sponsor["phone_numbers"],
-        "residential_postcodes": principle_sponsor["residential_postcodes"],
+        **_get_record_name(principal_sponsor, use_full_name),
+        "sex": principal_sponsor["sex"],
+        "date_of_birth": _get_record_date_of_birth(principal_sponsor),
+        "email": principal_sponsor["email_address"],
+        "phone_number": principal_sponsor["phone_numbers"],
+        "residential_postcodes": principal_sponsor["residential_postcodes"],
         "flag_unsuitable": False,
     }
 
 
-def build_principle_accommodation_record(principle_accommodation):
+def build_principal_accommodation_record(principal_accommodation):
     return {
         "full_address": MvAccommodation.objects.only("full_address", "postcode")
-        .get(id=principle_accommodation["full_address"])
+        .get(id=principal_accommodation["full_address"])
         .full_address,
         "postcode": (
-            MvUkPostcode.objects.get(id=principle_accommodation["postcode"])
-            if principle_accommodation["postcode"]
+            MvUkPostcode.objects.get(id=principal_accommodation["postcode"])
+            if principal_accommodation["postcode"]
             else None
         ),
-        "ltla_name": principle_accommodation["ltla_name"],
-        "utla_name": principle_accommodation["utla_name"],
+        "ltla_name": principal_accommodation["ltla_name"],
+        "utla_name": principal_accommodation["utla_name"],
     }

@@ -45,9 +45,9 @@ from deduplication.models import (
     SponsorDuplicateGroup,
 )
 from deduplication.utils import (
-    build_principle_accommodation_record,
-    build_principle_guest_record,
-    build_principle_sponsor_record,
+    build_principal_accommodation_record,
+    build_principal_guest_record,
+    build_principal_sponsor_record,
 )
 from ontology.models import (
     MvAccommodation,
@@ -2420,7 +2420,7 @@ class SelectAndReviewSponsorRecordsFormWizard(SelectAndViewRecordsFormWizard):
                 SelectAndReviewRecordsStep.SELECT_CORRECT_DETAILS
             )
             self.get_check_and_complete_step_view().principal_sponsor = (
-                build_principle_sponsor_record(ps, use_full_name=True)
+                build_principal_sponsor_record(ps, use_full_name=True)
             )
             self.get_check_and_complete_step_view().request = self.request
             context |= self.get_check_and_complete_step_view().get_context_data()
@@ -2463,7 +2463,7 @@ class SelectAndReviewSponsorRecordsFormWizard(SelectAndViewRecordsFormWizard):
             ps = self.get_cleaned_data_for_step(
                 SelectAndReviewRecordsStep.SELECT_CORRECT_DETAILS
             )
-            principal_sponsor_details = build_principle_sponsor_record(ps)
+            principal_sponsor_details = build_principal_sponsor_record(ps)
 
             dedup_sponsor_group = SponsorDuplicateGroup.objects.create()
             dedup_sponsor_group.sponsors.set(selected_sponsors)
@@ -2829,7 +2829,7 @@ class SelectAndReviewGuestRecordsFormWizard(SelectAndViewRecordsFormWizard):
                 SelectAndReviewRecordsStep.SELECT_CORRECT_DETAILS
             )
             self.get_check_and_complete_step_view().principal_guest = (
-                build_principle_guest_record(pg, use_full_name=True)
+                build_principal_guest_record(pg, use_full_name=True)
             )
             if (
                 SelectAndReviewRecordsStep.SELECT_ACCOMMODATION_REQUEST
@@ -2884,7 +2884,7 @@ class SelectAndReviewGuestRecordsFormWizard(SelectAndViewRecordsFormWizard):
             pg = self.get_cleaned_data_for_step(
                 SelectAndReviewRecordsStep.SELECT_CORRECT_DETAILS
             )
-            principal_guest_details = build_principle_guest_record(pg)
+            principal_guest_details = build_principal_guest_record(pg)
 
             if (
                 SelectAndReviewRecordsStep.SELECT_ACCOMMODATION_REQUEST
@@ -3233,7 +3233,7 @@ class SelectAndReviewAccommodationRecordsFormWizard(SelectAndViewRecordsFormWiza
             )
 
             self.get_check_and_complete_step_view().principal_accommodation = (
-                build_principle_accommodation_record(pa)
+                build_principal_accommodation_record(pa)
             )
             self.get_check_and_complete_step_view().request = self.request
             context |= self.get_check_and_complete_step_view().get_context_data()
@@ -3280,7 +3280,7 @@ class SelectAndReviewAccommodationRecordsFormWizard(SelectAndViewRecordsFormWiza
             pa = self.get_cleaned_data_for_step(
                 SelectAndReviewRecordsStep.SELECT_CORRECT_DETAILS
             )
-            principal_accommodation_details = build_principle_accommodation_record(pa)
+            principal_accommodation_details = build_principal_accommodation_record(pa)
 
             dedup_accommodation_group = AccommodationDuplicateGroup.objects.create()
             dedup_accommodation_group.accommodations.set(selected_accommodations)
