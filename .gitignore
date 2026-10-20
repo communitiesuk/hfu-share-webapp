@@ -188,3 +188,6 @@ pyrightconfig.json
 
 # Playwright
 test-results/
+
+# Ignore poetry.lock as we now use uv
+poetry.lock

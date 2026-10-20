@@ -22,7 +22,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 FROM python:3.13.16-alpine3.24@sha256:2d9aefe2fef018a7eb2c13064c89c71929800fd2e5dccdbf52ea5da5bb8d929a
 
-# Update alpine dependency library, upgrade any dependencies and add curl for healthchecks
+# Update alpine dependency library and add curl for healthchecks
 RUN apk add --update --no-cache curl=8.22.0-r0
 
 # Don't buffer stout and stderr

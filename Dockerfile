@@ -13,8 +13,6 @@ ENV UV_LINK_MODE=copy
 # Move into the working directory
 WORKDIR /usr/src/app
 
-COPY . /usr/src/app
-
 # Install dependencies from Codeartifact into a virtual environment using cache and bind mounts
 # so neither uv nor the lock files need to be copied into the image.
 RUN --mount=type=cache,target=/root/.cache/uv \
@@ -27,14 +25,9 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     UV_INDEX_CODEARTIFACT_PASSWORD="$(cat /run/secrets/codeartifact_token)" \
     uv sync --frozen --no-install-project --no-dev
 
-ENV PATH="/usr/src/app/.venv/bin:$PATH"
-
-# Generate the static files manifest
-RUN python manage.py collectstatic --noinput
-
 FROM python:3.13.16-alpine3.24@sha256:2d9aefe2fef018a7eb2c13064c89c71929800fd2e5dccdbf52ea5da5bb8d929a
 
-# Update alpine dependency library, upgrade any dependencies and add curl for healthchecks
+# Update alpine dependency library and add curl for healthchecks
 RUN apk add --update --no-cache curl=8.22.0-r0
 
 # Don't buffer stout and stderr
@@ -49,7 +42,6 @@ RUN adduser -D -u 1000 appuser
 
 # Copy the pre-built virtual environment and application source code.
 COPY --chown=appuser:appuser --from=builder /usr/src/app/.venv /usr/src/app/.venv
-COPY --chown=appuser:appuser --from=builder /usr/src/app/staticfiles/staticfiles.json /usr/src/app/staticfiles/staticfiles.json
 
 # Copy pyproject.toml and uv.lock
 COPY --chown=appuser:appuser pyproject.toml uv.lock README.md ./
@@ -80,6 +72,10 @@ COPY --chown=appuser:appuser templates/ /usr/src/app/templates/
 
 # Copy manage.py
 COPY --chown=appuser:appuser manage.py /usr/src/app/
+
+# Generate the static files manifest
+RUN python manage.py collectstatic --noinput && \
+    find staticfiles -mindepth 1 -maxdepth 1 ! -name staticfiles.json -exec rm -rf {} +
 
 # Switch to non-root user
 USER appuser
