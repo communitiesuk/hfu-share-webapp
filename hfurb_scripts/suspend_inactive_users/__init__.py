@@ -117,20 +117,3 @@ def suspend_inactive_users(dry_run=True):
             )
 
     logging.info("Ending suspend_inactive_users")
-
-
-def run(dry_run=True):
-    """
-    Usage from within ECS container:
-        # Normal run (makes changes):
-        python manage.py shell \
-        -c "from hfurb_scripts.suspend_inactive_users import run; \
-        run(dry_run=False)"
-
-        # Dry run (shows what would be changed):
-        python manage.py shell \
-        -c "from hfurb_scripts.suspend_inactive_users import run; \
-        run()"
-    """
-
-    suspend_inactive_users(dry_run=dry_run)

@@ -63,7 +63,7 @@ logger = logging.getLogger(__name__)
 @login_not_required
 def favicon_redirect(request: HttpRequest):
     return HttpResponseRedirect(
-        staticfiles_storage.url("gds/assets/images/favicon.ico")
+        staticfiles_storage.url("govuk-frontend/assets/images/favicon.ico")
     )
 
 

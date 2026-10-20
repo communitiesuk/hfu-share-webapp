@@ -49,6 +49,9 @@ CSRF_TRUSTED_ORIGINS = os.environ.get(
 # AWS S3 settings
 AWS_REGION = os.environ.get("AWS_REGION", "eu-west-2")
 FILE_DOWNLOAD_S3_BUCKET_NAME = os.environ.get("FILE_DOWNLOAD_S3_BUCKET_NAME")
+MANUAL_DATA_IMPORTS_S3_BUCKET_NAME = os.environ.get(
+    "MANUAL_DATA_IMPORTS_S3_BUCKET_NAME"
+)
 
 # Google Analytics
 GOOGLE_ANALYTICS_ID = os.environ.get("GOOGLE_ANALYTICS_ID", "")
@@ -407,6 +410,7 @@ if "test" in sys.argv:
 
     AWS_REGION = "eu-west-2"
     FILE_DOWNLOAD_S3_BUCKET_NAME = "test-bucket"
+    MANUAL_DATA_IMPORTS_S3_BUCKET_NAME = "test-manual-data-imports-bucket"
     SENTRY_LOGS_ENABLED = False
 
 # Sentry Error reporting

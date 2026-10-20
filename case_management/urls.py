@@ -67,5 +67,5 @@ urlpatterns = (
         ),
     ]
     + debug_toolbar_urls()
-    + static("assets/", document_root="static/gds/assets")
+    + static("assets/", document_root="static/govuk-frontend/assets")
 )
