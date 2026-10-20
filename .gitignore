@@ -100,6 +100,7 @@ ipython_config.py
 #   install all needed dependencies.
 #Pipfile.lock
 
+# NOTE: We now use UV instead of poetry but we will continue to ignore poetry related files
 # poetry
 #   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
 #   This is especially recommended for binary packages to ensure reproducibility, and is more
