@@ -27,6 +27,8 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     UV_INDEX_CODEARTIFACT_PASSWORD="$(cat /run/secrets/codeartifact_token)" \
     uv sync --frozen --no-install-project --no-dev
 
+ENV PATH="/usr/src/app/.venv/bin:$PATH"
+
 # Generate the static files manifest
 RUN python manage.py collectstatic --noinput
 
