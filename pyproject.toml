@@ -1,60 +1,68 @@
-[tool.poetry]
+[project]
 name = "hfu-case-management-webapp"
 version = "2.26.0"
 description = "Homes for Ukraine case management webapp"
-authors = ["Homes for Ukraine <homesforukraine@communities.gov.uk>"]
+authors = [{ name = "Homes for Ukraine", email = "homesforukraine@communities.gov.uk" }]
+requires-python = ">=3.13,<4"
 readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
 
-[tool.poetry.dependencies]
-python = "^3.13"
-Django = "^5.2.14"
-asgiref = "^3.8.1"
-django-debug-toolbar = "^4.4.6"
-gunicorn = "^23.0.0"
-python-dotenv = "^1.0.1"
-sqlparse = ">=0.5.4,<0.7.0"
-psycopg2-binary = "^2.9.11"
-django-tables2 = "^2.7.0"
-django-filter = "^24.3"
-django-crispy-forms = "<=2.3" # For compatibility with crispy-forms-gds
-crispy-forms-gds = "^2.0.0"
-rules = "^3.5"
-django-formtools = "^2.5.1"
-django-csp = "^4.0"
-msal = "^1.37.0"
-sentry-sdk = {extras = ["django"], version = "^2.61.0"}
-boto3 = "^1.40.11"
-django-auditlog = "^3.3.0"
-python-dateutil = "^2.9.0.post0"
-shellcheck-py = "^0.11.0.1"
-notifications-python-client = "^10.0.1"
-beautifulsoup4 = "^4.14.3"
-faker = "^37.8.0"
-factory-boy = "^3.3.1"
-freezegun = "^1.5.1"
+dependencies = [
+    "Django>=5.2.14,<6",
+    "asgiref>=3.8.1,<4",
+    "django-debug-toolbar>=4.4.6,<5",
+    "gunicorn>=23.0.0,<24",
+    "python-dotenv>=1.0.1,<2",
+    "sqlparse>=0.5.4,<0.7.0",
+    "psycopg2-binary>=2.9.11,<3",
+    "django-tables2>=2.7.0,<3",
+    "django-filter>=24.3,<25",
+    "django-crispy-forms<=2.3",
+    "crispy-forms-gds>=2.0.0,<3",
+    "rules>=3.5,<4",
+    "django-formtools>=2.5.1,<3",
+    "django-csp>=4.0,<5",
+    "msal>=1.37.0,<2",
+    "sentry-sdk[django]>=2.61.0,<3",
+    "boto3>=1.40.11,<2",
+    "django-auditlog>=3.3.0,<4",
+    "python-dateutil>=2.9.0.post0,<3",
+    "shellcheck-py>=0.11.0.1,<0.12",
+    "notifications-python-client>=10.0.1,<11",
+    "beautifulsoup4>=4.14.3,<5",
+    "faker>=37.8.0,<38",
+    "factory-boy>=3.3.1,<4",
+    "freezegun>=1.5.1,<2",
+]
 
-[tool.poetry.group.dev.dependencies]
-pylint = "^3.3.7"
-pre-commit = "^4.0.1"
-mypy = "^1.13.0"
-django-stubs = "^5.1.1"
-coverage = "^7.6.10"
-djlint = "^1.36.4"
-types-requests = "^2.32.0.20250328"
-boto3-stubs = {extras = ["s3"], version = "^1.40.11"}
-moto = {extras = ["s3"], version = "^5.1.10"}
-ruff = "^0.16.5"
-types-python-dateutil = "^2.9.0.20251008"
-tblib = "^1.7.0"
-beautifulsoup4 = "^4.14.3"
-pytest = "^9.0.3"
-pytest-django = "^4.12.0"
-pytest-env = "^1.6.0"
-pytest-playwright = "^0.9.0"
-playwright = "^1.62.0"
-axe-playwright-python = "^0.1.8"
+[dependency-groups]
+dev = [
+    "pylint>=3.3.7,<4",
+    "pre-commit>=4.0.1,<5",
+    "mypy>=1.13.0,<2",
+    "django-stubs>=5.1.1,<6",
+    "coverage>=7.6.10,<8",
+    "djlint>=1.36.4,<2",
+    "types-requests>=2.32.0.20250328,<3",
+    "boto3-stubs[s3]>=1.40.11,<2",
+    "moto[s3]>=5.1.10,<6",
+    "ruff>=0.16.5,<0.17",
+    "types-python-dateutil>=2.9.0.20251008,<3",
+    "tblib>=1.7.0,<2",
+    "beautifulsoup4>=4.14.3,<5",
+    "pytest>=9.0.3,<10",
+    "pytest-django>=4.12.0,<5",
+    "pytest-env>=1.6.0,<2",
+    "pytest-playwright>=0.9.0,<0.10",
+    "playwright>=1.62.0,<2",
+    "axe-playwright-python>=0.1.8,<0.2",
+]
 
-[tool.poetry.scripts]
+[project.scripts]
 dev = "scripts:run_development_server"
 format = "scripts:format_code"
 lint = "scripts:lint"
@@ -67,9 +75,12 @@ test-parallel = "scripts:test_parallel"
 test-browser = "scripts:test_browser"
 test-browser-accessibility = "scripts:test_browser_accessibility"
 
+[tool.uv]
+default-groups = "all"
+
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.pylint]
 load-plugins = ["hfurb_scripts.lint_extras.find_f_strings_in_format_html", "hfurb_scripts.lint_extras.check_view_access_control", "hfurb_scripts.lint_extras.check_generic_link_text"]
@@ -135,7 +146,7 @@ exclude = [
     ".*/(migrations)/(.)*",
     "ontology/models/*",
     "accounts/models/*",
-    "deduplication/models/*"
+    "deduplication/models/*",
 ]
 
 [[tool.mypy.overrides]]
