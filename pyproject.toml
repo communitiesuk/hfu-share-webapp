@@ -75,7 +75,7 @@ test-browser = "scripts:test_browser"
 test-browser-accessibility = "scripts:test_browser_accessibility"
 
 [tool.uv]
-required-version = ">=0.13.3,<1"
+required-version = ">=0.13.4,<1"
 default-groups = "all"
 
 [build-system]
