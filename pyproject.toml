@@ -3,12 +3,11 @@ name = "hfu-case-management-webapp"
 version = "2.26.0"
 description = "Homes for Ukraine case management webapp"
 authors = [{ name = "Homes for Ukraine", email = "homesforukraine@communities.gov.uk" }]
-requires-python = ">=3.13,<4"
+requires-python = ">=3.13,<3.14"
 readme = "README.md"
 classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.13",
-    "Programming Language :: Python :: 3.14",
 ]
 
 dependencies = [
