@@ -1,6 +1,35 @@
+# Local files
 .github
 .idea
 .ruff_cache
 .vscode
 tests
 venv
+.venv
+
+# Secrets — never let these into the build context
+.env
+.env.*
+!.env.example
+
+# VCS
+.git
+
+# Python artifacts
+__pycache__
+*.pyc
+.mypy_cache
+.pytest_cache
+.coverage
+htmlcov
+
+# OS/editor cruft
+.DS_Store
+
+# Generated at build time
+staticfiles
+
+# Not needed in the image
+Dockerfile.local
+docker-compose.yml
+CHANGELOG.md

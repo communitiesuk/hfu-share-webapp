@@ -19,15 +19,15 @@ For general development, the instructions below are sufficient for running the a
 ### Requirements
 
 >- Python >= 3.13 (https://www.python.org/downloads/)
->- Poetry (https://python-poetry.org/)
+>- UV (https://docs.astral.sh/uv/)
 >- Docker (https://docs.docker.com/get-started/get-docker/)
 >- Docker compose (https://docs.docker.com/compose/install/)
 
-### Running on local using Poetry
+### Running on local using UV
 
 #### 1. Install packages
 ```shell
-poetry install
+uv sync
 ```
 
 #### 2. Set up environment
@@ -43,7 +43,7 @@ docker compose up -d database
 
 #### 4. Run dev server
 ```shell
-poetry run dev
+uv run dev
 ```
 
 #### 5. Access at http://localhost:8000
@@ -86,7 +86,7 @@ We use Django 'fixtures' to handle our seed data.
 
 Seeding using the seeder script
 ```shell
-poetry run seed-db
+uv run seed-db
 ```
 
 #### Dumping database to use as seed data
@@ -131,12 +131,12 @@ If you run the web app outside Docker and want to use the LocalStack S3 service,
 ## Linting, formatting, and tests
 ### Linting
 ```shell
-poetry run lint
+uv run lint
 ```
 
 ### Code formatter
 ```shell
-poetry run format
+uv run format
 ```
 
 ### Tests
@@ -146,11 +146,11 @@ poetry run format
 > [!NOTE]
 > Static files are served via `ManifestStaticFilesStorage`, which requires a collected
 > static files manifest. If you see errors like `Missing staticfiles manifest entry for
-> '...'`, run `poetry run python manage.py collectstatic --noinput` first.
+> '...'`, run `uv run python manage.py collectstatic --noinput` first.
 ```shell
-poetry run test
-poetry run test-parallel
-poetry run test-parallel uams.tests.test_detail_files
+uv run test
+uv run test-parallel
+uv run test-parallel uams.tests.test_detail_files
 ```
 
 ### Browser tests
@@ -161,7 +161,7 @@ We use [Playwright](https://playwright.dev/python/) to run our browser tests.
 
 You will need to install a browser to run them which can be done with:
 ```shell
-poetry run playwright install --with-deps chromium
+uv run playwright install --with-deps chromium
 ```
 
 You need to set the following env variables to run the test:
@@ -181,18 +181,18 @@ GOOGLE_ANALYTICS_ENABLED=Enabled
 
 For running the test:
 ```shell
-poetry run test-browser
-poetry run test-browser browser_tests/tests/test_home_page.py
+uv run test-browser
+uv run test-browser browser_tests/tests/test_home_page.py
 ```
 
 ### Install pre-commit hooks
 If you've added a new pre-commit hook or the currently installed ones aren't running, you can try running
 ```shell
-poetry run pre-commit install
+uv run pre-commit install
 ```
 and if you've added a new one, run it against all the files (pre-commit will only run on the changed files during git hooks)
 ```shell
-poetry run pre-commit run --all-files
+uv run pre-commit run --all-files
 ```
 
 ## Docker
@@ -257,7 +257,7 @@ This app uses the built-in [Django user system](https://docs.djangoproject.com/e
 ### Creating a superuser
 
 ```shell
-poetry run python manage.py createsuperuser --username=joe --email=joe@example.com
+uv run python manage.py createsuperuser --username=joe --email=joe@example.com
 ```
 
 ### Creating a regular user
@@ -266,7 +266,7 @@ Use the admin interface while logged in as superuser.
 
 ## Using the admin site
 
-Django includes a built-in admin site at [localhost:8000/admin](http://localhost:8000/admin) (if running with Poetry) or [localhost:8010/admin](http://localhost:8010/admin) (if running with Docker). You'll need to create a super user account to be able to access it, see [creating a super user](#creating-a-superuser).
+Django includes a built-in admin site at [localhost:8000/admin](http://localhost:8000/admin) (if running with UV) or [localhost:8010/admin](http://localhost:8010/admin) (if running with Docker). You'll need to create a super user account to be able to access it, see [creating a super user](#creating-a-superuser).
 
 ## Troubleshooting
 
@@ -290,7 +290,7 @@ finally, re-build the images
 docker compose build
 ```
 
-### Error running `poetry install`
+### Error running `uv sync`
 If you get an error about having the incorrect python version, try using [pyenv](https://github.com/pyenv/pyenv) to install a supported version.
 
 

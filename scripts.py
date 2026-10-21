@@ -158,7 +158,13 @@ def reenable_non_admin_user_access():
 
 
 def lint_shell():
-    files = glob.glob("**/*.sh", recursive=True, include_hidden=True)
+    exclude_dirs = [".venv"]
+
+    files = [
+        file
+        for file in glob.glob("**/*.sh", recursive=True, include_hidden=True)
+        if not any(file.startswith(exclude_dir) for exclude_dir in exclude_dirs)
+    ]
 
     if not files:
         print("No .sh files found.")
@@ -167,7 +173,7 @@ def lint_shell():
     print(f"Scanning {len(files)} files...")
 
     try:
-        subprocess.run(["poetry", "run", "shellcheck"] + files, check=True)
+        subprocess.run(["uv", "run", "shellcheck"] + files, check=True)
 
     except subprocess.CalledProcessError as error:
         print("Error running Shellcheck: ")
