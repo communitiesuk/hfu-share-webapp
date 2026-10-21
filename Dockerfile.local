@@ -1,7 +1,7 @@
 # Multilayer build to install UV
 FROM python:3.13.16-alpine3.24@sha256:2d9aefe2fef018a7eb2c13064c89c71929800fd2e5dccdbf52ea5da5bb8d929a AS builder
 
-COPY --from=docker.io/astral/uv:0.13.3@sha256:bee0a2a458fd956c5df7b8b4c5fed2257b0af34866e3da7b51db0be3acb375d1 /uv /uvx /bin/
+COPY --from=docker.io/astral/uv:0.13.4@sha256:9f130421e930bfbdc563c00740466603f8723158e90297d07957c2294640262b /uv /uvx /bin/
 
 # Don't write pyc files to disc
 ENV PYTHONDONTWRITEBYTECODE=1
