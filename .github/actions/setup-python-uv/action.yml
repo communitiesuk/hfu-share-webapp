@@ -1,5 +1,5 @@
-name: 'Setup Python and Poetry'
-description: 'Setup Python, AWS credentials, Poetry, and install dependencies'
+name: 'Setup Python and UV'
+description: 'Setup Python, AWS credentials, UV, and install dependencies'
 
 inputs:
   role-session-name:
@@ -28,35 +28,34 @@ runs:
       with:
         python-version: '3.13'
 
-    - name: Cache Poetry dependencies
-      id: cache-poetry
+    - name: Cache UV dependencies
+      id: cache-uv
       uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
       with:
         path: |
-          ~/.cache/pypoetry
-          ~/.cache/pip
+          ~/.cache/uv
           .venv
-        key: poetry-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('poetry.lock') }}
+        key: uv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('uv.lock') }}
         restore-keys: |
-          poetry-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-
-          poetry-${{ runner.os }}-
+          uv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-
+          uv-${{ runner.os }}-
 
     - name: Configure AWS credentials
-      if: steps.cache-poetry.outputs.cache-hit != 'true' || inputs.install-tooling == 'true'
+      if: steps.cache-uv.outputs.cache-hit != 'true' || inputs.install-tooling == 'true'
       uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
       with:
         aws-region: ${{ inputs.aws-region }}
         role-to-assume: ${{ inputs.aws-role-to-assume }}
         role-session-name: ${{ inputs.role-session-name }}
 
-    - name: Install Poetry
-      if: steps.cache-poetry.outputs.cache-hit != 'true' || inputs.install-tooling == 'true'
+    - name: Install UV
+      if: steps.cache-uv.outputs.cache-hit != 'true' || inputs.install-tooling == 'true'
       shell: bash
       run: |
-        curl -sSL https://install.python-poetry.org | python3 -
+        curl -LsSf https://astral.sh/uv/install.sh | sh
 
     - name: Get CodeArtifact Token
-      if: steps.cache-poetry.outputs.cache-hit != 'true'
+      if: steps.cache-uv.outputs.cache-hit != 'true'
       id: codeartifact_token
       shell: bash
       run: |
@@ -67,13 +66,15 @@ runs:
           --output text)" >> $GITHUB_OUTPUT
 
     - name: Install Dependencies
-      if: steps.cache-poetry.outputs.cache-hit != 'true'
+      if: steps.cache-uv.outputs.cache-hit != 'true'
       shell: bash
       env:
         CODEARTIFACT_URL: https://mhclg-prod-domain-${{ inputs.aws-codeartifact-account-id }}.d.codeartifact.eu-west-2.amazonaws.com/pypi/mhclg-prod-pypi/simple/
         TOKEN: ${{ steps.codeartifact_token.outputs.token }}
       run: |
-        poetry source add --priority=primary codeartifact "$CODEARTIFACT_URL"
-        poetry config http-basic.codeartifact aws "$TOKEN"
-        poetry lock
-        poetry install
+        export UV_INDEX="codeartifact=$CODEARTIFACT_URL"
+        export UV_INDEX_CODEARTIFACT_USERNAME=aws
+        export UV_INDEX_CODEARTIFACT_PASSWORD="$TOKEN"
+
+        uv lock --check
+        uv sync --locked
