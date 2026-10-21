@@ -169,3 +169,67 @@ class DeduplicationAccommodationSelectCorrectDetailsViewTestCase(
         self.assertContains(
             response, self.accommodation_with_special_character.utla_name
         )
+
+    def test_renders_select_correct_details_view_when_no_postcode_available(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        accommodation_without_postcode = MvAccommodationFactory(
+            full_address="3 FGH Road, GG1 HH2",
+            ltla_name="ltla_test",
+            utla_name="utla_test",
+            postcode=None,
+            is_principal=False,
+        )
+        other_accommodation_without_postcode = MvAccommodationFactory(
+            full_address="4 IJK Road, KK3 LL4",
+            ltla_name="ltla_test",
+            utla_name="utla_test",
+            postcode=None,
+            is_principal=False,
+        )
+
+        self.client.post(
+            reverse(
+                "deduplication:accommodations:select-and-review-records-manual-step",
+                kwargs={"step": SelectAndReviewRecordsStep.SELECT_RECORD},
+            ),
+            {
+                "select-record-accommodation_record": [
+                    accommodation_without_postcode.id,
+                    other_accommodation_without_postcode.id,
+                ],
+                "SelectAndReviewRecordsFormWizard-current_step": (
+                    SelectAndReviewRecordsStep.SELECT_RECORD,
+                ),
+            },
+            follow=True,
+        )
+        self.client.post(
+            reverse(
+                "deduplication:accommodations:select-and-review-records-manual-step",
+                kwargs={"step": SelectAndReviewRecordsStep.VIEW_SELECTED_RECORDS},
+            ),
+            {
+                "select-record-accommodation_record": [
+                    accommodation_without_postcode.id,
+                    other_accommodation_without_postcode.id,
+                ],
+                "SelectAndReviewRecordsFormWizard-current_step": (
+                    SelectAndReviewRecordsStep.VIEW_SELECTED_RECORDS,
+                ),
+            },
+            follow=True,
+        )
+        response = self.client.get(
+            reverse(
+                "deduplication:accommodations:select-and-review-records-manual-step",
+                kwargs={"step": SelectAndReviewRecordsStep.SELECT_CORRECT_DETAILS},
+            )
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Select correct details")
+        self.assertContains(response, "Postcode")
+        self.assertContains(response, "No postcode to select.")
+        self.assertNotContains(response, "Select a postcode.")

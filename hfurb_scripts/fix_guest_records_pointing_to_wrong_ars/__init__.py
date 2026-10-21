@@ -198,21 +198,3 @@ def fix_guest_records_pointing_to_wrong_ars(dry_run=True):
         "Other scenarios: %s skipped",
         counts["other_scenario"],
     )
-
-
-def run(dry_run=True):
-    """
-    Usage from within ECS container:
-        # Normal run (makes changes):
-        python manage.py shell \
-        -c "from hfurb_scripts.fix_guest_records_pointing_to_wrong_ars import run; \
-        run(dry_run=False)"
-
-
-        # Dry run (shows what would be changed):
-        python manage.py shell \
-        -c "from hfurb_scripts.fix_guest_records_pointing_to_wrong_ars import run; \
-        run()"
-    """
-
-    fix_guest_records_pointing_to_wrong_ars(dry_run=dry_run)

@@ -56,7 +56,7 @@ class SeedBrowserTestLaCommandTestCase(BaseScriptTestCase):
         )
 
         with self.assertLogs(
-            "ontology.management.commands.seed_browser_test_la", level="INFO"
+            "webapp.management.commands.seed_browser_test_la", level="INFO"
         ) as logs:
             call_command("seed_browser_test_la", "--wipe")
 
@@ -88,7 +88,7 @@ class SeedBrowserTestLaCommandTestCase(BaseScriptTestCase):
         )
 
         with self.assertLogs(
-            "ontology.management.commands.seed_browser_test_la", level="INFO"
+            "webapp.management.commands.seed_browser_test_la", level="INFO"
         ) as logs:
             call_command("seed_browser_test_la", "--dry-run")
 
