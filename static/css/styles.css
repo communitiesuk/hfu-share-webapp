@@ -230,13 +230,6 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
   display: none;
 }
 
-/* Reduces bottom padding to allow rows in wrapped list */
-@media (min-width: 40.0625em) {
-  .govuk-frontend-supported .govuk-tabs.tabs--tight .govuk-tabs__list-item.govuk-tabs__list-item--selected {
-    padding: 14px 19px 11px !important;
-  }
-}
-
 .pink-banner .govuk-tag {
   background-color: var(--app-colour-pink);
   color: var(--govuk-text-colour);
@@ -596,4 +589,25 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
 
 .app-flex--1 {
   flex: 1;
+}
+
+/* Record section content, focused by detail-view-focus.js after a side
+   navigation click. */
+.app-record-detail-content:focus {
+  outline: none;
+}
+
+/* Alerted status card: the summary card header already shows the title, so
+   the form's fieldset legend is hidden visually but kept for screen readers. */
+.app-alerted-status-card .govuk-fieldset__legend {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  clip-path: inset(50%) !important;
+  border: 0 !important;
+  white-space: nowrap !important;
 }
