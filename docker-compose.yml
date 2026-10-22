@@ -1,5 +1,6 @@
 services:
   web:
+    image: hfu-share-webapp:local
     build:
       context: .
       dockerfile: ./Dockerfile.local

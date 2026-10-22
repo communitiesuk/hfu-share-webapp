@@ -72,9 +72,13 @@ jobs:
         with:
           python-version: '3.13'
 
-      - name: Install UV
-        run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
+      - name: Install the latest version of uv
+        uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+        with:
+          enable-cache: false
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
@@ -123,35 +127,22 @@ jobs:
           aws s3 sync ./staticfiles s3://${{ vars.STATIC_FILES_S3_BUCKET }}/static --cache-control "public,max-age=31536000,immutable"
 
       - name: Build, tag, and push image to Amazon ECR
-        id: build-image
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          TIMESTAMP_IMAGE_TAG: ${{ steps.timestamp.outputs.formatted-timestamp }}
-          LATEST_IMAGE_TAG: latest
-          CODEARTIFACT_TOKEN: ${{ steps.codeartifact_token.outputs.token }}
-          CODEARTIFACT_URL: https://mhclg-prod-domain-${{ secrets.AWS_CODEARTIFACT_ACCOUNT_ID }}.d.codeartifact.eu-west-2.amazonaws.com/pypi/mhclg-prod-pypi/simple/
-          DOCKER_BULDKIT: "1"
-        run: |
-          # Build a docker container and
-          # push it to ECR so that it can
-          # be deployed to ECS.
-          docker build \
-          --load \
-          --secret id=codeartifact_token,env=CODEARTIFACT_TOKEN \
-          --secret id=codeartifact_url,env=CODEARTIFACT_URL \
-          -t $ECR_REGISTRY/${{ vars.ECR_REPOSITORY }}:$TIMESTAMP_IMAGE_TAG \
-          -f Dockerfile .
-          docker push $ECR_REGISTRY/${{ vars.ECR_REPOSITORY }}:$TIMESTAMP_IMAGE_TAG
-          echo "image=$ECR_REGISTRY/${{ vars.ECR_REPOSITORY }}:$TIMESTAMP_IMAGE_TAG" >> $GITHUB_OUTPUT
-          # # Re-build and push to ECR with the 'latest' tag
-          docker build \
-          --load \
-          --secret id=codeartifact_token,env=CODEARTIFACT_TOKEN \
-          --secret id=codeartifact_url,env=CODEARTIFACT_URL \
-          -t $ECR_REGISTRY/${{ vars.ECR_REPOSITORY }}:$LATEST_IMAGE_TAG \
-          -f Dockerfile .
-          docker push $ECR_REGISTRY/${{ vars.ECR_REPOSITORY }}:$LATEST_IMAGE_TAG
-          echo "image=$ECR_REGISTRY/${{ vars.ECR_REPOSITORY }}:$LATEST_IMAGE_TAG" >> $GITHUB_OUTPUT
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ steps.timestamp.outputs.formatted-timestamp }}
+            ${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
+
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+          secrets: |
+            codeartifact_token=${{ steps.codeartifact_token.outputs.token }}
+            codeartifact_url=https://mhclg-prod-domain-${{ secrets.AWS_CODEARTIFACT_ACCOUNT_ID }}.d.codeartifact.eu-west-2.amazonaws.com/pypi/mhclg-prod-pypi/simple/
 
       - name: Run DB migrations
         id: db-migrate

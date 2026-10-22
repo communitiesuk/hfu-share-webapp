@@ -14,8 +14,8 @@ inputs:
   aws-codeartifact-account-id:
     description: 'AWS CodeArtifact account ID'
     required: true
-  install-tooling:
-    description: 'Flag to control whether to skip installing tooling if possible'
+  install-dependencies:
+    description: 'Flag to control whether to skip installing dependencies if possible'
     required: false
     default: 'true'
 
@@ -28,34 +28,25 @@ runs:
       with:
         python-version: '3.13'
 
-    - name: Cache UV dependencies
-      id: cache-uv
-      uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+    - name: Setup UV
+      uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
       with:
-        path: |
-          ~/.cache/uv
-          .venv
-        key: uv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('uv.lock') }}
-        restore-keys: |
-          uv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-
-          uv-${{ runner.os }}-
+        enable-cache: true
+        cache-dependency-glob: |
+          uv.lock
+          pyproject.toml
+        cache-suffix: python-${{ steps.setup-python.outputs.python-version }}
 
     - name: Configure AWS credentials
-      if: steps.cache-uv.outputs.cache-hit != 'true' || inputs.install-tooling == 'true'
+      if: inputs.install-dependencies == 'true'
       uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
       with:
         aws-region: ${{ inputs.aws-region }}
         role-to-assume: ${{ inputs.aws-role-to-assume }}
         role-session-name: ${{ inputs.role-session-name }}
 
-    - name: Install UV
-      if: steps.cache-uv.outputs.cache-hit != 'true' || inputs.install-tooling == 'true'
-      shell: bash
-      run: |
-        curl -LsSf https://astral.sh/uv/install.sh | sh
-
     - name: Get CodeArtifact Token
-      if: steps.cache-uv.outputs.cache-hit != 'true'
+      if: inputs.install-dependencies == 'true'
       id: codeartifact_token
       shell: bash
       run: |
@@ -66,7 +57,7 @@ runs:
           --output text)" >> $GITHUB_OUTPUT
 
     - name: Install Dependencies
-      if: steps.cache-uv.outputs.cache-hit != 'true'
+      if: inputs.install-dependencies == 'true'
       shell: bash
       env:
         CODEARTIFACT_URL: https://mhclg-prod-domain-${{ inputs.aws-codeartifact-account-id }}.d.codeartifact.eu-west-2.amazonaws.com/pypi/mhclg-prod-pypi/simple/
