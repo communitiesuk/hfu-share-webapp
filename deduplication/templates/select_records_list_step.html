@@ -1,21 +1,13 @@
 {% extends "select_and_review_records_base.html" %}
-{% load crispy_forms_filters crispy_forms_tags crispy_forms_gds %}
 {% block breadcrumb_content %}
     <li class="govuk-breadcrumbs__list-item">Fix duplicate records</li>
 {% endblock breadcrumb_content %}
-{% block form %}
-    {% include "webapp/components/notification_banner/notification_banner_from_messages.html" %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            {% error_summary filter.form %}
-            {% include "webapp/components/heading/heading.html" with page_heading=page_heading %}
-            <p class="govuk-body">Select a record to review and deduplicate. You can use the filter panel to find records.</p>
-            <p class="govuk-body">
-                You cannot deduplicate records across lower tier local authorities (LAs). Records with links to multiple LAs are hidden from the list.
-            </p>
-        </div>
-    </div>
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">{% include table_template_url %}</div>
-    </div>
-{% endblock form %}
+{% block narrow_content %}
+    <p class="govuk-body">Select a record to review and deduplicate. You can use the filter panel to find records.</p>
+    <p class="govuk-body">
+        You cannot deduplicate records across lower tier local authorities (LAs). Records with links to multiple LAs are hidden from the list.
+    </p>
+{% endblock narrow_content %}
+{% block wide_content %}
+    {% include table_template_url %}
+{% endblock wide_content %}

@@ -1,14 +1,11 @@
 {% extends "select_and_review_records_base.html" %}
-{% load crispy_forms_tags crispy_forms_gds crispy_forms_field %}
+{% load crispy_forms_tags %}
 {% block breadcrumb_content %}
-    {% url 'webapp:landing-page' as home_url %}
     <li class="govuk-breadcrumbs__list-item">Fix duplicate records</li>
 {% endblock breadcrumb_content %}
-{% block form %}
-    {% error_summary form %}
-    {% include "webapp/components/heading/heading.html" with page_heading=page_heading %}
+{% block narrow_content %}
     <form method="post" novalidate>
         {% csrf_token %}
         {% crispy form %}
     </form>
-{% endblock form %}
+{% endblock narrow_content %}

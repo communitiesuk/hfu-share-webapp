@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "page_base.html" %}
 {% block breadcrumb_content %}
     <li class="govuk-breadcrumbs__list-item">
         <a class="govuk-breadcrumbs__link"
@@ -6,8 +6,10 @@
     </li>
     <li class="govuk-breadcrumbs__list-item">Hide record</li>
 {% endblock breadcrumb_content %}
-{% block content %}
+{% block page_heading %}
     {% include "webapp/components/heading/heading.html" with caption="Hide the accommodation request record for" page_heading=object.title %}
+{% endblock page_heading %}
+{% block narrow_content %}
     <h2 class="govuk-heading-m">Hide this record?</h2>
     <p class="govuk-body">
         This record will be hidden from the unassigned accommodation records list.
@@ -22,4 +24,4 @@
                class="govuk-link govuk-link--no-visited-state govuk-body">Cancel</a>
         </div>
     </form>
-{% endblock content %}
+{% endblock narrow_content %}
