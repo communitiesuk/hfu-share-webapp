@@ -21,7 +21,7 @@ CUSTOM_USERS_TO_CREATE: List[UserToCreate] = [
     ),
     UserToCreate(
         "croydon@example.com",
-        "croydon",
+        "ltla_croydon",
     ),
     UserToCreate(
         "bromley@example.com",
