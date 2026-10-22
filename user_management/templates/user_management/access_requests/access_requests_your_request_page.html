@@ -1,4 +1,5 @@
-{% extends "base.html" %}
+{% extends "page_base.html" %}
+{% load filters %}
 {% block breadcrumb_content %}
     <li class="govuk-breadcrumbs__list-item">
         <a class="govuk-breadcrumbs__link"
@@ -14,9 +15,7 @@
         </li>
     {% endfor %}
 {% endblock breadcrumb_content %}
-{% load filters %}
-{% block content %}
-    {% include "webapp/components/heading/heading.html" with page_heading=page_heading %}
+{% block narrow_content %}
     {% if object|access_request_is_rejected or object|access_request_is_approved %}
         <div class="govuk-warning-text">
             <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
@@ -33,4 +32,4 @@
     {% include "webapp/components/record_tabs/record_summary_list.html" %}
     <a href="{% url "webapp:landing-page" %}"
        class="govuk-button govuk-button--primary">Back</a>
-{% endblock content %}
+{% endblock narrow_content %}

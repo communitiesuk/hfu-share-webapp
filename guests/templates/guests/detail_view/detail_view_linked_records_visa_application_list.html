@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "page_base.html" %}
 {% block breadcrumb_content %}
     <li class="govuk-breadcrumbs__list-item">
         <a class="govuk-breadcrumbs__link" href="{% url 'guests:guests' %}">Guests</a>
@@ -9,20 +9,15 @@
     </li>
     <li class="govuk-breadcrumbs__list-item">Visa applications associated with this guest</li>
 {% endblock breadcrumb_content %}
-{% block content %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-one-half">
-            {% include "webapp/components/heading/heading.html" with page_heading=page_heading %}
-            <p class="govuk-body">Results may include visa applications by other people, which contain the guest's name.</p>
-        </div>
-    </div>
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            {% block visa_applications_list_table %}
-                {% include "webapp/components/tables/table.html" %}
-            {% endblock visa_applications_list_table %}
-            <a href="{% url 'guests:detail-linked-records' object.pk %}"
-               class="govuk-button govuk-button--secondary">Back to guest record</a>
-        </div>
-    </div>
-{% endblock content %}
+{% block narrow_content %}
+    <p class="govuk-body">Results may include visa applications by other people, which contain the guest's name.</p>
+{% endblock narrow_content %}
+{% block wide_content %}
+    {% block visa_applications_list_table %}
+        {% include "webapp/components/tables/table.html" %}
+    {% endblock visa_applications_list_table %}
+{% endblock wide_content %}
+{% block narrow_footer_content %}
+    <a href="{% url 'guests:detail-linked-records' object.pk %}"
+       class="govuk-button govuk-button--secondary">Back to guest record</a>
+{% endblock narrow_footer_content %}
