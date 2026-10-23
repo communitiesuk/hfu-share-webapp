@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.26.1](https://github.com/communitiesuk/hfu-share-webapp/compare/2.26.0...2.26.1) (2026-10-23)
+
+
+### Bug Fixes
+
+* typo in seeder ([#295](https://github.com/communitiesuk/hfu-share-webapp/issues/295)) ([2ab6694](https://github.com/communitiesuk/hfu-share-webapp/commit/2ab6694017a59dcd79aaa5542db5f55e9d482ac5))
+
 ## [2.26.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.25.0...2.26.0) (2026-10-20)
 
 
