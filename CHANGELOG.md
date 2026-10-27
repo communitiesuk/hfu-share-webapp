@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.26.2](https://github.com/communitiesuk/hfu-share-webapp/compare/2.26.1...2.26.2) (2026-10-27)
+
+
+### Bug Fixes
+
+* fix uv lock ([2649b58](https://github.com/communitiesuk/hfu-share-webapp/commit/2649b58698f3081ac75a52eff468a83bb24c2aed))
+* test this code ([92efca5](https://github.com/communitiesuk/hfu-share-webapp/commit/92efca5e92bab6da77c4534b9256f5474caddc43))
+* update the uv lock file when creating the release PR ([55b4eea](https://github.com/communitiesuk/hfu-share-webapp/commit/55b4eea11a6788d33be7bbdfb81eca694537eb57))
+
 ## [2.26.1](https://github.com/communitiesuk/hfu-share-webapp/compare/2.26.0...2.26.1) (2026-10-23)
 
 
