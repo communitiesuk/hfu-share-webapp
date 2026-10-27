@@ -32,8 +32,8 @@ class UndoDeduplicationAccommodationViewDeduplicatedRecordsViewTestCase(
             is_principal=True,
         )
         self.new_principal_ltla_accommodation = MvAccommodationFactory(
-            full_address="Somerset LTLA Address",
-            ltla_name="ltla_somerset",
+            full_address="Test LTLA Address",
+            ltla_name="ltla_test",
             is_principal=True,
         )
         self.new_principal_da_accommodation = MvAccommodationFactory(
@@ -182,7 +182,7 @@ class UndoDeduplicationAccommodationViewDeduplicatedRecordsViewTestCase(
         self.assertContains(
             response,
             '<button name="submit" class="govuk-button" id="id_submit" '
-            'data-module="govuk-button">Undo deduplication</button>',
+            'data-module="govuk-button">Continue</button>',
             html=True,
         )
 

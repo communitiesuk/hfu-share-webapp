@@ -4,9 +4,12 @@ from django import template
 from django.middleware.csrf import get_token
 from django.template.loader import render_to_string
 
-from webapp.component_builders import LinkBuilder
+from webapp.component_builders import AdminLinkBuilder, LinkBuilder
 
 register = template.Library()
+
+LINK_TEMPLATES_DIR = "webapp/components/links"
+LINK_TEMPLATE_PATH = f"{LINK_TEMPLATES_DIR}/link.html"
 
 
 @register.simple_tag
@@ -21,7 +24,7 @@ def render_govuk_link(
     **kwargs,
 ):
     return render_to_string(
-        "webapp/components/typography/link.html",
+        LINK_TEMPLATE_PATH,
         {
             "link": LinkBuilder(
                 text,
@@ -36,9 +39,29 @@ def render_govuk_link(
     )
 
 
+def render_app_admin_link(
+    text: str,
+    href: str,
+    *,
+    opens_in_new_tab: bool = False,
+    **kwargs,
+):
+    return render_to_string(
+        f"{LINK_TEMPLATES_DIR}/admin_link.html",
+        {
+            "link": AdminLinkBuilder(
+                text,
+                href,
+                opens_in_new_tab=opens_in_new_tab,
+                **kwargs,
+            ),
+        },
+    )
+
+
 def render_app_record_link(record, value, record_href):
     return render_to_string(
-        "webapp/components/typography/record_link.html",
+        f"{LINK_TEMPLATES_DIR}/record_link.html",
         {
             "link_text": value,
             "link_href": record_href,
@@ -51,7 +74,7 @@ def render_app_form_link(
     request, name, value, record_name, *hidden_inputs, action=None, text="Select"
 ):
     return render_to_string(
-        "webapp/components/typography/form_link.html",
+        f"{LINK_TEMPLATES_DIR}/form_link.html",
         {
             "csrf_token": get_token(request),
             "form_action": action,

@@ -143,7 +143,7 @@ class AccommodationRequestUpdateSafeguardingChecksForm(forms.ModelForm):
         required=False,
         help_text="""
             You must enter a reason if you select
-            'Sponsor is not suitable - other reasons'.
+            ‘Sponsor is not suitable - other reasons’.
             For any other option you select, adding a comment is
             optional. The text you enter should be short and clear.
         """,

@@ -2,9 +2,9 @@ import re
 from pathlib import Path
 
 from django.conf import settings
-from django.test import SimpleTestCase
 
 from hfurb_scripts.lint_extras.check_generic_link_text import GENERIC_WORDS
+from test_utils.base import BaseSimpleTestCase
 
 GENERIC_TEXTS = set(GENERIC_WORDS)
 
@@ -22,7 +22,7 @@ TEMPLATE_TAG_RE = re.compile(r"{%.*?%}")
 HTML_TAG_RE = re.compile(r"<[^>]+>")
 
 
-class LinkTextAccessibilityTest(SimpleTestCase):
+class LinkTextAccessibilityTest(BaseSimpleTestCase):
     def test_no_bare_generic_link_or_button_text_in_templates(self):
         failures = []
 

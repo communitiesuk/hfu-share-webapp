@@ -1,9 +1,8 @@
-from django.test import SimpleTestCase
-
+from test_utils.base import BaseSimpleTestCase
 from webapp.widgets import MultiValueWidget
 
 
-class MultiValueWidgetTest(SimpleTestCase):
+class MultiValueWidgetTest(BaseSimpleTestCase):
     def test_render_with_multiple_values(self):
         widget = MultiValueWidget("Email")
         html = widget.render(
@@ -17,7 +16,7 @@ class MultiValueWidgetTest(SimpleTestCase):
         self.assertIn('name="emails-1"', html)
         self.assertIn('id="id_emails-1"', html)
         self.assertIn('value="b@example.com"', html)
-        self.assertIn('class="array-input-group"', html)
+        self.assertIn('data-module="array-input-group"', html)
 
     def test_render_empty(self):
         widget = MultiValueWidget("Email")

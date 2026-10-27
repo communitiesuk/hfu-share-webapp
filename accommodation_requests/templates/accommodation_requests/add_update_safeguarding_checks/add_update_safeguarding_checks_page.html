@@ -13,15 +13,18 @@
                 safeguarding check
             </h3>
             <p class="govuk-body govuk-!-margin-top-6">
-                You only need to fail one of three checks for it to be escalated to UKVI.
+                You only need to fail one of three checks for it to be escalated to UK Visas and Immigration (UKVI).
             </p>
             <p class="govuk-body govuk-!-margin-bottom-6">
-                If you fail 'Guests have arrived in accommodation', this will not be escalated to UKVI.
+                If you fail ‘Guests have arrived in accommodation’, this will not be escalated to UKVI.
             </p>
             <p class="govuk-body govuk-!-margin-bottom-6">
-                If you change the status from ‘failed’ to any other status, raise a Jira ticket to inform MHCLG.
+                If you change the status from ‘failed’ to any other status, raise a Jira ticket to inform the Ministry of Housing, Communities and Local Government (MHCLG).
             </p>
-            <form id="safeguarding-form" method="post" novalidate>
+            <form id="safeguarding-form"
+                  method="post"
+                  data-module="safeguarding-form"
+                  novalidate>
                 {% csrf_token %}
                 <div id="safeguarding-errors-container">
                     {% if form.non_field_errors %}
@@ -58,6 +61,3 @@
         </div>
     </div>
 {% endblock form-content %}
-{% block extra_js %}
-    <script src="{% static 'js/safeguarding-form.js' %}"></script>
-{% endblock extra_js %}

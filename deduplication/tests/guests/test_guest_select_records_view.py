@@ -66,7 +66,7 @@ class DeduplicationSponsorListViewTestCase(TestSessionTokenMixin, BaseTestCase):
         )
 
         self.ar_1 = MvAccommodationRequestFactory(
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
             person_id=[self.guest.id],
         )
 
@@ -76,7 +76,7 @@ class DeduplicationSponsorListViewTestCase(TestSessionTokenMixin, BaseTestCase):
         )
 
         self.ar_3 = MvAccommodationRequestFactory(
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
             person_id=[self.same_ltla_guest.id],
         )
 
@@ -94,7 +94,7 @@ class DeduplicationSponsorListViewTestCase(TestSessionTokenMixin, BaseTestCase):
         )
 
         self.multi_ltla_ar = MvAccommodationRequestFactory(
-            ltla_name=["ltla_somerset", "another_ltla"],
+            ltla_name=["ltla_test", "another_ltla"],
             person_id=[self.multi_ltla_guest.id],
         )
 
@@ -135,7 +135,7 @@ class DeduplicationSponsorListViewTestCase(TestSessionTokenMixin, BaseTestCase):
         self.pending_rr_guest.save()
 
         self.ar_4 = MvAccommodationRequestFactory(
-            ltla_name=["ltla_somerset"],
+            ltla_name=["ltla_test"],
             person_id=[self.pending_rr_guest.id],
         )
         self.ar_4.save()
@@ -200,7 +200,7 @@ class DeduplicationSponsorListViewTestCase(TestSessionTokenMixin, BaseTestCase):
         self.assertContains(response, "Visa status")
         self.assertContains(response, "First arrival date")
         self.assertContains(response, "Latest visa application date")
-        self.assertContains(response, "Unique Application Number (UAN)")
+        self.assertContains(response, "Unique application number (UAN)")
         self.assertNotContains(response, self.multi_ltla_guest.get_full_name())
 
     def test_renders_guest_list_content(self):

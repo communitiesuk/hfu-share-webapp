@@ -19,14 +19,13 @@ from django.db.models import (
 )
 from django.db.models.functions import Coalesce
 from django.urls import reverse
-from django.utils.html import format_html, format_html_join
-from django.utils.safestring import mark_safe
 
 from ontology.actions.reassignment_request_actions import (
     fill_missing_ltla_utla,
     normalise_outcome_values,
 )
 from ontology.admin_actions import (
+    fix_null_array_for_las,
     process_update_guest_titles,
     solve_duplicate_record_sponsor_checks,
 )
@@ -35,6 +34,8 @@ from ontology.admin_filters import (
     ChecksSinceShareGoLiveFilter,
     DateRangeFilter,
     GuestsWithIncorrectTitlesExcludingDuplicatesFilter,
+    LtlaNameIsNullArrayFilter,
+    UtlaNameIsNullArrayFilter,
 )
 from ontology.models import (
     Announcement,
@@ -61,6 +62,11 @@ from ontology.models import (
     VisaInformationRequestComments,
 )
 from webapp.constants import REDACTED_VALUE
+from webapp.templatetags.component_renderers import (
+    ConcatenatedTextSeparator,
+    render_app_concatenated_text,
+)
+from webapp.templatetags.link_renderers import render_app_admin_link
 
 logger = logging.getLogger(__name__)
 
@@ -86,19 +92,19 @@ def devcheckv2_detail_view(obj):
     checks = obj.checks.all()
     if not checks:
         return "(None)"
-    return format_html_join(
-        mark_safe("<br>"),
-        '<a href={} target="_blank">{}</a>',
-        [
-            (
+    return render_app_concatenated_text(
+        *[
+            render_app_admin_link(
+                check.check_type,
                 reverse(
                     f"admin:{check._meta.app_label}_{check._meta.model_name}_change",
                     args=[check.id],
                 ),
-                check.check_type,
+                opens_in_new_tab=True,
             )
             for check in checks
         ],
+        separator=ConcatenatedTextSeparator.NEW_LINE,
     )
 
 
@@ -185,18 +191,25 @@ class AccommodationRequestAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
         "edited_in_app",
         "is_principal",
         ARsCreatedOrModifiedSinceShareGoLiveFilter,
+        LtlaNameIsNullArrayFilter,
+        UtlaNameIsNullArrayFilter,
     ]
     readonly_fields = [
         "detail_view",
         "devcheckv2_detail_view",
     ]
-    actions = [create_safeguarding_checks, recalculate_checks_status]
+    actions = [
+        create_safeguarding_checks,
+        recalculate_checks_status,
+        fix_null_array_for_las,
+    ]
 
     def detail_view(self, obj):
         if obj.pk:
-            return format_html(
-                '<a href={} target="_blank">Detail page</a>',
+            return render_app_admin_link(
+                "Detail page",
                 reverse("accommodation-requests:detail-overview", args=[obj.pk]),
+                opens_in_new_tab=True,
             )
         return "-"
 
@@ -283,9 +296,10 @@ class AccommodationAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
 
     def detail_view(self, obj):
         if obj.pk:
-            return format_html(
-                '<a href={} target="_blank">Detail page</a>',
+            return render_app_admin_link(
+                "Detail page",
                 reverse("accommodations:detail-overview", args=[obj.pk]),
+                opens_in_new_tab=True,
             )
         return "-"
 
@@ -322,9 +336,10 @@ class ReassignmentRequestAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
 
     def detail_view(self, obj):
         if obj.pk:
-            return format_html(
-                '<a href={} target="_blank">Detail page</a>',
+            return render_app_admin_link(
+                "Detail page",
                 reverse("reassignment-requests:detail-made", args=[obj.pk]),
+                opens_in_new_tab=True,
             )
         return "-"
 
@@ -338,9 +353,10 @@ class UamAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
 
     def detail_view(self, obj):
         if obj.pk:
-            return format_html(
-                '<a href={} target="_blank">Detail page</a>',
+            return render_app_admin_link(
+                "Detail page",
                 reverse("uams:detail-overview", args=[obj.pk]),
+                opens_in_new_tab=True,
             )
         return "-"
 
@@ -483,20 +499,20 @@ class SafeguardingNotificationAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
     @admin.display(description="Accommodation request")
     def linked_ar(self, obj):
         if obj.ar:
-            url = reverse(
-                "admin:ontology_mvaccommodationrequest_change", args=[obj.ar.id]
+            return render_app_admin_link(
+                obj.ar.title or obj.ar.id,
+                reverse(
+                    "admin:ontology_mvaccommodationrequest_change", args=[obj.ar.id]
+                ),
             )
-            return format_html('<a href="{}">{}</a>', url, obj.ar.title or obj.ar.id)
         return "-"
 
     @admin.display(description="Linked safeguarding check")
     def linked_check(self, obj):
         if obj.dev_check_v2:
-            url = reverse(
-                "admin:ontology_devcheckv2_change", args=[obj.dev_check_v2.id]
-            )
-            return format_html(
-                '<a href="{}">{}</a>', url, obj.dev_check_v2.get_check_failed_title()
+            return render_app_admin_link(
+                obj.dev_check_v2.get_check_failed_title(),
+                reverse("admin:ontology_devcheckv2_change", args=[obj.dev_check_v2.id]),
             )
 
     @admin.display(description="Linked sponsor")
@@ -505,15 +521,17 @@ class SafeguardingNotificationAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):
             return "-"
 
         sponsors = MvVolunteer.objects.filter(id__in=obj.sponsor_ids)
-        links = []
 
-        for sponsor in sponsors:
-            url = reverse("admin:ontology_mvvolunteer_change", args=[sponsor.id])
-            links.append(
-                format_html('<a href="{}">{}</a>', url, sponsor.get_full_name())
-            )
-
-        return format_html(", ".join(links))
+        return render_app_concatenated_text(
+            *[
+                render_app_admin_link(
+                    sponsor.get_full_name(),
+                    reverse("admin:ontology_mvvolunteer_change", args=[sponsor.id]),
+                )
+                for sponsor in sponsors
+            ],
+            separator=ConcatenatedTextSeparator.COMMA_SPACE,
+        )
 
 
 class SafeguardingReferralAdmin(AuditlogHistoryAdminMixin, OntologyAdmin):

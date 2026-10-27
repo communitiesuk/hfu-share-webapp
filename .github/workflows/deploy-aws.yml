@@ -72,9 +72,9 @@ jobs:
         with:
           python-version: '3.13'
 
-      - name: Install Poetry
+      - name: Install UV
         run: |
-          curl -sSL https://install.python-poetry.org | python3 -
+          curl -LsSf https://astral.sh/uv/install.sh | sh
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
@@ -97,14 +97,16 @@ jobs:
           CODEARTIFACT_URL: https://mhclg-prod-domain-${{ secrets.AWS_CODEARTIFACT_ACCOUNT_ID }}.d.codeartifact.eu-west-2.amazonaws.com/pypi/mhclg-prod-pypi/simple/
           TOKEN: ${{ steps.codeartifact_token.outputs.token }}
         run: |
-          poetry source add --priority=primary codeartifact "$CODEARTIFACT_URL"
-          poetry config http-basic.codeartifact aws "$TOKEN"
-          poetry lock
-          poetry install
+          export UV_INDEX="codeartifact=$CODEARTIFACT_URL"
+          export UV_INDEX_CODEARTIFACT_USERNAME=aws
+          export UV_INDEX_CODEARTIFACT_PASSWORD="$TOKEN"
+
+          uv lock
+          uv sync
 
       - name: Collect static files
         run: |
-          poetry run python manage.py collectstatic --noinput
+          uv run python manage.py collectstatic --noinput
         continue-on-error: false
 
       - name: Get timestamp

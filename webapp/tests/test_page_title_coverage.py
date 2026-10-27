@@ -1,10 +1,10 @@
 from types import SimpleNamespace
 from typing import cast
 
-from django.test import SimpleTestCase
 from django.urls import ResolverMatch, get_resolver
 
 from case_management.page_title import get_tab_title
+from test_utils.base import BaseSimpleTestCase
 from webapp.mixins import PageTitleMixin
 
 SKIPPED_ROUTE_PREFIXES = ("admin/", "__debug__", "assets/")
@@ -58,7 +58,7 @@ def dotted_path(view_class) -> str:
     return f"{view_class.__module__}.{view_class.__qualname__}"
 
 
-class PageTitleCoverageTest(SimpleTestCase):
+class PageTitleCoverageTest(BaseSimpleTestCase):
     def test_every_view_declares_a_page_identity_or_is_allowlisted(self):
         missing = sorted(
             dotted_path(view_class)

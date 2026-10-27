@@ -188,7 +188,7 @@ CookieBanner.prototype.showConfirmationMessage = function (analyticsConsent) {
 
 
 const initCookieBanner = () => {
-  const $cookieBanner = document.querySelector('.govuk-cookie-banner')
+  const $cookieBanner = document.querySelector('[data-module="govuk-cookie-banner"]')
   if ($cookieBanner) {
     const cookieBanner = new CookieBanner($cookieBanner)
     cookieBanner.init()
@@ -196,4 +196,4 @@ const initCookieBanner = () => {
   }
 }
 
-initCookieBanner()
+export { initCookieBanner, setConsentCookie, checkExistingConsent, updateElementVisibility }

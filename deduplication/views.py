@@ -1,6 +1,5 @@
 import logging
 import os
-from datetime import datetime
 from enum import StrEnum
 from typing import Any, List
 
@@ -13,8 +12,6 @@ from django.http import Http404, HttpRequest
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
-from django.utils.html import format_html
-from django.utils.safestring import mark_safe
 from django.views.generic import FormView, TemplateView
 from django_filters import BooleanFilter, CharFilter, FilterSet, MultipleChoiceFilter
 from django_filters.views import FilterView
@@ -47,11 +44,15 @@ from deduplication.models import (
     GuestDuplicateGroup,
     SponsorDuplicateGroup,
 )
+from deduplication.utils import (
+    build_principal_accommodation_record,
+    build_principal_guest_record,
+    build_principal_sponsor_record,
+)
 from ontology.models import (
     MvAccommodation,
     MvAccommodationRequest,
     MvPerson,
-    MvUkPostcode,
     MvVolunteer,
     ReassignmentRequest,
 )
@@ -73,6 +74,7 @@ from webapp.mixins import (
     WizardPageTitleMixin,
 )
 from webapp.search import perform_search
+from webapp.templatetags.field_renderers import render_app_hidden_input
 from webapp.templatetags.link_renderers import (
     render_app_form_link,
     render_app_record_link,
@@ -420,25 +422,17 @@ class ManualSponsorDeduplicationTable(dj_tables.Table):
         return "True" if value is True else "False"
 
     def render_select(self, value, record):
-        hidden_sponsor_inputs = mark_safe(
-            "".join(
-                [
-                    format_html(
-                        '<input type="hidden" name="select-record-sponsor_record" '
-                        'id="id_select-record-sponsor_record" value="{value}"/>',
-                        value=pk,
-                    )
-                    for pk in self.context["selected_ids"]
-                ]
-            )
-        )
+        hidden_sponsor_inputs = [
+            render_app_hidden_input("select-record-sponsor_record", pk)
+            for pk in self.context["selected_ids"]
+        ]
         return render_app_form_link(
             self.request,
             "select-record-sponsor_record",
             value,
             record.get_full_name(),
             self.context["wizard"]["management_form"],
-            hidden_sponsor_inputs,
+            *hidden_sponsor_inputs,
         )
 
     class Meta:
@@ -689,7 +683,7 @@ class ManualGuestDeduplicationTable(dj_tables.Table):
     visa_application_date_maximum = CustomDateColumn(
         verbose_name="Latest visa application date"
     )
-    application_number = Column(verbose_name="Unique Application Number (UAN)")
+    application_number = Column(verbose_name="Unique application number (UAN)")
     select = Column(
         accessor="pk",
         verbose_name="Actions",
@@ -703,25 +697,17 @@ class ManualGuestDeduplicationTable(dj_tables.Table):
         )
 
     def render_select(self, value, record):
-        hidden_guest_inputs = mark_safe(
-            "".join(
-                [
-                    format_html(
-                        '<input type="hidden" name="select-record-guest_record" '
-                        'id="id_select-record-guest_record" value="{value}"/>',
-                        value=pk,
-                    )
-                    for pk in self.context["selected_ids"]
-                ]
-            )
-        )
+        hidden_guest_inputs = [
+            render_app_hidden_input("select-record-guest_record", pk)
+            for pk in self.context["selected_ids"]
+        ]
         return render_app_form_link(
             self.request,
             "select-record-guest_record",
             value,
             record.get_full_name(),
             self.context["wizard"]["management_form"],
-            hidden_guest_inputs,
+            *hidden_guest_inputs,
         )
 
     def render_visa_status(self, value):
@@ -867,26 +853,17 @@ class ManualAccommodationDeduplicationTable(dj_tables.Table, TableRendererMixin)
         )
 
     def render_select(self, value, record):
-        hidden_accommodation_inputs = mark_safe(
-            "".join(
-                [
-                    format_html(
-                        '<input type="hidden" '
-                        'name="select-record-accommodation_record" '
-                        'id="id_select-record-accommodation_record" value="{value}"/>',
-                        value=pk,
-                    )
-                    for pk in self.context["selected_ids"]
-                ]
-            )
-        )
+        hidden_accommodation_inputs = [
+            render_app_hidden_input("select-record-accommodation_record", pk)
+            for pk in self.context["selected_ids"]
+        ]
         return render_app_form_link(
             self.request,
             "select-record-accommodation_record",
             value,
             record.full_address,
             self.context["wizard"]["management_form"],
-            hidden_accommodation_inputs,
+            *hidden_accommodation_inputs,
         )
 
     class Meta:
@@ -1063,7 +1040,7 @@ class ManualViewSelectedGuestsTable(dj_tables.Table):
     visa_application_date_maximum = CustomDateColumn(
         verbose_name="Latest visa application date"
     )
-    application_number = Column(verbose_name="Unique Application Number (UAN)")
+    application_number = Column(verbose_name="Unique application number (UAN)")
     remove = Column(
         accessor="pk",
         verbose_name="Actions",
@@ -1316,7 +1293,7 @@ class ManualReviewSelectedGuestsTable(dj_tables.Table):
         verbose_name="Latest visa application date", orderable=False
     )
     application_number = Column(
-        verbose_name="Unique Application Number (UAN)", orderable=False
+        verbose_name="Unique application number (UAN)", orderable=False
     )
 
     def render_get_full_name(self, record: MvPerson, value):
@@ -1571,7 +1548,7 @@ class ManualSelectCorrectDetailsGuestsTable(dj_tables.Table):
     passport_id = Column(verbose_name="Passport number", orderable=False)
     visa_status = Column(verbose_name="Visa status", orderable=False)
     application_number = Column(
-        verbose_name="Unique Application Number (UAN)", orderable=False
+        verbose_name="Unique application number (UAN)", orderable=False
     )
     accommodation_request = Column(
         verbose_name="Accommodation request", orderable=False
@@ -1736,7 +1713,7 @@ class ManualCheckAndCompleteGuestsTable(dj_tables.Table):
     passport_id = Column(verbose_name="Passport number", orderable=False)
     visa_status = Column(verbose_name="Visa status", orderable=False)
     application_number = Column(
-        verbose_name="Unique Application Number (UAN)", orderable=False
+        verbose_name="Unique application number (UAN)", orderable=False
     )
     accommodation_request = Column(
         verbose_name="Accommodation request", orderable=False
@@ -1937,7 +1914,7 @@ class ManualViewDeduplicatedGuestsTable(dj_tables.Table):
         verbose_name="Latest visa application date", orderable=False
     )
     application_number = Column(
-        verbose_name="Unique Application Number (UAN)", orderable=False
+        verbose_name="Unique application number (UAN)", orderable=False
     )
 
     def __init__(self, *args, **kwargs):
@@ -2442,20 +2419,9 @@ class SelectAndReviewSponsorRecordsFormWizard(SelectAndViewRecordsFormWizard):
             ps = self.get_cleaned_data_for_step(
                 SelectAndReviewRecordsStep.SELECT_CORRECT_DETAILS
             )
-            if ps["date_of_birth"]:
-                date_of_birth_str = ps["date_of_birth"].split(" (")[0]
-                date_of_birth = datetime.strptime(date_of_birth_str, "%d %B %Y").date()
-            else:
-                date_of_birth = ps["date_of_birth"]
-            self.get_check_and_complete_step_view().principal_sponsor = {
-                "full_name": f"{ps['first_name']} {ps['last_name']}",
-                "sex": ps["sex"],
-                "date_of_birth": date_of_birth,
-                "email": ps["email_address"],
-                "phone_number": ps["phone_numbers"],
-                "residential_postcodes": ps["residential_postcodes"],
-                "flag_unsuitable": False,
-            }
+            self.get_check_and_complete_step_view().principal_sponsor = (
+                build_principal_sponsor_record(ps, use_full_name=True)
+            )
             self.get_check_and_complete_step_view().request = self.request
             context |= self.get_check_and_complete_step_view().get_context_data()
 
@@ -2497,21 +2463,7 @@ class SelectAndReviewSponsorRecordsFormWizard(SelectAndViewRecordsFormWizard):
             ps = self.get_cleaned_data_for_step(
                 SelectAndReviewRecordsStep.SELECT_CORRECT_DETAILS
             )
-            if ps["date_of_birth"]:
-                date_of_birth_str = ps["date_of_birth"].split(" (")[0]
-                date_of_birth = datetime.strptime(date_of_birth_str, "%d %B %Y").date()
-            else:
-                date_of_birth = None
-            principal_sponsor_details = {
-                "first_name": f"{ps['first_name']}",
-                "last_name": f"{ps['last_name']}",
-                "sex": ps["sex"],
-                "date_of_birth": date_of_birth,
-                "email": ps["email_address"],
-                "phone_number": ps["phone_numbers"],
-                "residential_postcodes": ps["residential_postcodes"],
-                "flag_unsuitable": False,
-            }
+            principal_sponsor_details = build_principal_sponsor_record(ps)
 
             dedup_sponsor_group = SponsorDuplicateGroup.objects.create()
             dedup_sponsor_group.sponsors.set(selected_sponsors)
@@ -2873,24 +2825,12 @@ class SelectAndReviewGuestRecordsFormWizard(SelectAndViewRecordsFormWizard):
             self.get_check_and_complete_step_view().selected_guest_ids = [
                 guest.pk for guest in selected_guests
             ]
-            ps = self.get_cleaned_data_for_step(
+            pg = self.get_cleaned_data_for_step(
                 SelectAndReviewRecordsStep.SELECT_CORRECT_DETAILS
             )
-            if ps["date_of_birth"]:
-                date_of_birth_str = ps["date_of_birth"].split(" (")[0]
-                date_of_birth = datetime.strptime(date_of_birth_str, "%d %B %Y").date()
-            else:
-                date_of_birth = ps["date_of_birth"]
-            self.get_check_and_complete_step_view().principal_guest = {
-                "full_name": f"{ps['first_name']} {ps['last_name']}",
-                "gender": ps["sex"],
-                "date_of_birth": date_of_birth,
-                "email": ps["email_address"],
-                "phone": ps["phone_numbers"],
-                "passport_id": ps["passport_number"],
-                "visa_status": ps["visa_status"],
-                "application_number": ps["application_numbers"],
-            }
+            self.get_check_and_complete_step_view().principal_guest = (
+                build_principal_guest_record(pg, use_full_name=True)
+            )
             if (
                 SelectAndReviewRecordsStep.SELECT_ACCOMMODATION_REQUEST
                 in self.get_form_list()
@@ -2941,25 +2881,10 @@ class SelectAndReviewGuestRecordsFormWizard(SelectAndViewRecordsFormWizard):
                     non_principal_guests
                 )
 
-            ps = self.get_cleaned_data_for_step(
+            pg = self.get_cleaned_data_for_step(
                 SelectAndReviewRecordsStep.SELECT_CORRECT_DETAILS
             )
-            if ps["date_of_birth"]:
-                date_of_birth_str = ps["date_of_birth"].split(" (")[0]
-                date_of_birth = datetime.strptime(date_of_birth_str, "%d %B %Y").date()
-            else:
-                date_of_birth = None
-            principal_guest_details = {
-                "first_name": ps["first_name"],
-                "last_name": ps["last_name"],
-                "gender": ps["sex"],
-                "date_of_birth": date_of_birth,
-                "email": ps["email_address"],
-                "phone": ps["phone_numbers"],
-                "passport_id": ps["passport_number"],
-                "visa_status": ps["visa_status"],
-                "application_number": ps["application_numbers"],
-            }
+            principal_guest_details = build_principal_guest_record(pg)
 
             if (
                 SelectAndReviewRecordsStep.SELECT_ACCOMMODATION_REQUEST
@@ -3303,18 +3228,13 @@ class SelectAndReviewAccommodationRecordsFormWizard(SelectAndViewRecordsFormWiza
             self.get_check_and_complete_step_view().selected_accommodation_ids = [
                 ac.pk for ac in selected_accommodations
             ]
-            ps = self.get_cleaned_data_for_step(
+            pa = self.get_cleaned_data_for_step(
                 SelectAndReviewRecordsStep.SELECT_CORRECT_DETAILS
             )
 
-            self.get_check_and_complete_step_view().principal_accommodation = {
-                "full_address": MvAccommodation.objects.only("full_address", "postcode")
-                .get(id=ps["full_address"])
-                .full_address,
-                "postcode": MvUkPostcode.objects.get(id=ps["postcode"]),
-                "ltla_name": ps["ltla_name"],
-                "utla_name": ps["utla_name"],
-            }
+            self.get_check_and_complete_step_view().principal_accommodation = (
+                build_principal_accommodation_record(pa)
+            )
             self.get_check_and_complete_step_view().request = self.request
             context |= self.get_check_and_complete_step_view().get_context_data()
 
@@ -3357,17 +3277,10 @@ class SelectAndReviewAccommodationRecordsFormWizard(SelectAndViewRecordsFormWiza
                     non_principal_accommodations
                 )
 
-            ps = self.get_cleaned_data_for_step(
+            pa = self.get_cleaned_data_for_step(
                 SelectAndReviewRecordsStep.SELECT_CORRECT_DETAILS
             )
-            principal_accommodation_details = {
-                "full_address": MvAccommodation.objects.only("full_address", "postcode")
-                .get(id=ps["full_address"])
-                .full_address,
-                "postcode": MvUkPostcode.objects.get(id=ps["postcode"]),
-                "ltla_name": ps["ltla_name"],
-                "utla_name": ps["utla_name"],
-            }
+            principal_accommodation_details = build_principal_accommodation_record(pa)
 
             dedup_accommodation_group = AccommodationDuplicateGroup.objects.create()
             dedup_accommodation_group.accommodations.set(selected_accommodations)

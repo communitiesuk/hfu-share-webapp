@@ -10,6 +10,7 @@ import django
 from django.db import DatabaseError, transaction
 from dotenv import load_dotenv
 
+from hfurb_scripts.script_utils import percentage
 from ontology.models import MvAccommodationRequest, MvPerson
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -126,10 +127,6 @@ def determine_scenario(
     return None
 
 
-def percentage(count: int, total: int) -> float:
-    return count / total * 100 if total else 0.0
-
-
 def log_scenario_stats(scenario_number: int, counts: Counter):
     success_score = counts[f"scenario_{scenario_number}_success"]
     failed_score = counts[f"scenario_{scenario_number}_failed"]
@@ -201,21 +198,3 @@ def fix_guest_records_pointing_to_wrong_ars(dry_run=True):
         "Other scenarios: %s skipped",
         counts["other_scenario"],
     )
-
-
-def run(dry_run=True):
-    """
-    Usage from within ECS container:
-        # Normal run (makes changes):
-        python manage.py shell \
-        -c "from hfurb_scripts.fix_guest_records_pointing_to_wrong_ars import run; \
-        run(dry_run=False)"
-
-
-        # Dry run (shows what would be changed):
-        python manage.py shell \
-        -c "from hfurb_scripts.fix_guest_records_pointing_to_wrong_ars import run; \
-        run()"
-    """
-
-    fix_guest_records_pointing_to_wrong_ars(dry_run=dry_run)

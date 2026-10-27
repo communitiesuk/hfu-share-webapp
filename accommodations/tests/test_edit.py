@@ -42,7 +42,7 @@ class AccommodationEditViewTests(TestSessionTokenMixin, BaseTestCase):
         )
 
         self.ltla_accommodation = AccommodationFactory(
-            full_address="Somerset LTLA Address",
+            full_address="Test LTLA Address",
             postcode=self.default_postcode,
             current_capacity="1",
             availability_start_date="2024-05-05",
@@ -50,7 +50,7 @@ class AccommodationEditViewTests(TestSessionTokenMixin, BaseTestCase):
             wheelchair_accessible=True,
             edited_in_app=False,
             is_editable=True,
-            ltla_name="ltla_somerset",
+            ltla_name="ltla_test",
         )
         self.da_accommodation = AccommodationFactory(
             full_address="Scotland DA address",

@@ -39,10 +39,10 @@ class GuestBaseForm(ReadOnlyFieldsMixin, forms.ModelForm):
             ),
             HTML(
                 self.render_readonly_field(
-                    "Unique Application Number (UAN)", "application_number"
+                    "Unique application number (UAN)", "application_number"
                 )
             ),
-            HTML(self.render_readonly_field("Global Web Form number (GWF)", "gwf")),
+            HTML(self.render_readonly_field("Global web form number (GWF)", "gwf")),
         ]
 
     def get_button_layout(self):
@@ -85,7 +85,7 @@ class GuestEditForm(GuestBaseForm):
         help_text="Enter up to 5 email addresses.",
         required=True,
         widget=MultiValueWidget(
-            "Email address", attrs={"label": "email", "input_type": "email"}
+            "Email address", attrs={"label": "email address", "input_type": "email"}
         ),
         error_messages={
             "required": "Please enter an email address",
@@ -174,10 +174,10 @@ class UPEVisaStatusFieldMixin:
         super().__init__(*args, **kwargs)
         self.fields["upe_visa_status"].widget = forms.RadioSelect()
         self.fields["upe_visa_status"].choices = MvPerson.UPEVisaStatus.choices
-        self.fields["upe_visa_status"].label = "UPE visa status"
+        self.fields["upe_visa_status"].label = MvPerson.UPE_VISA_STATUS_FULL_LABEL
         self.fields["upe_visa_status"].required = True
         self.fields["upe_visa_status"].error_messages = {
-            "required": "Please select a UPE visa status"
+            "required": "Please select a Ukraine Permission Extension (UPE) visa status"
         }
 
 

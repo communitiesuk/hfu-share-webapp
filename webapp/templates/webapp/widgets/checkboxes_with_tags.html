@@ -12,7 +12,7 @@
                        value="{{ option.value }}">
                 <label class="govuk-label govuk-checkboxes__label app-checkbox-with-tags--label"
                        for="{{ option.attrs.id }}">
-                    {% render_govuk_tag text=option.label colour=option.label_tag_colour css_class='app-tag--nowrap' %}
+                    {% render_govuk_tag option.label colour=option.label_tag_colour css_class='app-tag--nowrap' %}
                 </label>
             </div>
         {% endfor %}

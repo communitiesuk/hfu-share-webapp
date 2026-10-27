@@ -12,11 +12,11 @@ class GovUKFormGroup {
         if (show) {
             this.$formGroup.removeClass("govuk-visually-hidden");
             this.$inputElement.removeAttr("tabIndex");
-            this.$inputElement.removeAttr('disabled')
+            this.$inputElement.removeAttr("disabled");
         } else {
             this.$formGroup.addClass("govuk-visually-hidden");
             this.$inputElement.attr("tabIndex", -1);
-            this.$inputElement.attr('disabled', 'disabled')
+            this.$inputElement.attr("disabled", "disabled");
         }
     }
 }
@@ -125,7 +125,7 @@ class Comments extends GovUKFormGroup {
             this.$inputElement.attr("required", true);
             this.$hint.attr("aria-live", "polite");
             this.$hint.text(
-                "You must add a reason if you select 'Sponsor is not suitable - other reasons' from the list for UKVI to review the comments. For any other reason selected adding a comment is optional.",
+                "You must add a reason if you select ‘Sponsor is not suitable - other reasons’ from the list for UKVI to review the comments. For any other reason selected adding a comment is optional.",
             );
         } else {
             this.$inputElement.removeAttr("required");
@@ -254,8 +254,8 @@ class ErrorSummary {
 }
 
 class Form {
-    constructor() {
-        this.$form = $("#safeguarding-form");
+    constructor($form) {
+        this.$form = $form;
         this.checkType = new CheckType();
         this.status = new Status();
         this.accExistsFailureReason = new AccExistsFailureReason();
@@ -265,7 +265,7 @@ class Form {
         this.sponsors = new Sponsors();
         this.sponsorDBSType = new SponsorDBSType();
         this.comments = new Comments(new ErrorSummary());
-        this.$buttons = this.$form.find("button");
+        this.$buttons = $form.find("button");
     }
 
     init() {
@@ -384,4 +384,10 @@ class Form {
     }
 }
 
-$(() => new Form().init());
+const initSafeguardingForm = () => {
+    $('[data-module="safeguarding-form"]').each((_, element) => {
+        new Form($(element)).init();
+    });
+};
+
+export { initSafeguardingForm };

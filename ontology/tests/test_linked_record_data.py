@@ -1,9 +1,8 @@
-from django.test import SimpleTestCase
-
 from ontology.utils import LinkedRecordData
+from test_utils.base import BaseSimpleTestCase
 
 
-class LinkedRecordDataTestCase(SimpleTestCase):
+class LinkedRecordDataTestCase(BaseSimpleTestCase):
     def test_keeps_title_when_present(self):
         data = LinkedRecordData("guests:detail-overview", 1, "First Last")
 

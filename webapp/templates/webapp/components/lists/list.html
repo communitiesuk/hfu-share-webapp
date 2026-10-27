@@ -1,0 +1,5 @@
+<ul class="{{ list.classes }}">
+    {% for item in list.items %}
+        <li {% if list.item_classes %}class="{{ list.item_classes }}"{% endif %}>{{ item }}</li>
+    {% endfor %}
+</ul>

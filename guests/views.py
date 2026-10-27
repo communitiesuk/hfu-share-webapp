@@ -8,8 +8,10 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Q
 from django.forms.widgets import CheckboxInput, CheckboxSelectMultiple
 from django.shortcuts import get_object_or_404, redirect
+from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
-from django.utils.html import escape, format_html
+from django.utils.html import escape
+from django.utils.safestring import mark_safe
 from django.views.generic import DetailView, UpdateView
 from django_filters import (
     BooleanFilter,
@@ -406,6 +408,7 @@ class GuestDetailOverviewView(
     model = MvPerson
 
     email = Column(verbose_name="Email address")
+    upe_visa_status = Column(verbose_name=MvPerson.UPE_VISA_STATUS_FULL_LABEL)
 
     def show_upe_visa_status(self):
         user = self.request.user
@@ -568,20 +571,18 @@ class GuestDetailActionsView(
                 actions.append(
                     LinkAction(
                         label="Undo deduplication",
-                        text="This deduplication cannot yet be undone due to a "
-                        "further deduplication. To restore this record, first undo the "
-                        "deduplication from the "
-                        f"{
-                            format_html(
-                                '<a href={}>actions tab for {}.</a><br></br>',
-                                reverse(
-                                    'guests:detail-actions',
+                        text=render_to_string(
+                            "webapp/components/cannot_undo_deduplication/cannot_undo_deduplication.html",
+                            {
+                                "text": (
+                                    further_dup_group.principal_record.get_full_name()
+                                ),
+                                "href": reverse(
+                                    "guests:detail-actions",
                                     args=[further_dup_group.principal_record.pk],
                                 ),
-                                further_dup_group.principal_record.get_full_name(),
-                            )
-                        }"
-                        "A full deduplication history is in the history tab.",
+                            },
+                        ),
                     )
                 )
         return actions
@@ -670,7 +671,7 @@ class GuestDetailPropertiesView(
     model = MvPerson
 
     email = Column(verbose_name="Email address")
-    upe_visa_status = Column(verbose_name="Ukraine Extension Scheme (UPE) visa status")
+    upe_visa_status = Column(verbose_name=MvPerson.UPE_VISA_STATUS_FULL_LABEL)
 
     def render_upe_visa_status(self, value, record):
         if value:
@@ -741,7 +742,21 @@ class GuestDetailHistoryView(
             "This history shows the dates a change was made to the guest record "
             "on the system."
         )
+        self.expand_first_upe_mention(context["events"].object_list)
         return context
+
+    @staticmethod
+    def expand_first_upe_mention(events):
+        for event in events:
+            if MvPerson.UPE_VISA_STATUS_LABEL in event.content:
+                event.content = mark_safe(  # noqa:S308
+                    event.content.replace(
+                        MvPerson.UPE_VISA_STATUS_LABEL,
+                        MvPerson.UPE_VISA_STATUS_FULL_LABEL,
+                        1,
+                    )
+                )
+                return
 
 
 class GuestEditView(
@@ -804,9 +819,9 @@ class RedactedVisaApplicationsTable(tables.Table):
     Q44g_full_name = Column(verbose_name="Guest name")
     ltla_name = Column(verbose_name="Local authority")
     Q97c_sponsor_name = Column(verbose_name="Sponsor name")
-    gwf = Column(verbose_name="Global Web Form number (GWF)")
+    gwf = Column(verbose_name="Global web form number (GWF)")
     application_unique_application_number = Column(
-        verbose_name="Unique Application Number (UAN)"
+        verbose_name="Unique application number (UAN)"
     )
 
     def render_visa_status(self, value):
@@ -878,9 +893,8 @@ class GuestVisaApplicationsListView(
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["object"] = get_object_or_404(MvPerson, pk=self.kwargs["pk"])
-        ctx["page_heading"] = (
-            f"Visa applications referencing {ctx['object'].get_full_name()}"
-        )
+        ctx["caption"] = "Visa applications associated with"
+        ctx["page_heading"] = ctx["object"].get_full_name()
         return ctx
 
     def get_queryset(self):

@@ -687,8 +687,8 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
 
         safeguarding_page.field_has_hint_text(
             "Comments",
-            "You must add a reason if you select 'Sponsor is not suitable - "
-            "other reasons' from the list for UKVI to review the comments. "
+            "You must add a reason if you select ‘Sponsor is not suitable - "
+            "other reasons’ from the list for UKVI to review the comments. "
             "For any other reason selected adding a comment is optional.",
         )
 
@@ -764,8 +764,8 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
 
         safeguarding_page.field_has_hint_text(
             "Comments",
-            "You must add a reason if you select 'Sponsor is not suitable - "
-            "other reasons' from the list for UKVI to review the comments. "
+            "You must add a reason if you select ‘Sponsor is not suitable - "
+            "other reasons’ from the list for UKVI to review the comments. "
             "For any other reason selected adding a comment is optional.",
         )
 

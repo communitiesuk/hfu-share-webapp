@@ -15,15 +15,15 @@ class DeduplicationAccommodationCheckAndCompleteViewTestCase(
         super().setUp()
         self.first_accommodation = MvAccommodationFactory(
             full_address="1 ABC Road, AB1 CD3",
-            ltla_name="ltla_somerset",
-            utla_name="utla_somerset",
+            ltla_name="ltla_test",
+            utla_name="utla_test",
             postcode=MvUkPostcodeFactory(postcode="AB1CD3"),
             is_principal=True,
         )
         self.second_accommodation = MvAccommodationFactory(
             full_address="2 DEQ Road, PP2 EE1",
-            ltla_name="ltla_somerset",
-            utla_name="ltla_somerset",
+            ltla_name="ltla_test",
+            utla_name="utla_test",
             postcode=MvUkPostcodeFactory(postcode="PP2EE1"),
             is_principal=True,
         )
@@ -470,3 +470,119 @@ class DeduplicationAccommodationCheckAndCompleteViewTestCase(
             "been deduplicated. No new principal record was created.",
         )
         self.assertNotContains(response, "A new principal record has been created for")
+
+    def test_deduplicated_record_has_no_postcode_when_no_source_postcodes(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        accommodation_without_postcode = MvAccommodationFactory(
+            full_address="3 FGH Road, GG1 HH2",
+            ltla_name="ltla_test",
+            utla_name="utla_test",
+            postcode=None,
+            is_principal=True,
+        )
+        other_accommodation_without_postcode = MvAccommodationFactory(
+            full_address="4 IJK Road, KK3 LL4",
+            ltla_name="ltla_test",
+            utla_name="utla_test",
+            postcode=None,
+            is_principal=True,
+        )
+
+        self.client.post(
+            reverse(
+                "deduplication:accommodations:select-and-review-records-manual-step",
+                kwargs={"step": SelectAndReviewRecordsStep.SELECT_RECORD},
+            ),
+            {
+                "select-record-accommodation_record": [
+                    accommodation_without_postcode.id,
+                    other_accommodation_without_postcode.id,
+                ],
+                "SelectAndReviewRecordsFormWizard-current_step": (
+                    SelectAndReviewRecordsStep.SELECT_RECORD,
+                ),
+            },
+            follow=True,
+        )
+
+        self.client.post(
+            reverse(
+                "deduplication:accommodations:select-and-review-records-manual-step",
+                kwargs={"step": SelectAndReviewRecordsStep.VIEW_SELECTED_RECORDS},
+            ),
+            {
+                "select-record-accommodation_record": [
+                    accommodation_without_postcode.id,
+                    other_accommodation_without_postcode.id,
+                ],
+                "SelectAndReviewRecordsFormWizard-current_step": (
+                    SelectAndReviewRecordsStep.VIEW_SELECTED_RECORDS,
+                ),
+            },
+            follow=True,
+        )
+
+        self.client.post(
+            reverse(
+                "deduplication:accommodations:select-and-review-records-manual-step",
+                kwargs={"step": SelectAndReviewRecordsStep.REVIEW_SELECTED_RECORDS},
+            ),
+            {
+                "select-record-accommodation_record": [
+                    accommodation_without_postcode.id,
+                    other_accommodation_without_postcode.id,
+                ],
+                "SelectAndReviewRecordsFormWizard-current_step": (
+                    SelectAndReviewRecordsStep.REVIEW_SELECTED_RECORDS,
+                ),
+            },
+            follow=True,
+        )
+
+        response = self.client.post(
+            reverse(
+                "deduplication:accommodations:select-and-review-records-manual-step",
+                kwargs={"step": SelectAndReviewRecordsStep.SELECT_CORRECT_DETAILS},
+            ),
+            {
+                f"{self.step_prefix}full_address": (
+                    other_accommodation_without_postcode.id
+                ),
+                f"{self.step_prefix}ltla_name": (
+                    other_accommodation_without_postcode.ltla_name
+                ),
+                f"{self.step_prefix}utla_name": (
+                    other_accommodation_without_postcode.utla_name
+                ),
+                "SelectAndReviewRecordsFormWizard-current_step": (
+                    SelectAndReviewRecordsStep.SELECT_CORRECT_DETAILS,
+                ),
+            },
+            follow=True,
+        )
+
+        self.assertContains(response, "Check details and complete deduplication")
+
+        response = self.client.post(
+            reverse(
+                "deduplication:accommodations:select-and-review-records-manual-step",
+                kwargs={"step": SelectAndReviewRecordsStep.CHECK_AND_COMPLETE},
+            ),
+            {
+                "SelectAndReviewRecordsFormWizard-current_step": (
+                    SelectAndReviewRecordsStep.CHECK_AND_COMPLETE,
+                ),
+            },
+            follow=True,
+        )
+
+        self.assertContains(response, "Success")
+        self.assertContains(response, "A new principal record has been created for")
+
+        new_principal = MvAccommodation.objects.get(
+            full_address=other_accommodation_without_postcode.full_address,
+            is_principal=True,
+        )
+        self.assertIsNone(new_principal.postcode)

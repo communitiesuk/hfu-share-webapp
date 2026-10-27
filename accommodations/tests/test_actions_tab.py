@@ -1,6 +1,7 @@
 import http.client
 from datetime import datetime, timezone
 
+from bs4 import BeautifulSoup
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
@@ -29,13 +30,13 @@ class AccommodationsActionsTestCase(
         super().setUp()
         self.accommodation = MvAccommodationFactory(
             full_address="123 Street",
-            ltla_name="ltla_somerset",
+            ltla_name="ltla_test",
         )
 
         self.new_principal_accommodation = MvAccommodationFactory(
             full_address="123 Street",
             is_principal=True,
-            ltla_name="ltla_somerset",
+            ltla_name="ltla_test",
         )
 
         self.ltla_one_a_accommodation.full_address = "123 Street"
@@ -53,8 +54,8 @@ class AccommodationsActionsTestCase(
         accommodation_duplicate_group.save()
 
         self.ltla_accommodation = MvAccommodationFactory(
-            full_address="Somerset LTLA Address",
-            ltla_name="ltla_somerset",
+            full_address="Test LTLA Address",
+            ltla_name="ltla_test",
         )
         self.da_accommodation = MvAccommodationFactory(
             full_address="Scotland DA address",
@@ -211,11 +212,33 @@ class AccommodationsActionsTestCase(
             )
         )
 
-        self.assertContains(
-            response,
-            "This deduplication cannot yet be undone due to a "
-            "further deduplication. To restore this record, "
-            "first undo the deduplication from the",
+        soup = BeautifulSoup(response.content, "html.parser")
+
+        undo_dedupe_value = soup.find("dd", {"class": "govuk-summary-list__value"})
+        self.assertIsNotNone(undo_dedupe_value)
+        self.assertEqual(
+            " ".join(undo_dedupe_value.get_text(" ", strip=True).split()),
+            "This deduplication cannot yet be undone due to a further deduplication. "
+            "To restore this record, first undo the deduplication from the "
+            "actions tab for 123 Street . "
+            "A full deduplication history is in the history tab.",
         )
 
-        self.assertContains(response, "123 Street")
+        undo_dedupe_value_link = soup.find(
+            "a",
+            {
+                "href": reverse(
+                    "accommodations:detail-actions",
+                    args=[further_accommodation_duplicate_group.principal_record.pk],
+                ),
+                "class": "govuk-link",
+            },
+        )
+        self.assertIsNotNone(undo_dedupe_value_link)
+        self.assertEqual(
+            undo_dedupe_value_link.get_text(" ", strip=True),
+            "actions tab for 123 Street",
+        )
+
+        start_link = soup.find("a", string="Start")
+        self.assertIsNone(start_link)

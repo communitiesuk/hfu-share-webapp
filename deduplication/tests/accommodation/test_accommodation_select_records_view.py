@@ -19,17 +19,17 @@ class DeduplicationAccommodationListViewTestCase(TestSessionTokenMixin, BaseTest
         super().setUp()
 
         self.accommodation = MvAccommodationFactory(
-            full_address="A Test Somerset LTLA Address",
-            ltla_name="ltla_somerset",
-            utla_name="utla_somerset",
+            full_address="A Test LTLA Address",
+            ltla_name="ltla_test",
+            utla_name="utla_test",
             postcode=MvUkPostcodeFactory(postcode="ABC123"),
             is_principal=True,
         )
 
         self.non_principal_accommodation = MvAccommodationFactory(
             full_address="A Test Non principal Address",
-            ltla_name="ltla_somerset",
-            utla_name="utla_somerset",
+            ltla_name="ltla_test",
+            utla_name="utla_test",
             postcode=MvUkPostcodeFactory(postcode="CBA321"),
             is_principal=False,
         )

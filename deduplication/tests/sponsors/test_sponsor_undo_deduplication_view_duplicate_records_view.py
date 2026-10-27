@@ -226,7 +226,7 @@ class UndoDeduplicationSponsorViewDeduplicatedRecordsViewTestCase(
         self.assertContains(
             response,
             '<button name="submit" class="govuk-button" id="id_submit" '
-            'data-module="govuk-button">Undo deduplication</button>',
+            'data-module="govuk-button">Continue</button>',
             html=True,
         )
 

@@ -111,8 +111,8 @@ class LinkedVisaApplicationsListTestCase(
         self.assertContains(response, "Decision date")
         self.assertContains(response, "Sponsor")
         self.assertContains(response, "Local authority")
-        self.assertContains(response, "Global Web Form number (GWF)")
-        self.assertContains(response, "Unique Application Number (UAN)")
+        self.assertContains(response, "Global web form number (GWF)")
+        self.assertContains(response, "Unique application number (UAN)")
 
     def test_returns_all_visa_applications_linked_to_guest(self):
         self.request.user = self.user

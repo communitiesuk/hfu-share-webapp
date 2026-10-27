@@ -103,6 +103,11 @@ class SharePage:
     def enter_text_into_form_field(self, label: str, text: str):
         self.main_page.get_by_label(label).fill(text)
 
+    def enter_text_into_searchable_select(self, label: str, text: str):
+        self.main_page.get_by_label(label).and_(
+            self.main_page.locator("input.autocomplete__input")
+        ).fill(text)
+
     def enter_text_into_date_field(self, label: str, date: datetime):
         self.main_page.get_by_label(label).fill(date.strftime("%d/%m/%Y"))
 

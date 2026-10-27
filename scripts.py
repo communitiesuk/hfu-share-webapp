@@ -4,6 +4,11 @@ import os
 import subprocess
 import sys
 
+# Silence msal's form_post recommendation warning raised during Entra ID tests
+MSAL_WARNING_FILTER = (
+    "ignore:response_mode='form_post' is recommended:UserWarning:msal.oauth2cli.oauth2"
+)
+
 
 def lint():
     try:
@@ -45,7 +50,9 @@ def test():
         subprocess.run(
             ["coverage", "run", "manage.py", "test"] + sys.argv[1:],
             check=True,
-            env=dict(os.environ, ENTRA_ID_ENABLED="True"),
+            env=dict(
+                os.environ, ENTRA_ID_ENABLED="True", PYTHONWARNINGS=MSAL_WARNING_FILTER
+            ),
         )
         subprocess.run(["coverage", "report"], check=True)
     except subprocess.CalledProcessError as error:
@@ -70,7 +77,9 @@ def test_parallel():
             ]
             + sys.argv[1:],
             check=True,
-            env=dict(os.environ, ENTRA_ID_ENABLED="True"),
+            env=dict(
+                os.environ, ENTRA_ID_ENABLED="True", PYTHONWARNINGS=MSAL_WARNING_FILTER
+            ),
         )
         subprocess.run(["coverage", "report"], check=True)
     except subprocess.CalledProcessError as error:
@@ -149,7 +158,13 @@ def reenable_non_admin_user_access():
 
 
 def lint_shell():
-    files = glob.glob("**/*.sh", recursive=True, include_hidden=True)
+    exclude_dirs = [".venv"]
+
+    files = [
+        file
+        for file in glob.glob("**/*.sh", recursive=True, include_hidden=True)
+        if not any(file.startswith(exclude_dir) for exclude_dir in exclude_dirs)
+    ]
 
     if not files:
         print("No .sh files found.")
@@ -158,7 +173,7 @@ def lint_shell():
     print(f"Scanning {len(files)} files...")
 
     try:
-        subprocess.run(["poetry", "run", "shellcheck"] + files, check=True)
+        subprocess.run(["uv", "run", "shellcheck"] + files, check=True)
 
     except subprocess.CalledProcessError as error:
         print("Error running Shellcheck: ")

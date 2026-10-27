@@ -8,8 +8,8 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.forms import CheckboxInput
 from django.forms.widgets import CheckboxSelectMultiple
 from django.http import HttpResponse
+from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
-from django.utils.html import format_html
 from django.views.generic import DetailView, UpdateView
 from django_filters import (
     BooleanFilter,
@@ -425,20 +425,16 @@ class SponsorDetailActionsView(
                 actions.append(
                     LinkAction(
                         label="Undo deduplication",
-                        text="This deduplication cannot yet be undone due to a "
-                        "further deduplication. To restore this record, first undo the "
-                        "deduplication from the "
-                        f"{
-                            format_html(
-                                '<a href={}>actions tab for {}.</a><br></br>',
-                                reverse(
-                                    'sponsors:detail-actions',
+                        text=render_to_string(
+                            "webapp/components/cannot_undo_deduplication/cannot_undo_deduplication.html",
+                            {
+                                "text": further_dup_group.principal_record.full_name,
+                                "href": reverse(
+                                    "sponsors:detail-actions",
                                     args=[further_dup_group.principal_record.pk],
                                 ),
-                                further_dup_group.principal_record.full_name,
-                            )
-                        }"
-                        "A full deduplication history is in the history tab.",
+                            },
+                        ),
                     )
                 )
         return actions

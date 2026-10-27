@@ -1,12 +1,12 @@
 from django.template import Context, Template
-from django.test import SimpleTestCase
 from django.utils import timezone
 
+from test_utils.base import BaseSimpleTestCase
 from webapp.mixins import TimelineItem
 from webapp.templatetags.timeline_extras import TimelineEventType
 
 
-class TimelineTemplateTests(SimpleTestCase):
+class TimelineTemplateTests(BaseSimpleTestCase):
     def setUp(self):
         self.event = {
             "created_at": timezone.datetime(2025, 8, 12, 17, 9),

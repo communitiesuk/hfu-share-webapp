@@ -1,29 +1,50 @@
-FROM python:3.13.15-alpine3.24@sha256:79e7a9b9ff1cbceff819f856fb374477792a5967759d94df266de7b7b4120e6f
+# Multilayer build to install UV
+FROM python:3.13.17-alpine3.24@sha256:fa0bb0d0cd7c7d6cef30a69094d32ac2b71c7304c87c6107fec100e1ee4eda02 AS builder
 
-# Add curl for healthchecks
-RUN apk add --update --no-cache curl=8.22.0-r0
-
-WORKDIR /usr/src/app
+COPY --from=docker.io/astral/uv:0.13.5@sha256:32a7bb39b496babbd997b0a39a4d66c126bdaf5661b302bf6f06abda8deca6ff /uv /uvx /bin/
 
 # Don't write pyc files to disc
 ENV PYTHONDONTWRITEBYTECODE=1
 # Don't buffer stout and stderr
 ENV PYTHONUNBUFFERED=1
-# No need for virtual environments since container is already isolated
-ENV POETRY_VIRTUALENVS_CREATE=false \
-    POETRY_NO_INTERACTION=1
-# Set poetry cache dir so we can easily remove it later
-ENV POETRY_CACHE_DIR=/tmp/poetry_cache
-# Poetry version should match poetry.lock
-ARG POETRY_VERSION=2.1
+# Use copy mode since the cache and build filesystem are on different volumes.
+ENV UV_LINK_MODE=copy
 
-RUN pip install "poetry==${POETRY_VERSION}" --no-cache-dir
+# Move into the working directory
+WORKDIR /usr/src/app
+
+# Install dependencies from Codeartifact into a virtual environment using cache and bind mounts
+# so neither uv nor the lock files need to be copied into the image.
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    --mount=type=secret,id=codeartifact_token \
+    --mount=type=secret,id=codeartifact_url \
+    UV_INDEX="codeartifact=$(cat /run/secrets/codeartifact_url)" \
+    UV_INDEX_CODEARTIFACT_USERNAME=aws \
+    UV_INDEX_CODEARTIFACT_PASSWORD="$(cat /run/secrets/codeartifact_token)" \
+    uv sync --frozen --no-install-project --no-dev
+
+FROM python:3.13.17-alpine3.24@sha256:fa0bb0d0cd7c7d6cef30a69094d32ac2b71c7304c87c6107fec100e1ee4eda02
+
+# Update alpine dependency library and add curl for healthchecks
+RUN apk add --update --no-cache curl=8.23.0-r0
+
+# Don't buffer stout and stderr
+ENV PYTHONUNBUFFERED=1
+# Activate the virtual environment copied from the build stage.
+ENV PATH="/usr/src/app/.venv/bin:$PATH"
+
+WORKDIR /usr/src/app
 
 # Create non-root user
 RUN adduser -D -u 1000 appuser
 
-# Copy pyproject.toml and poetry.lock
-COPY --chown=appuser:appuser pyproject.toml poetry.lock README.md ./
+# Copy the pre-built virtual environment and application source code.
+COPY --chown=appuser:appuser --from=builder /usr/src/app/.venv /usr/src/app/.venv
+
+# Copy pyproject.toml and uv.lock
+COPY --chown=appuser:appuser pyproject.toml uv.lock README.md ./
 
 # Copy each app
 COPY --chown=appuser:appuser accommodation_requests/ /usr/src/app/accommodation_requests/
@@ -40,9 +61,9 @@ COPY --chown=appuser:appuser reassignment_requests/ /usr/src/app/reassignment_re
 COPY --chown=appuser:appuser safeguarding/ /usr/src/app/safeguarding/
 COPY --chown=appuser:appuser sponsors/ /usr/src/app/sponsors/
 COPY --chown=appuser:appuser uams/ /usr/src/app/uams/
+COPY --chown=appuser:appuser unassigned_accommodation_requests/ /usr/src/app/unassigned_accommodation_requests/
 COPY --chown=appuser:appuser user_management/ /usr/src/app/user_management/
 COPY --chown=appuser:appuser visa_applications/ /usr/src/app/visa_applications/
-COPY --chown=appuser:appuser unassigned_accommodation_requests/ /usr/src/app/unassigned_accommodation_requests/
 COPY --chown=appuser:appuser webapp/ /usr/src/app/webapp/
 
 # Copy the necessary application files
@@ -52,26 +73,9 @@ COPY --chown=appuser:appuser templates/ /usr/src/app/templates/
 # Copy manage.py
 COPY --chown=appuser:appuser manage.py /usr/src/app/
 
-
-# Install Dependencies from Codeartifact
-RUN --mount=type=secret,id=codeartifact_token \
-    --mount=type=secret,id=codeartifact_url \
-    /bin/sh -c '\
-    set -euo pipefail; \
-    TOKEN="$(cat /run/secrets/codeartifact_token)"; \
-    CODEARTIFACT_URL="$(cat /run/secrets/codeartifact_url)"; \
-    poetry source add --priority=primary codeartifact "$CODEARTIFACT_URL"; \
-    poetry config http-basic.codeartifact aws "$TOKEN"; \
-    poetry lock; \
-    poetry install --no-interaction --without dev; \
-'
-
 # Generate the static files manifest
 RUN python manage.py collectstatic --noinput && \
     find staticfiles -mindepth 1 -maxdepth 1 ! -name staticfiles.json -exec rm -rf {} +
-
-### Remove Poetry and its cache
-RUN pip uninstall --yes poetry && rm -rf /tmp/poetry_cache
 
 # Switch to non-root user
 USER appuser

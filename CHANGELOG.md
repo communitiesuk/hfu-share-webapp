@@ -1,5 +1,103 @@
 # Changelog
 
+## [2.26.1](https://github.com/communitiesuk/hfu-share-webapp/compare/2.26.0...2.26.1) (2026-10-23)
+
+
+### Bug Fixes
+
+* typo in seeder ([#295](https://github.com/communitiesuk/hfu-share-webapp/issues/295)) ([2ab6694](https://github.com/communitiesuk/hfu-share-webapp/commit/2ab6694017a59dcd79aaa5542db5f55e9d482ac5))
+
+## [2.26.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.25.0...2.26.0) (2026-10-20)
+
+
+### Features
+
+* HFURB-4278 update MOJ Frontend to v11.1.0 ([#279](https://github.com/communitiesuk/hfu-share-webapp/issues/279)) ([b4767a6](https://github.com/communitiesuk/hfu-share-webapp/commit/b4767a61ef59abe44da0d4959d9522ca6ff7dad1))
+
+
+### Bug Fixes
+
+* HFURB-3844 allow two accommodations without postcodes to be selected for deduplication ([#285](https://github.com/communitiesuk/hfu-share-webapp/issues/285)) ([8744daa](https://github.com/communitiesuk/hfu-share-webapp/commit/8744daacaad6a7a4d269fab39555c8be21c83c91))
+
+## [2.25.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.24.0...2.25.0) (2026-10-16)
+
+
+### Features
+
+* create process duplicate accommodations script ([#272](https://github.com/communitiesuk/hfu-share-webapp/issues/272)) ([a5b1651](https://github.com/communitiesuk/hfu-share-webapp/commit/a5b16514285fa005c819089aaf32ef93f5c7542d))
+
+## [2.24.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.23.1...2.24.0) (2026-10-15)
+
+
+### Features
+
+* HFURB-4167 move the scripts into a command class to be run with python manage ([#268](https://github.com/communitiesuk/hfu-share-webapp/issues/268)) ([d658f93](https://github.com/communitiesuk/hfu-share-webapp/commit/d658f93aabab17a35271a8f7a5b85059cd44d6cb))
+
+
+### Bug Fixes
+
+* HFURB-4226 expand ukvi acronym ([#252](https://github.com/communitiesuk/hfu-share-webapp/issues/252)) ([129ba27](https://github.com/communitiesuk/hfu-share-webapp/commit/129ba27dd0293a8891c3e7af24e4900394ab312d))
+* make some simple copy fixes as per the design ([#273](https://github.com/communitiesuk/hfu-share-webapp/issues/273)) ([aa16481](https://github.com/communitiesuk/hfu-share-webapp/commit/aa1648184c2375d78e6a76040730d3a6b12af43b))
+* use support_js_module_import_aggregation to enable fingerprinting of asset files imported in the JS ([#275](https://github.com/communitiesuk/hfu-share-webapp/issues/275)) ([4123ca6](https://github.com/communitiesuk/hfu-share-webapp/commit/4123ca68d67a3c91741d4b74a665d928c60a8c41))
+
+## [2.23.1](https://github.com/communitiesuk/hfu-share-webapp/compare/2.23.0...2.23.1) (2026-10-13)
+
+
+### Bug Fixes
+
+* fix incorrect exclude value in pre commit hook ([#269](https://github.com/communitiesuk/hfu-share-webapp/issues/269)) ([44f7e66](https://github.com/communitiesuk/hfu-share-webapp/commit/44f7e66d2cbb865a18dca361d3d602c8031d8fa1))
+* HFURB-4168 - replace links with buttons and use shared template for add another item ([#257](https://github.com/communitiesuk/hfu-share-webapp/issues/257)) ([d630557](https://github.com/communitiesuk/hfu-share-webapp/commit/d630557340444387d14972b22ddc3cb1c1aa354c))
+* silence the msal form_post warning in test output (HFURB-3919) ([#271](https://github.com/communitiesuk/hfu-share-webapp/issues/271)) ([8ae108a](https://github.com/communitiesuk/hfu-share-webapp/commit/8ae108a4536712f37716483e0fa2bd09e5adc1f4))
+* update method for entering text into searchable select in reassignment request tests ([#263](https://github.com/communitiesuk/hfu-share-webapp/issues/263)) ([a437b35](https://github.com/communitiesuk/hfu-share-webapp/commit/a437b35791ceedb7044a79f7f114db728cd71e0d))
+* update UPE acronym to be full on first instance (HFURB-4227) ([#261](https://github.com/communitiesuk/hfu-share-webapp/issues/261)) ([d4aed85](https://github.com/communitiesuk/hfu-share-webapp/commit/d4aed8514e83f1c04c248839c75920a4307115b0))
+
+## [2.23.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.22.0...2.23.0) (2026-10-06)
+
+
+### Features
+
+* HFURB-3373 create script to fix ARs where the LA name is [Null] ([#260](https://github.com/communitiesuk/hfu-share-webapp/issues/260)) ([395a15f](https://github.com/communitiesuk/hfu-share-webapp/commit/395a15f08de20dbba65023b051fc2b1f746a11dc))
+
+
+### Bug Fixes
+
+* HFURB-3373 add admin filters and actions to fix [Null] ltla or utla names ([#262](https://github.com/communitiesuk/hfu-share-webapp/issues/262)) ([7d4dc98](https://github.com/communitiesuk/hfu-share-webapp/commit/7d4dc9832dbb199d9f4d884b30b06f623c72488e))
+* load all custom JS from a single file and remove unused JS ([#256](https://github.com/communitiesuk/hfu-share-webapp/issues/256)) ([2a3e08a](https://github.com/communitiesuk/hfu-share-webapp/commit/2a3e08a122b8c625131e6f4f24c074babc2e145e))
+
+## [2.22.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.21.0...2.22.0) (2026-10-01)
+
+
+### Features
+
+* add new unitary authorities ([#239](https://github.com/communitiesuk/hfu-share-webapp/issues/239)) ([e1f86bc](https://github.com/communitiesuk/hfu-share-webapp/commit/e1f86bce1888bed86cdb6ddc49c9781ca62a490a))
+* HFURB-4055 block inline styles using the content security policy ([#249](https://github.com/communitiesuk/hfu-share-webapp/issues/249)) ([0fe1722](https://github.com/communitiesuk/hfu-share-webapp/commit/0fe1722f0153d9c6d051563833f70a1cb4f3e31c))
+* HFURB-4056 add linter to check for HTML in python code ([#248](https://github.com/communitiesuk/hfu-share-webapp/issues/248)) ([f5d310f](https://github.com/communitiesuk/hfu-share-webapp/commit/f5d310f1d150c3ef0ed61e3a35ed6c07b6bb0bc0))
+* update GOV.UK Frontend to v6.5.1 ([#242](https://github.com/communitiesuk/hfu-share-webapp/issues/242)) ([eb30e2c](https://github.com/communitiesuk/hfu-share-webapp/commit/eb30e2c798e936d8ff2b2f53ec4990f6d9031bf0))
+
+
+### Bug Fixes
+
+* create a mixin to share test utils code ([#254](https://github.com/communitiesuk/hfu-share-webapp/issues/254)) ([456e11d](https://github.com/communitiesuk/hfu-share-webapp/commit/456e11d8e28b7cde0b94a62c1ea58101253a10eb))
+
+## [2.21.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.20.0...2.21.0) (2026-09-29)
+
+
+### Features
+
+* Add admin action to redact volunteer PII ([#213](https://github.com/communitiesuk/hfu-share-webapp/issues/213)) ([84e64ea](https://github.com/communitiesuk/hfu-share-webapp/commit/84e64eafdafd4e8a2da384d356b7939b7e0100fe))
+* add browser test as part of the pipeline ([#225](https://github.com/communitiesuk/hfu-share-webapp/issues/225)) ([711f999](https://github.com/communitiesuk/hfu-share-webapp/commit/711f999391d48205e63ed8d7e8a0ad9dcdaaa61c))
+
+
+### Bug Fixes
+
+* HFURB-4056 create link helper to replace HTML links in python focusing on the cancel link ([#236](https://github.com/communitiesuk/hfu-share-webapp/issues/236)) ([d3161d9](https://github.com/communitiesuk/hfu-share-webapp/commit/d3161d943244b4aad1ebcd3d857abacdb5f6057b))
+* HFURB-4056 make link helper to replace HTML in python files ([#245](https://github.com/communitiesuk/hfu-share-webapp/issues/245)) ([a075a8d](https://github.com/communitiesuk/hfu-share-webapp/commit/a075a8d35157bbb693f3e72f42e7e3c5441f10e5))
+* HFURB-4056 make the app use a single tag helper ([#243](https://github.com/communitiesuk/hfu-share-webapp/issues/243)) ([9f880c8](https://github.com/communitiesuk/hfu-share-webapp/commit/9f880c8c198c20a3e9e0cd8dbd016d33d6968386))
+* HFURB-4056 replace inline HTML in the uses of the HTML class ([#237](https://github.com/communitiesuk/hfu-share-webapp/issues/237)) ([78de8ce](https://github.com/communitiesuk/hfu-share-webapp/commit/78de8ce602b1822cd06c7e57e028f427697c5e0e))
+* HFURB-4056 replace usage of format_html ([#246](https://github.com/communitiesuk/hfu-share-webapp/issues/246)) ([577dc23](https://github.com/communitiesuk/hfu-share-webapp/commit/577dc231c32043e7ad1ef1468d245222b776aa13))
+* move the building of the test users out of the browser tests so they can be shared in app code and browser code ([#241](https://github.com/communitiesuk/hfu-share-webapp/issues/241)) ([e8a1208](https://github.com/communitiesuk/hfu-share-webapp/commit/e8a1208810d067305e3282eccf0546910a60a183))
+* use the correct relationship to fetch checks from DB to show on records ([#250](https://github.com/communitiesuk/hfu-share-webapp/issues/250)) ([98cb4d5](https://github.com/communitiesuk/hfu-share-webapp/commit/98cb4d586b10670a8080b075ee86809e05339d9e))
+
 ## [2.20.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.19.0...2.20.0) (2026-09-21)
 
 

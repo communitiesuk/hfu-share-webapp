@@ -21,7 +21,7 @@ class GuestLinkedRecordsTestCase(
     def setUp(self):
         super().setUp()
         self.uan = VisaApplicationFactory(
-            ltla_name="ltla_somerset",
+            ltla_name="ltla_test",
             application_unique_application_number="123456",
             title="Visa Application for Guest",
         )
@@ -38,8 +38,8 @@ class GuestLinkedRecordsTestCase(
         self.host = MvVolunteerFactory(first_name="Host", last_name="Host")
         self.host_other_la = MvVolunteerFactory(first_name="Host", last_name="Host")
         self.accommodation = MvAccommodationFactory(
-            ltla_name="ltla_somerset",
-            full_address="Somerset accommodation",
+            ltla_name="ltla_test",
+            full_address="Test accommodation",
         )
         self.accommodation.hosts.set([self.sponsor.id, self.host.id])
         self.accommodation_other_la = MvAccommodationFactory(
@@ -59,9 +59,9 @@ class GuestLinkedRecordsTestCase(
             ],
         )
         self.ar = MvAccommodationRequestFactory(
-            title="Guest Person to Somerset accom",
-            ltla_name=["ltla_somerset"],
-            utla_name=["utla_somerset"],
+            title="Guest Person to Test accom",
+            ltla_name=["ltla_test"],
+            utla_name=["utla_test"],
             primary_accommodation=self.accommodation,
             accommodation_id=[self.accommodation.id, self.accommodation_other_la.id],
             person_id=[self.guest.id],

@@ -6,12 +6,12 @@
 {% endblock breadcrumb_content %}
 {% block form %}
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-one-half">
+        <div class="govuk-grid-column-two-thirds">
             {% include "webapp/components/heading/heading.html" with page_heading=page_heading %}
         </div>
     </div>
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-one-half">
+        <div class="govuk-grid-column-two-thirds">
             <p class="govuk-body">You confirmed the following records:</p>
         </div>
     </div>
@@ -26,7 +26,7 @@
         </div>
     </div>
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-one-half">
+        <div class="govuk-grid-column-two-thirds">
             <p class="govuk-body govuk-!-margin-bottom-5">Click 'Continue' to proceed or 'Cancel' to keep the records separate.</p>
             <form class="govuk-button-group" method="post" novalidate>
                 {% csrf_token %}

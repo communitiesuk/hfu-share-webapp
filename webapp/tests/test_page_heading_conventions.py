@@ -2,7 +2,8 @@ import re
 from pathlib import Path
 
 from django.conf import settings
-from django.test import SimpleTestCase
+
+from test_utils.base import BaseSimpleTestCase
 
 # Error pages are rendered by Django's error handlers, so there is no view
 # class to declare their headings on.
@@ -15,7 +16,7 @@ VIEWLESS_ERROR_TEMPLATES = {
 HARDCODED_HEADING_RE = re.compile(r'page_heading="')
 
 
-class PageHeadingConventionTest(SimpleTestCase):
+class PageHeadingConventionTest(BaseSimpleTestCase):
     def _template_paths(self):
         base = Path(settings.BASE_DIR)
         skip_parts = {".venv", "node_modules", "staticfiles"}
