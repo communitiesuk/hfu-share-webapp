@@ -3,7 +3,7 @@ name: Create Release
 on:
   push:
     branches:
-      - main
+      - fix/fix-uv-lock
 
 defaults:
   run:
@@ -22,3 +22,4 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           config-file: release-config.json
           manifest-file: release-manifest.json
+          target-branch: ${{ github.ref_name }}
