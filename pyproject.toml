@@ -1,6 +1,6 @@
 [project]
 name = "hfu-case-management-webapp"
-version = "2.26.1"
+version = "2.27.0"
 description = "Homes for Ukraine case management webapp"
 authors = [{ name = "Homes for Ukraine", email = "homesforukraine@communities.gov.uk" }]
 requires-python = ">=3.13,<3.14"
