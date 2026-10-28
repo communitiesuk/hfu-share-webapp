@@ -40,7 +40,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "pylint>=3.3.7,<4",
+    "pylint>=3.3.7,<5",
     "pre-commit>=4.0.1,<5",
     "mypy>=1.13.0,<2",
     "django-stubs>=5.1.1,<6",
