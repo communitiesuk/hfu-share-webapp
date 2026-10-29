@@ -602,6 +602,15 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
   outline: none;
 }
 
+/* Sticky from tablet up only: below that the columns stack, so pinning the
+   nav would park it on top of the record content. */
+@media (min-width: 40.0625em) {
+  .app-record-side-nav {
+    position: sticky;
+    top: 20px;
+  }
+}
+
 /* Alerted status card: the summary card header already shows the title, so
    the form's fieldset legend is hidden visually but kept for screen readers. */
 .app-alerted-status-card .govuk-fieldset__legend {
