@@ -71,10 +71,12 @@ class BrowserTestSeededIdsTestCase(BaseTestCase):
 
     def test_records_created_through_application_code_get_browser_test_ids(self):
         renamed_records = DEDUPLICATION_PRINCIPALS + RECORDS_LINKED_TO_SEEDED_RECORDS
-        for model, _id_kind, link_fields in renamed_records:
-            with self.subTest(model.__name__):
+        for app_created in renamed_records:
+            with self.subTest(app_created.model.__name__):
                 unprefixed = (
-                    model._base_manager.filter(_linked_to_seeded_records(link_fields))
+                    app_created.model._base_manager.filter(
+                        _linked_to_seeded_records(app_created.linked_by)
+                    )
                     .exclude(pk__startswith=SEEDED_ID_START)
                     .distinct()
                 )

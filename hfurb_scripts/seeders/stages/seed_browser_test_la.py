@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import cast
 
@@ -11,7 +12,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.core import serializers
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import transaction
-from django.db.models import F, Func, Q, QuerySet, Value
+from django.db.models import F, Func, Model, Q, QuerySet, Value
+from django.db.models.fields.reverse_related import ForeignObjectRel
 from django.utils import timezone
 from freezegun import freeze_time
 
@@ -74,6 +76,7 @@ from ontology.tests.factories import CommentFactory
 logger = logging.getLogger(__name__)
 
 BROWSER_TEST_ID_PREFIX = "browser-test"
+SEEDED_ID_START = f"{BROWSER_TEST_ID_PREFIX}-"
 BROWSER_TEST_SEED = int(os.environ.get("BROWSER_TEST_SEED", 1313))
 # Seeding runs under a frozen clock so that date-relative values (dates of birth,
 # application dates, timestamps) come out the same on any day. Noon rather than
@@ -324,8 +327,7 @@ def wipe_browser_test_la_data() -> None:
     reassignment_ids = list(reassignments.values_list("pk", flat=True))
 
     guest_dup_groups = GuestDuplicateGroup.objects_including_archived.filter(
-        Q(guests__id__in=person_ids)
-        | Q(guests__id__startswith=f"{BROWSER_TEST_ID_PREFIX}-")
+        Q(guests__id__in=person_ids) | Q(guests__id__startswith=SEEDED_ID_START)
     ).distinct()
     person_ids += [
         group.principal_record_id
@@ -333,8 +335,7 @@ def wipe_browser_test_la_data() -> None:
         if group.principal_record_id
     ]
     sponsor_dup_groups = SponsorDuplicateGroup.objects_including_archived.filter(
-        Q(sponsors__id__in=sponsor_ids)
-        | Q(sponsors__id__startswith=f"{BROWSER_TEST_ID_PREFIX}-")
+        Q(sponsors__id__in=sponsor_ids) | Q(sponsors__id__startswith=SEEDED_ID_START)
     ).distinct()
     sponsor_ids += [
         group.principal_record_id
@@ -344,7 +345,7 @@ def wipe_browser_test_la_data() -> None:
     accommodation_dup_groups = (
         AccommodationDuplicateGroup.objects_including_archived.filter(
             Q(accommodations__id__in=accommodation_ids)
-            | Q(accommodations__id__startswith=f"{BROWSER_TEST_ID_PREFIX}-")
+            | Q(accommodations__id__startswith=SEEDED_ID_START)
         ).distinct()
     )
     accommodation_ids += [
@@ -489,19 +490,17 @@ def wipe_browser_test_la_data() -> None:
     ]:
         _delete_with_audit_logs(
             f"stray {model.__name__} records",
-            model.objects.filter(pk__startswith=f"{BROWSER_TEST_ID_PREFIX}-"),
+            model.objects.filter(pk__startswith=SEEDED_ID_START),
         )
 
     _delete_with_audit_logs(
         "stray ExportToolObject records",
         ExportToolObject.objects.get_queryset_without_annotations().filter(
-            pk__startswith=f"{BROWSER_TEST_ID_PREFIX}-"
+            pk__startswith=SEEDED_ID_START
         ),
     )
 
-    stray_logs = LogEntry.objects.filter(
-        object_pk__startswith=f"{BROWSER_TEST_ID_PREFIX}-"
-    )
+    stray_logs = LogEntry.objects.filter(object_pk__startswith=SEEDED_ID_START)
     stray_log_count = stray_logs.count()
     if stray_log_count:
         stray_logs.delete()
@@ -831,22 +830,31 @@ def _move_guests_off_closed_empty_ar(
     logger.info("closed empty: guests moved from %s to %s", ar.id, receiving_ar.id)
 
 
-SEEDED_ID_START = f"{BROWSER_TEST_ID_PREFIX}-"
+@dataclass(frozen=True)
+class AppCreatedRecords:
+    model: type[Model]
+    id_kind: str
+    linked_by: list[str]
+
 
 # Some seeded records are created by application code rather than by the seeder
 # (deduplicate() mints the principal records and their interactions, the
 # safeguarding form mints the escalated check), so they arrive with the app's own
 # ids. After seeding they are found through their links to seeded records and
 # renamed to browser-test ids, so the pipeline exclusions and the wipe can rely
-# on the prefix alone. Each row: model, id kind, fields linking it to seeded data.
+# on the prefix alone. test_browser_test_seeded_ids reads these same two lists.
 DEDUPLICATION_PRINCIPALS = [
-    (MvPerson, "person", ["guestduplicategroup__guests"]),
-    (MvVolunteer, "sponsor", ["sponsorduplicategroup__sponsors"]),
-    (MvAccommodation, "accommodation", ["accommodationduplicategroup__accommodations"]),
+    AppCreatedRecords(MvPerson, "person", ["guestduplicategroup__guests"]),
+    AppCreatedRecords(MvVolunteer, "sponsor", ["sponsorduplicategroup__sponsors"]),
+    AppCreatedRecords(
+        MvAccommodation,
+        "accommodation",
+        ["accommodationduplicategroup__accommodations"],
+    ),
 ]
 
 RECORDS_LINKED_TO_SEEDED_RECORDS = [
-    (
+    AppCreatedRecords(
         MvInteraction,
         "interaction",
         [
@@ -856,31 +864,22 @@ RECORDS_LINKED_TO_SEEDED_RECORDS = [
             "linked_accommodation",
         ],
     ),
-    (DevCheckV2, "check", ["AR", "person", "sponsor", "accommodation"]),
-    (SafeguardingNotification, "safeguarding-notification", ["ar"]),
-    (SafeguardingReferral, "safeguarding-referral", ["person"]),
+    AppCreatedRecords(
+        DevCheckV2, "check", ["AR", "person", "sponsor", "accommodation"]
+    ),
+    AppCreatedRecords(SafeguardingNotification, "safeguarding-notification", ["ar"]),
+    AppCreatedRecords(SafeguardingReferral, "safeguarding-referral", ["person"]),
 ]
 
-# Ids stored as text inside array fields are not relations, so Django cannot
-# find them for us; list every array that can hold a renamed record's id.
-ID_ARRAY_FIELDS = {
-    MvPerson: [(MvAccommodationRequest, "person_id")],
-    MvVolunteer: [
-        (MvAccommodationRequest, "sponsor_id"),
-        (MvAccommodationRequest, "sponsor_withdrawn"),
-    ],
-    MvAccommodation: [(MvAccommodationRequest, "accommodation_id")],
-}
 
-
-def _linked_to_seeded_records(link_fields: list[str]) -> Q:
+def _linked_to_seeded_records(linked_by: list[str]) -> Q:
     linked = Q()
-    for field in link_fields:
+    for field in linked_by:
         linked |= Q(**{f"{field}__id__startswith": SEEDED_ID_START})
     return linked
 
 
-def _stable_ordering_key(record) -> str:
+def _stable_ordering_key(record: Model) -> str:
     # Renamed records are numbered in the order they are processed. Their
     # original ids are random, so order by content to get the same numbering
     # on every run.
@@ -888,51 +887,115 @@ def _stable_ordering_key(record) -> str:
     return json.dumps(fields, cls=DjangoJSONEncoder, sort_keys=True)
 
 
-def _repoint_references(model, old_id: str, new_id: str) -> None:
-    # Reverse relations (other tables pointing at this model) are auto-created
-    # and non-concrete. include_hidden brings in the many-to-many through tables,
-    # whose foreign keys are what actually need updating; the many-to-many
-    # fields themselves cannot be set with update(), so they are skipped.
+def _repoint_references(model: type[Model], old_id: str, new_id: str) -> None:
+    # An id can be held in three places: another table's foreign key, a text
+    # array of ids, or an audit log row.
+    _repoint_foreign_keys(model, old_id, new_id)
+    _repoint_id_arrays(model, old_id, new_id)
+    _repoint_audit_log(model, old_id, new_id)
+
+
+def _repoint_foreign_keys(model: type[Model], old_id: str, new_id: str) -> None:
+    # A ForeignObjectRel is another table's relation pointing back at this model.
+    # include_hidden brings in the many-to-many through tables, whose foreign keys
+    # are what actually need updating; the many-to-many fields themselves cannot be
+    # set with update(), so they are skipped.
     for relation in model._meta.get_fields(include_hidden=True):
-        is_reference_to_this_model = relation.auto_created and not relation.concrete
-        if is_reference_to_this_model and not relation.many_to_many:
+        if isinstance(relation, ForeignObjectRel) and not relation.many_to_many:
             field = relation.field.name
-            relation.related_model._base_manager.filter(**{field: old_id}).update(
+            relation.field.model._base_manager.filter(**{field: old_id}).update(
                 **{field: new_id}
             )
-    for holder_model, array_field in ID_ARRAY_FIELDS.get(model, []):
-        holder_model._base_manager.filter(
-            **{f"{array_field}__contains": [old_id]}
+
+
+@dataclass(frozen=True)
+class IdArray:
+    holds_ids_of: type[Model]
+    model: type[Model]
+    field: str
+
+
+# Ids stored as text inside array fields are not relations, so Django cannot find
+# them for us; every array that can hold a renamed record's id is listed here. The
+# safeguarding notification arrays are filled by the app when it escalates a check,
+# and no current scenario escalates a check on a deduplicated record, so those three
+# are here for completeness rather than because seeding reaches them.
+ID_ARRAYS = [
+    IdArray(holds_ids_of=MvPerson, model=MvAccommodationRequest, field="person_id"),
+    IdArray(holds_ids_of=MvVolunteer, model=MvAccommodationRequest, field="sponsor_id"),
+    IdArray(
+        holds_ids_of=MvVolunteer,
+        model=MvAccommodationRequest,
+        field="sponsor_withdrawn",
+    ),
+    IdArray(
+        holds_ids_of=MvAccommodation,
+        model=MvAccommodationRequest,
+        field="accommodation_id",
+    ),
+    IdArray(
+        holds_ids_of=MvPerson,
+        model=SafeguardingNotification,
+        field="applicant_person_ids",
+    ),
+    IdArray(
+        holds_ids_of=MvVolunteer,
+        model=SafeguardingNotification,
+        field="sponsor_ids",
+    ),
+    IdArray(
+        holds_ids_of=MvAccommodation,
+        model=SafeguardingNotification,
+        field="accommodation_ids",
+    ),
+]
+
+
+def _repoint_id_arrays(model: type[Model], old_id: str, new_id: str) -> None:
+    for id_array in ID_ARRAYS:
+        if id_array.holds_ids_of is not model:
+            continue
+        id_array.model._base_manager.filter(
+            **{f"{id_array.field}__contains": [old_id]}
         ).update(
             **{
-                array_field: Func(
-                    F(array_field),
+                id_array.field: Func(
+                    F(id_array.field),
                     Value(old_id),
                     Value(new_id),
                     function="array_replace",
                 )
             }
         )
+
+
+def _repoint_audit_log(model: type[Model], old_id: str, new_id: str) -> None:
     LogEntry.objects.filter(
         content_type=ContentType.objects.get_for_model(model), object_pk=old_id
     ).update(object_pk=new_id)
 
 
-def _rename_record(record, new_id: str) -> None:
+def _rename_record(record: Model, new_id: str) -> None:
     model = type(record)
-    _repoint_references(model, record.id, new_id)
-    model._base_manager.filter(id=record.id).update(id=new_id)
+    old_id = record.pk
+    _repoint_references(model, old_id, new_id)
+    model._base_manager.filter(pk=old_id).update(id=new_id)
+    logger.info("renamed %s %s to %s", model.__name__, old_id, new_id)
 
 
-def _rename_unprefixed_records(records_table) -> None:
-    for model, id_kind, link_fields in records_table:
+def _rename_unprefixed_records(groups: list[AppCreatedRecords]) -> None:
+    for app_created in groups:
         unprefixed = (
-            model._base_manager.filter(_linked_to_seeded_records(link_fields))
+            app_created.model._base_manager.filter(
+                _linked_to_seeded_records(app_created.linked_by)
+            )
             .exclude(id__startswith=SEEDED_ID_START)
             .distinct()
         )
         for record in sorted(unprefixed, key=_stable_ordering_key):
-            _rename_record(record, record_id(id_kind, BROWSER_TEST_ID_PREFIX))
+            _rename_record(
+                record, record_id(app_created.id_kind, BROWSER_TEST_ID_PREFIX)
+            )
 
 
 def _give_app_created_records_browser_test_ids() -> None:
