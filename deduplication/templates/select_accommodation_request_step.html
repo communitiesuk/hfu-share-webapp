@@ -1,43 +1,32 @@
-{% extends "select_records_list_step.html" %}
-{% load crispy_forms_gds %}
+{% extends "select_and_review_records_base.html" %}
 {% load crispy_forms_tags %}
 {% block breadcrumb_content %}
     <li class="govuk-breadcrumbs__list-item">Fix duplicate records</li>
 {% endblock breadcrumb_content %}
-{% block form %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            {% error_summary form %}
-            {% include "webapp/components/heading/heading.html" with page_heading=page_heading %}
-            <div class="govuk-warning-text">
-                <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-                <strong class="govuk-warning-text__text">
-                    <span class="govuk-visually-hidden">Warning</span>
-                    These guests are linked to different accommodation requests. Once they are deduplicated, the new principal guest record can only have one accommodation request.
-                </strong>
-            </div>
-            <p class="govuk-body govuk-!-margin-top-5 govuk-!-margin-bottom-5">
-                Review the accommodation requests by selecting the links below.
-            </p>
-        </div>
+{% block narrow_content %}
+    <div class="govuk-warning-text">
+        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+        <strong class="govuk-warning-text__text">
+            <span class="govuk-visually-hidden">Warning</span>
+            These guests are linked to different accommodation requests. Once they are deduplicated, the new principal guest record can only have one accommodation request.
+        </strong>
     </div>
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            <div class="govuk-summary-card">
-                <div class="govuk-summary-card__title-wrapper">
-                    <h2 class="govuk-summary-card__title">Accommodation requests linked to guests selected for deduplication</h2>
-                </div>
-                <div class="govuk-summary-card__content">{% include table_template_url %}</div>
-            </div>
+    <p class="govuk-body govuk-!-margin-top-5 govuk-!-margin-bottom-5">
+        Review the accommodation requests by selecting the links below.
+    </p>
+{% endblock narrow_content %}
+{% block wide_content %}
+    <div class="govuk-summary-card">
+        <div class="govuk-summary-card__title-wrapper">
+            <h2 class="govuk-summary-card__title">Accommodation requests linked to guests selected for deduplication</h2>
         </div>
+        <div class="govuk-summary-card__content">{% include table_template_url %}</div>
     </div>
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            <form method="post" novalidate>
-                {% csrf_token %}
-                {{ wizard.management_form }}
-                {% crispy form %}
-            </form>
-        </div>
-    </div>
-{% endblock form %}
+{% endblock wide_content %}
+{% block lower_narrow_content %}
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {{ wizard.management_form }}
+        {% crispy form %}
+    </form>
+{% endblock lower_narrow_content %}

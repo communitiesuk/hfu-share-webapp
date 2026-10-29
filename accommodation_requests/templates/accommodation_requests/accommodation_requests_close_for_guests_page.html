@@ -1,5 +1,4 @@
-{% extends "base.html" %}
-{% load crispy_forms_gds %}
+{% extends "page_base.html" %}
 {% load crispy_forms_tags %}
 {% block breadcrumb_content %}
     <li class="govuk-breadcrumbs__list-item">
@@ -12,12 +11,9 @@
     </li>
     <li class="govuk-breadcrumbs__list-item">Close accommodation request</li>
 {% endblock breadcrumb_content %}
-{% block content %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-one-half">
-            {% error_summary form %}
-            {% include "webapp/components/heading/heading.html" with caption="Close accommodation request to" page_heading=object.title %}
-            {% crispy form %}
-        </div>
-    </div>
-{% endblock content %}
+{% block page_heading %}
+    {% include "webapp/components/heading/heading.html" with caption="Close accommodation request to" page_heading=object.title %}
+{% endblock page_heading %}
+{% block narrow_content %}
+    {% crispy form %}
+{% endblock narrow_content %}

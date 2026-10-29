@@ -1,5 +1,5 @@
-{% extends "base.html" %}
-{% load crispy_forms_filters crispy_forms_tags crispy_forms_gds %}
+{% extends "page_base.html" %}
+{% load crispy_forms_filters crispy_forms_tags %}
 {% block breadcrumb_content %}
     <li class="govuk-breadcrumbs__list-item">
         <a class="govuk-breadcrumbs__link"
@@ -10,16 +10,9 @@
     </li>
     <li class="govuk-breadcrumbs__list-item">Re-open VIR</li>
 {% endblock breadcrumb_content %}
-{% block content %}
-    {% include "webapp/components/notification_banner/notification_banner_from_messages.html" %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            {% error_summary form %}
-            {% include "webapp/components/heading/heading.html" with page_heading=page_heading %}
-            <form method="post" novalidate>
-                {% csrf_token %}
-                {% crispy form %}
-            </form>
-        </div>
-    </div>
-{% endblock content %}
+{% block narrow_content %}
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {% crispy form %}
+    </form>
+{% endblock narrow_content %}
