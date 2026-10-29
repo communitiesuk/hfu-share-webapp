@@ -1,7 +1,7 @@
 # Multilayer build to install UV
-FROM python:3.13.16-alpine3.24@sha256:2d9aefe2fef018a7eb2c13064c89c71929800fd2e5dccdbf52ea5da5bb8d929a AS builder
+FROM python:3.13.17-alpine3.24@sha256:fa0bb0d0cd7c7d6cef30a69094d32ac2b71c7304c87c6107fec100e1ee4eda02 AS builder
 
-COPY --from=docker.io/astral/uv:0.13.3@sha256:bee0a2a458fd956c5df7b8b4c5fed2257b0af34866e3da7b51db0be3acb375d1 /uv /uvx /bin/
+COPY --from=docker.io/astral/uv:0.13.5@sha256:32a7bb39b496babbd997b0a39a4d66c126bdaf5661b302bf6f06abda8deca6ff /uv /uvx /bin/
 
 # Don't write pyc files to disc
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -20,10 +20,10 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     uv sync --frozen --no-install-project --no-dev
 
-FROM python:3.13.16-alpine3.24@sha256:2d9aefe2fef018a7eb2c13064c89c71929800fd2e5dccdbf52ea5da5bb8d929a
+FROM python:3.13.17-alpine3.24@sha256:fa0bb0d0cd7c7d6cef30a69094d32ac2b71c7304c87c6107fec100e1ee4eda02
 
 # Update alpine dependency library and add curl for healthchecks
-RUN apk add --update --no-cache curl=8.22.0-r0
+RUN apk add --update --no-cache curl=8.23.0-r0
 
 # Don't buffer stout and stderr
 ENV PYTHONUNBUFFERED=1

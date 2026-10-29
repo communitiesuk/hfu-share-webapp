@@ -1,5 +1,24 @@
 # Changelog
 
+## [2.27.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.26.1...2.27.0) (2026-10-28)
+
+
+### Features
+
+* HFURB-4185 update the colours from light blue to light grey on some backgrounds ([#300](https://github.com/communitiesuk/hfu-share-webapp/issues/300)) ([6b6e773](https://github.com/communitiesuk/hfu-share-webapp/commit/6b6e7735d654099cafc98d54f907852bbffc0ed5))
+
+
+### Bug Fixes
+
+* Fix uv lock to keep it in sync ([#301](https://github.com/communitiesuk/hfu-share-webapp/issues/301)) ([02b9e4f](https://github.com/communitiesuk/hfu-share-webapp/commit/02b9e4f1f1c8072398fe8ee38e34e75f850f2d0b))
+
+## [2.26.1](https://github.com/communitiesuk/hfu-share-webapp/compare/2.26.0...2.26.1) (2026-10-23)
+
+
+### Bug Fixes
+
+* typo in seeder ([#295](https://github.com/communitiesuk/hfu-share-webapp/issues/295)) ([2ab6694](https://github.com/communitiesuk/hfu-share-webapp/commit/2ab6694017a59dcd79aaa5542db5f55e9d482ac5))
+
 ## [2.26.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.25.0...2.26.0) (2026-10-20)
 
 
