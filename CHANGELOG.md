@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.28.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.27.0...2.28.0) (2026-10-29)
+
+
+### Features
+
+* HFURB-4314 move pages onto shared page base ([#288](https://github.com/communitiesuk/hfu-share-webapp/issues/288)) ([63565cb](https://github.com/communitiesuk/hfu-share-webapp/commit/63565cb6b60f73580e11421bc8b3b4025d99fb73))
+* HFURB-4314++ notification banner content width ([#289](https://github.com/communitiesuk/hfu-share-webapp/issues/289)) ([c3bbc95](https://github.com/communitiesuk/hfu-share-webapp/commit/c3bbc952d75f67315cc907566300c20c41309b83))
+
 ## [2.27.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.26.1...2.27.0) (2026-10-28)
 
 
