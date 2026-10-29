@@ -235,11 +235,11 @@ class GuestDetailOverviewViewTests(TestSessionTokenMixin, BaseTestCase):
         content = response.content.decode()
         self.assertContains(response, 'aria-label="Record sections"')
         self.assertInHTML(
-            f'<a href="{self.overview_url}#record-detail-content" '
+            f'<a href="{self.overview_url}#main-content" '
             'aria-current="location">Overview</a>',
             content,
         )
         self.assertInHTML(
-            f'<a href="{properties_url}#record-detail-content">Properties</a>', content
+            f'<a href="{properties_url}#main-content">Properties</a>', content
         )
         self.assertNotContains(response, "govuk-tabs")

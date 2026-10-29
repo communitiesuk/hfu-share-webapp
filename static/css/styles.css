@@ -596,13 +596,6 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
   background-color: var(--app-light-grey);
 }
 
-/* The record section links carry a fragment, so the browser focuses this
-   region on arrival. GOV.UK suppresses the ring the same way when its skip
-   link focuses main content, see govuk-skip-link-focused-element. */
-.app-record-detail-content:focus {
-  outline: none;
-}
-
 /* Alerted status card: the summary card header already shows the title, so
    the form's fieldset legend is hidden visually but kept for screen readers. */
 .app-alerted-status-card .govuk-fieldset__legend {
