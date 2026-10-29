@@ -1,6 +1,5 @@
 import { initCookieBanner } from "./cookie-consent.js";
 import { initCookieSettingsForm } from "./cookie-settings.js";
-import { initDetailViewFocus } from "./detail-view-focus.js";
 import { initFilteredSection } from "./filtered-section.js";
 import { initMultiValueTextInput } from "./multi-value-text-input.js";
 import { initSafeguardingForm } from "./safeguarding-form.js";
@@ -13,7 +12,6 @@ const initAll = () => {
     initCookieBanner();
     initCookieSettingsForm();
     initMultiValueTextInput();
-    initDetailViewFocus();
 };
 
 export { initAll };
