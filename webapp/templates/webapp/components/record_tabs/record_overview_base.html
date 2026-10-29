@@ -28,7 +28,7 @@
                 <ul class="moj-side-navigation__list">
                     {% for tab in tabs %}
                         <li class="moj-side-navigation__item {% if tab.current %}moj-side-navigation__item--active{% endif %}">
-                            <a href="{{ tab.url }}"
+                            <a href="{{ tab.url }}#record-detail-content"
                                {% if tab.current %}aria-current="location"{% endif %}>{{ tab.text }}</a>
                         </li>
                     {% endfor %}
@@ -37,7 +37,9 @@
         </div>
         <div class="govuk-grid-column-three-quarters">
             <div class="govuk-grid-row">
-                <div class="{% if use_full_width %}govuk-grid-column-full{% else %}govuk-grid-column-three-quarters{% endif %}">
+                <div id="record-detail-content"
+                     tabindex="-1"
+                     class="app-record-detail-content {% if use_full_width %}govuk-grid-column-full{% else %}govuk-grid-column-three-quarters{% endif %}">
                     {% block selected_tab %}
                     {% endblock selected_tab %}
                     {% block back_button %}
