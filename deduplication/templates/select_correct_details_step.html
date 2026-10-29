@@ -11,7 +11,7 @@
         <div class="govuk-summary-card__content">{% include table_template_url %}</div>
     </div>
 {% endblock wide_content %}
-{% block narrow_footer_content %}
+{% block lower_narrow_content %}
     <div class="govuk-inset-text">
         Deduplication will create a new principal record based on the records above. Select which details to use for the new principal {{ type }} record.
         <br>
@@ -23,4 +23,4 @@
         {{ wizard.management_form }}
         {% crispy form %}
     </form>
-{% endblock narrow_footer_content %}
+{% endblock lower_narrow_content %}

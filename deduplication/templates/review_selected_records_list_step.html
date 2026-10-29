@@ -14,11 +14,11 @@
         <div class="govuk-summary-card__content">{% include table_template_url %}</div>
     </div>
 {% endblock wide_content %}
-{% block narrow_footer_content %}
+{% block lower_narrow_content %}
     <p class="govuk-body govuk-!-margin-bottom-5">Click 'Continue' to proceed or 'Cancel' to keep the records separate.</p>
     <form class="govuk-button-group" method="post" novalidate>
         {% csrf_token %}
         {{ wizard.management_form }}
         {% crispy form %}
     </form>
-{% endblock narrow_footer_content %}
+{% endblock lower_narrow_content %}
