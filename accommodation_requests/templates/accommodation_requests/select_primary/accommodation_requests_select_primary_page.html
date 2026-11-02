@@ -1,5 +1,4 @@
-{% extends "base.html" %}
-{% load crispy_forms_gds %}
+{% extends "page_base.html" %}
 {% load crispy_forms_tags %}
 {% block breadcrumb_content %}
     <li class="govuk-breadcrumbs__list-item">
@@ -12,16 +11,13 @@
     </li>
     <li class="govuk-breadcrumbs__list-item">Current accommodation and host</li>
 {% endblock breadcrumb_content %}
-{% block content %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-one-half">
-            {% error_summary form %}
-            {% include "webapp/components/heading/heading.html" with caption=caption page_heading=object.title %}
-            <form method="post" novalidate>
-                {% csrf_token %}
-                {{ wizard.management_form }}
-                {% crispy form %}
-            </form>
-        </div>
-    </div>
-{% endblock content %}
+{% block page_heading %}
+    {% include "webapp/components/heading/heading.html" with caption=caption page_heading=object.title %}
+{% endblock page_heading %}
+{% block narrow_content %}
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {{ wizard.management_form }}
+        {% crispy form %}
+    </form>
+{% endblock narrow_content %}

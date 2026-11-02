@@ -1,9 +1,8 @@
-{% extends "base.html" %}
+{% extends "page_base.html" %}
 {% block breadcrumb_content %}
     <li class="govuk-breadcrumbs__list-item">Accommodation</li>
 {% endblock breadcrumb_content %}
-{% block content %}
-    {% include "webapp/components/heading/heading.html" with page_heading=page_heading %}
+{% block wide_content %}
     {% block accommodation_request_list_table %}
     {% endblock accommodation_request_list_table %}
-{% endblock content %}
+{% endblock wide_content %}

@@ -1,5 +1,4 @@
-{% extends "base.html" %}
-{% load crispy_forms_gds %}
+{% extends "page_base.html" %}
 {% load crispy_forms_tags %}
 {% block breadcrumb_content %}
     <li class="govuk-breadcrumbs__list-item">
@@ -7,20 +6,10 @@
     </li>
     <li class="govuk-breadcrumbs__list-item">Review request</li>
 {% endblock breadcrumb_content %}
-{% block content %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            {% error_summary form %}
-            {% include "webapp/components/heading/heading.html" with page_heading=page_heading %}
-        </div>
-    </div>
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-one-half">
-            <form method="post" novalidate>
-                {% csrf_token %}
-                {{ wizard.management_form }}
-                {% crispy form %}
-            </form>
-        </div>
-    </div>
-{% endblock content %}
+{% block narrow_content %}
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {{ wizard.management_form }}
+        {% crispy form %}
+    </form>
+{% endblock narrow_content %}

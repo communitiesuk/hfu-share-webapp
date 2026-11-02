@@ -1,0 +1,35 @@
+name: "Lint PR Title"
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - edited
+      - reopened
+      - synchronize
+
+jobs:
+  validate-title:
+    name: Validate Conventional Commit Title
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR Title Format
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          # Regex for Conventional Commits:
+          # type(scope optional)(! breaking optional): description
+          set -euo pipefail
+          REGEX="^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([A-Za-z0-9_\-]+\))?!?: .+$"
+
+          echo "Checking PR Title: '$PR_TITLE'"
+
+          if echo "$PR_TITLE" | grep -E -q "$REGEX"; then
+            echo "PR title complies with Conventional Commits rules."
+            exit 0
+          else
+            echo "::error::Invalid PR Title standard. It must follow the Conventional Commits format (e.g. 'feat: description' or 'fix(scope): description')."
+            exit 1
+          fi

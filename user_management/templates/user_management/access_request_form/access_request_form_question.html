@@ -1,4 +1,5 @@
 {% extends "user_management/access_request_form/access_request_form_base.html" %}
+{% load crispy_forms_tags %}
 {% block breadcrumb_content %}
     <li class="govuk-breadcrumbs__list-item">
         <a class="govuk-breadcrumbs__link"
@@ -14,19 +15,16 @@
         </li>
     {% endfor %}
 {% endblock breadcrumb_content %}
-{% load crispy_forms_filters crispy_forms_tags crispy_forms_gds %}
-{% block form-content %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-one-half">
-            {% error_summary wizard.form %}
-            {% if title %}
-                {% include "webapp/components/heading/heading.html" with page_heading=title %}
-            {% endif %}
-            <form method="post" novalidate>
-                {% csrf_token %}
-                {{ wizard.management_form }}
-                {% crispy wizard.form %}
-            </form>
-        </div>
-    </div>
-{% endblock form-content %}
+{% block page_heading %}
+    {# Without a title the form's question label is the heading, so a second h1 would repeat it. #}
+    {% if title %}
+        {% include "webapp/components/heading/heading.html" with page_heading=title %}
+    {% endif %}
+{% endblock page_heading %}
+{% block narrow_content %}
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {{ wizard.management_form }}
+        {% crispy wizard.form %}
+    </form>
+{% endblock narrow_content %}

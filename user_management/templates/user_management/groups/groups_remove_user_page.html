@@ -1,5 +1,5 @@
-{% extends "base.html" %}
-{% load crispy_forms_tags crispy_forms_gds crispy_forms_field %}
+{% extends "page_base.html" %}
+{% load crispy_forms_tags crispy_forms_field %}
 {% block breadcrumb_content %}
     <li class="govuk-breadcrumbs__list-item">
         <a class="govuk-breadcrumbs__link"
@@ -7,10 +7,12 @@
     </li>
     <li class="govuk-breadcrumbs__list-item">Group</li>
 {% endblock breadcrumb_content %}
-{% block content %}
+{% block page_heading %}
     {% include "webapp/components/heading/heading.html" with caption="Group" page_heading=group_name %}
+{% endblock page_heading %}
+{% block narrow_content %}
     <p class="govuk-body govuk-!-margin-bottom-9">
         Are you sure you want to remove <strong>{{ user.full_name_or_email }}</strong> from this group?
     </p>
     {% crispy form %}
-{% endblock content %}
+{% endblock narrow_content %}

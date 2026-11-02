@@ -1,13 +1,10 @@
-{% extends "base.html" %}
+{% extends "page_base.html" %}
 {% load crispy_forms_filters crispy_forms_tags crispy_forms_gds %}
 {% block breadcrumbs %}
 {% endblock breadcrumbs %}
-{% block content %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-one-half">
-            {% error_summary form %}
-            {% include "webapp/components/heading/heading.html" with page_heading=page_heading tag="Entra ID disabled" %}
-            {% crispy form %}
-        </div>
-    </div>
-{% endblock content %}
+{% block page_heading %}
+    {% include "webapp/components/heading/heading.html" with page_heading=page_heading tag="Entra ID disabled" %}
+{% endblock page_heading %}
+{% block narrow_content %}
+    {% crispy form %}
+{% endblock narrow_content %}

@@ -1,13 +1,8 @@
-{% extends "base.html" %}
-{% load crispy_forms_gds %}
+{% extends "page_base.html" %}
 {% block breadcrumb_content %}
     <li class="govuk-breadcrumbs__list-item">Guests</li>
 {% endblock breadcrumb_content %}
-{% block content %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-one-half">{% error_summary filter.form %}</div>
-    </div>
-    {% include "webapp/components/heading/heading.html" with page_heading=page_heading %}
+{% block wide_content %}
     {% block guest_list_table %}
     {% endblock guest_list_table %}
-{% endblock content %}
+{% endblock wide_content %}

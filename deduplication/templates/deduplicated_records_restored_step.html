@@ -1,35 +1,23 @@
-{% extends "select_records_list_step.html" %}
-{% load crispy_forms_gds %}
-{% load crispy_forms_tags %}
+{% extends "select_and_review_records_base.html" %}
 {% block breadcrumb_content %}
     <li class="govuk-breadcrumbs__list-item">
         <a class="govuk-breadcrumbs__link" href="{{ type_list_url }}">{{ type_title }}</a>
     </li>
     <li class="govuk-breadcrumbs__list-item">Undo deduplication</li>
 {% endblock breadcrumb_content %}
-{% block form %}
-    {% include "webapp/components/notification_banner/notification_banner_from_messages.html" %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            {% include "webapp/components/heading/heading.html" with page_heading=page_heading %}
-        </div>
-    </div>
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            <h4 class="govuk-heading-s">Review restored records</h4>
-            <p class="govuk-body govuk-!-margin-top-1 govuk-!-margin-bottom-5">
-                Review the restored {{ type }} records and linked accommodation requests.
-            </p>
-            <ul class="govuk-list">
-                {% for record in deduplicated_record_data %}
-                    <li>
-                        <a class="govuk-link" href="{{ record.url }}">{{ record.name }}</a>
-                    </li>
-                {% endfor %}
-            </ul>
-            <br>
-            <a href="{{ type_list_url }}"
-               class="govuk-button govuk-button--secondary">Back to list of {{ type_title_plural|lower }}</a>
-        </div>
-    </div>
-{% endblock form %}
+{% block narrow_content %}
+    <h4 class="govuk-heading-s">Review restored records</h4>
+    <p class="govuk-body govuk-!-margin-top-1 govuk-!-margin-bottom-5">
+        Review the restored {{ type }} records and linked accommodation requests.
+    </p>
+    <ul class="govuk-list">
+        {% for record in deduplicated_record_data %}
+            <li>
+                <a class="govuk-link" href="{{ record.url }}">{{ record.name }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+    <br>
+    <a href="{{ type_list_url }}"
+       class="govuk-button govuk-button--secondary">Back to list of {{ type_title_plural|lower }}</a>
+{% endblock narrow_content %}

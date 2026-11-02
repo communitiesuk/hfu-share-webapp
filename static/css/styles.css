@@ -2,6 +2,7 @@
   --app-brand-colour: #006660;
   --app-surface-colour: #80B3B0;
   --app-colour-pink: #F499BE;
+  --app-light-grey: #F3F2F1;
 }
 
 [aria-sort] a,
@@ -74,7 +75,7 @@ th.orderable.govuk-table__header:last-child {
 }
 
 .app-band--grey {
-  --app-band-colour: var(--govuk-template-background-colour);
+  --app-band-colour: var(--app-light-grey);
 }
 
 .app-brand-border-top {
@@ -280,7 +281,7 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
 }
 
 .app-card--clickable {
-  background-color: var(--govuk-surface-background-colour);
+  background-color: var(--app-light-grey);
   border-bottom-width: 6px
 }
 
@@ -596,4 +597,8 @@ see https://github.com/alphagov/accessible-autocomplete/issues/351
 
 .app-flex--1 {
   flex: 1;
+}
+
+.app-background-colour--light-grey {
+  background-color: var(--app-light-grey);
 }

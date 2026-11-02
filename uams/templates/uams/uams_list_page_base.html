@@ -1,25 +1,14 @@
-{% extends "base.html" %}
-{% load crispy_forms_gds %}
+{% extends "page_base.html" %}
 {% block breadcrumb_content %}
     <li class="govuk-breadcrumbs__list-item">Applications to sponsor a child</li>
 {% endblock breadcrumb_content %}
-{% block content %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-one-half">{% error_summary filter.form %}</div>
-    </div>
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            {% include "webapp/components/heading/heading.html" with page_heading=page_heading %}
-            <p class="govuk-body">
-                These are applications to sponsor a child fleeing Ukraine, not travelling with or joining a parent or legal guardian.
-                They must be under 18 years old. These children are also referred to as eligible children or unaccompanied minors (UAMs).
-            </p>
-        </div>
-    </div>
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            {% block uams_list_table %}
-            {% endblock uams_list_table %}
-        </div>
-    </div>
-{% endblock content %}
+{% block narrow_content %}
+    <p class="govuk-body">
+        These are applications to sponsor a child fleeing Ukraine, not travelling with or joining a parent or legal guardian.
+        They must be under 18 years old. These children are also referred to as eligible children or unaccompanied minors (UAMs).
+    </p>
+{% endblock narrow_content %}
+{% block wide_content %}
+    {% block uams_list_table %}
+    {% endblock uams_list_table %}
+{% endblock wide_content %}

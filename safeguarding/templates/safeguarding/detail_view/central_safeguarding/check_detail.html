@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "page_base.html" %}
 {% load static %}
 {% load filters %}
 {% block breadcrumb_content %}
@@ -13,8 +13,7 @@
     {% endif %}
     <li class="govuk-breadcrumbs__list-item">Alert</li>
 {% endblock breadcrumb_content %}
-{% block content %}
-    {% include "webapp/components/heading/heading.html" with page_heading=page_heading %}
+{% block wide_content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-one-half">
             <h2 class="govuk-heading-m">{{ notification.name }}</h2>
@@ -50,11 +49,9 @@
             {% endif %}
         </div>
     </div>
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-one-half">
-            <a href="{{ central_safeguarding_url }}"
-               class="govuk-button govuk-button--primary"
-               role="button">Back to central safeguarding</a>
-        </div>
-    </div>
-{% endblock content %}
+{% endblock wide_content %}
+{% block lower_narrow_content %}
+    <a href="{{ central_safeguarding_url }}"
+       class="govuk-button govuk-button--primary"
+       role="button">Back to central safeguarding</a>
+{% endblock lower_narrow_content %}
