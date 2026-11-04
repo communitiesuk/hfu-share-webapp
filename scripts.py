@@ -45,12 +45,20 @@ def format_code():
 
 
 def _collect_static():
-    subprocess.run(["python", "manage.py", "collectstatic", "--noinput"], check=True)
+    try:
+        subprocess.run(
+            ["python", "manage.py", "collectstatic", "--noinput"], check=True
+        )
+    except subprocess.CalledProcessError as error:
+        print("Unable to collect static files: ")
+        print(error)
+        sys.exit(error.returncode)
 
 
 def test():
     try:
         _collect_static()
+
         subprocess.run(["coverage", "erase"], check=True)
         subprocess.run(
             ["coverage", "run", "manage.py", "test"] + sys.argv[1:],
@@ -67,10 +75,12 @@ def test():
 
 
 def test_parallel():
-    _collect_static()
-    cpu_count = str(multiprocessing.cpu_count())
-    print(f"Running tests with {cpu_count} parallel processes...", flush=True)
     try:
+        _collect_static()
+
+        cpu_count = str(multiprocessing.cpu_count())
+        print(f"Running tests with {cpu_count} parallel processes...", flush=True)
+
         subprocess.run(["coverage", "erase"], check=True)
         subprocess.run(
             [
