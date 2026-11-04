@@ -44,8 +44,13 @@ def format_code():
     subprocess.run(["djlint", "--reformat", "--quiet", "."], check=False)
 
 
+def _collect_static():
+    subprocess.run(["python", "manage.py", "collectstatic", "--noinput"], check=True)
+
+
 def test():
     try:
+        _collect_static()
         subprocess.run(["coverage", "erase"], check=True)
         subprocess.run(
             ["coverage", "run", "manage.py", "test"] + sys.argv[1:],
@@ -62,6 +67,7 @@ def test():
 
 
 def test_parallel():
+    _collect_static()
     cpu_count = str(multiprocessing.cpu_count())
     print(f"Running tests with {cpu_count} parallel processes...", flush=True)
     try:
