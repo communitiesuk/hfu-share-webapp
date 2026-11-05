@@ -4,7 +4,7 @@
 {% block breadcrumb_content %}
     <li class="govuk-breadcrumbs__list-item">Fix duplicate records</li>
 {% endblock breadcrumb_content %}
-{% block wide_content %}
+{% block full_content %}
     <div class="govuk-summary-card">
         <div class="govuk-summary-card__title-wrapper">
             <h2 class="govuk-summary-card__title">Original records to be deduplicated</h2>
@@ -17,8 +17,8 @@
         </div>
         <div class="govuk-summary-card__content">{% render_table tables.1 %}</div>
     </div>
-{% endblock wide_content %}
-{% block lower_narrow_content %}
+{% endblock full_content %}
+{% block two_thirds_content %}
     <h2 class="govuk-heading-s">Are you sure you want to complete the deduplication?</h2>
     <p class="govuk-body">Check that the correct details are selected for the new principal record.</p>
     <div class="govuk-warning-text">
@@ -33,4 +33,4 @@
         {{ wizard.management_form }}
         {% crispy form %}
     </form>
-{% endblock lower_narrow_content %}
+{% endblock two_thirds_content %}

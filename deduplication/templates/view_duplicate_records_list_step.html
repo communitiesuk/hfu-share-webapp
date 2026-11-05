@@ -9,7 +9,7 @@
     </li>
     <li class="govuk-breadcrumbs__list-item">Undo deduplication</li>
 {% endblock breadcrumb_content %}
-{% block wide_content %}
+{% block full_content %}
     <div class="govuk-summary-card">
         <div class="govuk-summary-card__title-wrapper">
             <h2 class="govuk-summary-card__title">
@@ -18,11 +18,11 @@
         </div>
         <div class="govuk-summary-card__content">{% include table_template_url %}</div>
     </div>
-{% endblock wide_content %}
-{% block lower_narrow_content %}
+{% endblock full_content %}
+{% block two_thirds_content %}
     <form class="govuk-button-group" method="post" novalidate>
         {% csrf_token %}
         {{ wizard.management_form }}
         {% crispy form %}
     </form>
-{% endblock lower_narrow_content %}
+{% endblock two_thirds_content %}

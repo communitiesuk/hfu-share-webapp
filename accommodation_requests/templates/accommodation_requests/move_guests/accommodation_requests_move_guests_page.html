@@ -1,9 +1,9 @@
 {% extends "accommodation_requests/move_guests/accommodation_requests_move_guests_base.html" %}
 {% load crispy_forms_tags %}
-{% block narrow_content %}
+{% block half_content %}
     <form method="post" novalidate>
         {% csrf_token %}
         {{ wizard.management_form }}
         {% crispy form %}
     </form>
-{% endblock narrow_content %}
+{% endblock half_content %}
