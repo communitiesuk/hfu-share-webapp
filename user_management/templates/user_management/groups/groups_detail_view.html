@@ -9,9 +9,9 @@
 {% block page_heading %}
     {% include "webapp/components/heading/heading.html" with caption="Group details for" page_heading=formatted_group_name %}
 {% endblock page_heading %}
-{% block narrow_content %}
+{% block half_content %}
     <h4 class="govuk-heading-l">Overview</h4>
     {% include "webapp/components/record_tabs/record_summary_list.html" %}
     <a href="{% url 'user-management:groups' %}"
        class="govuk-button govuk-button--secondary">Back to manage groups</a>
-{% endblock narrow_content %}
+{% endblock half_content %}

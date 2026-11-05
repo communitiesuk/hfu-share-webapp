@@ -15,7 +15,7 @@
         </li>
     {% endfor %}
 {% endblock breadcrumb_content %}
-{% block narrow_content %}
+{% block after_heading_content %}
     {% if object|access_request_is_rejected or object|access_request_is_approved %}
         <div class="govuk-warning-text">
             <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
@@ -32,4 +32,4 @@
     {% include "webapp/components/record_tabs/record_summary_list.html" %}
     <a href="{% url "webapp:landing-page" %}"
        class="govuk-button govuk-button--primary">Back</a>
-{% endblock narrow_content %}
+{% endblock after_heading_content %}

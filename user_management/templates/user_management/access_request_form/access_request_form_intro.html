@@ -5,7 +5,7 @@
         {% include "webapp/components/notification_banner/notification_banner.html" with heading="You already have access to Homes for Ukraine data" body="You do not need to request access again unless you need access to data for other areas." %}
     {% endif %}
 {% endblock notifications %}
-{% block narrow_content %}
+{% block after_heading_content %}
     <div class="govuk-!-margin-bottom-6">
         <p class="govuk-body govuk-!-font-size-24">
             You will not have access to any data until your request is approved by the Ministry of Housing, Communities and Local Government (MHCLG).
@@ -40,4 +40,4 @@
             <path fill="currentColor" d="M0 0h13l20 20-20 20H0l20-20z" />
         </svg>
     </a>
-{% endblock narrow_content %}
+{% endblock after_heading_content %}

@@ -19,7 +19,7 @@
         <h1 class="govuk-panel__title">Request submitted</h1>
     </div>
 {% endblock page_heading %}
-{% block narrow_content %}
+{% block after_heading_content %}
     <div class="govuk-!-margin-top-7">
         <p class="govuk-body">
             Your request for access to data
@@ -30,4 +30,4 @@
     </div>
     <a href="{% url 'webapp:landing-page' %}"
        class="govuk-button govuk-body govuk-!-margin-top-3">Return to homepage</a>
-{% endblock narrow_content %}
+{% endblock after_heading_content %}
