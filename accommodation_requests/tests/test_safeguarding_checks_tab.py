@@ -52,6 +52,27 @@ class TestAccommodationRequestsSafeguardChecksTab(
 
         self.assertContains(response, "Add safeguarding check")
 
+    def test_add_safeguarding_check_is_a_link_in_the_card_header(self):
+        self.client.force_login(get_mhclg_user())
+        accommodation_request_pk = self.safeguarding_checks_accomodation_request.pk
+        add_check_url = reverse(
+            "accommodation-requests:update-safeguarding-checks",
+            args=[accommodation_request_pk],
+        )
+
+        response = self.client.get(
+            reverse(
+                "accommodation-requests:detail-safeguarding-checks",
+                args=[accommodation_request_pk],
+            )
+        )
+
+        self.assertInHTML(
+            f'<a class="govuk-link" href="{add_check_url}">Add safeguarding check</a>',
+            response.content.decode(),
+        )
+        self.assertContains(response, f'href="{add_check_url}"', count=1)
+
     def test_does_not_show_accomm_suitable_check_not_directly_related_to_ar(self):
         accommodation = MvAccommodationFactory(
             full_address="new accommodation, city abc",
