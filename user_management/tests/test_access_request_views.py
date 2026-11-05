@@ -132,23 +132,24 @@ class AccessRequestFormWizardDevolvedAdministrationContentTestCase(
         self.assertEqual(response.status_code, http.client.OK)
         self.assertContains(response, "Devolved administration: local authority")
         self.assertContains(
-            response, "Select an upper tier or lower tier local authority"
+            response,
+            "Select your upper tier or lower tier local authority (UTLA or LTLA).",
         )
         self.assertContains(
             response,
-            "You can only select one. If you need to select more you will need to "
-            "start a new data access request for each area.",
+            "You can only select one for each access request. If you need to "
+            "select more, you will need to submit a new data access request for each "
+            "area.",
         )
         self.assertContains(
             response,
-            "If you are from a unitary authority you can select either LTLA or "
-            "UTLA for the relevant area you need to access to.",
+            "unitary authority users: select either your LTLA or UTLA, you will "
+            "be given access to all your data",
         )
         self.assertContains(
             response,
-            "UTLA users only need to select their relevant UTLA. They will also "
-            "get access to the LTLA data for that area, they do not need to submit "
-            "another data access request for LTLA data.",
+            "upper tier local authority users: select your UTLA, you will also "
+            "be given access to the relevant LTLA data with a single request",
         )
 
     def test_local_authority_step_heading_via_direct_route(self):
@@ -160,19 +161,19 @@ class AccessRequestFormWizardDevolvedAdministrationContentTestCase(
         self.assertContains(response, "Local authority")
         self.assertContains(
             response,
-            "You can only select one. If you need to select more you will need "
-            "to start a new data access request for each area.",
+            "You can only select one for each access request. If you need to "
+            "select more, you will need to submit a new data access request for each "
+            "area.",
         )
         self.assertContains(
             response,
-            "If you are from a unitary authority you can select either LTLA or "
-            "UTLA for the relevant area you need to access to.",
+            "unitary authority users: select either your LTLA or UTLA, you will "
+            "be given access to all your data",
         )
         self.assertContains(
             response,
-            "UTLA users only need to select their relevant UTLA. They will also "
-            "get access to the LTLA data for that area, they do not need to submit "
-            "another data access request for LTLA data.",
+            "upper tier local authority users: select your UTLA, you will also "
+            "be given access to the relevant LTLA data with a single request",
         )
 
     def test_review_step_renders_correctly_for_central_user_view(self):
