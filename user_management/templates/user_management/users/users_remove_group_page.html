@@ -10,9 +10,9 @@
 {% block page_heading %}
     {% include "webapp/components/heading/heading.html" with caption="User account for" page_heading=user.full_name_or_email %}
 {% endblock page_heading %}
-{% block narrow_content %}
+{% block after_heading_content %}
     <p class="govuk-body govuk-!-margin-bottom-9">
         Are you sure you want to remove this user from <strong>{{ group_name }}</strong>?
     </p>
     {% crispy form %}
-{% endblock narrow_content %}
+{% endblock after_heading_content %}

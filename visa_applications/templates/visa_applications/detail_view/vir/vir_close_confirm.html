@@ -10,9 +10,9 @@
     </li>
     <li class="govuk-breadcrumbs__list-item">Close VIR</li>
 {% endblock breadcrumb_content %}
-{% block narrow_content %}
+{% block after_heading_content %}
     <form method="post" novalidate>
         {% csrf_token %}
         {% crispy form %}
     </form>
-{% endblock narrow_content %}
+{% endblock after_heading_content %}

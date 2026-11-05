@@ -10,11 +10,11 @@
 {% block page_heading %}
     {% include "webapp/components/heading/heading.html" with caption="Accommodation record for" page_heading=object.full_address %}
 {% endblock page_heading %}
-{% block narrow_content %}
+{% block one_third_content %}
     <h2 class="govuk-heading-l govuk-!-margin-bottom-0">Change details</h2>
     <p class="govuk-body-s  govuk-!-margin-top-2">This form can only be used to correct information.</p>
     <div class="govuk-!-padding-top-2" id="form-content">
         {% block form-content %}
         {% endblock form-content %}
     </div>
-{% endblock narrow_content %}
+{% endblock one_third_content %}

@@ -1,5 +1,5 @@
 {% extends "accommodation_requests/move_guests/accommodation_requests_move_guests_base.html" %}
-{% block narrow_content %}
+{% block after_heading_content %}
     <h3 class="govuk-heading-l govuk-!-margin-bottom-0">Select accommodation</h3>
     <div class="govuk-!-margin-top-2 govuk-!-margin-bottom-9">
         <p class="govuk-hint">
@@ -16,7 +16,7 @@
             If you already know the accommodation you want to rematch a guest or group to, select the ‘Select’ link next to the accommodation.
         </p>
     </div>
-{% endblock narrow_content %}
-{% block wide_content %}
+{% endblock after_heading_content %}
+{% block full_content %}
     {% include "webapp/components/tables/table_with_filters.html" %}
-{% endblock wide_content %}
+{% endblock full_content %}
