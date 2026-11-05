@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.29.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.28.0...2.29.0) (2026-11-05)
+
+
+### Features
+
+* update guidance on local authority selection screen when requesting access (HFURB-1006) ([#314](https://github.com/communitiesuk/hfu-share-webapp/issues/314)) ([648dad9](https://github.com/communitiesuk/hfu-share-webapp/commit/648dad99f155109fcae31d2846cf7218249a685b))
+
 ## [2.28.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.27.0...2.28.0) (2026-11-02)
 
 
