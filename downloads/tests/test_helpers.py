@@ -14,6 +14,7 @@ from downloads.helpers import (
     _escape_leading_control_characters,
     build_csv_header,
     build_csv_row,
+    build_csv_row_plan,
     determine_redacted_fields,
     escape_leading_control_characters_in_row,
 )
@@ -125,7 +126,7 @@ class TestBuildCSVRow(BaseSimpleTestCase):
 
         field_names = ["first_name", "last_name", "email"]
 
-        row = build_csv_row(person, field_names, set())
+        row = build_csv_row(person, build_csv_row_plan(MvPerson, field_names), set())
 
         assert row == ["John", "Doe", "john.doe@example.com"]
 
@@ -138,7 +139,7 @@ class TestBuildCSVRow(BaseSimpleTestCase):
 
         field_names = ["first_name", "last_name", "email"]
 
-        row = build_csv_row(person, field_names, set())
+        row = build_csv_row(person, build_csv_row_plan(MvPerson, field_names), set())
 
         assert row == ["John", "Doe", ""]
 
@@ -153,7 +154,7 @@ class TestBuildCSVRow(BaseSimpleTestCase):
 
         field_names = ["first_name", "created_at", "created_at_tz"]
 
-        row = build_csv_row(person, field_names, set())
+        row = build_csv_row(person, build_csv_row_plan(MvPerson, field_names), set())
 
         assert row[0] == "Jane"
         assert row[1] == datetime_str
@@ -170,7 +171,7 @@ class TestBuildCSVRow(BaseSimpleTestCase):
 
         field_names = ["first_name", "created_at", "created_at_tz"]
 
-        row = build_csv_row(person, field_names, set())
+        row = build_csv_row(person, build_csv_row_plan(MvPerson, field_names), set())
 
         assert row[0] == "Jane"
         assert row[1] == "2024-01-18 00:00:00"
@@ -184,7 +185,7 @@ class TestBuildCSVRow(BaseSimpleTestCase):
 
         field_names = ["first_name", "accommodation_request"]
 
-        row = build_csv_row(person, field_names, set())
+        row = build_csv_row(person, build_csv_row_plan(MvPerson, field_names), set())
 
         assert row[0] == "Jane"
         assert row[1] == "AR-123-123"
@@ -200,7 +201,9 @@ class TestBuildCSVRow(BaseSimpleTestCase):
 
                 field_names = ["first_name", "last_name", "email"]
 
-                row = build_csv_row(person, field_names, set())
+                row = build_csv_row(
+                    person, build_csv_row_plan(MvPerson, field_names), set()
+                )
 
                 assert row == ["J@ne", "Doe", "john.doe@example.com"]
 
@@ -220,7 +223,9 @@ class TestBuildCSVRow(BaseSimpleTestCase):
 
                 field_names = ["first_name", "last_name", "email"]
 
-                row = build_csv_row(person, field_names, set())
+                row = build_csv_row(
+                    person, build_csv_row_plan(MvPerson, field_names), set()
+                )
 
                 assert row == ["J@ne", "Doe", "john.doe@example.com"]
 
