@@ -72,39 +72,64 @@ def build_csv_header(
     return field_names
 
 
+def build_csv_row_plan(
+    export_model: Type[models.Model],
+    field_names: list[str],
+) -> list[tuple[str, str, str]]:
+    """
+    Precompute field access to avoid repeated model reflection for every row.
+    """
+    plan: list[tuple[str, str, str]] = []
+    for field_name in field_names:
+        if field_name == "created_at_tz":
+            # Skipped — this column is populated by `created_at`.
+            plan.append((field_name, "skip", field_name))
+            continue
+
+        if field_name == "created_at":
+            # `created_at` field adds an extra column for timezone.
+            plan.append((field_name, "created_at", field_name))
+            continue
+
+        model_field = export_model._meta.get_field(field_name)
+
+        if isinstance(model_field, models.ForeignKey):
+            # For FK fields, reading `<field>_id` avoids an extra query.
+            plan.append((field_name, "fk", f"{field_name}_id"))
+        else:
+            plan.append((field_name, "plain", field_name))
+
+    return plan
+
+
 @escape_leading_control_characters_in_row
 def build_csv_row(
     model_object: Type[models.Model],
-    field_names: list[str],
+    row_plan: list[tuple[str, str, str]],
     redacted_fields: set[str] | None,
 ) -> list[str]:
     row = []
-    for field in field_names:
-        if field == "created_at_tz":
-            # Skip timezone column will be set by `created_at`
+    for field_name, kind, accessor in row_plan:
+        if kind == "skip":
             continue
 
-        model_field = model_object._meta.get_field(field)
-
-        if redacted_fields and field in redacted_fields:
+        if redacted_fields and field_name in redacted_fields:
             row.append("")
-        elif isinstance(model_field, models.ForeignKey):
-            # For FK fields, this is how we get around making an extra query
-            fk_field = getattr(model_object, f"{field}_id")
-            row.append(fk_field if fk_field is not None else "")
+            continue
+
+        value = getattr(model_object, accessor)
+
+        if kind == "fk":
+            row.append(value if value is not None else "")
+        elif kind == "created_at":
+            # `created_at` field adds an extra column for timezone
+            if isinstance(value, datetime.datetime):
+                row.append(value.strftime("%Y-%m-%d %H:%M:%S"))
+                row.append(value.tzname() or "")
+            else:
+                row.append("")
+                row.append("")
         else:
-            value = getattr(model_object, field)
-
-            if field == "created_at":
-                # `created_at` field adds an extra column for timezone
-                if isinstance(value, datetime.datetime):
-                    row.append(value.strftime("%Y-%m-%d %H:%M:%S"))
-                    row.append(value.tzname() or "")
-                else:
-                    row.append("")
-                    row.append("")
-                continue
-
             row.append(str(value) if value is not None else "")
 
     return row
