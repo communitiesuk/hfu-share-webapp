@@ -13,7 +13,12 @@ from downloads.forms import (
     DownloadsTypeForm,
     DownloadType,
 )
-from downloads.helpers import build_csv_header, build_csv_row, determine_redacted_fields
+from downloads.helpers import (
+    build_csv_header,
+    build_csv_row,
+    build_csv_row_plan,
+    determine_redacted_fields,
+)
 from ontology.mixins import get_las_for_user
 from ontology.models import (
     ExportToolObject,
@@ -89,6 +94,9 @@ class DownloadsPage(SectionHeadingMixin, PermissionsMixin, FormView):
             # Build the CSV header
             field_names = build_csv_header(export_model, download_type)
 
+            # Build plan for rendering each row
+            row_plan = build_csv_row_plan(export_model, field_names)
+
             # Yield header
             writer.writerow(field_names)
             yield buffer.getvalue()
@@ -126,7 +134,7 @@ class DownloadsPage(SectionHeadingMixin, PermissionsMixin, FormView):
                         model_object, ltla_names, utla_names
                     )
 
-                row = build_csv_row(model_object, field_names, redacted_fields)
+                row = build_csv_row(model_object, row_plan, redacted_fields)
 
                 if download_type == DownloadType.ALL and user_la_only:
                     row_str = "".join(row)
