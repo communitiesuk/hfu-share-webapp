@@ -1,9 +1,12 @@
 import csv
 import io
+import re
 
 from django.http import StreamingHttpResponse
 from django.utils import timezone
+from django.utils.cache import patch_vary_headers
 from django.utils.formats import date_format
+from django.utils.text import compress_sequence
 from django.views.generic.edit import FormView
 from sentry_sdk import logger as sentry_logger
 
@@ -13,7 +16,12 @@ from downloads.forms import (
     DownloadsTypeForm,
     DownloadType,
 )
-from downloads.helpers import build_csv_header, build_csv_row, determine_redacted_fields
+from downloads.helpers import (
+    build_csv_header,
+    build_csv_row,
+    build_csv_row_plan,
+    determine_redacted_fields,
+)
 from ontology.mixins import get_las_for_user
 from ontology.models import (
     ExportToolObject,
@@ -26,6 +34,10 @@ from ontology.models import (
 from webapp.mixins import PermissionsMixin, SectionHeadingMixin
 
 BATCH_SIZE = 1000
+
+# Matches a `gzip` token in an Accept-Encoding header (mirrors the check Django's
+# GZipMiddleware uses), without depending on Django's private symbol.
+_ACCEPTS_GZIP = re.compile(r"\bgzip\b")
 
 
 class DownloadsPage(SectionHeadingMixin, PermissionsMixin, FormView):
@@ -89,6 +101,10 @@ class DownloadsPage(SectionHeadingMixin, PermissionsMixin, FormView):
             # Build the CSV header
             field_names = build_csv_header(export_model, download_type)
 
+            # Precompute per-field rendering once, rather than reflecting over
+            # the model metadata for every field of every row.
+            row_plan = build_csv_row_plan(export_model, field_names)
+
             # Yield header
             writer.writerow(field_names)
             yield buffer.getvalue()
@@ -126,7 +142,7 @@ class DownloadsPage(SectionHeadingMixin, PermissionsMixin, FormView):
                         model_object, ltla_names, utla_names
                     )
 
-                row = build_csv_row(model_object, field_names, redacted_fields)
+                row = build_csv_row(model_object, row_plan, redacted_fields)
 
                 if download_type == DownloadType.ALL and user_la_only:
                     row_str = "".join(row)
@@ -151,9 +167,33 @@ class DownloadsPage(SectionHeadingMixin, PermissionsMixin, FormView):
                 buffer.seek(0)
                 buffer.truncate(0)
 
-        response = StreamingHttpResponse(
-            stream_csv_with_iterator(), content_type="text/csv"
+        csv_iterator = stream_csv_with_iterator()
+
+        # Compress the stream when the client accepts gzip. CSV compresses very
+        # well (~5-10x), so this is the biggest win for download time. This
+        # mirrors Django's GZipMiddleware streaming branch but is scoped to this
+        # response only (so other, potentially sensitive, responses are left
+        # uncompressed). Compression is transport-only: the browser decompresses
+        # transparently and the user still saves the plain `.csv`.
+        accepts_gzip = bool(
+            _ACCEPTS_GZIP.search(self.request.META.get("HTTP_ACCEPT_ENCODING", ""))
         )
+
+        if accepts_gzip:
+            compressed_content = compress_sequence(
+                (chunk.encode("utf-8") for chunk in csv_iterator),
+                max_random_bytes=100,
+            )
+            response = StreamingHttpResponse(
+                compressed_content, content_type="text/csv"
+            )
+            response["Content-Encoding"] = "gzip"
+        else:
+            response = StreamingHttpResponse(csv_iterator, content_type="text/csv")
+
+        # Always vary on Accept-Encoding so caches key on the (un)compressed form.
+        patch_vary_headers(response, ("Accept-Encoding",))
+
         response["Content-Disposition"] = (
             f'attachment; filename="{download_type}_{timestamp}.csv"'
         )
