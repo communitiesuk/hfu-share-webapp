@@ -580,7 +580,10 @@ class VisaApplicationVIRView(
         if not self.user_action_allowed(
             group_types=[GroupType.DEV, GroupType.HOME_OFFICE]
         ):
-            messages.error(self.request, "You do not have permission to start a VIR.")
+            messages.error(
+                self.request,
+                "You do not have permission to start a visa information request.",
+            )
             return redirect(
                 reverse("visa-applications:detail-vir", args=[self.object.pk])
             )
@@ -834,7 +837,7 @@ class VIRFilter(FilterSet, FilterPanelMixin):
     )
 
     requested_at = CustomDateFromToRangeFilter(
-        label="VIR start date",
+        label="Visa information request date",
         field_name="requested_at",
         widget=StackedRangeInput(
             sub_widget=DatePicker,
@@ -847,7 +850,8 @@ class VIRFilter(FilterSet, FilterPanelMixin):
         ),
         distinct=True,
         error_messages={
-            "invalid_range": "'VIR start date from' must be before 'VIR start date to'",
+            "invalid_range": "'Visa information request date from' must be "
+            "before 'Visa information request date to'",
         },
     )
 
@@ -895,7 +899,7 @@ class VIRFilter(FilterSet, FilterPanelMixin):
             Field.text("search", label_size=Size.MEDIUM),
             Fieldset(
                 "request_status",
-                legend="VIR status",
+                legend="Visa information request status",
                 legend_size=Size.MEDIUM,
                 css_class="govuk-!-margin-bottom-5",
             ),
@@ -930,7 +934,7 @@ class VIRFilter(FilterSet, FilterPanelMixin):
 
 
 class VIRListView(PageTitleMixin, PermissionsMixin, SingleTableMixin, FilterView):
-    page_heading = "Visa Information Requests"
+    page_heading = "Visa information requests"
     heading_labels_title = False
     group_type = [
         GroupType.DEV,
@@ -976,7 +980,7 @@ class VIRCloseConfirmView(
     SingleObjectMixin,
     FormView,
 ):
-    page_heading = "Close VIR"
+    page_heading = "Close visa information request"
     heading_labels_title = False
     group_type = [
         GroupType.DEV,
@@ -1022,7 +1026,7 @@ class VIRCloseConfirmView(
                     vir.closed_at = timezone.now()
                     vir.save(update_fields=["request_status", "closed_at"])
                     messages.success(
-                        request, "You have closed this Visa Information Request."
+                        request, "You have closed this visa information request."
                     )
             return redirect(self.get_success_url())
         context = self.get_context_data(form=form, object=self.object)
@@ -1035,7 +1039,7 @@ class VIRReopenConfirmView(
     SingleObjectMixin,
     FormView,
 ):
-    page_heading = "Re-open VIR"
+    page_heading = "Re-open visa information request"
     heading_labels_title = False
     group_type = [
         GroupType.DEV,
@@ -1085,7 +1089,7 @@ class VIRReopenConfirmView(
                     vir.closed_at = None
                     vir.save(update_fields=["request_status", "closed_at"])
                     messages.success(
-                        request, "Visa Information Request has been re-opened."
+                        request, "Visa information request has been re-opened."
                     )
             return redirect(self.get_success_url())
         context = self.get_context_data(form=form, object=self.object)

@@ -1006,7 +1006,7 @@ class DetailViewMixin(ABC):
         "properties": "Properties",
         "comments": "Comments",
         "history": "History",
-        "vir": "VIR",
+        "vir": "Visa information request",
     }
     views_with_full_width_tab_content = {
         "properties",

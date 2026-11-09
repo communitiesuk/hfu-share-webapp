@@ -2,13 +2,16 @@
 {% load crispy_forms_filters crispy_forms_tags crispy_forms_gds visa_application_extras %}
 {% block selected_tab %}
     {% if virs|length == 0 %}
-        <h2 class="govuk-heading-l">Start a VIR</h2>
+        <h2 class="govuk-heading-l">Start a visa information request</h2>
         <form method="post" novalidate>
             {% csrf_token %}
             {% crispy start_vir_form %}
         </form>
     {% else %}
         <h2 class="govuk-heading-l">VIR comments</h2>
+        <p class="govuk-body">
+            Add comments on this visa information request (VIR). Past comments are shown below the 'Add a comment' box. These are sent by UK Visas and Immigration (UKVI), the Ministry of Housing, Communities and Local Government (MHCLG), or by the local authority (LA).
+        </p>
         {% with latest_vir=virs|first %}
             {% include "visa_applications/detail_view/vir/vir_request_details_table.html" with latest_vir=latest_vir %}
             {% if add_comment_form %}

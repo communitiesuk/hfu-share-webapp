@@ -20,7 +20,8 @@ class StartVIRFormTest(BaseTestCase):
             ["You must select at least one check."],
         )
         self.assertEqual(
-            form.errors["comment"], ["You must start a VIR with a comment."]
+            form.errors["comment"],
+            ["You must start a visa information request with a comment."],
         )
 
     def test_valid_form(self):

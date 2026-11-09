@@ -39,7 +39,7 @@ class VisaApplicationsPageTitlesTestCase(TestSessionTokenMixin, BaseTestCase):
             ),
             (
                 "visa-applications:detail-vir",
-                f"Visa applications: TG, Visa Information Request - "
+                f"Visa applications: TG, Visa information request - "
                 f"{self.service_name} - GOV.UK",
             ),
         ]
