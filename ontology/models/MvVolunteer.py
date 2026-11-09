@@ -1,6 +1,7 @@
 import uuid
 
 from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.indexes import GinIndex
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q, QuerySet
@@ -328,6 +329,33 @@ class MvVolunteer(models.Model):
 
     class Meta:
         verbose_name = "Host and Sponsor"
+        indexes = [
+            models.Index(fields=["sex"], name="mvv_sex_idx"),
+            models.Index(fields=["date_of_birth"], name="mvv_dob_idx"),
+            models.Index(fields=["created_date"], name="mvv_created_date_idx"),
+            GinIndex(
+                fields=["first_name"],
+                name="mvv_first_name_trgm_gin",
+                opclasses=["gin_trgm_ops"],
+            ),
+            GinIndex(
+                fields=["last_name"],
+                name="mvv_last_name_trgm_gin",
+                opclasses=["gin_trgm_ops"],
+            ),
+            GinIndex(
+                fields=["full_name"],
+                name="mvv_full_name_trgm_gin",
+                opclasses=["gin_trgm_ops"],
+            ),
+            GinIndex(
+                fields=["email"],
+                name="mvv_email_trgm_gin",
+                opclasses=["gin_trgm_ops"],
+            ),
+            GinIndex(fields=["phone_number"], name="mvv_phone_number_gin"),
+            GinIndex(fields=["residential_postcodes"], name="mvv_residential_pc_gin"),
+        ]
 
     def __str__(self):
         display_name = self.get_full_name()

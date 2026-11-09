@@ -2,6 +2,7 @@ import uuid
 
 from django.contrib.postgres.aggregates import StringAgg
 from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.indexes import GinIndex
 from django.db import models
 from django.db.models import ManyToManyField, Q, TextField, Value
 from django.db.models.functions import Coalesce, Concat
@@ -232,6 +233,18 @@ class ReassignmentRequest(models.Model):
     # Specialized managers
     made = ReassignmentRequestsMadeManager()
     received = ReassignmentRequestsReceivedManager()
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["created_at"], name="rr_created_at_idx"),
+            models.Index(fields=["outcome"], name="rr_outcome_idx"),
+            GinIndex(
+                fields=["destination_ltla_name"],
+                name="rr_dest_ltla_name_trgm_gin",
+                opclasses=["gin_trgm_ops"],
+            ),
+            GinIndex(fields=["source_ltla_name"], name="rr_source_ltla_name_gin"),
+        ]
 
     def get_accommodation_request(self):
         if self.accommodation_request_id:

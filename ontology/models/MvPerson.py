@@ -1,6 +1,7 @@
 from datetime import date, datetime
 
 from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.indexes import GinIndex
 from django.db import models
 from django.db.models import Case, Q, QuerySet, Value, When
 from django.db.models.functions import Concat
@@ -288,6 +289,30 @@ class MvPerson(models.Model):
 
     class Meta:
         verbose_name = "Guest"
+        indexes = [
+            models.Index(fields=["gender"], name="mvp_gender_idx"),
+            models.Index(fields=["date_of_birth"], name="mvp_dob_idx"),
+            models.Index(fields=["arrival_date"], name="mvp_arrival_date_idx"),
+            models.Index(fields=["latest_arrival_date"], name="mvp_latest_arrival_idx"),
+            models.Index(
+                fields=["visa_application_date_maximum"],
+                name="mvp_visa_app_date_max_idx",
+            ),
+            models.Index(fields=["visa_status"], name="mvp_visa_status_idx"),
+            GinIndex(
+                fields=["first_name"],
+                name="mvp_first_name_trgm_gin",
+                opclasses=["gin_trgm_ops"],
+            ),
+            GinIndex(
+                fields=["last_name"],
+                name="mvp_last_name_trgm_gin",
+                opclasses=["gin_trgm_ops"],
+            ),
+            GinIndex(fields=["passport_id"], name="mvp_passport_id_gin"),
+            GinIndex(fields=["email"], name="mvp_email_gin"),
+            GinIndex(fields=["application_number"], name="mvp_application_num_gin"),
+        ]
 
     def display_link_data(self, linked_from, linked_as) -> LinkedRecordData:
         display_name = self.get_full_name()

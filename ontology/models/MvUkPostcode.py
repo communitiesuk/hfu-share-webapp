@@ -1,4 +1,5 @@
 from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.indexes import GinIndex
 from django.db import models
 from django.db.models import Q
 
@@ -43,6 +44,25 @@ class MvUkPostcode(models.Model):
     viewer_group_names = ArrayField(
         models.TextField(), null=True, db_column="viewer_group_names"
     )
+
+    class Meta:
+        indexes = [
+            GinIndex(
+                fields=["postcode"],
+                name="mvuk_postcode_trgm_gin",
+                opclasses=["gin_trgm_ops"],
+            ),
+            GinIndex(
+                fields=["postcode_formatted"],
+                name="mvuk_postcode_fmt_trgm_gin",
+                opclasses=["gin_trgm_ops"],
+            ),
+            GinIndex(
+                fields=["title"],
+                name="mvuk_title_trgm_gin",
+                opclasses=["gin_trgm_ops"],
+            ),
+        ]
 
     def display_postcode(self):
         if self.postcode_formatted:

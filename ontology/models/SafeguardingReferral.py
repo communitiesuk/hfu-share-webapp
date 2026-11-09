@@ -69,6 +69,12 @@ class SafeguardingReferral(models.Model):
         models.TextField(), null=True, blank=True, db_column="viewer_group_names"
     )
 
+    class Meta:
+        indexes = [
+            models.Index(fields=["created_at"], name="sr_created_at_idx"),
+            models.Index(fields=["alerted_status"], name="sr_alerted_status_idx"),
+        ]
+
     def get_person(self) -> MvPerson | None:
         if self.person_id:
             return MvPerson.objects.filter(id=self.person_id).first()

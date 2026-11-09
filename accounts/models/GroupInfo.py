@@ -1,4 +1,5 @@
 from django.contrib.auth.models import Group
+from django.contrib.postgres.indexes import GinIndex
 from django.db import models
 from django.db.models import BooleanField, ForeignKey, OneToOneField, TextField
 from django.db.models.signals import post_save
@@ -53,6 +54,13 @@ class GroupInfo(models.Model):
     class Meta:
         verbose_name = "Group info"
         verbose_name_plural = "Group info"
+        indexes = [
+            GinIndex(
+                fields=["description"],
+                name="gi_description_trgm_gin",
+                opclasses=["gin_trgm_ops"],
+            ),
+        ]
 
 
 @receiver(post_save, sender=Group)

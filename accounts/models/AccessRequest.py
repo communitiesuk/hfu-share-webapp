@@ -68,6 +68,12 @@ class AccessRequest(models.Model):
     hidden_by_requester = models.BooleanField(default=False)
     access_revoked = models.BooleanField(default=False)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=["created_at"], name="ar_created_at_idx"),
+            models.Index(fields=["status"], name="ar_status_idx"),
+        ]
+
     def group_type_label(self):
         return (
             f"{GroupType(self.group_type).label} - "

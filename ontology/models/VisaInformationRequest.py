@@ -1,4 +1,5 @@
 from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.indexes import GinIndex
 from django.db import models
 from django.db.models import (
     Q,
@@ -109,3 +110,14 @@ class VisaInformationRequest(models.Model):
     visa_information_request_id = models.TextField(
         primary_key=True, db_column="visa_information_request_id"
     )
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["requested_at"], name="vir_requested_at_idx"),
+            models.Index(fields=["request_status"], name="vir_request_status_idx"),
+            GinIndex(
+                fields=["ltla_name"],
+                name="vir_ltla_name_trgm_gin",
+                opclasses=["gin_trgm_ops"],
+            ),
+        ]

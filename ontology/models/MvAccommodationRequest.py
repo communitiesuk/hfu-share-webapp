@@ -7,6 +7,7 @@ from dateutil.tz import tzutc
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.contrib.postgres.expressions import ArraySubquery
 from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.indexes import GinIndex
 from django.db import models, transaction
 from django.db.models import CharField, Exists, OuterRef, Q, QuerySet
 from django.db.models.expressions import Func
@@ -684,6 +685,21 @@ class MvAccommodationRequest(models.Model):
 
     class Meta:
         verbose_name = "Accommodation Request"
+        indexes = [
+            models.Index(
+                fields=["latest_application_date"],
+                name="mvar_latest_app_date_idx",
+            ),
+            models.Index(fields=["checks_status"], name="mvar_checks_status_idx"),
+            GinIndex(fields=["ltla_name"], name="mvar_ltla_name_gin"),
+            GinIndex(fields=["utla_name"], name="mvar_utla_name_gin"),
+            GinIndex(fields=["viewer_group_names"], name="mvar_viewer_group_gin"),
+            GinIndex(
+                fields=["title"],
+                name="mvar_title_trgm_gin",
+                opclasses=["gin_trgm_ops"],
+            ),
+        ]
 
     def get_all_ltla_names(self) -> list[str] | None:
         if self.ltla_name:

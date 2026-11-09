@@ -1,4 +1,5 @@
 from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.indexes import GinIndex
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q, QuerySet
@@ -370,6 +371,25 @@ class MvAccommodation(models.Model):
 
     class Meta:
         verbose_name = "Accommodation"
+        indexes = [
+            models.Index(fields=["accommodation_type"], name="mva_acc_type_idx"),
+            models.Index(fields=["full_address"], name="mva_full_address_idx"),
+            GinIndex(
+                fields=["full_address"],
+                name="mva_full_address_trgm_gin",
+                opclasses=["gin_trgm_ops"],
+            ),
+            GinIndex(
+                fields=["ltla_name"],
+                name="mva_ltla_name_trgm_gin",
+                opclasses=["gin_trgm_ops"],
+            ),
+            GinIndex(
+                fields=["utla_name"],
+                name="mva_utla_name_trgm_gin",
+                opclasses=["gin_trgm_ops"],
+            ),
+        ]
 
     def __str__(self):
         return self.full_address or super().__str__()

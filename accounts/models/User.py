@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser, UserManager
+from django.contrib.postgres.indexes import GinIndex
 from django.db import models
 from django.db.models import Case, Q, Value, When
 from django.db.models.functions import Concat
@@ -94,4 +95,16 @@ class User(AbstractUser):
     class Meta:
         constraints = [
             models.UniqueConstraint(name="entra_id", fields=["entra_oid", "entra_tid"])
+        ]
+        indexes = [
+            GinIndex(
+                fields=["first_name"],
+                name="user_first_name_trgm_gin",
+                opclasses=["gin_trgm_ops"],
+            ),
+            GinIndex(
+                fields=["last_name"],
+                name="user_last_name_trgm_gin",
+                opclasses=["gin_trgm_ops"],
+            ),
         ]

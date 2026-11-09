@@ -1,4 +1,5 @@
 from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.indexes import GinIndex
 from django.db import models
 from django.db.models import (
     F,
@@ -604,6 +605,38 @@ class VisaApplication(models.Model):
 
     class Meta:
         verbose_name = "Visa Application"
+        indexes = [
+            models.Index(
+                fields=["application_event_datetime"], name="va_app_event_dt_idx"
+            ),
+            models.Index(fields=["visa_status"], name="va_visa_status_idx"),
+            models.Index(fields=["visa_decision_date"], name="va_visa_decision_dt_idx"),
+            GinIndex(
+                fields=["title"],
+                name="va_title_trgm_gin",
+                opclasses=["gin_trgm_ops"],
+            ),
+            GinIndex(
+                fields=["Q97c_sponsor_name"],
+                name="va_sponsor_name_trgm_gin",
+                opclasses=["gin_trgm_ops"],
+            ),
+            GinIndex(
+                fields=["ltla_name"],
+                name="va_ltla_name_trgm_gin",
+                opclasses=["gin_trgm_ops"],
+            ),
+            GinIndex(
+                fields=["gwf"],
+                name="va_gwf_trgm_gin",
+                opclasses=["gin_trgm_ops"],
+            ),
+            GinIndex(
+                fields=["application_unique_application_number"],
+                name="va_uan_trgm_gin",
+                opclasses=["gin_trgm_ops"],
+            ),
+        ]
 
     @property
     def sponsor(self) -> MvVolunteer:

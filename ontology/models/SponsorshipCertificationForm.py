@@ -1,4 +1,5 @@
 from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.indexes import GinIndex
 from django.db import models
 from django.db.models import Case, Q, Value, When
 from django.db.models.functions import Concat
@@ -278,6 +279,16 @@ class SponsorshipCertificationForm(models.Model):
 
     class Meta:
         verbose_name = "Uam"
+        indexes = [
+            models.Index(fields=["created_at"], name="scf_created_at_idx"),
+            models.Index(fields=["sponsor_date_of_birth"], name="scf_sponsor_dob_idx"),
+            GinIndex(
+                fields=["identification_number"],
+                name="scf_ident_num_trgm_gin",
+                opclasses=["gin_trgm_ops"],
+            ),
+            GinIndex(fields=["ltla_name"], name="scf_ltla_name_gin"),
+        ]
 
     def get_full_name(self):
         name = f"{self.given_name or ''} {self.family_name or ''}".strip()
