@@ -616,7 +616,7 @@ class VisaApplicationVIRView(
             display_name=self._get_display_name(self.request.user, vir.ltla_name),
         )
 
-        messages.success(self.request, "Successfully started VIR.")
+        messages.success(self.request, "Successfully started visa information request.")
         return redirect(reverse("visa-applications:detail-vir", args=[self.object.pk]))
 
     def handle_add_comment(self, form):
