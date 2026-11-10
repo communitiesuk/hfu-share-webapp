@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.29.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.28.0...2.29.0) (2026-11-10)
+
+
+### Features
+
+* HFURB-4265 update the VIR acronym to mainly say visa information requests ([#320](https://github.com/communitiesuk/hfu-share-webapp/issues/320)) ([cab8ffb](https://github.com/communitiesuk/hfu-share-webapp/commit/cab8ffb8bb83016811a3821a08ed8bc1faad2ac1))
+* update guidance on local authority selection screen when requesting access (HFURB-1006) ([#314](https://github.com/communitiesuk/hfu-share-webapp/issues/314)) ([648dad9](https://github.com/communitiesuk/hfu-share-webapp/commit/648dad99f155109fcae31d2846cf7218249a685b))
+
 ## [2.28.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.27.0...2.28.0) (2026-11-02)
 
 
