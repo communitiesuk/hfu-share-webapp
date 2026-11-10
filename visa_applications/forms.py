@@ -36,7 +36,7 @@ class StartVIRForm(forms.ModelForm):
         "The text you enter should be short and clear.",
         max_length=500,
         error_messages={
-            "required": "You must start a VIR with a comment.",
+            "required": "You must start a visa information request with a comment.",
         },
     )
 
@@ -64,7 +64,7 @@ class StartVIRForm(forms.ModelForm):
                 max_characters=500,
             ),
             Div(
-                Button("start_vir_submit", "Start VIR"),
+                Button("start_vir_submit", "Start visa information request"),
             ),
         )
 
@@ -96,7 +96,7 @@ class AddVIRCommentForm(forms.ModelForm):
             buttons.append(
                 Button(
                     "close_vir_submit",
-                    "Close VIR",
+                    "Close visa information request",
                     css_class="govuk-button--secondary govuk-!-margin-left-2",
                 )
             )
@@ -114,11 +114,14 @@ class AddVIRCommentForm(forms.ModelForm):
 
 class VIRCloseConfirmForm(forms.Form):
     confirm_close = forms.ChoiceField(
-        label="Are you sure you want to close this VIR?",
+        label="Are you sure you want to close this visa information request?",
         required=True,
-        choices=[("true", "Yes, close VIR"), ("false", "No, return to VIR")],
+        choices=[
+            ("true", "Yes, close visa information request"),
+            ("false", "No, return to visa information request"),
+        ],
         widget=forms.RadioSelect,
-        help_text="You can re-open this VIR later if needed.",
+        help_text="You can re-open this visa information request later if needed.",
         error_messages={"required": "You must select an option."},
     )
 
@@ -144,9 +147,12 @@ class VIRCloseConfirmForm(forms.Form):
 
 class VIRReopenConfirmForm(forms.Form):
     confirm_reopen = forms.ChoiceField(
-        label="Are you sure you want to re-open this VIR?",
+        label="Are you sure you want to re-open this visa information request?",
         required=True,
-        choices=[("true", "Yes, re-open VIR"), ("false", "No, return to VIR")],
+        choices=[
+            ("true", "Yes, re-open visa information request"),
+            ("false", "No, return to visa information request"),
+        ],
         widget=forms.RadioSelect,
         help_text="",
         error_messages={"required": "You must select an option."},

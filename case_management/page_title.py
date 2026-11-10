@@ -144,7 +144,7 @@ def get_tab_title(resolver_match: ResolverMatch) -> str:
         "LinkedRecords": "Linked records",
         "Actions": "Actions",
         "History": "History",
-        "VIRView": "Visa Information Request",
+        "VIRView": "Visa information request",
         "CommentsView": "Comments",
         "SafeguardingChecksView": "Safeguarding checks",
         "MadePageView": "Requests made",

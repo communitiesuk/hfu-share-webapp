@@ -313,8 +313,8 @@ class LandingPageTests(TestSessionTokenMixin, BaseTestCase):
         self.assertTrue(
             selectable_card_exists(
                 soup,
-                "Visa Information Requests",
-                "Check for current Visa Information Requests that you need to "
+                "Visa information requests",
+                "Check for current visa information requests (VIRs) that you need to "
                 "respond to.",
             )
         )
@@ -382,7 +382,7 @@ class LandingPageCardVisibilityTests(TestSessionTokenMixin, BaseTestCase):
         self.assertTrue(selectable_card_exists(soup, "Manage user access"))
         self.assertTrue(selectable_card_exists(soup, "Download data"))
         self.assertTrue(selectable_card_exists(soup, "Applications to sponsor a child"))
-        self.assertTrue(selectable_card_exists(soup, "Visa Information Requests"))
+        self.assertTrue(selectable_card_exists(soup, "Visa information requests"))
         self.assertTrue(
             selectable_card_exists(soup, "Manage unassigned accommodation requests")
         )
@@ -430,7 +430,7 @@ class LandingPageCardVisibilityTests(TestSessionTokenMixin, BaseTestCase):
         self.assertTrue(selectable_card_exists(soup, "Visa applications"))
         self.assertTrue(selectable_card_exists(soup, "Escalated checks"))
         self.assertTrue(selectable_card_exists(soup, "Applications to sponsor a child"))
-        self.assertTrue(selectable_card_exists(soup, "Visa Information Requests"))
+        self.assertTrue(selectable_card_exists(soup, "Visa information requests"))
         self.assertContains(response, "Request access to data")
         self.assertTrue(selectable_card_exists(soup, "Download data"))
 
@@ -457,7 +457,7 @@ class LandingPageCardVisibilityTests(TestSessionTokenMixin, BaseTestCase):
         self.assertTrue(selectable_card_exists(soup, "Fix duplicate records"))
         self.assertTrue(selectable_card_exists(soup, "Reassignment requests"))
         self.assertTrue(selectable_card_exists(soup, "Download data"))
-        self.assertTrue(selectable_card_exists(soup, "Visa Information Requests"))
+        self.assertTrue(selectable_card_exists(soup, "Visa information requests"))
         self.assertContains(response, "Request access to data")
 
         # Should not see these cards
@@ -487,7 +487,7 @@ class LandingPageCardVisibilityTests(TestSessionTokenMixin, BaseTestCase):
         self.assertTrue(selectable_card_exists(soup, "Fix duplicate records"))
         self.assertTrue(selectable_card_exists(soup, "Escalated checks"))
         self.assertTrue(selectable_card_exists(soup, "Applications to sponsor a child"))
-        self.assertTrue(selectable_card_exists(soup, "Visa Information Requests"))
+        self.assertTrue(selectable_card_exists(soup, "Visa information requests"))
         self.assertTrue(
             selectable_card_exists(soup, "Manage unassigned accommodation requests")
         )
@@ -513,7 +513,7 @@ class LandingPageCardVisibilityTests(TestSessionTokenMixin, BaseTestCase):
         self.assertTrue(selectable_card_exists(soup, "Reassignment requests"))
         self.assertTrue(selectable_card_exists(soup, "Fix duplicate records"))
         self.assertTrue(selectable_card_exists(soup, "Download data"))
-        self.assertTrue(selectable_card_exists(soup, "Visa Information Requests"))
+        self.assertTrue(selectable_card_exists(soup, "Visa information requests"))
         self.assertContains(response, "Request access to data")
 
         # Should not see these cards
@@ -549,7 +549,7 @@ class LandingPageCardVisibilityTests(TestSessionTokenMixin, BaseTestCase):
         self.assertTrue(selectable_card_exists(soup, "Escalated checks"))
         self.assertTrue(selectable_card_exists(soup, "Download data"))
         self.assertTrue(selectable_card_exists(soup, "Applications to sponsor a child"))
-        self.assertTrue(selectable_card_exists(soup, "Visa Information Requests"))
+        self.assertTrue(selectable_card_exists(soup, "Visa information requests"))
         self.assertTrue(
             selectable_card_exists(soup, "Manage unassigned accommodation requests")
         )
