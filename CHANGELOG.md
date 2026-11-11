@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.30.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.29.0...2.30.0) (2026-11-11)
+
+
+### Features
+
+* HFURB-2853 switch record pages to side navigation ([#276](https://github.com/communitiesuk/hfu-share-webapp/issues/276)) ([28b5ad7](https://github.com/communitiesuk/hfu-share-webapp/commit/28b5ad7c23a7e2eee9097c8c6025e1cfe1fe626d))
+* HFURB-4267 add some text related to DBS checks to explain them a bit more ([#321](https://github.com/communitiesuk/hfu-share-webapp/issues/321)) ([5a15146](https://github.com/communitiesuk/hfu-share-webapp/commit/5a15146617bbed8e9eee909c8736e812515581d5))
+* HFURB-4309 update the layout of filters to match MOJ Frontend recommendations ([#280](https://github.com/communitiesuk/hfu-share-webapp/issues/280)) ([cae9f2c](https://github.com/communitiesuk/hfu-share-webapp/commit/cae9f2cedaf7701f5e5de1a6925cf1e15bab89ba))
+
+
+### Bug Fixes
+
+* HFURB-2853 use fetch to reload the content of the page and maintain the location ([#291](https://github.com/communitiesuk/hfu-share-webapp/issues/291)) ([29707c5](https://github.com/communitiesuk/hfu-share-webapp/commit/29707c5a3205c8fc3472eebb4b9baf77dc817862))
+
 ## [2.29.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.28.0...2.29.0) (2026-11-10)
 
 
