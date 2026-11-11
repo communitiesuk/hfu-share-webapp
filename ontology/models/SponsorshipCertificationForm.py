@@ -61,6 +61,11 @@ class SponsorshipCertificationForm(models.Model):
         REFUGEE_TRAVEL_DOCUMENT = ("refugee_travel_document", "Refugee Travel Document")
         NONE = ("none", "None provided")
 
+    class PreApprovalCheckStatus(models.TextChoices):
+        NOT_STARTED = ("Not started", "Not started")
+        PASSED = ("Passed", "Passed")
+        FAILED = ("Failed", "Failed")
+
     certificate_reference = models.TextField(
         null=True,
         blank=True,
@@ -242,6 +247,76 @@ class SponsorshipCertificationForm(models.Model):
     )
     viewer_group_names = ArrayField(
         models.TextField(), null=True, blank=True, db_column="viewer_group_names"
+    )
+    # UKVI checks
+    uk_consent_form_status = models.TextField(
+        null=True,
+        blank=True,
+        db_column="uk_consent_form_status",
+        choices=PreApprovalCheckStatus.choices,
+        verbose_name="UK consent form",
+    )
+    ukraine_consent_form_status = models.TextField(
+        null=True,
+        blank=True,
+        db_column="ukraine_consent_form_status",
+        choices=PreApprovalCheckStatus.choices,
+        verbose_name="Ukraine consent form",
+    )
+    sponsor_immigration_eligibility_status = models.TextField(
+        null=True,
+        blank=True,
+        db_column="sponsor_immigration_eligibility_status",
+        choices=PreApprovalCheckStatus.choices,
+        verbose_name="Sponsor immigration eligibility",
+    )
+    sponsor_household_security_checks_status = models.TextField(
+        null=True,
+        blank=True,
+        db_column="sponsor_household_security_checks_status",
+        choices=PreApprovalCheckStatus.choices,
+        verbose_name="Sponsor and household security checks",
+    )
+    # Local authority checks
+    sponsor_household_enhanced_dbs_status = models.TextField(
+        null=True,
+        blank=True,
+        db_column="sponsor_household_enhanced_dbs_status",
+        choices=PreApprovalCheckStatus.choices,
+        verbose_name="Sponsor and household members enhanced DBS",
+    )
+    accommodation_exists_status = models.TextField(
+        null=True,
+        blank=True,
+        db_column="accommodation_exists_status",
+        choices=PreApprovalCheckStatus.choices,
+        verbose_name="Accommodation exists",
+    )
+    accommodation_suitable_status = models.TextField(
+        null=True,
+        blank=True,
+        db_column="accommodation_suitable_status",
+        choices=PreApprovalCheckStatus.choices,
+        verbose_name="Accommodation suitable",
+    )
+    sponsor_role_and_expectations_status = models.TextField(
+        null=True,
+        blank=True,
+        db_column="sponsor_role_and_expectations_status",
+        choices=PreApprovalCheckStatus.choices,
+        verbose_name="Sponsor role and expectations",
+    )
+    sponsor_arrangements_suitable_status = models.TextField(
+        null=True,
+        blank=True,
+        db_column="sponsor_arrangements_suitable_status",
+        choices=PreApprovalCheckStatus.choices,
+        verbose_name="Sponsor arrangements suitable",
+    )
+    sponsor_certification_code_emailed = models.BooleanField(
+        db_column="sponsor_certification_code_emailed",
+        db_default=False,
+        verbose_name="Code sent to sponsor",
     )
 
     def get_accommodation_requests_restrict_for_user(self, user):
