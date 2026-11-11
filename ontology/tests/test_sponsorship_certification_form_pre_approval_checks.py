@@ -17,7 +17,8 @@ ALL_NOT_STARTED = dict.fromkeys(PRE_APPROVAL_CHECK_FIELDS, CheckStatus.NOT_START
 
 def build_uam(code_emailed=False, **check_statuses):
     return SponsorshipCertificationForm(
-        sponsor_certification_code_emailed=code_emailed, **check_statuses
+        sponsor_certification_code_emailed=code_emailed,
+        **{**dict.fromkeys(PRE_APPROVAL_CHECK_FIELDS), **check_statuses},
     )
 
 
