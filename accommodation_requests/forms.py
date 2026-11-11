@@ -15,6 +15,7 @@ from django.forms import (
     RadioSelect,
 )
 from django.forms.widgets import Input
+from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import escape
 
@@ -73,6 +74,9 @@ class AccommodationRequestUpdateSafeguardingChecksForm(forms.ModelForm):
         ),
         initial=None,
         label="Check type",
+        help_text=render_to_string(
+            "accommodation_requests/add_update_safeguarding_checks/add_update_safeguarding_checks_check_type_hint.html"
+        ),
     )
 
     @staticmethod

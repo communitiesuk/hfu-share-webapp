@@ -1,8 +1,88 @@
+from django.utils import timezone
+
+from ontology.models.DevCheckV2 import DevCheckV2
+from ontology.models.MvInteraction import MvInteraction
 from test_utils.base import BaseSimpleTestCase
-from webapp.templatetags.timeline_extras import format_interaction_content
+from webapp.templatetags.timeline_extras import (
+    ENHANCED_DBS_DISCLOSURE_NOTE,
+    format_interaction_content,
+)
 
 
 class FormatInteractionContentTagTests(BaseSimpleTestCase):
+    def test_generated_enhanced_dbs_note_flows_through_filter_with_disclosure(self):
+        check = DevCheckV2(
+            check_status=DevCheckV2.CheckStatus.PASSED,
+            check_subtype=DevCheckV2.SponsorDBSPassedType.ENHANCED_DBS,
+        )
+        note = check.determine_interaction_notes(
+            MvInteraction.InteractionContact.DBS_AND_SPONSOR_SUITABLE_CHECK,
+            timezone.now(),
+        )
+
+        result = format_interaction_content(note)
+
+        self.assertIn(ENHANCED_DBS_DISCLOSURE_NOTE, result)
+        self.assertIn(f"{note}<br>{ENHANCED_DBS_DISCLOSURE_NOTE}", result)
+
+    def test_generated_basic_dbs_note_does_not_get_disclosure(self):
+        check = DevCheckV2(
+            check_status=DevCheckV2.CheckStatus.PASSED,
+            check_subtype=DevCheckV2.SponsorDBSPassedType.BASIC_DBS,
+        )
+        note = check.determine_interaction_notes(
+            MvInteraction.InteractionContact.DBS_AND_SPONSOR_SUITABLE_CHECK,
+            timezone.now(),
+        )
+
+        result = format_interaction_content(note)
+
+        self.assertNotIn(ENHANCED_DBS_DISCLOSURE_NOTE, result)
+
+    def test_enhanced_dbs_check_appends_disclosure_scotland_note_on_new_line(self):
+        test_interaction_notes = "Enhanced DBS check: passed on 1 January 2024"
+
+        result = format_interaction_content(test_interaction_notes)
+
+        self.assertIn(ENHANCED_DBS_DISCLOSURE_NOTE, result)
+        self.assertIn(
+            f"Enhanced DBS check: passed on 1 January 2024<br>"
+            f"{ENHANCED_DBS_DISCLOSURE_NOTE}",
+            result,
+        )
+
+    def test_enhanced_dbs_check_failed_note_does_not_get_disclosure_note(self):
+        test_interaction_notes = (
+            "Sponsor suitable check failed on 1 January 2024. "
+            "Reason: Enhanced DBS check not completed."
+        )
+
+        result = format_interaction_content(test_interaction_notes)
+
+        self.assertNotIn(ENHANCED_DBS_DISCLOSURE_NOTE, result)
+        self.assertNotIn("<br>", result)
+
+    def test_basic_dbs_check_does_not_get_disclosure_note(self):
+        test_interaction_notes = "Basic DBS check: passed on 1 January 2024"
+
+        result = format_interaction_content(test_interaction_notes)
+
+        self.assertNotIn(ENHANCED_DBS_DISCLOSURE_NOTE, result)
+        self.assertNotIn("<br>", result)
+        self.assertEqual(result, test_interaction_notes)
+
+    def test_non_dbs_note_does_not_get_disclosure_note(self):
+        test_interaction_notes = (
+            "Reassignment request for "
+            "[names_list]firstname1 lastname1 and firstname2 lastname2."
+            "[names_list_end]"
+            "from old_ltla to new_ltla."
+        )
+
+        result = format_interaction_content(test_interaction_notes)
+
+        self.assertNotIn(ENHANCED_DBS_DISCLOSURE_NOTE, result)
+
     def test_interaction_content_tag_renders_names_as_list_for_reassignment_request(
         self,
     ):
