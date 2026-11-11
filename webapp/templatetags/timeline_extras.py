@@ -4,7 +4,7 @@ from typing import Optional
 
 from django import template
 from django.template.loader import render_to_string
-from django.utils.html import strip_tags
+from django.utils.html import escape, strip_tags
 from django.utils.safestring import mark_safe
 
 from webapp.templatetags.list_renderers import render_govuk_list
@@ -14,6 +14,10 @@ TIMELINE_ITEM_TEMPLATE_PATH = f"{TIMELINE_TEMPLATES_DIR}/timeline_change_item.ht
 
 
 register = template.Library()
+
+ENHANCED_DBS_DISCLOSURE_NOTE = (
+    "(For Disclosure Scotland this refers to ‘Level 2 with barred list check’.)"
+)
 
 
 class TimelineEventType(Enum):
@@ -71,6 +75,13 @@ def format_interaction_content(text):
     # converts to a html unordered list
 
     sanitised_text = strip_tags(text)
+
+    # Additional enhanced DBS check notes relating to Scotoland
+    if sanitised_text.startswith("Enhanced DBS check:"):
+        return mark_safe(  # noqa:S308
+            f"{escape(sanitised_text)}<br>{ENHANCED_DBS_DISCLOSURE_NOTE}"
+        )
+
     without_reason = sanitised_text.split("Reason", 1)[0]
 
     pattern = (

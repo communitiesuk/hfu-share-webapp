@@ -1,8 +1,55 @@
 from test_utils.base import BaseSimpleTestCase
-from webapp.templatetags.timeline_extras import format_interaction_content
+from webapp.templatetags.timeline_extras import (
+    ENHANCED_DBS_DISCLOSURE_NOTE,
+    format_interaction_content,
+)
 
 
 class FormatInteractionContentTagTests(BaseSimpleTestCase):
+    def test_enhanced_dbs_check_appends_disclosure_scotland_note_on_new_line(self):
+        test_interaction_notes = "Enhanced DBS check: passed on 1 January 2024"
+
+        result = format_interaction_content(test_interaction_notes)
+
+        self.assertIn(ENHANCED_DBS_DISCLOSURE_NOTE, result)
+        self.assertIn(
+            f"Enhanced DBS check: passed on 1 January 2024<br>"
+            f"{ENHANCED_DBS_DISCLOSURE_NOTE}",
+            result,
+        )
+
+    def test_enhanced_dbs_check_failed_note_does_not_get_disclosure_note(self):
+        test_interaction_notes = (
+            "Sponsor suitable check failed on 1 January 2024. "
+            "Reason: Enhanced DBS check not completed."
+        )
+
+        result = format_interaction_content(test_interaction_notes)
+
+        self.assertNotIn(ENHANCED_DBS_DISCLOSURE_NOTE, result)
+        self.assertNotIn("<br>", result)
+
+    def test_basic_dbs_check_does_not_get_disclosure_note(self):
+        test_interaction_notes = "Basic DBS check: passed on 1 January 2024"
+
+        result = format_interaction_content(test_interaction_notes)
+
+        self.assertNotIn(ENHANCED_DBS_DISCLOSURE_NOTE, result)
+        self.assertNotIn("<br>", result)
+        self.assertEqual(result, test_interaction_notes)
+
+    def test_non_dbs_note_does_not_get_disclosure_note(self):
+        test_interaction_notes = (
+            "Reassignment request for "
+            "[names_list]firstname1 lastname1 and firstname2 lastname2."
+            "[names_list_end]"
+            "from old_ltla to new_ltla."
+        )
+
+        result = format_interaction_content(test_interaction_notes)
+
+        self.assertNotIn(ENHANCED_DBS_DISCLOSURE_NOTE, result)
+
     def test_interaction_content_tag_renders_names_as_list_for_reassignment_request(
         self,
     ):
