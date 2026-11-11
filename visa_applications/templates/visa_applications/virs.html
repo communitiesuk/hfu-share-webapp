@@ -2,7 +2,7 @@
 {% block breadcrumb_content %}
     <li class="govuk-breadcrumbs__list-item">Visa information requests</li>
 {% endblock breadcrumb_content %}
-{% block narrow_content %}
+{% block after_heading_content %}
     {% if not has_virs %}
         <p>&nbsp;</p>
         <p class="govuk-body">You have no visa information requests (VIRs)</p>
@@ -15,9 +15,9 @@
             View all open or closed visa information requests (VIRs). Check for VIRs that you need to respond to. Select a record to view details and respond to requests on the VIR page.
         </p>
     {% endif %}
-{% endblock narrow_content %}
-{% block wide_content %}
+{% endblock after_heading_content %}
+{% block full_content %}
     {% if has_virs %}
         <div class="visa-applications-table">{% include "visa_applications/virs_table.html" with table=table %}</div>
     {% endif %}
-{% endblock wide_content %}
+{% endblock full_content %}

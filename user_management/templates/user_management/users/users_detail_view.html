@@ -9,9 +9,9 @@
 {% block page_heading %}
     {% include "webapp/components/heading/heading.html" with caption="User account for" page_heading=object.full_name_or_email %}
 {% endblock page_heading %}
-{% block narrow_content %}
+{% block after_heading_content %}
     <h4 class="govuk-heading-l">Overview</h4>
     {% include "webapp/components/record_tabs/record_summary_list.html" %}
     <a href="{% url 'user-management:users' %}"
        class="govuk-button govuk-button--secondary">Back to manage people</a>
-{% endblock narrow_content %}
+{% endblock after_heading_content %}
