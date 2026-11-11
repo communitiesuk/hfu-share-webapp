@@ -7,6 +7,7 @@ from django.template.loader import render_to_string
 from django.utils.html import escape, strip_tags
 from django.utils.safestring import mark_safe
 
+from ontology.models.DevCheckV2 import ENHANCED_DBS_CHECK_NOTE_PREFIX
 from webapp.templatetags.list_renderers import render_govuk_list
 
 TIMELINE_TEMPLATES_DIR = "webapp/components/timeline"
@@ -76,8 +77,8 @@ def format_interaction_content(text):
 
     sanitised_text = strip_tags(text)
 
-    # Additional enhanced DBS check notes relating to Scotoland
-    if sanitised_text.startswith("Enhanced DBS check:"):
+    # Append a Disclosure Scotland clarification to Enhanced DBS check notes.
+    if sanitised_text.startswith(ENHANCED_DBS_CHECK_NOTE_PREFIX):
         return mark_safe(  # noqa:S308
             f"{escape(sanitised_text)}<br>{ENHANCED_DBS_DISCLOSURE_NOTE}"
         )
