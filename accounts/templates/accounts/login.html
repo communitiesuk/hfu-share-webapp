@@ -5,6 +5,6 @@
 {% block page_heading %}
     {% include "webapp/components/heading/heading.html" with page_heading=page_heading tag="Entra ID disabled" %}
 {% endblock page_heading %}
-{% block half_content %}
+{% block after_heading_content %}
     {% crispy form %}
-{% endblock half_content %}
+{% endblock after_heading_content %}

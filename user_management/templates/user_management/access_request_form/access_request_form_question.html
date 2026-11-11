@@ -1,5 +1,4 @@
 {% extends "user_management/access_request_form/access_request_form_base.html" %}
-{% load page_layout_tags %}
 {% load crispy_forms_tags %}
 {% block breadcrumb_content %}
     <li class="govuk-breadcrumbs__list-item">
@@ -22,10 +21,10 @@
         {% include "webapp/components/heading/heading.html" with page_heading=title %}
     {% endif %}
 {% endblock page_heading %}
-{% block half_content %}
+{% block after_heading_content %}
     <form method="post" novalidate>
         {% csrf_token %}
         {{ wizard.management_form }}
         {% crispy wizard.form %}
     </form>
-{% endblock half_content %}
+{% endblock after_heading_content %}
