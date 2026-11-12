@@ -61,6 +61,42 @@ class SponsorshipCertificationForm(models.Model):
         REFUGEE_TRAVEL_DOCUMENT = ("refugee_travel_document", "Refugee Travel Document")
         NONE = ("none", "None provided")
 
+    class PreApprovalCheckStatus(models.TextChoices):
+        NOT_STARTED = ("Not started", "Not started")
+        PASSED = ("Passed", "Passed")
+        FAILED = ("Failed", "Failed")
+
+    class PreApprovalStatus(models.TextChoices):
+        """
+        Overall status of the pre-approval checks, worked out from the
+        individual check fields. Used for display only, not stored.
+        """
+
+        WAITING_FOR_UKVI_CHECKS = ("Waiting for UKVI checks", "Waiting for UKVI checks")
+        UKVI_CHECKS_IN_PROGRESS = ("UKVI checks in progress", "UKVI checks in progress")
+        FAILED_UKVI_CHECKS = ("Failed UKVI checks", "Failed UKVI checks")
+        WAITING_FOR_LA_CHECKS = ("Waiting for LA checks", "Waiting for LA checks")
+        LA_CHECKS_IN_PROGRESS = ("LA checks in progress", "LA checks in progress")
+        FAILED_LA_CHECKS = ("Failed LA checks", "Failed LA checks")
+        PASSED_ALL_CHECKS = ("Passed all checks", "Passed all checks")
+        COMPLETED = ("Completed", "Completed")
+        # Applications submitted before the pre-approval process was added
+        STATUS_NOT_RECORDED = ("Status not recorded", "Status not recorded")
+
+    UKVI_CHECK_FIELDS = (
+        "uk_consent_form_status",
+        "ukraine_consent_form_status",
+        "sponsor_immigration_eligibility_status",
+        "sponsor_household_security_checks_status",
+    )
+    LA_CHECK_FIELDS = (
+        "sponsor_household_enhanced_dbs_status",
+        "accommodation_exists_status",
+        "accommodation_suitable_status",
+        "sponsor_role_and_expectations_status",
+        "sponsor_arrangements_suitable_status",
+    )
+
     certificate_reference = models.TextField(
         null=True,
         blank=True,
@@ -243,6 +279,118 @@ class SponsorshipCertificationForm(models.Model):
     viewer_group_names = ArrayField(
         models.TextField(), null=True, blank=True, db_column="viewer_group_names"
     )
+    # UKVI checks
+    uk_consent_form_status = models.TextField(
+        null=True,
+        blank=True,
+        db_column="uk_consent_form_status",
+        choices=PreApprovalCheckStatus.choices,
+        verbose_name="UK consent form",
+    )
+    ukraine_consent_form_status = models.TextField(
+        null=True,
+        blank=True,
+        db_column="ukraine_consent_form_status",
+        choices=PreApprovalCheckStatus.choices,
+        verbose_name="Ukraine consent form",
+    )
+    sponsor_immigration_eligibility_status = models.TextField(
+        null=True,
+        blank=True,
+        db_column="sponsor_immigration_eligibility_status",
+        choices=PreApprovalCheckStatus.choices,
+        verbose_name="Sponsor immigration eligibility",
+    )
+    sponsor_household_security_checks_status = models.TextField(
+        null=True,
+        blank=True,
+        db_column="sponsor_household_security_checks_status",
+        choices=PreApprovalCheckStatus.choices,
+        verbose_name="Sponsor and household security checks",
+    )
+    # Local authority checks
+    sponsor_household_enhanced_dbs_status = models.TextField(
+        null=True,
+        blank=True,
+        db_column="sponsor_household_enhanced_dbs_status",
+        choices=PreApprovalCheckStatus.choices,
+        verbose_name="Sponsor and household members enhanced DBS",
+    )
+    accommodation_exists_status = models.TextField(
+        null=True,
+        blank=True,
+        db_column="accommodation_exists_status",
+        choices=PreApprovalCheckStatus.choices,
+        verbose_name="Accommodation exists",
+    )
+    accommodation_suitable_status = models.TextField(
+        null=True,
+        blank=True,
+        db_column="accommodation_suitable_status",
+        choices=PreApprovalCheckStatus.choices,
+        verbose_name="Accommodation suitable",
+    )
+    sponsor_role_and_expectations_status = models.TextField(
+        null=True,
+        blank=True,
+        db_column="sponsor_role_and_expectations_status",
+        choices=PreApprovalCheckStatus.choices,
+        verbose_name="Sponsor role and expectations",
+    )
+    sponsor_arrangements_suitable_status = models.TextField(
+        null=True,
+        blank=True,
+        db_column="sponsor_arrangements_suitable_status",
+        choices=PreApprovalCheckStatus.choices,
+        verbose_name="Sponsor arrangements suitable",
+    )
+    sponsor_certification_code_emailed = models.BooleanField(
+        db_column="sponsor_certification_code_emailed",
+        db_default=False,
+        verbose_name="Code sent to sponsor",
+    )
+
+    def _summarise_checks(self, check_fields: tuple[str, ...]) -> tuple[int, bool]:
+        statuses = [getattr(self, field) for field in check_fields]
+        recorded = [
+            status
+            for status in statuses
+            if status
+            in (self.PreApprovalCheckStatus.PASSED, self.PreApprovalCheckStatus.FAILED)
+        ]
+        return len(recorded), self.PreApprovalCheckStatus.FAILED in recorded
+
+    def get_pre_approval_status(self) -> PreApprovalStatus:
+        """
+        The UKVI checks are done first, then the LA checks, then the sponsor
+        certification code is emailed to the sponsor. A set of checks fails as
+        soon as any check in it fails, and only passes once every check in it
+        has passed.
+        """
+        all_check_fields = self.UKVI_CHECK_FIELDS + self.LA_CHECK_FIELDS
+        if all(getattr(self, field) is None for field in all_check_fields):
+            return self.PreApprovalStatus.STATUS_NOT_RECORDED
+
+        ukvi_recorded, ukvi_failed = self._summarise_checks(self.UKVI_CHECK_FIELDS)
+        if ukvi_failed:
+            return self.PreApprovalStatus.FAILED_UKVI_CHECKS
+        if ukvi_recorded == 0:
+            return self.PreApprovalStatus.WAITING_FOR_UKVI_CHECKS
+        if ukvi_recorded < len(self.UKVI_CHECK_FIELDS):
+            return self.PreApprovalStatus.UKVI_CHECKS_IN_PROGRESS
+
+        la_recorded, la_failed = self._summarise_checks(self.LA_CHECK_FIELDS)
+        if la_failed:
+            return self.PreApprovalStatus.FAILED_LA_CHECKS
+        if la_recorded == 0:
+            return self.PreApprovalStatus.WAITING_FOR_LA_CHECKS
+        if la_recorded < len(self.LA_CHECK_FIELDS):
+            return self.PreApprovalStatus.LA_CHECKS_IN_PROGRESS
+
+        if not self.sponsor_certification_code_emailed:
+            return self.PreApprovalStatus.PASSED_ALL_CHECKS
+
+        return self.PreApprovalStatus.COMPLETED
 
     def get_accommodation_requests_restrict_for_user(self, user):
         from ontology.models.MvAccommodationRequest import MvAccommodationRequest
