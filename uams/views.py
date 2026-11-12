@@ -53,6 +53,9 @@ from webapp.widgets import DatePicker, StackedRangeInput
 
 class UamsTable(tables.Table):
     sponsor_full_name = Column(verbose_name="Sponsor name")
+    pre_approval_status = Column(
+        verbose_name="Application status", accessor="get_pre_approval_status"
+    )
     sponsor_date_of_birth = CustomDateColumn(verbose_name="Sponsor date of birth")
     email = Column(verbose_name="Email address")
     identification_type = Column(verbose_name="Identification type")
@@ -68,12 +71,18 @@ class UamsTable(tables.Table):
             reverse("uams:detail-overview", args=[record.pk]),
         )
 
+    def render_pre_approval_status(
+        self, value: SponsorshipCertificationForm.PreApprovalStatus
+    ) -> str:
+        return render_app_pre_approval_status_tag(value)
+
     class Meta:
         model = SponsorshipCertificationForm
         template_name = "webapp/components/tables/table.html"
         order_by = "-created_at"
         fields = (
             "sponsor_full_name",
+            "pre_approval_status",
             "sponsor_date_of_birth",
             "email",
             "identification_type",
@@ -188,8 +197,14 @@ class UamsListView(
             "ltla_name",
             "reference",
             "created_at",
+            *SponsorshipCertificationForm.UKVI_CHECK_FIELDS,
+            *SponsorshipCertificationForm.LA_CHECK_FIELDS,
+            "sponsor_certification_code_emailed",
         ]
         return super().get_queryset().only(*fields_needed)
+
+    def get_table_data(self) -> list[SponsorshipCertificationForm]:
+        return list(self.object_list)
 
 
 class UamsDetailViewMixin(DetailViewMixin):

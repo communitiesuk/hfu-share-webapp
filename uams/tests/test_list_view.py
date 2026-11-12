@@ -5,6 +5,7 @@ from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
 from ontology.tests.base import UamsBaseTestCase
+from ontology.tests.factories import SponsorshipCertificationFormFactory
 from uams.views import UamsListView
 from user_management.tests.base import get_admin_user, get_da_user
 
@@ -103,4 +104,18 @@ class UamsListViewTestCase(TestSessionTokenMixin, UamsBaseTestCase):
             list(view.get_queryset()),
             [],
             transform=str,
+        )
+
+    def test_shows_application_status_column(self):
+        SponsorshipCertificationFormFactory(uk_consent_form_status="Passed")
+
+        self.client.force_login(get_admin_user())
+        response = self.client.get(reverse("uams:uams"))
+
+        self.assertContains(response, "Application status")
+        self.assertContains(
+            response,
+            '<strong class="govuk-tag govuk-tag--yellow app-tag--nowrap">'
+            "UKVI checks in progress</strong>",
+            html=True,
         )
