@@ -6,11 +6,10 @@ from .base import BrowserTest
 
 AR_CHECKS_REQUIRED_THREE_GUESTS = SeededAccommodationRequest(
     id="browser-test-ar-00030",
-    full_name="Bradley Peters and 2 others",
-    accommodation_request_title="Bradley Peters and 2 others to "
-    "097 Beth missi, IG44 3FD",
-    address="097 Beth mission, Hobbiton",
-    sponsor="Michelle Davies (parkersally@example.org)",
+    full_name="Helen Walker and 2 others",
+    accommodation_request_title="Helen Walker and 2 others to 6 Luke avenue,, L1 6XL",
+    address="6 Luke avenue, Hobbiton",
+    sponsor="Colin Khan (alice57@example.org)",
 )
 AR_CHECKS_REQUIRED_TWO_GUESTS = SeededAccommodationRequest(
     id="browser-test-ar-00005",
@@ -32,8 +31,10 @@ AR_REJECTED_OUTBOUND_REASSIGNMENT = SeededAccommodationRequest(
 )
 AR_CHECKS_PARTIALLY_COMPLETED_WITH_CASE_COMMENTS = SeededAccommodationRequest(
     id="browser-test-ar-00011",
-    full_name="Dale Smith and 1 other",
-    accommodation_request_title=("Dale Smith and 1 other to 35 Amelia fiel, L8 1TQ"),
+    full_name="Jonathan Greenwood and 1 other",
+    accommodation_request_title=(
+        "Jonathan Greenwood and 1 other to 35 Amelia fiel, L8 1TQ"
+    ),
     address="35 Amelia field, Hobbiton",
     sponsor="Adrian Gardner (boylemandy@example.org)",
 )
@@ -508,10 +509,10 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
         safeguarding_page.assert_has_secondary_heading("Safeguarding checks")
 
         safeguarding_page.assert_safeguarding_check_completion_check(
-            accommodation_exists_check=(
+            accommodation_suitable_check=(
                 AR_CHECKS_PARTIALLY_COMPLETED_WITH_CASE_COMMENTS.address,
                 _edit_check_heading(
-                    "Accommodation exists",
+                    "Accommodation suitable",
                     AR_CHECKS_PARTIALLY_COMPLETED_WITH_CASE_COMMENTS,
                 ),
                 "Checks complete: Passed",
@@ -533,13 +534,15 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
         )
 
         safeguarding_page.assert_safeguarding_check_completion_check(
-            accommodation_exists_check=(
+            accommodation_suitable_check=(
                 AR_CHECKS_PARTIALLY_COMPLETED_WITH_CASE_COMMENTS.address,
                 "Checks complete: Passed",
             ),
         )
 
-        safeguarding_page.select_option_for_field("Check type", "Accommodation exists")
+        safeguarding_page.select_option_for_field(
+            "Check type", "Accommodation suitable"
+        )
 
         safeguarding_page.assert_fields_are_shown_or_hidden(
             check_type_form_shown=True,

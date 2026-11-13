@@ -662,7 +662,7 @@ def build_complete_accommodation_scenario(
     if make_uam is None:
         # randomize a number from 0 to 4
         one_in_five = rng.randint(0, 4)
-        make_uam = (one_in_five < 2) and (num_guests == 1)
+        make_uam = (one_in_five == 0) and (num_guests == 1)
     if not make_uam:
         for i, person in enumerate(people):
             add_accommodation_request_to_person(person, accommodation_request)
