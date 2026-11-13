@@ -185,6 +185,15 @@ uv run test-browser
 uv run test-browser browser_tests/tests/test_home_page.py
 ```
 
+Documentation for the browser test scenarios available to sue can be found in the [seed_scenarios.md](browser_tests/seed_scenarios.md) file.
+This file is generated using the command:
+
+```
+uv run python manage.py generate_browser_test_docs
+```
+
+We check that it is up to date as part of the CI.
+
 ### Install pre-commit hooks
 If you've added a new pre-commit hook or the currently installed ones aren't running, you can try running
 ```shell
