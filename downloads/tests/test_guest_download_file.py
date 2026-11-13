@@ -1,3 +1,4 @@
+import gzip
 from collections import deque
 from unittest.mock import call, patch
 
@@ -344,6 +345,42 @@ class DownloadsViewGuestTestCase(TestSessionTokenMixin, BaseTestCase):
             deque(response.streaming_content, maxlen=0)
 
             mock_get_for_user.assert_called()
+
+    def test_guest_download_is_gzipped_when_client_accepts_gzip(self):
+        user = get_da_user()
+        self.client.force_login(user)
+
+        MvPersonFactory(
+            id="person-123-123-123",
+            first_name="Initial",
+            last_name="Guest",
+            accommodation_request=MvAccommodationRequestFactory(
+                ltla_name=["City of Edinburgh"]
+            ),
+        )
+
+        # Plain request (test client sends no Accept-Encoding by default).
+        plain_response = self.client.post(
+            reverse("downloads:download-page"),
+            data={"download_type": DownloadType.GUESTS},
+        )
+        self.assertFalse(plain_response.has_header("Content-Encoding"))
+        self.assertIn("Accept-Encoding", plain_response["Vary"])
+        plain_content = b"".join(plain_response.streaming_content)
+
+        # Same request, but advertising gzip support.
+        gzip_response = self.client.post(
+            reverse("downloads:download-page"),
+            data={"download_type": DownloadType.GUESTS},
+            headers={"accept-encoding": "gzip"},
+        )
+
+        self.assertEqual(gzip_response["Content-Encoding"], "gzip")
+        self.assertIn("Accept-Encoding", gzip_response["Vary"])
+
+        compressed_content = b"".join(gzip_response.streaming_content)
+        # Decompressing the gzip stream yields exactly the plain CSV.
+        self.assertEqual(gzip.decompress(compressed_content), plain_content)
 
     @patch("downloads.views.sentry_sdk.metrics.count")
     def test_guest_download_sends_sentry_metric(self, sentry_metrics):

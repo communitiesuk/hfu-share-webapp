@@ -1,9 +1,12 @@
 import csv
 import io
+import re
 
 from django.http import StreamingHttpResponse
 from django.utils import timezone
+from django.utils.cache import patch_vary_headers
 from django.utils.formats import date_format
+from django.utils.text import compress_sequence
 from django.views.generic.edit import FormView
 from sentry_sdk import logger as sentry_logger
 
@@ -13,7 +16,11 @@ from downloads.forms import (
     DownloadsTypeForm,
     DownloadType,
 )
-from downloads.helpers import build_csv_header, build_csv_row, determine_redacted_fields
+from downloads.helpers import (
+    build_csv_header,
+    build_csv_row,
+    determine_redacted_fields,
+)
 from ontology.mixins import get_las_for_user
 from ontology.models import (
     ExportToolObject,
@@ -26,6 +33,9 @@ from ontology.models import (
 from webapp.mixins import PermissionsMixin, SectionHeadingMixin
 
 BATCH_SIZE = 1000
+
+# Mirror Django's gzip negotiation without relying on its private API.
+_ACCEPTS_GZIP = re.compile(r"\bgzip\b")
 
 
 class DownloadsPage(SectionHeadingMixin, PermissionsMixin, FormView):
@@ -151,11 +161,8 @@ class DownloadsPage(SectionHeadingMixin, PermissionsMixin, FormView):
                 buffer.seek(0)
                 buffer.truncate(0)
 
-        response = StreamingHttpResponse(
-            stream_csv_with_iterator(), content_type="text/csv"
-        )
-        response["Content-Disposition"] = (
-            f'attachment; filename="{download_type}_{timestamp}.csv"'
+        response = self._build_csv_http_response(
+            stream_csv_with_iterator(), f"{download_type}_{timestamp}.csv"
         )
 
         # Send structured log info to Sentry so we can measure this metric
@@ -188,3 +195,32 @@ class DownloadsPage(SectionHeadingMixin, PermissionsMixin, FormView):
             ]
         )
         return kwargs
+
+    # CSV compresses well, so use gzip to reduce download size and transfer time.
+    def _build_csv_http_response(self, content, filename):
+        # Compress this export without enabling compression for other,
+        # potentially sensitive responses.
+        accepts_gzip = bool(
+            _ACCEPTS_GZIP.search(self.request.headers.get("Accept-Encoding", ""))
+        )
+
+        if accepts_gzip:
+            content = compress_sequence(
+                (chunk.encode("utf-8") for chunk in content),
+                max_random_bytes=100,
+            )
+
+        response = StreamingHttpResponse(
+            content,
+            content_type="text/csv; charset=utf-8",
+        )
+
+        if accepts_gzip:
+            response["Content-Encoding"] = "gzip"
+
+        # Ensure caches distinguish compressed and uncompressed responses.
+        patch_vary_headers(response, ("Accept-Encoding",))
+
+        response["Content-Disposition"] = f'attachment; filename="{filename}"'
+
+        return response
