@@ -1,4 +1,5 @@
 import logging
+import os
 from pathlib import Path
 
 from django.core.management.base import BaseCommand, CommandError
@@ -42,8 +43,11 @@ class Command(BaseCommand):
                 "generate_browser_test_docs only runs in dev or local environments"
             )
 
-        logger.info("Seeding browser test LA before generating documentation")
-        seed_browser_test_la()
+        if not os.getenv("SKIP_BROWSER_TEST_SEED"):
+            logger.info("Seeding browser test LA before generating documentation")
+            seed_browser_test_la()
+        else:
+            logger.info("Skipping seeding browser test LA")
 
         content = render_browser_test_scenario_doc()
         output_path = Path(options["output"])

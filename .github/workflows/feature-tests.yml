@@ -63,6 +63,9 @@ jobs:
           uv run seed-browser-test-users
           uv run python manage.py seed_browser_test_la --seed
 
+      - name: Validate the seed scenario docs
+        run: uv run python manage.py generate_browser_test_docs --check
+
       - parallel:
           - name: Browser tests
             run: |
