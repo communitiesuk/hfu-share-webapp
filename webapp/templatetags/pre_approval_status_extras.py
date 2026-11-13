@@ -7,7 +7,7 @@ register = template.Library()
 
 
 @register.filter
-def pre_approval_status_to_tag_colour(
-    value: SponsorshipCertificationForm.PreApprovalStatus,
-) -> str:
-    return pre_approval_status_tag_colours[value]
+def pre_approval_status_to_tag_colour(value: str) -> str:
+    return pre_approval_status_tag_colours[
+        SponsorshipCertificationForm.PreApprovalStatus(value)
+    ]
