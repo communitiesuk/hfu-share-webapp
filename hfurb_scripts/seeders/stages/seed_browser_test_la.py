@@ -1,5 +1,7 @@
+import json
 import logging
 import os
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import cast
 
@@ -7,8 +9,11 @@ from auditlog.models import LogEntry
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
+from django.core import serializers
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db import transaction
-from django.db.models import Q, QuerySet
+from django.db.models import F, Func, Model, Q, QuerySet, Value
+from django.db.models.fields.reverse_related import ForeignObjectRel
 from django.utils import timezone
 from freezegun import freeze_time
 
@@ -71,7 +76,11 @@ from ontology.tests.factories import CommentFactory
 logger = logging.getLogger(__name__)
 
 BROWSER_TEST_ID_PREFIX = "browser-test"
+SEEDED_ID_START = f"{BROWSER_TEST_ID_PREFIX}-"
 BROWSER_TEST_SEED = int(os.environ.get("BROWSER_TEST_SEED", 1313))
+# Seeding runs under a frozen clock so that date-relative values (dates of birth,
+# application dates, timestamps) come out the same on any day. Noon rather than
+# midnight so timezone conversion never shifts a date by a day.
 BROWSER_TEST_REFERENCE_DATETIME = datetime(2025, 1, 1, 12, 0, 0)
 MULTI_LA_SECOND_LTLA = BROWSER_TEST_LTLA_NAMES[1]
 
@@ -80,8 +89,12 @@ ChecksStatus = MvAccommodationRequest.ChecksStatus
 Status = MvAccommodationRequest.Status
 AccommodationType = MvAccommodation.AccommodationType
 
-# one entry per seeded accommodation request; every checks status and AR
-# status must appear at least once
+# One entry per seeded accommodation request; every checks status and AR status
+# must appear at least once. Ids are assigned in creation order, so add new
+# scenarios at the end: inserting one in the middle renumbers every record after
+# it and breaks the browser tests that name those records (see
+# browser_tests/seed_scenarios.md for the catalog and the seeder tests for what
+# is asserted).
 AR_SCENARIOS: list[dict] = [
     {
         "checks_status": ChecksStatus.CHECKS_REQUIRED,
@@ -314,8 +327,7 @@ def wipe_browser_test_la_data() -> None:
     reassignment_ids = list(reassignments.values_list("pk", flat=True))
 
     guest_dup_groups = GuestDuplicateGroup.objects_including_archived.filter(
-        Q(guests__id__in=person_ids)
-        | Q(guests__id__startswith=f"{BROWSER_TEST_ID_PREFIX}-")
+        Q(guests__id__in=person_ids) | Q(guests__id__startswith=SEEDED_ID_START)
     ).distinct()
     person_ids += [
         group.principal_record_id
@@ -323,8 +335,7 @@ def wipe_browser_test_la_data() -> None:
         if group.principal_record_id
     ]
     sponsor_dup_groups = SponsorDuplicateGroup.objects_including_archived.filter(
-        Q(sponsors__id__in=sponsor_ids)
-        | Q(sponsors__id__startswith=f"{BROWSER_TEST_ID_PREFIX}-")
+        Q(sponsors__id__in=sponsor_ids) | Q(sponsors__id__startswith=SEEDED_ID_START)
     ).distinct()
     sponsor_ids += [
         group.principal_record_id
@@ -334,7 +345,7 @@ def wipe_browser_test_la_data() -> None:
     accommodation_dup_groups = (
         AccommodationDuplicateGroup.objects_including_archived.filter(
             Q(accommodations__id__in=accommodation_ids)
-            | Q(accommodations__id__startswith=f"{BROWSER_TEST_ID_PREFIX}-")
+            | Q(accommodations__id__startswith=SEEDED_ID_START)
         ).distinct()
     )
     accommodation_ids += [
@@ -479,19 +490,17 @@ def wipe_browser_test_la_data() -> None:
     ]:
         _delete_with_audit_logs(
             f"stray {model.__name__} records",
-            model.objects.filter(pk__startswith=f"{BROWSER_TEST_ID_PREFIX}-"),
+            model.objects.filter(pk__startswith=SEEDED_ID_START),
         )
 
     _delete_with_audit_logs(
         "stray ExportToolObject records",
         ExportToolObject.objects.get_queryset_without_annotations().filter(
-            pk__startswith=f"{BROWSER_TEST_ID_PREFIX}-"
+            pk__startswith=SEEDED_ID_START
         ),
     )
 
-    stray_logs = LogEntry.objects.filter(
-        object_pk__startswith=f"{BROWSER_TEST_ID_PREFIX}-"
-    )
+    stray_logs = LogEntry.objects.filter(object_pk__startswith=SEEDED_ID_START)
     stray_log_count = stray_logs.count()
     if stray_log_count:
         stray_logs.delete()
@@ -560,6 +569,7 @@ def _make_inbound_reassignment(author: User) -> str:
         approve=True,
         author=author,
         reason="Sponsorship placement broke down",
+        id_prefix=BROWSER_TEST_ID_PREFIX,
     )
     logger.info(
         "inbound reassignment: %s moved from %s to %s",
@@ -820,6 +830,181 @@ def _move_guests_off_closed_empty_ar(
     logger.info("closed empty: guests moved from %s to %s", ar.id, receiving_ar.id)
 
 
+@dataclass(frozen=True)
+class AppCreatedRecords:
+    model: type[Model]
+    id_kind: str
+    linked_by: list[str]
+
+
+# Some seeded records are created by application code rather than by the seeder
+# (deduplicate() mints the principal records and their interactions, the
+# safeguarding form mints the escalated check), so they arrive with the app's own
+# ids. After seeding they are found through their links to seeded records and
+# renamed to browser-test ids, so the pipeline exclusions and the wipe can rely
+# on the prefix alone. test_browser_test_seeded_ids reads these same two lists.
+DEDUPLICATION_PRINCIPALS = [
+    AppCreatedRecords(MvPerson, "person", ["guestduplicategroup__guests"]),
+    AppCreatedRecords(MvVolunteer, "sponsor", ["sponsorduplicategroup__sponsors"]),
+    AppCreatedRecords(
+        MvAccommodation,
+        "accommodation",
+        ["accommodationduplicategroup__accommodations"],
+    ),
+]
+
+RECORDS_LINKED_TO_SEEDED_RECORDS = [
+    AppCreatedRecords(
+        MvInteraction,
+        "interaction",
+        [
+            "linked_accommodation_request",
+            "linked_guest",
+            "linked_sponsor",
+            "linked_accommodation",
+        ],
+    ),
+    AppCreatedRecords(
+        DevCheckV2, "check", ["AR", "person", "sponsor", "accommodation"]
+    ),
+    AppCreatedRecords(SafeguardingNotification, "safeguarding-notification", ["ar"]),
+    AppCreatedRecords(SafeguardingReferral, "safeguarding-referral", ["person"]),
+]
+
+
+def _linked_to_seeded_records(linked_by: list[str]) -> Q:
+    linked = Q()
+    for field in linked_by:
+        linked |= Q(**{f"{field}__id__startswith": SEEDED_ID_START})
+    return linked
+
+
+def _stable_ordering_key(record: Model) -> str:
+    # Renamed records are numbered in the order they are processed. Their
+    # original ids are random, so order by content to get the same numbering
+    # on every run.
+    fields = serializers.serialize("python", [record])[0]["fields"]
+    return json.dumps(fields, cls=DjangoJSONEncoder, sort_keys=True)
+
+
+def _repoint_references(model: type[Model], old_id: str, new_id: str) -> None:
+    # An id can be held in three places: another table's foreign key, a text
+    # array of ids, or an audit log row.
+    _repoint_foreign_keys(model, old_id, new_id)
+    _repoint_id_arrays(model, old_id, new_id)
+    _repoint_audit_log(model, old_id, new_id)
+
+
+def _repoint_foreign_keys(model: type[Model], old_id: str, new_id: str) -> None:
+    # A ForeignObjectRel is another table's relation pointing back at this model.
+    # include_hidden brings in the many-to-many through tables, whose foreign keys
+    # are what actually need updating; the many-to-many fields themselves cannot be
+    # set with update(), so they are skipped.
+    for relation in model._meta.get_fields(include_hidden=True):
+        if isinstance(relation, ForeignObjectRel) and not relation.many_to_many:
+            field = relation.field.name
+            relation.field.model._base_manager.filter(**{field: old_id}).update(
+                **{field: new_id}
+            )
+
+
+@dataclass(frozen=True)
+class IdArray:
+    holds_ids_of: type[Model]
+    model: type[Model]
+    field: str
+
+
+# Ids stored as text inside array fields are not relations, so Django cannot find
+# them for us; every array that can hold a renamed record's id is listed here. The
+# safeguarding notification arrays are filled by the app when it escalates a check,
+# and no current scenario escalates a check on a deduplicated record, so those three
+# are here for completeness rather than because seeding reaches them.
+ID_ARRAYS = [
+    IdArray(holds_ids_of=MvPerson, model=MvAccommodationRequest, field="person_id"),
+    IdArray(holds_ids_of=MvVolunteer, model=MvAccommodationRequest, field="sponsor_id"),
+    IdArray(
+        holds_ids_of=MvVolunteer,
+        model=MvAccommodationRequest,
+        field="sponsor_withdrawn",
+    ),
+    IdArray(
+        holds_ids_of=MvAccommodation,
+        model=MvAccommodationRequest,
+        field="accommodation_id",
+    ),
+    IdArray(
+        holds_ids_of=MvPerson,
+        model=SafeguardingNotification,
+        field="applicant_person_ids",
+    ),
+    IdArray(
+        holds_ids_of=MvVolunteer,
+        model=SafeguardingNotification,
+        field="sponsor_ids",
+    ),
+    IdArray(
+        holds_ids_of=MvAccommodation,
+        model=SafeguardingNotification,
+        field="accommodation_ids",
+    ),
+]
+
+
+def _repoint_id_arrays(model: type[Model], old_id: str, new_id: str) -> None:
+    for id_array in ID_ARRAYS:
+        if id_array.holds_ids_of is not model:
+            continue
+        id_array.model._base_manager.filter(
+            **{f"{id_array.field}__contains": [old_id]}
+        ).update(
+            **{
+                id_array.field: Func(
+                    F(id_array.field),
+                    Value(old_id),
+                    Value(new_id),
+                    function="array_replace",
+                )
+            }
+        )
+
+
+def _repoint_audit_log(model: type[Model], old_id: str, new_id: str) -> None:
+    LogEntry.objects.filter(
+        content_type=ContentType.objects.get_for_model(model), object_pk=old_id
+    ).update(object_pk=new_id)
+
+
+def _rename_record(record: Model, new_id: str) -> None:
+    model = type(record)
+    old_id = record.pk
+    _repoint_references(model, old_id, new_id)
+    model._base_manager.filter(pk=old_id).update(id=new_id)
+    logger.info("renamed %s %s to %s", model.__name__, old_id, new_id)
+
+
+def _rename_unprefixed_records(groups: list[AppCreatedRecords]) -> None:
+    for app_created in groups:
+        unprefixed = (
+            app_created.model._base_manager.filter(
+                _linked_to_seeded_records(app_created.linked_by)
+            )
+            .exclude(id__startswith=SEEDED_ID_START)
+            .distinct()
+        )
+        for record in sorted(unprefixed, key=_stable_ordering_key):
+            _rename_record(
+                record, record_id(app_created.id_kind, BROWSER_TEST_ID_PREFIX)
+            )
+
+
+def _give_app_created_records_browser_test_ids() -> None:
+    # Principals first: interactions link to them, and the link must already
+    # carry the prefix for those interactions to be found.
+    _rename_unprefixed_records(DEDUPLICATION_PRINCIPALS)
+    _rename_unprefixed_records(RECORDS_LINKED_TO_SEEDED_RECORDS)
+
+
 def _get_browser_test_author() -> User:
     group = Group.objects.get(name=BROWSER_TEST_FIRST_LA_GROUP_NAME)
 
@@ -877,7 +1062,7 @@ def seed_browser_test_la() -> None:
 
             match ar.checks_status:
                 case ChecksStatus.CLOSED_LEFT_PROGRAMME:
-                    mutate_closed_left_programme(ar)
+                    mutate_closed_left_programme(ar, BROWSER_TEST_ID_PREFIX)
                 case (
                     ChecksStatus.CHECKS_PARTIALLY_COMPLETED
                     | ChecksStatus.CHECKS_COMPLETED
@@ -892,6 +1077,7 @@ def seed_browser_test_la() -> None:
                     approve=False,
                     author=author,
                     reason="Guest has moved in with new partner",
+                    id_prefix=BROWSER_TEST_ID_PREFIX,
                 )
 
             for person in MvPerson.objects.filter(accommodation_request=ar):
@@ -942,6 +1128,7 @@ def seed_browser_test_la() -> None:
         examples["pending outbound reassignment"] = _labelled_ar(
             ars, "pending outbound reassignment"
         ).id
+        _give_app_created_records_browser_test_ids()
 
     logger.info(
         "Successfully reset %s browser test AccommodationRequest objects in %s.",
