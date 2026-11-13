@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.31.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.30.0...2.31.0) (2026-11-13)
+
+
+### Features
+
+* [migration] add new checks fields to sponshorship cert form (HFURB-4271) ([#324](https://github.com/communitiesuk/hfu-share-webapp/issues/324)) ([3c4ea33](https://github.com/communitiesuk/hfu-share-webapp/commit/3c4ea33ab06394d88be83fdd9fe15800d46e6ee8))
+* add application status tag to overview (HFURB-4273) ([#328](https://github.com/communitiesuk/hfu-share-webapp/issues/328)) ([b0d9be5](https://github.com/communitiesuk/hfu-share-webapp/commit/b0d9be59086becd9f3ead0a63fb6e9b5f6979b48))
+* remove extra button under side nav on record overviews ([#336](https://github.com/communitiesuk/hfu-share-webapp/issues/336)) ([f62318e](https://github.com/communitiesuk/hfu-share-webapp/commit/f62318ea3ce161f0d06cbf9fcef8110126c46d19))
+
 ## [2.30.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.29.0...2.30.0) (2026-11-11)
 
 
