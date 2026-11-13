@@ -40,6 +40,7 @@ from webapp.s3 import (
 )
 from webapp.search import perform_search
 from webapp.templatetags.link_renderers import render_govuk_link
+from webapp.templatetags.tag_renderers import render_app_pre_approval_status_tag
 from webapp.utils import (
     CustomDateColumn,
     CustomDateFromToRangeFilter,
@@ -232,6 +233,15 @@ class UamsDetailOverviewView(
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
+        ctx["fields"].insert(
+            0,
+            (
+                "Sponsor suitability checks status",
+                render_app_pre_approval_status_tag(
+                    self.object.get_pre_approval_status()
+                ),
+            ),
+        )
         return ctx
 
     class Meta:

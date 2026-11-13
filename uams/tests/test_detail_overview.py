@@ -79,6 +79,36 @@ class UamDetailOverviewViewTests(TestSessionTokenMixin, UamsBaseTestCase):
         self.assertContains(response, "Date created")
         self.assertContains(response, "1 August 2025 at 1:00am")
 
+    def test_shows_status_not_recorded_when_no_checks_recorded(self):
+        self.client.force_login(get_admin_user())
+        response = self.client.get(
+            reverse("uams:detail-overview", kwargs={"pk": self.overview_tab_uam.pk})
+        )
+
+        self.assertContains(response, "Sponsor suitability checks status")
+        self.assertContains(
+            response,
+            '<strong class="govuk-tag govuk-tag--grey app-tag--nowrap">'
+            "Status not recorded</strong>",
+            html=True,
+        )
+
+    def test_shows_current_pre_approval_status(self):
+        uam = SponsorshipCertificationFormFactory(uk_consent_form_status="Passed")
+
+        self.client.force_login(get_admin_user())
+        response = self.client.get(
+            reverse("uams:detail-overview", kwargs={"pk": uam.pk})
+        )
+
+        self.assertContains(response, "Sponsor suitability checks status")
+        self.assertContains(
+            response,
+            '<strong class="govuk-tag govuk-tag--yellow app-tag--nowrap">'
+            "UKVI checks in progress</strong>",
+            html=True,
+        )
+
     def test_user_without_access_to_requested_uam_is_denied_access(self):
         la_user = self.ltla_two_a_user
         self.client.force_login(la_user)

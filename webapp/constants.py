@@ -9,6 +9,7 @@ from ontology.models import (
     MvAccommodationRequest,
     ReassignmentRequest,
     SafeguardingReferral,
+    SponsorshipCertificationForm,
 )
 from webapp.templatetags.timeline_extras import AuditEventType
 
@@ -119,6 +120,18 @@ safeguarding_check_status_tag_label_text = {
     DevCheckV2.CheckStatus.PASSED: "Checks complete: Passed",
     DevCheckV2.CheckStatus.FAILED: "Checks complete: Failed",
     DevCheckV2.CheckStatus.UNAVAILABLE: "Check status unavailable",
+}
+
+pre_approval_status_tag_colours = {
+    SponsorshipCertificationForm.PreApprovalStatus.WAITING_FOR_UKVI_CHECKS: YELLOW,
+    SponsorshipCertificationForm.PreApprovalStatus.UKVI_CHECKS_IN_PROGRESS: YELLOW,
+    SponsorshipCertificationForm.PreApprovalStatus.FAILED_UKVI_CHECKS: RED,
+    SponsorshipCertificationForm.PreApprovalStatus.WAITING_FOR_LA_CHECKS: BLUE,
+    SponsorshipCertificationForm.PreApprovalStatus.LA_CHECKS_IN_PROGRESS: BLUE,
+    SponsorshipCertificationForm.PreApprovalStatus.FAILED_LA_CHECKS: RED,
+    SponsorshipCertificationForm.PreApprovalStatus.PASSED_ALL_CHECKS: BLUE,
+    SponsorshipCertificationForm.PreApprovalStatus.COMPLETED: GREEN,
+    SponsorshipCertificationForm.PreApprovalStatus.STATUS_NOT_RECORDED: GREY,
 }
 
 ACCOMMODATION_REQUEST_SAFEGUARDING_NO_STATUS_TAG_COLOUR = GREY

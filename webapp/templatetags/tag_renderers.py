@@ -8,6 +8,7 @@ from case_management import settings
 from ontology.models import (
     DevCheckV2,
     ReassignmentRequest,
+    SponsorshipCertificationForm,
     VisaInformationRequest,
 )
 from user_management.templatetags.access_request_extras import (
@@ -23,6 +24,9 @@ from webapp.templatetags.checks_status_extras import (
     accommodation_checks_status_label_to_tag_colour,
     accommodation_request_status_label_to_tag_colour,
     accommodation_safeguarding_status_label_to_tag_colour,
+)
+from webapp.templatetags.pre_approval_status_extras import (
+    pre_approval_status_to_tag_colour,
 )
 from webapp.templatetags.reassignment_request_extras import (
     reassignment_request_outcome_to_tag_colour,
@@ -206,6 +210,17 @@ def render_app_safeguarding_status_tag(status: str):
     return render_govuk_tag(
         status,
         colour=accommodation_safeguarding_status_label_to_tag_colour(status),
+        css_class="app-tag--nowrap",
+    )
+
+
+@register.filter
+def render_app_pre_approval_status_tag(
+    status: SponsorshipCertificationForm.PreApprovalStatus,
+) -> str:
+    return render_govuk_tag(
+        status,
+        colour=pre_approval_status_to_tag_colour(status),
         css_class="app-tag--nowrap",
     )
 
