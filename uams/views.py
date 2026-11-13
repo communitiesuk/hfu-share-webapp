@@ -3,7 +3,7 @@ import os
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import Field, Fieldset, Layout
 from crispy_forms_gds.layout.constants import Size
-from django.db.models import QuerySet
+from django.db.models import Case, OrderBy, QuerySet, TextField, Value, When
 from django.http import Http404
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -83,6 +83,21 @@ class UamsTable(tables.Table):
         self, value: SponsorshipCertificationForm.PreApprovalStatus
     ) -> str:
         return render_app_pre_approval_status_tag(value)
+
+    def order_pre_approval_status(
+        self, queryset: QuerySet[SponsorshipCertificationForm], is_descending: bool
+    ) -> tuple[QuerySet[SponsorshipCertificationForm], bool]:
+        statuses = []
+        for uam in queryset:
+            status = uam.get_pre_approval_status()
+            statuses.append(When(pk=uam.pk, then=Value(status)))
+
+        status_column = Case(*statuses, output_field=TextField())
+
+        sort_by_status = OrderBy(status_column, descending=is_descending)
+        queryset = queryset.order_by(sort_by_status, "-created_at")
+
+        return queryset, True
 
     class Meta:
         model = SponsorshipCertificationForm
@@ -237,9 +252,6 @@ class UamsListView(
             "sponsor_certification_code_emailed",
         ]
         return super().get_queryset().only(*fields_needed)
-
-    def get_table_data(self) -> list[SponsorshipCertificationForm]:
-        return list(self.object_list)
 
 
 class UamsDetailViewMixin(DetailViewMixin):
