@@ -129,3 +129,27 @@ class UamsListViewTestCase(TestSessionTokenMixin, UamsBaseTestCase):
         for status in SponsorshipCertificationForm.PreApprovalStatus:
             with self.subTest(status=status):
                 self.assertContains(response, f'value="{status.value}"')
+
+    def test_filtering_and_sorting_by_status_together(self):
+        in_progress = SponsorshipCertificationFormFactory(
+            given_name="Inprogress",
+            family_name="Sponsor",
+            uk_consent_form_status="Passed",
+        )
+        failed = SponsorshipCertificationFormFactory(
+            given_name="Failed", family_name="Sponsor", uk_consent_form_status="Failed"
+        )
+
+        self.client.force_login(get_admin_user())
+        response = self.client.get(
+            reverse("uams:uams"),
+            {"status": "UKVI checks in progress", "sort": "pre_approval_status"},
+        )
+
+        self.assertEqual(response.status_code, http.client.OK)
+        self.assertContains(
+            response, reverse("uams:detail-overview", args=[in_progress.pk])
+        )
+        self.assertNotContains(
+            response, reverse("uams:detail-overview", args=[failed.pk])
+        )
