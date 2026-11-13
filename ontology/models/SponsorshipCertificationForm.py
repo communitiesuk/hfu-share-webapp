@@ -1,6 +1,9 @@
+from functools import reduce
+from operator import add
+
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
-from django.db.models import Case, Q, Value, When
+from django.db.models import Case, CharField, IntegerField, Q, Value, When
 from django.db.models.functions import Concat
 
 from ontology.mixins import LocalAuthorityPermissionsManagerMixin
@@ -28,9 +31,97 @@ class SponsorshipCertificationFormQuerySet(models.QuerySet):
             )
         )
 
+    def with_pre_approval_status(self):
+        # Allows status and filters to run this on the same queryset chain
+        if "pre_approval_status" in self.query.annotations:
+            return self
+
+        model = self.model
+
+        passed = model.PreApprovalCheckStatus.PASSED
+        failed = model.PreApprovalCheckStatus.FAILED
+
+        ukvi_fields = model.UKVI_CHECK_FIELDS
+        la_fields = model.LA_CHECK_FIELDS
+        all_check_fields = ukvi_fields + la_fields
+
+        def recorded_count(fields):
+            return reduce(
+                add,
+                (
+                    Case(
+                        When(
+                            Q(**{field: passed}) | Q(**{field: failed}),
+                            then=Value(1),
+                        ),
+                        default=Value(0),
+                        output_field=IntegerField(),
+                    )
+                    for field in fields
+                ),
+            )
+
+        def any_failed(fields):
+            return Q(
+                *[Q(**{field: failed}) for field in fields],
+                _connector=Q.OR,
+            )
+
+        all_not_recorded = Q(
+            *[Q(**{f"{field}__isnull": True}) for field in all_check_fields],
+            _connector=Q.AND,
+        )
+
+        ukvi_failed = any_failed(ukvi_fields)
+        la_failed = any_failed(la_fields)
+
+        return self.alias(
+            ukvi_recorded=recorded_count(ukvi_fields),
+            la_recorded=recorded_count(la_fields),
+        ).annotate(
+            pre_approval_status=Case(
+                When(
+                    all_not_recorded,
+                    then=Value(model.PreApprovalStatus.STATUS_NOT_RECORDED),
+                ),
+                When(
+                    ukvi_failed,
+                    then=Value(model.PreApprovalStatus.FAILED_UKVI_CHECKS),
+                ),
+                When(
+                    ukvi_recorded=0,
+                    then=Value(model.PreApprovalStatus.WAITING_FOR_UKVI_CHECKS),
+                ),
+                When(
+                    ukvi_recorded__lt=len(ukvi_fields),
+                    then=Value(model.PreApprovalStatus.UKVI_CHECKS_IN_PROGRESS),
+                ),
+                When(
+                    la_failed,
+                    then=Value(model.PreApprovalStatus.FAILED_LA_CHECKS),
+                ),
+                When(
+                    la_recorded=0,
+                    then=Value(model.PreApprovalStatus.WAITING_FOR_LA_CHECKS),
+                ),
+                When(
+                    la_recorded__lt=len(la_fields),
+                    then=Value(model.PreApprovalStatus.LA_CHECKS_IN_PROGRESS),
+                ),
+                When(
+                    Q(sponsor_certification_code_emailed=False)
+                    | Q(sponsor_certification_code_emailed__isnull=True),
+                    then=Value(model.PreApprovalStatus.PASSED_ALL_CHECKS),
+                ),
+                default=Value(model.PreApprovalStatus.COMPLETED),
+                output_field=CharField(),
+            )
+        )
+
 
 class SponsorshipCertificationFormManager(
-    LocalAuthorityPermissionsManagerMixin, models.Manager
+    LocalAuthorityPermissionsManagerMixin,
+    models.Manager.from_queryset(SponsorshipCertificationFormQuerySet),
 ):
     def get_queryset(self):
         return SponsorshipCertificationFormQuerySet(
