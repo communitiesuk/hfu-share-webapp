@@ -370,16 +370,120 @@ def create_visa_application(
     )
 
 
+def _get_uam_checks_for_status(
+    uams_status: SponsorshipCertificationForm.PreApprovalStatus,
+) -> dict[str, object]:
+    uam_checks = dict(
+        uk_consent_form_status=SponsorshipCertificationForm.PreApprovalCheckStatus.NOT_STARTED,
+        ukraine_consent_form_status=SponsorshipCertificationForm.PreApprovalCheckStatus.NOT_STARTED,
+        sponsor_immigration_eligibility_status=SponsorshipCertificationForm.PreApprovalCheckStatus.NOT_STARTED,
+        sponsor_household_security_checks_status=SponsorshipCertificationForm.PreApprovalCheckStatus.NOT_STARTED,
+        sponsor_household_enhanced_dbs_status=SponsorshipCertificationForm.PreApprovalCheckStatus.NOT_STARTED,
+        accommodation_exists_status=SponsorshipCertificationForm.PreApprovalCheckStatus.NOT_STARTED,
+        accommodation_suitable_status=SponsorshipCertificationForm.PreApprovalCheckStatus.NOT_STARTED,
+        sponsor_role_and_expectations_status=SponsorshipCertificationForm.PreApprovalCheckStatus.NOT_STARTED,
+        sponsor_arrangements_suitable_status=SponsorshipCertificationForm.PreApprovalCheckStatus.NOT_STARTED,
+        sponsor_certification_code_emailed=False,
+    )
+
+    match uams_status:
+        case SponsorshipCertificationForm.PreApprovalStatus.UKVI_CHECKS_IN_PROGRESS:
+            uam_checks.update(
+                uk_consent_form_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                sponsor_immigration_eligibility_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+            )
+        case SponsorshipCertificationForm.PreApprovalStatus.FAILED_UKVI_CHECKS:
+            uam_checks.update(
+                uk_consent_form_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                ukraine_consent_form_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                sponsor_immigration_eligibility_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                sponsor_household_security_checks_status=SponsorshipCertificationForm.PreApprovalCheckStatus.FAILED,
+            )
+        case SponsorshipCertificationForm.PreApprovalStatus.WAITING_FOR_LA_CHECKS:
+            uam_checks.update(
+                uk_consent_form_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                ukraine_consent_form_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                sponsor_immigration_eligibility_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                sponsor_household_security_checks_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+            )
+        case SponsorshipCertificationForm.PreApprovalStatus.LA_CHECKS_IN_PROGRESS:
+            uam_checks.update(
+                uk_consent_form_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                ukraine_consent_form_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                sponsor_immigration_eligibility_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                sponsor_household_security_checks_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                sponsor_household_enhanced_dbs_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                accommodation_suitable_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+            )
+        case SponsorshipCertificationForm.PreApprovalStatus.FAILED_LA_CHECKS:
+            uam_checks.update(
+                uk_consent_form_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                ukraine_consent_form_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                sponsor_immigration_eligibility_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                sponsor_household_security_checks_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                sponsor_household_enhanced_dbs_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                accommodation_exists_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                accommodation_suitable_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                sponsor_role_and_expectations_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                sponsor_arrangements_suitable_status=SponsorshipCertificationForm.PreApprovalCheckStatus.FAILED,
+            )
+        case SponsorshipCertificationForm.PreApprovalStatus.PASSED_ALL_CHECKS:
+            uam_checks.update(
+                uk_consent_form_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                ukraine_consent_form_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                sponsor_immigration_eligibility_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                sponsor_household_security_checks_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                sponsor_household_enhanced_dbs_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                accommodation_exists_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                accommodation_suitable_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                sponsor_role_and_expectations_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                sponsor_arrangements_suitable_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+            )
+        case SponsorshipCertificationForm.PreApprovalStatus.COMPLETED:
+            uam_checks.update(
+                uk_consent_form_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                ukraine_consent_form_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                sponsor_immigration_eligibility_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                sponsor_household_security_checks_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                sponsor_household_enhanced_dbs_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                accommodation_exists_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                accommodation_suitable_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                sponsor_role_and_expectations_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                sponsor_arrangements_suitable_status=SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED,
+                sponsor_certification_code_emailed=True,
+            )
+        case SponsorshipCertificationForm.PreApprovalStatus.STATUS_NOT_RECORDED:
+            uam_checks.update(
+                uk_consent_form_status=None,
+                ukraine_consent_form_status=None,
+                sponsor_immigration_eligibility_status=None,
+                sponsor_household_security_checks_status=None,
+                sponsor_household_enhanced_dbs_status=None,
+                accommodation_exists_status=None,
+                accommodation_suitable_status=None,
+                sponsor_role_and_expectations_status=None,
+                sponsor_arrangements_suitable_status=None,
+            )
+
+    return uam_checks
+
+
 def create_uam(
     person: MvPerson,
     sponsor: MvVolunteer,
     accommodation: MvAccommodation,
+    uams_status: SponsorshipCertificationForm.PreApprovalStatus | None,
     id_prefix: str = "",
 ) -> SponsorshipCertificationForm:
     if id_prefix:
         reference = f"{id_prefix}-uam-{next_serial(f'{id_prefix}-uam'):05d}"
     else:
         reference = f"UAM-{str(uuid.uuid4())[:8].upper()}"
+
+    if uams_status is None:
+        uams_status = (
+            SponsorshipCertificationForm.PreApprovalStatus.WAITING_FOR_UKVI_CHECKS
+        )
 
     return SponsorshipCertificationFormFactory(  # type: ignore[return-value]
         reference=reference,
@@ -405,6 +509,7 @@ def create_uam(
         ltla_name=[accommodation.ltla_name],
         uk_parental_consent_filename="uk_parental_consent.txt",
         ukraine_parental_consent_filename="ukraine_parental_consent.txt",
+        **_get_uam_checks_for_status(uams_status=uams_status),
     )
 
 
@@ -523,6 +628,7 @@ def build_complete_accommodation_scenario(
     upe_visa_status: MvPerson.UPEVisaStatus | None = None,
     checks_status: MvAccommodationRequest.ChecksStatus | None = None,
     visa_statuses: List[str] | None = None,
+    uams_status: SponsorshipCertificationForm.PreApprovalStatus | None = None,
     id_prefix: str = "",
     status: MvAccommodationRequest.Status | None = None,
     make_uam: bool | None = None,
@@ -556,7 +662,7 @@ def build_complete_accommodation_scenario(
     if make_uam is None:
         # randomize a number from 0 to 4
         one_in_five = rng.randint(0, 4)
-        make_uam = (one_in_five == 0) and (num_guests == 1)
+        make_uam = (one_in_five < 2) and (num_guests == 1)
     if not make_uam:
         for i, person in enumerate(people):
             add_accommodation_request_to_person(person, accommodation_request)
@@ -575,7 +681,7 @@ def build_complete_accommodation_scenario(
         person.visa_status = "Flow Visa Pending"
         person.save()
         add_accommodation_request_to_person(person, accommodation_request)
-        uam = create_uam(person, sponsor, accommodation, id_prefix)
+        uam = create_uam(person, sponsor, accommodation, uams_status, id_prefix)
         add_uam_and_docs_to_person(person, uam, id_prefix)
         add_uam_to_sponsor(sponsor, uam)
         add_attachments_to_uam(uam, id_prefix)

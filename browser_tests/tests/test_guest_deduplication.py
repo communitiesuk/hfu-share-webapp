@@ -6,28 +6,28 @@ from ..seeded_data import SeededGuest
 from .base import BrowserTest
 
 GUEST_CONFIRMED_VISA_CHECKS_REQUIRED = SeededGuest(
-    id="browser-test-person-00027",
-    full_name="Ian Yates",
-    first_name="Ian",
-    last_name="Yates",
-    date_of_birth="12 June 1966",
-    email="cliffordgreen@example.org",
-    phone="01214960497",
-    passport_id="36DSA4XOW",
-    accommodation_request_title="Ian Yates and 1 other to Flat 32J Bates, SW0Y 7AR",
+    id="browser-test-person-00026",
+    full_name="Bruce James",
+    first_name="Bruce",
+    last_name="James",
+    date_of_birth="5 November 1970",
+    email="sylviabowen@example.org",
+    phone="(020)74960853",
+    passport_id="J36LQNND9",
+    accommodation_request_title="Bruce James and 1 other to Flat 32J Bates, SW0Y 7AR",
 )
 GUEST_ARRIVED_VISA_CHECKS_REQUIRED = SeededGuest(
     id="browser-test-person-00032",
-    full_name="Martyn Field",
-    first_name="Martyn",
-    last_name="Field",
-    date_of_birth="22 January 2004",
-    email="eileenstanley@example.org",
-    phone="(0306)9990909",
-    passport_id="B53RZIT9A",
-    accommodation_request_title="Martyn Field and 1 other to 79 Owen stream, N4J 5SJ",
+    full_name="Rita Price",
+    first_name="Rita",
+    last_name="Price",
+    date_of_birth="6 August 2004",
+    email="brownamber@example.org",
+    phone="01632 960004",
+    passport_id="Y6B5L0BCB",
+    accommodation_request_title="Rita Price and 1 other to Studio 3 Aimee, OX3M 9AQ",
 )
-SEARCH_TERM = "yates field"
+SEARCH_TERM = "james price"
 
 
 @pytest.fixture
