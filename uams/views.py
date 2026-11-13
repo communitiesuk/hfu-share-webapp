@@ -3,7 +3,7 @@ import os
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import Field, Fieldset, Layout
 from crispy_forms_gds.layout.constants import Size
-from django.db.models import Case, OrderBy, QuerySet, TextField, Value, When
+from django.db.models import QuerySet
 from django.http import Http404
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -24,6 +24,9 @@ from ontology.models import (
     CheckType,
     SponsorshipCertificationAttachmentMetadata,
     SponsorshipCertificationForm,
+)
+from ontology.models.SponsorshipCertificationForm import (
+    SponsorshipCertificationFormQuerySet,
 )
 from webapp.constants import UAMS_SEARCH_FIELDS
 from webapp.mixins import (
@@ -85,17 +88,14 @@ class UamsTable(tables.Table):
         return render_app_pre_approval_status_tag(value)
 
     def order_pre_approval_status(
-        self, queryset: QuerySet[SponsorshipCertificationForm], is_descending: bool
+        self,
+        queryset: SponsorshipCertificationFormQuerySet,
+        is_descending: bool,
     ) -> tuple[QuerySet[SponsorshipCertificationForm], bool]:
-        statuses = []
-        for uam in queryset:
-            status = uam.get_pre_approval_status()
-            statuses.append(When(pk=uam.pk, then=Value(status)))
-
-        status_column = Case(*statuses, output_field=TextField())
-
-        sort_by_status = OrderBy(status_column, descending=is_descending)
-        queryset = queryset.order_by(sort_by_status, "-created_at")
+        queryset = queryset.with_pre_approval_status().order_by(
+            f"{'-' if is_descending else ''}pre_approval_status",
+            "-created_at",
+        )
 
         return queryset, True
 
@@ -172,14 +172,11 @@ class UamsFilter(FilterSet, FilterPanelMixin):
 
     def filter_status(
         self,
-        queryset: QuerySet[SponsorshipCertificationForm],
+        queryset: SponsorshipCertificationFormQuerySet,
         _name: str,
         value: list[str],
     ) -> QuerySet[SponsorshipCertificationForm]:
-        matching_pks = [
-            uam.pk for uam in queryset if uam.get_pre_approval_status() in value
-        ]
-        return queryset.filter(pk__in=matching_pks)
+        return queryset.with_pre_approval_status().filter(pre_approval_status__in=value)
 
     @property
     def form(self):
