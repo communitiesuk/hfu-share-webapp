@@ -21,6 +21,43 @@ def build_uam(code_emailed=False, **check_statuses):
     )
 
 
+# One set of check-field values per PreApprovalStatus branch, used to assert the
+# SQL annotation agrees with the Python method.
+PRE_APPROVAL_STATE_CASES = {
+    Status.STATUS_NOT_RECORDED: {},
+    Status.WAITING_FOR_UKVI_CHECKS: {**ALL_NOT_STARTED},
+    Status.UKVI_CHECKS_IN_PROGRESS: {
+        **ALL_NOT_STARTED,
+        "uk_consent_form_status": CheckStatus.PASSED,
+    },
+    Status.FAILED_UKVI_CHECKS: {
+        **ALL_NOT_STARTED,
+        "uk_consent_form_status": CheckStatus.FAILED,
+    },
+    Status.WAITING_FOR_LA_CHECKS: {**ALL_NOT_STARTED, **ALL_UKVI_PASSED},
+    Status.LA_CHECKS_IN_PROGRESS: {
+        **ALL_NOT_STARTED,
+        **ALL_UKVI_PASSED,
+        "accommodation_exists_status": CheckStatus.PASSED,
+    },
+    Status.FAILED_LA_CHECKS: {
+        **ALL_NOT_STARTED,
+        **ALL_UKVI_PASSED,
+        "accommodation_exists_status": CheckStatus.FAILED,
+    },
+    Status.PASSED_ALL_CHECKS: {
+        **ALL_UKVI_PASSED,
+        **ALL_LA_PASSED,
+        "sponsor_certification_code_emailed": False,
+    },
+    Status.COMPLETED: {
+        **ALL_UKVI_PASSED,
+        **ALL_LA_PASSED,
+        "sponsor_certification_code_emailed": True,
+    },
+}
+
+
 class SponsorshipCertificationFormPreApprovalCheckDefaultTests(TestCase):
     def test_new_application_has_no_checks_recorded(self):
         SponsorshipCertificationFormFactory(reference="SCF001")
@@ -141,3 +178,46 @@ class SponsorshipCertificationFormGetPreApprovalStatusTests(SimpleTestCase):
         )
 
         self.assertEqual(uam.get_pre_approval_status(), Status.FAILED_UKVI_CHECKS)
+
+
+class SponsorshipCertificationFormWithPreApprovalStatusTests(TestCase):
+    """
+    The SQL annotation ``with_pre_approval_status`` must stay in lockstep with
+    the Python ``get_pre_approval_status``.
+    """
+
+    def _annotated(self, pk):
+        return SponsorshipCertificationForm.objects.with_pre_approval_status().get(
+            pk=pk
+        )
+
+    def test_annotation_produces_expected_status(self):
+        for expected_status, check_kwargs in PRE_APPROVAL_STATE_CASES.items():
+            with self.subTest(status=expected_status):
+                uam = SponsorshipCertificationFormFactory(**check_kwargs)
+
+                self.assertEqual(
+                    self._annotated(uam.pk).pre_approval_status, expected_status
+                )
+
+    def test_annotation_matches_python_method(self):
+        for expected_status, check_kwargs in PRE_APPROVAL_STATE_CASES.items():
+            with self.subTest(status=expected_status):
+                uam = SponsorshipCertificationFormFactory(**check_kwargs)
+                annotated = self._annotated(uam.pk)
+
+                self.assertEqual(
+                    annotated.pre_approval_status,
+                    annotated.get_pre_approval_status(),
+                )
+
+    def test_annotation_is_idempotent(self):
+        SponsorshipCertificationFormFactory(**ALL_NOT_STARTED)
+
+        queryset = (
+            SponsorshipCertificationForm.objects.with_pre_approval_status()
+            .with_pre_approval_status()
+            .filter(pre_approval_status=Status.WAITING_FOR_UKVI_CHECKS)
+        )
+
+        self.assertEqual(queryset.count(), 1)
