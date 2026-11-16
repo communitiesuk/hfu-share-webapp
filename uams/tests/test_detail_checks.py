@@ -1,0 +1,274 @@
+import http.client
+
+from bs4 import BeautifulSoup
+from django.urls import reverse
+
+from accounts.tests.base import TestSessionTokenMixin
+from ontology.tests.base import UamsBaseTestCase
+from ontology.tests.factories import SponsorshipCertificationFormFactory
+from user_management.tests.base import (
+    get_admin_user,
+    get_da_user,
+    get_mhclg_user,
+    get_service_support_user,
+    get_ukvi_user,
+)
+
+UKVI_CARD_HEADING = "UK Visas and Immigration checks"
+LA_CARD_HEADING = "Local authority checks"
+
+UKVI_CHECK_TITLES = [
+    "UK consent form",
+    "Ukraine consent form",
+    "Sponsor immigration eligibility",
+    "Sponsor and household security checks",
+]
+LA_CHECK_TITLES = [
+    "Sponsor and household members enhanced DBS",
+    "Accommodation exists",
+    "Accommodation suitable",
+    "Sponsor role and expectations",
+    "Sponsor arrangements suitable",
+    "Code sent to sponsor",
+]
+
+LA_CANNOT_EDIT_UKVI_MESSAGE = "Local authorities cannot edit these records."
+LA_CHECKS_AVAILABLE_MESSAGE = "Local authority checks are now available."
+LA_CHECKS_PENDING_UKVI_MESSAGE = (
+    "Local authorities can record their checks once the sponsor has passed "
+    "all UKVI checks."
+)
+LA_CHECKS_BLOCKED_MESSAGE = (
+    "You cannot start local authority checks until all UKVI checks have been passed."
+)
+
+UKVI_FIELDS = (
+    "uk_consent_form_status",
+    "ukraine_consent_form_status",
+    "sponsor_immigration_eligibility_status",
+    "sponsor_household_security_checks_status",
+)
+LA_FIELDS = (
+    "sponsor_household_enhanced_dbs_status",
+    "accommodation_exists_status",
+    "accommodation_suitable_status",
+    "sponsor_role_and_expectations_status",
+    "sponsor_arrangements_suitable_status",
+)
+
+UKVI_CHECK_SLUGS = [
+    "uk-consent-form-status",
+    "ukraine-consent-form-status",
+    "sponsor-immigration-eligibility-status",
+    "sponsor-household-security-checks-status",
+]
+LA_CHECK_SLUGS = [
+    "sponsor-household-enhanced-dbs-status",
+    "accommodation-exists-status",
+    "accommodation-suitable-status",
+    "sponsor-role-and-expectations-status",
+    "sponsor-arrangements-suitable-status",
+    "sponsor-certification-code-emailed",
+]
+
+
+def check_statuses(ukvi="Passed", la="Passed"):
+    return {
+        **{field: ukvi for field in UKVI_FIELDS},
+        **{field: la for field in LA_FIELDS},
+    }
+
+
+def edit_url(uam, slug):
+    return reverse("uams:checks-edit", kwargs={"pk": uam.pk, "check": slug})
+
+
+def parse(response):
+    return BeautifulSoup(response.content.decode("utf-8"), "html.parser")
+
+
+def card_by_heading(soup, heading):
+    for title in soup.select("h2.govuk-summary-card__title"):
+        if title.get_text(strip=True) == heading:
+            return title.find_parent("div", class_="govuk-summary-card")
+    return None
+
+
+def parse_rows(card):
+    rows = []
+    for item in card.select("li.govuk-task-list__item"):
+        link = item.select_one("a.govuk-task-list__link")
+        if link is not None:
+            title = link.get_text(strip=True)
+            href = link.get("href")
+        else:
+            title = item.select_one("div.govuk-task-list__name-and-hint").get_text(
+                strip=True
+            )
+            href = None
+        tag = item.select_one("div.govuk-task-list__status strong.govuk-tag")
+        status = tag.get_text(strip=True) if tag else None
+        rows.append((title, href, status))
+    return rows
+
+
+def active_tab_text(soup):
+    link = soup.select_one(".moj-side-navigation a[aria-current='location']")
+    return link.get_text(strip=True) if link else None
+
+
+class UamChecksViewTests(TestSessionTokenMixin, UamsBaseTestCase):
+    def setUp(self):
+        super().setUp()
+
+        # A fully-recorded application the LA-one-a user (and others) can load.
+        self.checks_uam = SponsorshipCertificationFormFactory(
+            reference="SPON-CHECKS-1",
+            ltla_name=[self.ltla_one_a_name],
+            utla_name=[self.utla_one_name],
+            **check_statuses(),
+        )
+        # Same, in the Scotland DA scope, for the DA access test.
+        self.checks_uam_da = SponsorshipCertificationFormFactory(
+            reference="SPON-CHECKS-DA",
+            ltla_name=["Aberdeenshire"],
+            utla_name=["Aberdeenshire"],
+            **check_statuses(),
+        )
+
+    def checks_url(self, uam):
+        return reverse("uams:detail-checks", kwargs={"pk": uam.pk})
+
+    def assertTitlesInOrder(self, rows, expected_titles):
+        self.assertEqual([title for title, _, _ in rows], expected_titles)
+
+    def test_user_without_access_to_requested_uam_is_denied_access(self):
+        self.client.force_login(self.ltla_two_a_user)
+        response = self.client.get(self.checks_url(self.checks_uam))
+
+        self.assertEqual(response.status_code, http.client.NOT_FOUND)
+
+    def test_dev_user_is_granted_access(self):
+        self.client.force_login(get_admin_user())
+        response = self.client.get(self.checks_url(self.checks_uam))
+
+        self.assertEqual(response.status_code, http.client.OK)
+
+    def test_la_user_is_granted_access(self):
+        self.client.force_login(self.ltla_one_a_user)
+        response = self.client.get(self.checks_url(self.checks_uam))
+
+        self.assertEqual(response.status_code, http.client.OK)
+
+    def test_da_user_is_granted_access(self):
+        self.client.force_login(get_da_user())
+        response = self.client.get(self.checks_url(self.checks_uam_da))
+
+        self.assertEqual(response.status_code, http.client.OK)
+
+    def test_mhclg_user_is_granted_access(self):
+        self.client.force_login(get_mhclg_user())
+        response = self.client.get(self.checks_url(self.checks_uam))
+
+        self.assertEqual(response.status_code, http.client.OK)
+
+    def test_ukvi_user_is_granted_access(self):
+        self.client.force_login(get_ukvi_user())
+        response = self.client.get(self.checks_url(self.checks_uam))
+
+        self.assertEqual(response.status_code, http.client.OK)
+
+    def test_service_support_user_is_granted_access(self):
+        self.client.force_login(get_service_support_user())
+        response = self.client.get(self.checks_url(self.checks_uam))
+
+        self.assertEqual(response.status_code, http.client.OK)
+
+    def test_ukvi_user_can_edit_ukvi_checks(self):
+        self.client.force_login(get_ukvi_user())
+        response = self.client.get(self.checks_url(self.checks_uam))
+        soup = parse(response)
+
+        ukvi_rows = parse_rows(card_by_heading(soup, UKVI_CARD_HEADING))
+
+        self.assertTitlesInOrder(ukvi_rows, UKVI_CHECK_TITLES)
+
+        for (_, href, _), slug in zip(ukvi_rows, UKVI_CHECK_SLUGS, strict=True):
+            self.assertEqual(href, edit_url(self.checks_uam, slug))
+
+        self.assertNotIn(LA_CANNOT_EDIT_UKVI_MESSAGE, soup.get_text())
+
+    def test_ukvi_user_cannot_edit_la_checks(self):
+        self.client.force_login(get_ukvi_user())
+        response = self.client.get(self.checks_url(self.checks_uam))
+        soup = parse(response)
+
+        la_rows = parse_rows(card_by_heading(soup, LA_CARD_HEADING))
+
+        self.assertTitlesInOrder(la_rows, LA_CHECK_TITLES)
+
+        self.assertTrue(all(href is None for _, href, _ in la_rows))
+
+        page_text = soup.get_text()
+        self.assertIn(LA_CHECKS_PENDING_UKVI_MESSAGE, page_text)
+        self.assertNotIn(LA_CHECKS_AVAILABLE_MESSAGE, page_text)
+
+    def test_la_user_can_edit_la_checks_when_status_ready(self):
+        uam = SponsorshipCertificationFormFactory(
+            reference="SPON-LA-READY",
+            ltla_name=[self.ltla_one_a_name],
+            utla_name=[self.utla_one_name],
+            **check_statuses(ukvi="Passed", la="Not started"),
+        )
+
+        self.client.force_login(self.ltla_one_a_user)
+        response = self.client.get(self.checks_url(uam))
+        soup = parse(response)
+
+        ukvi_rows = parse_rows(card_by_heading(soup, UKVI_CARD_HEADING))
+        la_rows = parse_rows(card_by_heading(soup, LA_CARD_HEADING))
+
+        self.assertTitlesInOrder(la_rows, LA_CHECK_TITLES)
+        for (_, href, _), slug in zip(la_rows, LA_CHECK_SLUGS, strict=True):
+            self.assertEqual(href, edit_url(uam, slug))
+        self.assertTrue(all(href is None for _, href, _ in ukvi_rows))
+
+        la_statuses = {title: status for title, _, status in la_rows}
+        self.assertEqual(
+            la_statuses["Sponsor and household members enhanced DBS"], "Not started"
+        )
+
+        page_text = soup.get_text()
+        self.assertIn(LA_CHECKS_AVAILABLE_MESSAGE, page_text)
+        self.assertIn(LA_CANNOT_EDIT_UKVI_MESSAGE, page_text)
+
+    def test_la_user_cannot_edit_la_checks_when_status_not_ready(self):
+        uam = SponsorshipCertificationFormFactory(
+            reference="SPON-LA-NOT-READY",
+            ltla_name=[self.ltla_one_a_name],
+            utla_name=[self.utla_one_name],
+            **check_statuses(ukvi="Not started", la="Not started"),
+        )
+
+        self.client.force_login(self.ltla_one_a_user)
+        response = self.client.get(self.checks_url(uam))
+        soup = parse(response)
+
+        ukvi_rows = parse_rows(card_by_heading(soup, UKVI_CARD_HEADING))
+        la_rows = parse_rows(card_by_heading(soup, LA_CARD_HEADING))
+
+        self.assertTrue(all(href is None for _, href, _ in ukvi_rows))
+        self.assertTrue(all(href is None for _, href, _ in la_rows))
+
+        page_text = soup.get_text()
+        self.assertIn(LA_CHECKS_BLOCKED_MESSAGE, page_text)
+        self.assertNotIn(LA_CHECKS_AVAILABLE_MESSAGE, page_text)
+
+    def test_renders_checks_tab(self):
+        self.client.force_login(get_admin_user())
+        response = self.client.get(self.checks_url(self.checks_uam))
+        soup = parse(response)
+
+        self.assertEqual(response.status_code, http.client.OK)
+        self.assertEqual(active_tab_text(soup), "Checks")
+        self.assertIsNotNone(card_by_heading(soup, UKVI_CARD_HEADING))

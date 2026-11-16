@@ -63,6 +63,7 @@ class SponsorshipCertificationForm(models.Model):
 
     class PreApprovalCheckStatus(models.TextChoices):
         NOT_STARTED = ("Not started", "Not started")
+        IN_PROGRESS = ("In progress", "In progress")
         PASSED = ("Passed", "Passed")
         FAILED = ("Failed", "Failed")
 

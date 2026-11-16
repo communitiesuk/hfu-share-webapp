@@ -26,6 +26,7 @@ from webapp.templatetags.checks_status_extras import (
     accommodation_safeguarding_status_label_to_tag_colour,
 )
 from webapp.templatetags.pre_approval_status_extras import (
+    pre_approval_check_status_to_tag_colour,
     pre_approval_status_to_tag_colour,
 )
 from webapp.templatetags.reassignment_request_extras import (
@@ -221,6 +222,99 @@ def render_app_pre_approval_status_tag(
     return render_govuk_tag(
         status,
         colour=pre_approval_status_to_tag_colour(status),
+        css_class="app-tag--nowrap",
+    )
+
+
+@register.filter
+def render_app_ukvi_pre_approval_check_status_tag(
+    status: SponsorshipCertificationForm.PreApprovalCheckStatus | None,
+) -> str:
+    # Prevent crashing if the status check is None
+    if status is None:
+        status = SponsorshipCertificationForm.PreApprovalCheckStatus.NOT_STARTED
+
+    return render_govuk_tag(
+        status,
+        colour=pre_approval_check_status_to_tag_colour(status),
+        css_class="app-tag--nowrap",
+    )
+
+
+@register.filter
+def render_app_la_pre_approval_check_status_tag(
+    pre_approval_status: SponsorshipCertificationForm.PreApprovalStatus,
+    status: SponsorshipCertificationForm.PreApprovalCheckStatus | None,
+) -> str:
+    if pre_approval_status in [
+        SponsorshipCertificationForm.PreApprovalStatus.WAITING_FOR_LA_CHECKS,
+        SponsorshipCertificationForm.PreApprovalStatus.LA_CHECKS_IN_PROGRESS,
+        SponsorshipCertificationForm.PreApprovalStatus.FAILED_LA_CHECKS,
+        SponsorshipCertificationForm.PreApprovalStatus.PASSED_ALL_CHECKS,
+        SponsorshipCertificationForm.PreApprovalStatus.COMPLETED,
+    ]:
+        # Prevent crashing if the status check is None
+        if status is None:
+            status = SponsorshipCertificationForm.PreApprovalCheckStatus.NOT_STARTED
+
+        return render_govuk_tag(
+            status,
+            colour=pre_approval_check_status_to_tag_colour(status),
+            css_class="app-tag--nowrap",
+        )
+
+    if (
+        pre_approval_status
+        is SponsorshipCertificationForm.PreApprovalStatus.FAILED_UKVI_CHECKS
+    ):
+        return render_govuk_tag(
+            "No longer needed",
+            colour="grey",
+            css_class="app-tag--nowrap",
+        )
+
+    return render_govuk_tag(
+        "Cannot start checks",
+        colour="grey",
+        css_class="app-tag--nowrap",
+    )
+
+
+@register.filter
+def render_app_la_pre_approval_code_sent_to_sponsor_tag(
+    pre_approval_status: SponsorshipCertificationForm.PreApprovalStatus,
+    code_sent: bool,
+) -> str:
+    if pre_approval_status in [
+        SponsorshipCertificationForm.PreApprovalStatus.PASSED_ALL_CHECKS,
+        SponsorshipCertificationForm.PreApprovalStatus.COMPLETED,
+    ]:
+        if code_sent:
+            return render_govuk_tag(
+                "Code sent",
+                colour="green",
+                css_class="app-tag--nowrap",
+            )
+
+        return render_govuk_tag(
+            "Code not sent",
+            colour="blue",
+            css_class="app-tag--nowrap",
+        )
+
+    if (
+        pre_approval_status
+        is SponsorshipCertificationForm.PreApprovalStatus.FAILED_UKVI_CHECKS
+    ):
+        return render_govuk_tag(
+            "No longer needed",
+            colour="grey",
+            css_class="app-tag--nowrap",
+        )
+
+    return render_govuk_tag(
+        "Cannot send code",
+        colour="grey",
         css_class="app-tag--nowrap",
     )
 

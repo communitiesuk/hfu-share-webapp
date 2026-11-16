@@ -134,6 +134,13 @@ pre_approval_status_tag_colours = {
     SponsorshipCertificationForm.PreApprovalStatus.STATUS_NOT_RECORDED: GREY,
 }
 
+pre_approval_check_status_tag_colours = {
+    SponsorshipCertificationForm.PreApprovalCheckStatus.NOT_STARTED: BLUE,
+    SponsorshipCertificationForm.PreApprovalCheckStatus.IN_PROGRESS: YELLOW,
+    SponsorshipCertificationForm.PreApprovalCheckStatus.FAILED: RED,
+    SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED: GREEN,
+}
+
 ACCOMMODATION_REQUEST_SAFEGUARDING_NO_STATUS_TAG_COLOUR = GREY
 accommodation_request_safeguarding_status_tag_colours = {
     MvAccommodationRequest.SafeguardingStatus.NO_NOTIFICATIONS: GREY,
@@ -405,6 +412,19 @@ UAM_ALLOWED_GROUP_TYPES = {
     GroupType.LOCAL_AUTHORITY,
     GroupType.MHCLG,
     GroupType.HOME_OFFICE,
+}
+
+UAM_CAN_EDIT_UKVI_CHECKS_GROUP_TYPE = {
+    GroupType.DEV,
+    GroupType.HOME_OFFICE,
+    GroupType.MHCLG,
+}
+
+UAM_CAN_EDIT_LA_CHECKS_GROUP_TYPE = {
+    GroupType.DEV,
+    GroupType.LOCAL_AUTHORITY,
+    GroupType.DEVOLVED_ADMINISTRATION,
+    GroupType.MHCLG,
 }
 
 UNASSIGNED_ACCOMMODATION_REQUESTS_ALLOWED_GROUP_TYPES = {

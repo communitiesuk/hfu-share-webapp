@@ -1002,6 +1002,7 @@ class DetailViewMixin(ABC):
         "safeguarding-checks": "Safeguarding checks",
         "actions": "Actions",
         "linked-records": "Linked records",
+        "checks": "Checks",
         "files": "Files",
         "properties": "Properties",
         "comments": "Comments",

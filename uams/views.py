@@ -1,10 +1,15 @@
 import os
+from enum import Enum
 
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import Field, Fieldset, Layout
 from crispy_forms_gds.layout.constants import Size
+from django.core.exceptions import PermissionDenied
 from django.db.models import Case, OrderBy, QuerySet, TextField, Value, When
-from django.http import Http404
+from django.http import (
+    Http404,
+    JsonResponse,
+)
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views import View
@@ -25,14 +30,21 @@ from ontology.models import (
     SponsorshipCertificationAttachmentMetadata,
     SponsorshipCertificationForm,
 )
-from webapp.constants import UAMS_SEARCH_FIELDS
+from uams.mixins import UamsChecksMixin
+from webapp.constants import (
+    UAM_CAN_EDIT_LA_CHECKS_GROUP_TYPE,
+    UAM_CAN_EDIT_UKVI_CHECKS_GROUP_TYPE,
+    UAMS_SEARCH_FIELDS,
+)
 from webapp.mixins import (
     DetailViewMixin,
     FilterPanelMixin,
+    PageTitleMixin,
     PaginatorClassMixin,
     PermissionsMixin,
     PIISafeRecordNameMixin,
     SectionHeadingMixin,
+    UserActionsMixinProtocol,
 )
 from webapp.s3 import (
     get_govuk_forms_attachment_filepath,
@@ -44,7 +56,12 @@ from webapp.templatetags.link_renderers import render_govuk_link
 from webapp.templatetags.pre_approval_status_extras import (
     pre_approval_status_to_tag_colour,
 )
-from webapp.templatetags.tag_renderers import render_app_pre_approval_status_tag
+from webapp.templatetags.tag_renderers import (
+    render_app_la_pre_approval_check_status_tag,
+    render_app_la_pre_approval_code_sent_to_sponsor_tag,
+    render_app_pre_approval_status_tag,
+    render_app_ukvi_pre_approval_check_status_tag,
+)
 from webapp.utils import (
     CustomDateColumn,
     CustomDateFromToRangeFilter,
@@ -254,7 +271,7 @@ class UamsListView(
         return super().get_queryset().only(*fields_needed)
 
 
-class UamsDetailViewMixin(DetailViewMixin):
+class UamsDetailViewMixin(UserActionsMixinProtocol, DetailViewMixin):
     namespace = "uams"
     singular_name = "Application to sponsor a child"
     plural_name = "Applications to sponsor a child"
@@ -263,6 +280,7 @@ class UamsDetailViewMixin(DetailViewMixin):
     def views_for_record(self):
         return (
             UamsDetailOverviewView,
+            UamsChecksView,
             UamsFilesView,
             UamsDetailLinkedRecordsView,
             UamsDetailPropertiesView,
@@ -270,6 +288,13 @@ class UamsDetailViewMixin(DetailViewMixin):
 
     def get_url_args(self):
         return (self.object.pk,)
+
+    def should_show_tab_for_user(self, view_name: str) -> bool:
+        match view_name:
+            case "checks":
+                return self.user_action_allowed(group_types=UamsChecksView.group_type)
+            case _:
+                return True
 
     @property
     def page_heading(self):
@@ -322,6 +347,142 @@ class UamsDetailOverviewView(
             "certificate_reference",
             "created_at",
         ]
+
+
+class UamsChecksView(
+    PIISafeRecordNameMixin,
+    UamsChecksMixin,
+    UamsDetailViewMixin,
+    SummaryListView,
+):
+    group_type = [
+        GroupType.DEV,
+        GroupType.LOCAL_AUTHORITY,
+        GroupType.DEVOLVED_ADMINISTRATION,
+        GroupType.MHCLG,
+        GroupType.HOME_OFFICE,
+        GroupType.SERVICE_SUPPORT,
+    ]
+    view_name = "checks"
+    model = SponsorshipCertificationForm
+
+    def _checks_edit_url(self, check: Enum):
+        return reverse(
+            "uams:checks-edit",
+            kwargs={
+                "pk": self.object.pk,
+                "check": check.value,
+            },
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        pre_approval_status = self.object.get_pre_approval_status()
+
+        context["can_edit_ukvi_checks"] = self.can_edit_ukvi_checks()
+        context["can_edit_la_checks"] = self.can_edit_la_checks(pre_approval_status)
+
+        context["ukvi_checks"] = (
+            (
+                "UK consent form",
+                self._checks_edit_url(
+                    UamsChecksEditView.UKVIChecks.UK_CONSENT_FORM_STATUS
+                ),
+                render_app_ukvi_pre_approval_check_status_tag(
+                    self.object.uk_consent_form_status
+                ),
+            ),
+            (
+                "Ukraine consent form",
+                self._checks_edit_url(
+                    UamsChecksEditView.UKVIChecks.UKRAINE_CONSENT_FORM_STATUS
+                ),
+                render_app_ukvi_pre_approval_check_status_tag(
+                    self.object.ukraine_consent_form_status
+                ),
+            ),
+            (
+                "Sponsor immigration eligibility",
+                self._checks_edit_url(
+                    UamsChecksEditView.UKVIChecks.SPONSOR_IMMIGRATION_ELIGIBILITY_STATUS
+                ),
+                render_app_ukvi_pre_approval_check_status_tag(
+                    self.object.sponsor_immigration_eligibility_status
+                ),
+            ),
+            (
+                "Sponsor and household security checks",
+                self._checks_edit_url(
+                    UamsChecksEditView.UKVIChecks.SPONSOR_HOUSEHOLD_SECURITY_CHECKS_STATUS
+                ),
+                render_app_ukvi_pre_approval_check_status_tag(
+                    self.object.sponsor_household_security_checks_status
+                ),
+            ),
+        )
+
+        context["la_checks"] = (
+            (
+                "Sponsor and household members enhanced DBS",
+                self._checks_edit_url(
+                    UamsChecksEditView.LAChecks.SPONSOR_HOUSEHOLD_ENHANCED_DBS_STATUS,
+                ),
+                render_app_la_pre_approval_check_status_tag(
+                    pre_approval_status,
+                    self.object.sponsor_household_enhanced_dbs_status,
+                ),
+            ),
+            (
+                "Accommodation exists",
+                self._checks_edit_url(
+                    UamsChecksEditView.LAChecks.ACCOMMODATION_EXISTS_STATUS,
+                ),
+                render_app_la_pre_approval_check_status_tag(
+                    pre_approval_status, self.object.accommodation_exists_status
+                ),
+            ),
+            (
+                "Accommodation suitable",
+                self._checks_edit_url(
+                    UamsChecksEditView.LAChecks.ACCOMMODATION_SUITABLE_STATUS,
+                ),
+                render_app_la_pre_approval_check_status_tag(
+                    pre_approval_status, self.object.accommodation_suitable_status
+                ),
+            ),
+            (
+                "Sponsor role and expectations",
+                self._checks_edit_url(
+                    UamsChecksEditView.LAChecks.SPONSOR_ROLE_AND_EXPECTATIONS_STATUS,
+                ),
+                render_app_la_pre_approval_check_status_tag(
+                    pre_approval_status,
+                    self.object.sponsor_role_and_expectations_status,
+                ),
+            ),
+            (
+                "Sponsor arrangements suitable",
+                self._checks_edit_url(
+                    UamsChecksEditView.LAChecks.SPONSOR_ARRANGEMENTS_SUITABLE_STATUS,
+                ),
+                render_app_la_pre_approval_check_status_tag(
+                    pre_approval_status,
+                    self.object.sponsor_arrangements_suitable_status,
+                ),
+            ),
+            (
+                "Code sent to sponsor",
+                self._checks_edit_url(
+                    UamsChecksEditView.LAChecks.SPONSOR_CERTIFICATION_CODE_EMAILED,
+                ),
+                render_app_la_pre_approval_code_sent_to_sponsor_tag(
+                    pre_approval_status, self.object.sponsor_certification_code_emailed
+                ),
+            ),
+        )
+
+        return context
 
 
 class UamsDetailPropertiesView(
@@ -684,3 +845,60 @@ class UamsDownloadGOVUKFormsAttachmentView(PermissionsMixin, SingleObjectMixin, 
         )
 
         return redirect(presigned_url)
+
+
+class UamsChecksEditView(
+    PageTitleMixin,
+    PIISafeRecordNameMixin,
+    UamsChecksMixin,
+    SingleObjectMixin,
+    View,
+):
+    group_type = UAM_CAN_EDIT_LA_CHECKS_GROUP_TYPE.union(
+        UAM_CAN_EDIT_UKVI_CHECKS_GROUP_TYPE
+    )
+    model = SponsorshipCertificationForm
+
+    class UKVIChecks(Enum):
+        UK_CONSENT_FORM_STATUS = "uk-consent-form-status"
+        UKRAINE_CONSENT_FORM_STATUS = "ukraine-consent-form-status"
+        SPONSOR_IMMIGRATION_ELIGIBILITY_STATUS = (
+            "sponsor-immigration-eligibility-status"
+        )
+        SPONSOR_HOUSEHOLD_SECURITY_CHECKS_STATUS = (
+            "sponsor-household-security-checks-status"
+        )
+
+    class LAChecks(Enum):
+        SPONSOR_HOUSEHOLD_ENHANCED_DBS_STATUS = "sponsor-household-enhanced-dbs-status"
+        ACCOMMODATION_EXISTS_STATUS = "accommodation-exists-status"
+        ACCOMMODATION_SUITABLE_STATUS = "accommodation-suitable-status"
+        SPONSOR_ROLE_AND_EXPECTATIONS_STATUS = "sponsor-role-and-expectations-status"
+        SPONSOR_ARRANGEMENTS_SUITABLE_STATUS = "sponsor-arrangements-suitable-status"
+        SPONSOR_CERTIFICATION_CODE_EMAILED = "sponsor-certification-code-emailed"
+
+    def dispatch(self, request, *args, **kwargs):
+        check = kwargs["check"]
+
+        self.object = self.get_object()
+        pre_approval_status = self.object.get_pre_approval_status()
+
+        ukvi_checks = [ukvi_check.value for ukvi_check in UamsChecksEditView.UKVIChecks]
+        la_checks = [la_check.value for la_check in UamsChecksEditView.LAChecks]
+
+        if check not in ukvi_checks and check not in la_checks:
+            raise Http404("Check not recognised.")
+
+        if (check in ukvi_checks and not self.can_edit_ukvi_checks()) or (
+            check in la_checks and not self.can_edit_la_checks(pre_approval_status)
+        ):
+            raise PermissionDenied("You do not have permission to access this page.")
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        # TODO: Update this in the next PR
+        return JsonResponse(
+            {"detail": "I'm a teapot"},
+            status=418,
+        )
