@@ -1,15 +1,16 @@
 import os
 
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import Field, Layout
+from crispy_forms_gds.layout import Field, Fieldset, Layout
 from crispy_forms_gds.layout.constants import Size
+from django.db.models import Case, OrderBy, QuerySet, TextField, Value, When
 from django.http import Http404
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views import View
 from django.views.generic import DetailView
 from django.views.generic.detail import SingleObjectMixin
-from django_filters import CharFilter, FilterSet
+from django_filters import CharFilter, FilterSet, MultipleChoiceFilter
 from django_filters.views import FilterView
 from django_tables2 import (
     Column,
@@ -40,6 +41,9 @@ from webapp.s3 import (
 )
 from webapp.search import perform_search
 from webapp.templatetags.link_renderers import render_govuk_link
+from webapp.templatetags.pre_approval_status_extras import (
+    pre_approval_status_to_tag_colour,
+)
 from webapp.templatetags.tag_renderers import render_app_pre_approval_status_tag
 from webapp.utils import (
     CustomDateColumn,
@@ -48,11 +52,18 @@ from webapp.utils import (
     date_hint_text,
 )
 from webapp.views import SummaryListView
-from webapp.widgets import DatePicker, StackedRangeInput
+from webapp.widgets import (
+    CheckboxSelectMultipleWithTags,
+    DatePicker,
+    StackedRangeInput,
+)
 
 
 class UamsTable(tables.Table):
     sponsor_full_name = Column(verbose_name="Sponsor name")
+    pre_approval_status = Column(
+        verbose_name="Application status", accessor="get_pre_approval_status"
+    )
     sponsor_date_of_birth = CustomDateColumn(verbose_name="Sponsor date of birth")
     email = Column(verbose_name="Email address")
     identification_type = Column(verbose_name="Identification type")
@@ -68,12 +79,33 @@ class UamsTable(tables.Table):
             reverse("uams:detail-overview", args=[record.pk]),
         )
 
+    def render_pre_approval_status(
+        self, value: SponsorshipCertificationForm.PreApprovalStatus
+    ) -> str:
+        return render_app_pre_approval_status_tag(value)
+
+    def order_pre_approval_status(
+        self, queryset: QuerySet[SponsorshipCertificationForm], is_descending: bool
+    ) -> tuple[QuerySet[SponsorshipCertificationForm], bool]:
+        statuses = []
+        for uam in queryset:
+            status = uam.get_pre_approval_status()
+            statuses.append(When(pk=uam.pk, then=Value(status)))
+
+        status_column = Case(*statuses, output_field=TextField())
+
+        sort_by_status = OrderBy(status_column, descending=is_descending)
+        queryset = queryset.order_by(sort_by_status, "-created_at")
+
+        return queryset, True
+
     class Meta:
         model = SponsorshipCertificationForm
         template_name = "webapp/components/tables/table.html"
         order_by = "-created_at"
         fields = (
             "sponsor_full_name",
+            "pre_approval_status",
             "sponsor_date_of_birth",
             "email",
             "identification_type",
@@ -90,6 +122,15 @@ class UamsFilter(FilterSet, FilterPanelMixin):
         label="Search",
         method="search_filter",
         help_text="Search the data in the table",
+    )
+
+    status = MultipleChoiceFilter(
+        choices=SponsorshipCertificationForm.PreApprovalStatus.choices,
+        label="",
+        method="filter_status",
+        widget=CheckboxSelectMultipleWithTags(
+            label_to_tag_colour=pre_approval_status_to_tag_colour
+        ),
     )
 
     sponsor_date_of_birth = CustomDateFromToRangeFilter(
@@ -129,12 +170,29 @@ class UamsFilter(FilterSet, FilterPanelMixin):
     def search_filter(self, queryset, _, value):
         return perform_search(value, queryset, UAMS_SEARCH_FIELDS)
 
+    def filter_status(
+        self,
+        queryset: QuerySet[SponsorshipCertificationForm],
+        _name: str,
+        value: list[str],
+    ) -> QuerySet[SponsorshipCertificationForm]:
+        matching_pks = [
+            uam.pk for uam in queryset if uam.get_pre_approval_status() in value
+        ]
+        return queryset.filter(pk__in=matching_pks)
+
     @property
     def form(self):
         form = super().form
         form.helper = FormHelper()
         form.helper.layout = Layout(
             Field.text("search", label_size=Size.MEDIUM),
+            Fieldset(
+                "status",
+                legend="Suitability checks status",
+                legend_size=Size.MEDIUM,
+                css_class="govuk-!-margin-bottom-5",
+            ),
             Field(
                 "sponsor_date_of_birth",
                 context={"legend_size": "govuk-fieldset__legend--m"},
@@ -150,6 +208,7 @@ class UamsFilter(FilterSet, FilterPanelMixin):
         model = SponsorshipCertificationForm
         fields = [
             "search",
+            "status",
             "sponsor_date_of_birth",
             "created_at",
         ]
@@ -188,6 +247,9 @@ class UamsListView(
             "ltla_name",
             "reference",
             "created_at",
+            *SponsorshipCertificationForm.UKVI_CHECK_FIELDS,
+            *SponsorshipCertificationForm.LA_CHECK_FIELDS,
+            "sponsor_certification_code_emailed",
         ]
         return super().get_queryset().only(*fields_needed)
 
