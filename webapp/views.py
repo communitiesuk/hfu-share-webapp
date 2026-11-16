@@ -26,10 +26,11 @@ from django_tables2 import (
 )
 
 from accounts.enums import GroupType
-from accounts.models import AccessRequest
+from accounts.models import AccessRequest, User
 from ontology.models import (
     MvAccommodationRequest,
     ReassignmentRequest,
+    SponsorshipCertificationForm,
     VisaApplication,
     VisaInformationRequest,
 )
@@ -294,7 +295,42 @@ class LandingPageView(UserActionsMixin, MultiTableMixin, TemplateView):
             else None
         )
 
+        status = SponsorshipCertificationForm.PreApprovalStatus
+        if GroupType.HOME_OFFICE in user_groups:
+            context["outstanding_uams_count"] = self.count_uams_with_status(
+                self.request.user,
+                {
+                    status.WAITING_FOR_UKVI_CHECKS,
+                    status.UKVI_CHECKS_IN_PROGRESS,
+                },
+            )
+        elif GroupType.LOCAL_AUTHORITY in user_groups or GroupType.DEV in user_groups:
+            context["outstanding_uams_count"] = self.count_uams_with_status(
+                self.request.user,
+                {
+                    status.WAITING_FOR_UKVI_CHECKS,
+                    status.UKVI_CHECKS_IN_PROGRESS,
+                    status.WAITING_FOR_LA_CHECKS,
+                    status.LA_CHECKS_IN_PROGRESS,
+                    status.PASSED_ALL_CHECKS,
+                },
+            )
+        else:
+            context["outstanding_uams_count"] = None
+
         return context
+
+    def count_uams_with_status(
+        self,
+        user: User,
+        statuses: set[SponsorshipCertificationForm.PreApprovalStatus],
+    ) -> int:
+        uams = SponsorshipCertificationForm.objects.get_for_user(user).only(
+            *SponsorshipCertificationForm.UKVI_CHECK_FIELDS,
+            *SponsorshipCertificationForm.LA_CHECK_FIELDS,
+            "sponsor_certification_code_emailed",
+        )
+        return len([uam for uam in uams if uam.get_pre_approval_status() in statuses])
 
     def get_tables(self):
         pending_sort = self.request.GET.get("pending-sort") or "-created_at"

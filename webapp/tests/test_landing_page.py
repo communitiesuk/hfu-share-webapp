@@ -6,7 +6,12 @@ from accounts.enums import GroupType
 from accounts.models import AccessRequest
 from accounts.tests.base import TestSessionTokenMixin
 from accounts.tests.factories import AccessRequestFactory
-from ontology.tests.factories import AnnouncementFactory
+from ontology.models import SponsorshipCertificationForm
+from ontology.tests.base import UamsBaseTestCase
+from ontology.tests.factories import (
+    AnnouncementFactory,
+    SponsorshipCertificationFormFactory,
+)
 from ontology.tests.factories import (
     HiddenUnassignedAccommodationRequestFactory as HiddenUnassignedAccReqFactory,
 )
@@ -723,6 +728,92 @@ class UnassignedAccommodationRequestsBadgeTests(TestSessionTokenMixin, BaseTestC
         AccReqFactory(title="Unassigned")
 
         self.assertIsNone(self.get_unassigned_badge_value(get_la_user()))
+
+
+UKVI_CHECKS = SponsorshipCertificationForm.UKVI_CHECK_FIELDS
+LA_CHECKS = SponsorshipCertificationForm.LA_CHECK_FIELDS
+
+WAITING_FOR_UKVI_CHECKS = dict.fromkeys(UKVI_CHECKS + LA_CHECKS, "Not started")
+UKVI_CHECKS_IN_PROGRESS = {**WAITING_FOR_UKVI_CHECKS, UKVI_CHECKS[0]: "Passed"}
+FAILED_UKVI_CHECKS = {**WAITING_FOR_UKVI_CHECKS, UKVI_CHECKS[0]: "Failed"}
+WAITING_FOR_LA_CHECKS = {
+    **WAITING_FOR_UKVI_CHECKS,
+    **dict.fromkeys(UKVI_CHECKS, "Passed"),
+}
+PASSED_ALL_CHECKS = dict.fromkeys(UKVI_CHECKS + LA_CHECKS, "Passed")
+COMPLETED = {**PASSED_ALL_CHECKS, "sponsor_certification_code_emailed": True}
+
+
+class OutstandingUamsBadgeTests(TestSessionTokenMixin, UamsBaseTestCase):
+    def get_uams_badge_value(self, user):
+        self.client.force_login(user)
+        response = self.client.get(reverse("webapp:landing-page"))
+        soup = BeautifulSoup(response.content.decode(), "html.parser")
+
+        for card in soup.find_all("div", class_="app-card--clickable"):
+            if (
+                card.find("h3").get_text(strip=True)
+                == "Applications to sponsor a child"
+            ):
+                badge = card.find("span", class_="app-card-badge-value")
+                return badge.get_text(strip=True) if badge else None
+
+        return None
+
+    def create_uam(self, checks):
+        return SponsorshipCertificationFormFactory(
+            ltla_name=[self.ltla_one_a_name], utla_name=[self.utla_one_name], **checks
+        )
+
+    def test_ukvi_user_sees_count_of_applications_waiting_on_ukvi(self):
+        self.create_uam(WAITING_FOR_UKVI_CHECKS)
+        self.create_uam(UKVI_CHECKS_IN_PROGRESS)
+        self.create_uam(FAILED_UKVI_CHECKS)
+        self.create_uam(WAITING_FOR_LA_CHECKS)
+        self.create_uam(PASSED_ALL_CHECKS)
+
+        self.assertEqual(self.get_uams_badge_value(get_ukvi_user()), "2")
+
+    def test_la_user_sees_count_of_applications_waiting_on_ukvi_or_la(self):
+        self.create_uam(WAITING_FOR_UKVI_CHECKS)
+        self.create_uam(UKVI_CHECKS_IN_PROGRESS)
+        self.create_uam(FAILED_UKVI_CHECKS)
+        self.create_uam(WAITING_FOR_LA_CHECKS)
+        self.create_uam(PASSED_ALL_CHECKS)
+        self.create_uam(COMPLETED)
+
+        self.assertEqual(self.get_uams_badge_value(self.ltla_one_a_user), "4")
+
+    def test_la_user_only_counts_applications_in_their_la(self):
+        self.create_uam(WAITING_FOR_UKVI_CHECKS)
+        SponsorshipCertificationFormFactory(
+            ltla_name=[self.ltla_two_a_name],
+            utla_name=[self.utla_two_name],
+            **WAITING_FOR_UKVI_CHECKS,
+        )
+
+        self.assertEqual(self.get_uams_badge_value(self.ltla_one_a_user), "1")
+
+    def test_dev_user_sees_same_count_as_la_user_across_all_las(self):
+        self.create_uam(WAITING_FOR_UKVI_CHECKS)
+        self.create_uam(WAITING_FOR_LA_CHECKS)
+        self.create_uam(PASSED_ALL_CHECKS)
+        self.create_uam(COMPLETED)
+        SponsorshipCertificationFormFactory(
+            ltla_name=[self.ltla_two_a_name],
+            utla_name=[self.utla_two_name],
+            **WAITING_FOR_UKVI_CHECKS,
+        )
+
+        self.assertEqual(self.get_uams_badge_value(get_admin_user()), "4")
+
+    def test_historic_applications_are_not_counted(self):
+        self.assertEqual(self.get_uams_badge_value(get_ukvi_user()), "0")
+
+    def test_mhclg_user_does_not_see_the_badge(self):
+        self.create_uam(WAITING_FOR_UKVI_CHECKS)
+
+        self.assertIsNone(self.get_uams_badge_value(get_mhclg_user()))
 
 
 class TestFaviconRedirect(TestSessionTokenMixin, BaseTestCase):
