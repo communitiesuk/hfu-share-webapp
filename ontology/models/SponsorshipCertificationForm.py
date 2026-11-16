@@ -84,6 +84,12 @@ class SponsorshipCertificationForm(models.Model):
         # Applications submitted before the pre-approval process was added
         STATUS_NOT_RECORDED = ("Status not recorded", "Status not recorded")
 
+    class PreApprovalCheckCodeSentStatus(models.TextChoices):
+        CANNOT_SEND_CODE = ("Cannot send code", "Cannot send code")
+        NO_LONGER_NEEDED = ("No longer needed", "No longer needed")
+        CODE_NOT_SENT = ("Code not sent", "Code not sent")
+        CODE_SENT = ("Code sent", "Code sent")
+
     UKVI_CHECK_FIELDS = (
         "uk_consent_form_status",
         "ukraine_consent_form_status",
@@ -392,6 +398,22 @@ class SponsorshipCertificationForm(models.Model):
             return self.PreApprovalStatus.PASSED_ALL_CHECKS
 
         return self.PreApprovalStatus.COMPLETED
+
+    def get_pre_approval_check_code_sent_status(self) -> PreApprovalCheckCodeSentStatus:
+        pre_approval_status = self.get_pre_approval_status()
+        if pre_approval_status in [
+            self.PreApprovalStatus.PASSED_ALL_CHECKS,
+            self.PreApprovalStatus.COMPLETED,
+        ]:
+            if self.sponsor_certification_code_emailed:
+                return self.PreApprovalCheckCodeSentStatus.CODE_SENT
+
+            return self.PreApprovalCheckCodeSentStatus.CODE_NOT_SENT
+
+        if pre_approval_status is self.PreApprovalStatus.FAILED_UKVI_CHECKS:
+            return self.PreApprovalCheckCodeSentStatus.NO_LONGER_NEEDED
+
+        return self.PreApprovalCheckCodeSentStatus.CANNOT_SEND_CODE
 
     def get_accommodation_requests_restrict_for_user(self, user):
         from ontology.models.MvAccommodationRequest import MvAccommodationRequest

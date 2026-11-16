@@ -27,6 +27,7 @@ from webapp.templatetags.checks_status_extras import (
 )
 from webapp.templatetags.pre_approval_status_extras import (
     pre_approval_check_status_to_tag_colour,
+    pre_approval_checkcode_sent_status_to_tag_colour,
     pre_approval_status_to_tag_colour,
 )
 from webapp.templatetags.reassignment_request_extras import (
@@ -281,40 +282,12 @@ def render_app_la_pre_approval_check_status_tag(
 
 
 @register.filter
-def render_app_la_pre_approval_code_sent_to_sponsor_tag(
-    pre_approval_status: SponsorshipCertificationForm.PreApprovalStatus,
-    code_sent: bool,
+def render_app_la_pre_approval_check_code_sent_to_sponsor_tag(
+    status: SponsorshipCertificationForm.PreApprovalCheckCodeSentStatus,
 ) -> str:
-    if pre_approval_status in [
-        SponsorshipCertificationForm.PreApprovalStatus.PASSED_ALL_CHECKS,
-        SponsorshipCertificationForm.PreApprovalStatus.COMPLETED,
-    ]:
-        if code_sent:
-            return render_govuk_tag(
-                "Code sent",
-                colour="green",
-                css_class="app-tag--nowrap",
-            )
-
-        return render_govuk_tag(
-            "Code not sent",
-            colour="blue",
-            css_class="app-tag--nowrap",
-        )
-
-    if (
-        pre_approval_status
-        is SponsorshipCertificationForm.PreApprovalStatus.FAILED_UKVI_CHECKS
-    ):
-        return render_govuk_tag(
-            "No longer needed",
-            colour="grey",
-            css_class="app-tag--nowrap",
-        )
-
     return render_govuk_tag(
-        "Cannot send code",
-        colour="grey",
+        status,
+        colour=pre_approval_checkcode_sent_status_to_tag_colour(status),
         css_class="app-tag--nowrap",
     )
 

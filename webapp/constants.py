@@ -141,6 +141,14 @@ pre_approval_check_status_tag_colours = {
     SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED: GREEN,
 }
 
+pre_approval_check_code_sent_status_tag_colours = {
+    SponsorshipCertificationForm.PreApprovalCheckCodeSentStatus.CANNOT_SEND_CODE: GREY,
+    SponsorshipCertificationForm.PreApprovalCheckCodeSentStatus.NO_LONGER_NEEDED: GREY,
+    SponsorshipCertificationForm.PreApprovalCheckCodeSentStatus.CODE_NOT_SENT: BLUE,
+    SponsorshipCertificationForm.PreApprovalCheckCodeSentStatus.CODE_SENT: GREEN,
+}
+
+
 ACCOMMODATION_REQUEST_SAFEGUARDING_NO_STATUS_TAG_COLOUR = GREY
 accommodation_request_safeguarding_status_tag_colours = {
     MvAccommodationRequest.SafeguardingStatus.NO_NOTIFICATIONS: GREY,

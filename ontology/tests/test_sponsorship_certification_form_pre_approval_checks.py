@@ -5,6 +5,7 @@ from ontology.tests.factories import SponsorshipCertificationFormFactory
 
 CheckStatus = SponsorshipCertificationForm.PreApprovalCheckStatus
 Status = SponsorshipCertificationForm.PreApprovalStatus
+CodeSentStatus = SponsorshipCertificationForm.PreApprovalCheckCodeSentStatus
 
 UKVI_CHECK_FIELDS = SponsorshipCertificationForm.UKVI_CHECK_FIELDS
 LA_CHECK_FIELDS = SponsorshipCertificationForm.LA_CHECK_FIELDS
@@ -141,3 +142,75 @@ class SponsorshipCertificationFormGetPreApprovalStatusTests(SimpleTestCase):
         )
 
         self.assertEqual(uam.get_pre_approval_status(), Status.FAILED_UKVI_CHECKS)
+
+
+class SponsorshipCertificationFormGetCodeSentStatusTests(SimpleTestCase):
+    def test_code_sent_when_all_checks_passed_and_code_sent(self):
+        uam = build_uam(code_emailed=True, **{**ALL_UKVI_PASSED, **ALL_LA_PASSED})
+
+        self.assertEqual(
+            uam.get_pre_approval_check_code_sent_status(), CodeSentStatus.CODE_SENT
+        )
+
+    def test_code_not_sent_when_all_checks_passed_but_code_not_sent(self):
+        uam = build_uam(**{**ALL_UKVI_PASSED, **ALL_LA_PASSED})
+
+        self.assertEqual(
+            uam.get_pre_approval_check_code_sent_status(), CodeSentStatus.CODE_NOT_SENT
+        )
+
+    def test_no_longer_needed_when_ukvi_checks_failed(self):
+        uam = build_uam(
+            **{
+                **ALL_NOT_STARTED,
+                "uk_consent_form_status": CheckStatus.FAILED,
+            }
+        )
+
+        self.assertEqual(
+            uam.get_pre_approval_check_code_sent_status(),
+            CodeSentStatus.NO_LONGER_NEEDED,
+        )
+
+    def test_cannot_send_code_for_other_statuses(self):
+        cases = [
+            (Status.STATUS_NOT_RECORDED, build_uam()),
+            (Status.WAITING_FOR_UKVI_CHECKS, build_uam(**ALL_NOT_STARTED)),
+            (
+                Status.UKVI_CHECKS_IN_PROGRESS,
+                build_uam(
+                    **{**ALL_NOT_STARTED, "uk_consent_form_status": CheckStatus.PASSED}
+                ),
+            ),
+            (
+                Status.WAITING_FOR_LA_CHECKS,
+                build_uam(**{**ALL_NOT_STARTED, **ALL_UKVI_PASSED}),
+            ),
+            (
+                Status.LA_CHECKS_IN_PROGRESS,
+                build_uam(
+                    **{
+                        **ALL_NOT_STARTED,
+                        **ALL_UKVI_PASSED,
+                        "accommodation_exists_status": CheckStatus.PASSED,
+                    }
+                ),
+            ),
+            (
+                Status.FAILED_LA_CHECKS,
+                build_uam(
+                    **{
+                        **ALL_UKVI_PASSED,
+                        **ALL_LA_PASSED,
+                        "accommodation_suitable_status": CheckStatus.FAILED,
+                    }
+                ),
+            ),
+        ]
+        for pre_approval_status, uam in cases:
+            with self.subTest(pre_approval_status=pre_approval_status):
+                self.assertEqual(uam.get_pre_approval_status(), pre_approval_status)
+                self.assertEqual(
+                    uam.get_pre_approval_check_code_sent_status(),
+                    CodeSentStatus.CANNOT_SEND_CODE,
+                )

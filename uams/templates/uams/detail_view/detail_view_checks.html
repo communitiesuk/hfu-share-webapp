@@ -9,23 +9,7 @@
             <h2 class="govuk-summary-card__title">UK Visas and Immigration checks</h2>
         </div>
         <div class="govuk-summary-card__content">
-            <ul class="govuk-task-list govuk-!-margin-bottom-0">
-                {% for title, href, status_tag in ukvi_checks %}
-                    <li class="govuk-task-list__item govuk-task-list__item--with-link">
-                        <div class="govuk-task-list__name-and-hint">
-                            {% if can_edit_ukvi_checks %}
-                                <a class="govuk-link govuk-task-list__link"
-                                   href="{{ href }}"
-                                   aria-describedby="ukvi-checks-{{ loop.index }}-status">{{ title }}</a>
-                            {% else %}
-                                <div>{{ title }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="govuk-task-list__status"
-                             id="ukvi-checks-{{ loop.index }}-status">{{ status_tag }}</div>
-                    </li>
-                {% endfor %}
-            </ul>
+            {% include "uams/detail_view/checks_task_list.html" with checks=ukvi_checks check_type="ukvi-checks" %}
         </div>
     </div>
     {% if can_edit_la_checks %}
@@ -42,23 +26,7 @@
             <h2 class="govuk-summary-card__title">Local authority checks</h2>
         </div>
         <div class="govuk-summary-card__content">
-            <ul class="govuk-task-list govuk-!-margin-bottom-0">
-                {% for title, href, status_tag in la_checks %}
-                    <li class="govuk-task-list__item govuk-task-list__item--with-link">
-                        <div class="govuk-task-list__name-and-hint">
-                            {% if can_edit_la_checks %}
-                                <a class="govuk-link govuk-task-list__link"
-                                   href="{{ href }}"
-                                   aria-describedby="la-checks-{{ loop.index }}-status">{{ title }}</a>
-                            {% else %}
-                                <div>{{ title }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="govuk-task-list__status"
-                             id="la-checks-{{ loop.index }}-status">{{ status_tag }}</div>
-                    </li>
-                {% endfor %}
-            </ul>
+            {% include "uams/detail_view/checks_task_list.html" with checks=la_checks check_type="la-checks" %}
         </div>
     </div>
 {% endblock selected_tab %}

@@ -2,6 +2,7 @@ from django import template
 
 from ontology.models import SponsorshipCertificationForm
 from webapp.constants import (
+    pre_approval_check_code_sent_status_tag_colours,
     pre_approval_check_status_tag_colours,
     pre_approval_status_tag_colours,
 )
@@ -20,4 +21,11 @@ def pre_approval_status_to_tag_colour(value: str) -> str:
 def pre_approval_check_status_to_tag_colour(value: str) -> str:
     return pre_approval_check_status_tag_colours[
         SponsorshipCertificationForm.PreApprovalCheckStatus(value)
+    ]
+
+
+@register.filter
+def pre_approval_checkcode_sent_status_to_tag_colour(value: str) -> str:
+    return pre_approval_check_code_sent_status_tag_colours[
+        SponsorshipCertificationForm.PreApprovalCheckCodeSentStatus(value)
     ]

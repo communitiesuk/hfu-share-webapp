@@ -57,8 +57,8 @@ from webapp.templatetags.pre_approval_status_extras import (
     pre_approval_status_to_tag_colour,
 )
 from webapp.templatetags.tag_renderers import (
+    render_app_la_pre_approval_check_code_sent_to_sponsor_tag,
     render_app_la_pre_approval_check_status_tag,
-    render_app_la_pre_approval_code_sent_to_sponsor_tag,
     render_app_pre_approval_status_tag,
     render_app_ukvi_pre_approval_check_status_tag,
 )
@@ -379,9 +379,19 @@ class UamsChecksView(
         context = super().get_context_data(**kwargs)
 
         pre_approval_status = self.object.get_pre_approval_status()
+        pre_approval_check_code_sent_status = (
+            self.object.get_pre_approval_check_code_sent_status()
+        )
 
-        context["can_edit_ukvi_checks"] = self.can_edit_ukvi_checks()
-        context["can_edit_la_checks"] = self.can_edit_la_checks(pre_approval_status)
+        can_edit_ukvi_checks = self.can_edit_ukvi_checks()
+        can_edit_la_checks = self.can_edit_la_checks(pre_approval_status)
+        can_send_code = pre_approval_check_code_sent_status in (
+            SponsorshipCertificationForm.PreApprovalCheckCodeSentStatus.CODE_NOT_SENT,
+            SponsorshipCertificationForm.PreApprovalCheckCodeSentStatus.CODE_SENT,
+        )
+
+        context["can_edit_ukvi_checks"] = can_edit_ukvi_checks
+        context["can_edit_la_checks"] = can_edit_la_checks
 
         context["ukvi_checks"] = (
             (
@@ -392,6 +402,7 @@ class UamsChecksView(
                 render_app_ukvi_pre_approval_check_status_tag(
                     self.object.uk_consent_form_status
                 ),
+                can_edit_ukvi_checks,
             ),
             (
                 "Ukraine consent form",
@@ -401,6 +412,7 @@ class UamsChecksView(
                 render_app_ukvi_pre_approval_check_status_tag(
                     self.object.ukraine_consent_form_status
                 ),
+                can_edit_ukvi_checks,
             ),
             (
                 "Sponsor immigration eligibility",
@@ -410,6 +422,7 @@ class UamsChecksView(
                 render_app_ukvi_pre_approval_check_status_tag(
                     self.object.sponsor_immigration_eligibility_status
                 ),
+                can_edit_ukvi_checks,
             ),
             (
                 "Sponsor and household security checks",
@@ -419,6 +432,7 @@ class UamsChecksView(
                 render_app_ukvi_pre_approval_check_status_tag(
                     self.object.sponsor_household_security_checks_status
                 ),
+                can_edit_ukvi_checks,
             ),
         )
 
@@ -432,6 +446,7 @@ class UamsChecksView(
                     pre_approval_status,
                     self.object.sponsor_household_enhanced_dbs_status,
                 ),
+                can_edit_la_checks,
             ),
             (
                 "Accommodation exists",
@@ -441,6 +456,7 @@ class UamsChecksView(
                 render_app_la_pre_approval_check_status_tag(
                     pre_approval_status, self.object.accommodation_exists_status
                 ),
+                can_edit_la_checks,
             ),
             (
                 "Accommodation suitable",
@@ -450,6 +466,7 @@ class UamsChecksView(
                 render_app_la_pre_approval_check_status_tag(
                     pre_approval_status, self.object.accommodation_suitable_status
                 ),
+                can_edit_la_checks,
             ),
             (
                 "Sponsor role and expectations",
@@ -460,6 +477,7 @@ class UamsChecksView(
                     pre_approval_status,
                     self.object.sponsor_role_and_expectations_status,
                 ),
+                can_edit_la_checks,
             ),
             (
                 "Sponsor arrangements suitable",
@@ -470,15 +488,17 @@ class UamsChecksView(
                     pre_approval_status,
                     self.object.sponsor_arrangements_suitable_status,
                 ),
+                can_edit_la_checks,
             ),
             (
                 "Code sent to sponsor",
                 self._checks_edit_url(
                     UamsChecksEditView.LAChecks.SPONSOR_CERTIFICATION_CODE_EMAILED,
                 ),
-                render_app_la_pre_approval_code_sent_to_sponsor_tag(
-                    pre_approval_status, self.object.sponsor_certification_code_emailed
+                render_app_la_pre_approval_check_code_sent_to_sponsor_tag(
+                    pre_approval_check_code_sent_status
                 ),
+                can_edit_la_checks and can_send_code,
             ),
         )
 

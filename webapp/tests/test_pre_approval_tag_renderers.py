@@ -3,13 +3,14 @@ from bs4 import BeautifulSoup
 from ontology.models import SponsorshipCertificationForm
 from test_utils.base import BaseSimpleTestCase
 from webapp.templatetags.tag_renderers import (
+    render_app_la_pre_approval_check_code_sent_to_sponsor_tag,
     render_app_la_pre_approval_check_status_tag,
-    render_app_la_pre_approval_code_sent_to_sponsor_tag,
     render_app_ukvi_pre_approval_check_status_tag,
 )
 
 PreApprovalStatus = SponsorshipCertificationForm.PreApprovalStatus
 CheckStatus = SponsorshipCertificationForm.PreApprovalCheckStatus
+CodeSentStatus = SponsorshipCertificationForm.PreApprovalCheckCodeSentStatus
 
 LA_READY_STATUSES = [
     PreApprovalStatus.WAITING_FOR_LA_CHECKS,
@@ -101,48 +102,14 @@ class RenderLaPreApprovalCheckStatusTagTests(
 class RenderLaCodeSentToSponsorTagTests(
     PreApprovalTagRendererTestMixin, BaseSimpleTestCase
 ):
-    def test_shows_code_sent_when_all_checks_passed_and_code_sent(self):
-        for pre_approval_status in [
-            PreApprovalStatus.PASSED_ALL_CHECKS,
-            PreApprovalStatus.COMPLETED,
-        ]:
-            with self.subTest(pre_approval_status=pre_approval_status):
-                html = render_app_la_pre_approval_code_sent_to_sponsor_tag(
-                    pre_approval_status, True
-                )
-                self.assertTag(html, text="Code sent", colour="green")
-
-    def test_shows_code_not_sent_when_all_checks_passed_but_code_not_sent(self):
-        for pre_approval_status in [
-            PreApprovalStatus.PASSED_ALL_CHECKS,
-            PreApprovalStatus.COMPLETED,
-        ]:
-            with self.subTest(pre_approval_status=pre_approval_status):
-                html = render_app_la_pre_approval_code_sent_to_sponsor_tag(
-                    pre_approval_status, False
-                )
-                self.assertTag(html, text="Code not sent", colour="blue")
-
-    def test_shows_no_longer_needed_when_ukvi_checks_failed(self):
-        for code_sent in [True, False]:
-            with self.subTest(code_sent=code_sent):
-                html = render_app_la_pre_approval_code_sent_to_sponsor_tag(
-                    PreApprovalStatus.FAILED_UKVI_CHECKS, code_sent
-                )
-                self.assertTag(html, text="No longer needed", colour="grey")
-
-    def test_shows_cannot_send_code_for_other_statuses(self):
-        other_statuses = [
-            PreApprovalStatus.WAITING_FOR_UKVI_CHECKS,
-            PreApprovalStatus.UKVI_CHECKS_IN_PROGRESS,
-            PreApprovalStatus.WAITING_FOR_LA_CHECKS,
-            PreApprovalStatus.LA_CHECKS_IN_PROGRESS,
-            PreApprovalStatus.FAILED_LA_CHECKS,
-            PreApprovalStatus.STATUS_NOT_RECORDED,
+    def test_renders_each_code_sent_status_with_its_colour(self):
+        cases = [
+            (CodeSentStatus.CANNOT_SEND_CODE, "Cannot send code", "grey"),
+            (CodeSentStatus.NO_LONGER_NEEDED, "No longer needed", "grey"),
+            (CodeSentStatus.CODE_NOT_SENT, "Code not sent", "blue"),
+            (CodeSentStatus.CODE_SENT, "Code sent", "green"),
         ]
-        for pre_approval_status in other_statuses:
-            with self.subTest(pre_approval_status=pre_approval_status):
-                html = render_app_la_pre_approval_code_sent_to_sponsor_tag(
-                    pre_approval_status, False
-                )
-                self.assertTag(html, text="Cannot send code", colour="grey")
+        for status, text, colour in cases:
+            with self.subTest(status=status):
+                html = render_app_la_pre_approval_check_code_sent_to_sponsor_tag(status)
+                self.assertTag(html, text=text, colour=colour)
