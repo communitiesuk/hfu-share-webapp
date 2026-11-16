@@ -2005,7 +2005,7 @@ class RematchSelectAccommodationFormStepView(
 
     def get_queryset(self):
         qs = super().get_queryset()
-        return qs.filter(ltla_name__in=self.ltla or [])
+        return qs.filter(ltla_name__in=self.ltla or [], is_principal=True)
 
     def get_context_data(self, **kwargs):
         # Lifted from filters library
