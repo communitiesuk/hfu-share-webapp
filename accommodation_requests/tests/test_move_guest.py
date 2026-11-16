@@ -1748,6 +1748,35 @@ class RematchGuestsFormWizardTestCase(
         self.assertNotContains(response, other_utla_accommodation.full_address)
         self.assertNotContains(response, missing_ltla_accommodation.full_address)
 
+    def test_select_accommodation_form_step_excludes_duplicate_accommodations(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        duplicate_accommodation = MvAccommodationFactory(
+            full_address="duplicate accommodation",
+            is_available_for_rematch=True,
+            ltla_name=self.ltla_name,
+            utla_name=self.utla_name,
+            is_principal=False,
+        )
+
+        response = self.client.get(
+            reverse(
+                "accommodation-requests:rematch-guests-step",
+                kwargs={
+                    "pk": self.one_guest_acc_req.id,
+                    "step": RematchGuestsFormSteps.SELECT_ACCOMMODATION,
+                },
+            )
+            + "?sort=full_address"
+        )
+
+        self.assertEqual(response.status_code, http.client.OK)
+        self.assertContains(response, "Select accommodation")
+        self.assertContains(response, self.accommodation_one.full_address)
+        self.assertContains(response, self.accommodation_two.full_address)
+        self.assertNotContains(response, duplicate_accommodation.full_address)
+
     def test_select_accommodation_form_step_shows_filters(self):
         user = get_admin_user()
         self.client.force_login(user)

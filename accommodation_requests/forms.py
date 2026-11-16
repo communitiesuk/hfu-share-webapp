@@ -881,7 +881,7 @@ class MoveGuestsConfirmationStep(forms.Form):
 
 class MoveGuestsSelectAccommodationStep(forms.Form):
     accommodation = ModelChoiceField(
-        queryset=MvAccommodation.objects.all(), widget=Input()
+        queryset=MvAccommodation.objects.filter(is_principal=True), widget=Input()
     )
 
 

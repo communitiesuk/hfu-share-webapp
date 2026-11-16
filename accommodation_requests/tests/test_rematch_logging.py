@@ -115,6 +115,7 @@ class RematchLoggingTestCase(
         self.new_accommodation = MvAccommodationFactory(
             ltla_name=self.ltla_name,
             utla_name=self.utla_name,
+            is_principal=True,
         )
         self.ar = MvAccommodationRequestFactory(
             number_of_people=1,
@@ -262,6 +263,7 @@ class RematchPartialLoggingTestCase(
         self.new_accommodation = MvAccommodationFactory(
             ltla_name=self.ltla_name,
             utla_name=self.utla_name,
+            is_principal=True,
         )
         self.ar = MvAccommodationRequestFactory(
             number_of_people=2,
