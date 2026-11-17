@@ -213,7 +213,7 @@ class UamChecksViewTests(TestSessionTokenMixin, UamsBaseTestCase):
         self.assertIn(LA_CHECKS_PENDING_UKVI_MESSAGE, page_text)
         self.assertNotIn(LA_CHECKS_AVAILABLE_MESSAGE, page_text)
 
-    def test_la_user_can_edit_la_checks_when_status_ready(self):
+    def test_la_user_can_edit_la_checks_when_status_ready_except_code_sent(self):
         uam = SponsorshipCertificationFormFactory(
             reference="SPON-LA-READY",
             ltla_name=[self.ltla_one_a_name],
@@ -230,13 +230,17 @@ class UamChecksViewTests(TestSessionTokenMixin, UamsBaseTestCase):
 
         self.assertTitlesInOrder(la_rows, LA_CHECK_TITLES)
         for (_, href, _), slug in zip(la_rows, LA_CHECK_SLUGS, strict=True):
-            self.assertEqual(href, edit_url(uam, slug))
+            if slug == "sponsor-certification-code-emailed":
+                self.assertIsNone(href)
+            else:
+                self.assertEqual(href, edit_url(uam, slug))
         self.assertTrue(all(href is None for _, href, _ in ukvi_rows))
 
         la_statuses = {title: status for title, _, status in la_rows}
         self.assertEqual(
             la_statuses["Sponsor and household members enhanced DBS"], "Not started"
         )
+        self.assertEqual(la_statuses["Code sent to sponsor"], "Cannot send code")
 
         page_text = soup.get_text()
         self.assertIn(LA_CHECKS_AVAILABLE_MESSAGE, page_text)
@@ -263,6 +267,36 @@ class UamChecksViewTests(TestSessionTokenMixin, UamsBaseTestCase):
         page_text = soup.get_text()
         self.assertIn(LA_CHECKS_BLOCKED_MESSAGE, page_text)
         self.assertNotIn(LA_CHECKS_AVAILABLE_MESSAGE, page_text)
+
+    def test_la_user_can_edit_all_la_checks_when_status_complete(self):
+        uam = SponsorshipCertificationFormFactory(
+            reference="SPON-LA-READY",
+            ltla_name=[self.ltla_one_a_name],
+            utla_name=[self.utla_one_name],
+            **check_statuses(ukvi="Passed", la="Passed"),
+        )
+
+        self.client.force_login(self.ltla_one_a_user)
+        response = self.client.get(self.checks_url(uam))
+        soup = parse(response)
+
+        ukvi_rows = parse_rows(card_by_heading(soup, UKVI_CARD_HEADING))
+        la_rows = parse_rows(card_by_heading(soup, LA_CARD_HEADING))
+
+        self.assertTitlesInOrder(la_rows, LA_CHECK_TITLES)
+        for (_, href, _), slug in zip(la_rows, LA_CHECK_SLUGS, strict=True):
+            self.assertEqual(href, edit_url(uam, slug))
+        self.assertTrue(all(href is None for _, href, _ in ukvi_rows))
+
+        la_statuses = {title: status for title, _, status in la_rows}
+        self.assertEqual(
+            la_statuses["Sponsor and household members enhanced DBS"], "Passed"
+        )
+        self.assertEqual(la_statuses["Code sent to sponsor"], "Code not sent")
+
+        page_text = soup.get_text()
+        self.assertIn(LA_CHECKS_AVAILABLE_MESSAGE, page_text)
+        self.assertIn(LA_CANNOT_EDIT_UKVI_MESSAGE, page_text)
 
     def test_renders_checks_tab(self):
         self.client.force_login(get_admin_user())
