@@ -4,6 +4,7 @@ from enum import Enum
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import Field, Fieldset, Layout
 from crispy_forms_gds.layout.constants import Size
+from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.db.models import Case, OrderBy, QuerySet, TextField, Value, When
 from django.http import (
@@ -288,6 +289,16 @@ class UamsDetailViewMixin(DetailViewMixin):
 
     def get_url_args(self):
         return (self.object.pk,)
+
+    def should_show_tab_for_user(self, view_name: str) -> bool:
+        match view_name:
+            case "checks" | "history":
+                return (
+                    self.user_action_allowed(group_types=GroupType.DEV)
+                    or settings.UAM_CHECKS_ENABLED
+                )
+            case _:
+                return True
 
     @property
     def page_heading(self):
