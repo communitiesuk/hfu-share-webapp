@@ -361,6 +361,41 @@ class SelectPrimaryAccommodationAndHostWizardTestCase(
         self.assertContains(response, "Confirm")
         self.assertContains(response, "Cancel")
 
+    def test_confirm_primary_host_page_excludes_duplicate_hosts(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        duplicate_host = MvVolunteerFactory(
+            first_name="Duplicate", last_name="Host", is_principal=False
+        )
+        principal_host = MvVolunteerFactory(
+            first_name="Principal", last_name="Host", is_principal=True
+        )
+        self.accommodation_2.hosts.add(duplicate_host, principal_host)
+
+        response = self.client.post(
+            reverse(
+                "accommodation-requests:select-primary-step",
+                kwargs={
+                    "pk": self.accommodation_request.pk,
+                    "step": SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION,
+                },
+            ),
+            {
+                "accommodation-accommodation": self.accommodation_2.id,
+                f"select_primary_accommodation_and_host_wizard_"
+                f"{self.accommodation_request.pk}-current_step": (
+                    SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION.value
+                ),
+            },
+            follow=True,
+        )
+
+        self.assertContains(response, "Select current host")
+        self.assertContains(response, "Host 1")
+        self.assertContains(response, "Principal Host")
+        self.assertNotContains(response, "Duplicate Host")
+
     def test_confirm_primary_host_page_errors(self):
         user = get_admin_user()
         self.client.force_login(user)
