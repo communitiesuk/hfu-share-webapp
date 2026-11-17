@@ -2,6 +2,7 @@ from ontology.models import (
     SponsorshipCertificationForm,
 )
 from webapp.constants import (
+    LA_PRE_APPROVAL_CHECK_ALLOWED_STATUSES,
     UAM_CAN_EDIT_LA_CHECKS_GROUP_TYPE,
     UAM_CAN_EDIT_UKVI_CHECKS_GROUP_TYPE,
 )
@@ -24,14 +25,9 @@ class UamsChecksMixin(PermissionsMixin):
         self, pre_approval_status: SponsorshipCertificationForm.PreApprovalStatus
     ):
         if self._can_edit_la_checks is None:
-            self._can_edit_la_checks = self.user_action_allowed(
-                group_types=UAM_CAN_EDIT_LA_CHECKS_GROUP_TYPE
-            ) and pre_approval_status in [
-                SponsorshipCertificationForm.PreApprovalStatus.WAITING_FOR_LA_CHECKS,
-                SponsorshipCertificationForm.PreApprovalStatus.LA_CHECKS_IN_PROGRESS,
-                SponsorshipCertificationForm.PreApprovalStatus.FAILED_LA_CHECKS,
-                SponsorshipCertificationForm.PreApprovalStatus.PASSED_ALL_CHECKS,
-                SponsorshipCertificationForm.PreApprovalStatus.COMPLETED,
-            ]
+            self._can_edit_la_checks = (
+                self.user_action_allowed(group_types=UAM_CAN_EDIT_LA_CHECKS_GROUP_TYPE)
+                and pre_approval_status in LA_PRE_APPROVAL_CHECK_ALLOWED_STATUSES
+            )
 
         return self._can_edit_la_checks

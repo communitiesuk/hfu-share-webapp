@@ -19,6 +19,7 @@ from visa_applications.templatetags.visa_application_extras import (
     visa_status_to_tag_colour,
 )
 from webapp.component_builders import TagBuilder
+from webapp.constants import LA_PRE_APPROVAL_CHECK_ALLOWED_STATUSES
 from webapp.templatetags.alerted_status_extras import alerted_status_to_tag_colour
 from webapp.templatetags.checks_status_extras import (
     accommodation_checks_status_label_to_tag_colour,
@@ -26,9 +27,11 @@ from webapp.templatetags.checks_status_extras import (
     accommodation_safeguarding_status_label_to_tag_colour,
 )
 from webapp.templatetags.pre_approval_status_extras import (
+    la_pre_approval_check_status_to_tag_text,
     pre_approval_check_status_to_tag_colour,
     pre_approval_checkcode_sent_status_to_tag_colour,
     pre_approval_status_to_tag_colour,
+    ukvi_pre_approval_check_status_to_tag_text,
 )
 from webapp.templatetags.reassignment_request_extras import (
     reassignment_request_outcome_to_tag_colour,
@@ -236,7 +239,7 @@ def render_app_ukvi_pre_approval_check_status_tag(
         status = SponsorshipCertificationForm.PreApprovalCheckStatus.NOT_STARTED
 
     return render_govuk_tag(
-        status,
+        ukvi_pre_approval_check_status_to_tag_text(status),
         colour=pre_approval_check_status_to_tag_colour(status),
         css_class="app-tag--nowrap",
     )
@@ -247,19 +250,13 @@ def render_app_la_pre_approval_check_status_tag(
     pre_approval_status: SponsorshipCertificationForm.PreApprovalStatus,
     status: SponsorshipCertificationForm.PreApprovalCheckStatus | None,
 ) -> str:
-    if pre_approval_status in [
-        SponsorshipCertificationForm.PreApprovalStatus.WAITING_FOR_LA_CHECKS,
-        SponsorshipCertificationForm.PreApprovalStatus.LA_CHECKS_IN_PROGRESS,
-        SponsorshipCertificationForm.PreApprovalStatus.FAILED_LA_CHECKS,
-        SponsorshipCertificationForm.PreApprovalStatus.PASSED_ALL_CHECKS,
-        SponsorshipCertificationForm.PreApprovalStatus.COMPLETED,
-    ]:
+    if pre_approval_status in LA_PRE_APPROVAL_CHECK_ALLOWED_STATUSES:
         # Prevent crashing if the status check is None
         if status is None:
             status = SponsorshipCertificationForm.PreApprovalCheckStatus.NOT_STARTED
 
         return render_govuk_tag(
-            status,
+            la_pre_approval_check_status_to_tag_text(status),
             colour=pre_approval_check_status_to_tag_colour(status),
             css_class="app-tag--nowrap",
         )
@@ -286,8 +283,8 @@ def render_app_la_pre_approval_check_code_sent_to_sponsor_tag(
     status: SponsorshipCertificationForm.PreApprovalCheckCodeSentStatus,
 ) -> str:
     return render_govuk_tag(
-        status,
-        colour=pre_approval_checkcode_sent_status_to_tag_colour(status),
+        status.value,
+        colour=pre_approval_checkcode_sent_status_to_tag_colour(status.value),
         css_class="app-tag--nowrap",
     )
 

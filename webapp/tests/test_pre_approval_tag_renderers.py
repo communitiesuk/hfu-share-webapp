@@ -48,9 +48,9 @@ class RenderUkviPreApprovalCheckStatusTagTests(
         cases = [
             (None, "Not started", "blue"),
             (CheckStatus.NOT_STARTED, "Not started", "blue"),
-            (CheckStatus.IN_PROGRESS, "In progress", "yellow"),
+            (CheckStatus.IN_PROGRESS, "Checks in progress", "yellow"),
             (CheckStatus.PASSED, "Passed", "green"),
-            (CheckStatus.FAILED, "Failed", "red"),
+            (CheckStatus.FAILED, "Failed UKVI checks", "red"),
         ]
         for status, text, colour in cases:
             with self.subTest(status=status):
@@ -73,9 +73,9 @@ class RenderLaPreApprovalCheckStatusTagTests(
         cases = [
             (None, "Not started", "blue"),
             (CheckStatus.NOT_STARTED, "Not started", "blue"),
-            (CheckStatus.IN_PROGRESS, "In progress", "yellow"),
+            (CheckStatus.IN_PROGRESS, "Checks in progress", "yellow"),
             (CheckStatus.PASSED, "Passed", "green"),
-            (CheckStatus.FAILED, "Failed", "red"),
+            (CheckStatus.FAILED, "Failed LA checks", "red"),
         ]
         for status, text, colour in cases:
             with self.subTest(status=status):

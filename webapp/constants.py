@@ -134,11 +134,37 @@ pre_approval_status_tag_colours = {
     SponsorshipCertificationForm.PreApprovalStatus.STATUS_NOT_RECORDED: GREY,
 }
 
+ukvi_pre_approval_check_status_to_text = {
+    SponsorshipCertificationForm.PreApprovalCheckStatus.NOT_STARTED: "Not started",
+    SponsorshipCertificationForm.PreApprovalCheckStatus.IN_PROGRESS: (
+        "Checks in progress"
+    ),
+    SponsorshipCertificationForm.PreApprovalCheckStatus.FAILED: "Failed UKVI checks",
+    SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED: "Passed",
+}
+
 pre_approval_check_status_tag_colours = {
     SponsorshipCertificationForm.PreApprovalCheckStatus.NOT_STARTED: BLUE,
     SponsorshipCertificationForm.PreApprovalCheckStatus.IN_PROGRESS: YELLOW,
     SponsorshipCertificationForm.PreApprovalCheckStatus.FAILED: RED,
     SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED: GREEN,
+}
+
+la_pre_approval_check_status_to_text = {
+    SponsorshipCertificationForm.PreApprovalCheckStatus.NOT_STARTED: "Not started",
+    SponsorshipCertificationForm.PreApprovalCheckStatus.IN_PROGRESS: (
+        "Checks in progress"
+    ),
+    SponsorshipCertificationForm.PreApprovalCheckStatus.FAILED: "Failed LA checks",
+    SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED: "Passed",
+}
+
+LA_PRE_APPROVAL_CHECK_ALLOWED_STATUSES = {
+    SponsorshipCertificationForm.PreApprovalStatus.WAITING_FOR_LA_CHECKS,
+    SponsorshipCertificationForm.PreApprovalStatus.LA_CHECKS_IN_PROGRESS,
+    SponsorshipCertificationForm.PreApprovalStatus.FAILED_LA_CHECKS,
+    SponsorshipCertificationForm.PreApprovalStatus.PASSED_ALL_CHECKS,
+    SponsorshipCertificationForm.PreApprovalStatus.COMPLETED,
 }
 
 pre_approval_check_code_sent_status_tag_colours = {
@@ -147,7 +173,6 @@ pre_approval_check_code_sent_status_tag_colours = {
     SponsorshipCertificationForm.PreApprovalCheckCodeSentStatus.CODE_NOT_SENT: BLUE,
     SponsorshipCertificationForm.PreApprovalCheckCodeSentStatus.CODE_SENT: GREEN,
 }
-
 
 ACCOMMODATION_REQUEST_SAFEGUARDING_NO_STATUS_TAG_COLOUR = GREY
 accommodation_request_safeguarding_status_tag_colours = {

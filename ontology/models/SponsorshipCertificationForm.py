@@ -1,3 +1,5 @@
+from enum import Enum
+
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.db.models import Case, Q, Value, When
@@ -84,11 +86,11 @@ class SponsorshipCertificationForm(models.Model):
         # Applications submitted before the pre-approval process was added
         STATUS_NOT_RECORDED = ("Status not recorded", "Status not recorded")
 
-    class PreApprovalCheckCodeSentStatus(models.TextChoices):
-        CANNOT_SEND_CODE = ("Cannot send code", "Cannot send code")
-        NO_LONGER_NEEDED = ("No longer needed", "No longer needed")
-        CODE_NOT_SENT = ("Code not sent", "Code not sent")
-        CODE_SENT = ("Code sent", "Code sent")
+    class PreApprovalCheckCodeSentStatus(Enum):
+        CANNOT_SEND_CODE = "Cannot send code"
+        NO_LONGER_NEEDED = "No longer needed"
+        CODE_NOT_SENT = "Code not sent"
+        CODE_SENT = "Code sent"
 
     UKVI_CHECK_FIELDS = (
         "uk_consent_form_status",
@@ -363,9 +365,17 @@ class SponsorshipCertificationForm(models.Model):
             status
             for status in statuses
             if status
-            in (self.PreApprovalCheckStatus.PASSED, self.PreApprovalCheckStatus.FAILED)
+            in (
+                self.PreApprovalCheckStatus.IN_PROGRESS,
+                self.PreApprovalCheckStatus.PASSED,
+                self.PreApprovalCheckStatus.FAILED,
+            )
         ]
-        return len(recorded), self.PreApprovalCheckStatus.FAILED in recorded
+        return (
+            len(recorded),
+            self.PreApprovalCheckStatus.IN_PROGRESS in recorded,
+            self.PreApprovalCheckStatus.FAILED in recorded,
+        )
 
     def get_pre_approval_status(self) -> PreApprovalStatus:
         """
@@ -378,20 +388,24 @@ class SponsorshipCertificationForm(models.Model):
         if all(getattr(self, field) is None for field in all_check_fields):
             return self.PreApprovalStatus.STATUS_NOT_RECORDED
 
-        ukvi_recorded, ukvi_failed = self._summarise_checks(self.UKVI_CHECK_FIELDS)
+        ukvi_recorded, ukvi_in_progress, ukvi_failed = self._summarise_checks(
+            self.UKVI_CHECK_FIELDS
+        )
         if ukvi_failed:
             return self.PreApprovalStatus.FAILED_UKVI_CHECKS
         if ukvi_recorded == 0:
             return self.PreApprovalStatus.WAITING_FOR_UKVI_CHECKS
-        if ukvi_recorded < len(self.UKVI_CHECK_FIELDS):
+        if ukvi_in_progress or ukvi_recorded < len(self.UKVI_CHECK_FIELDS):
             return self.PreApprovalStatus.UKVI_CHECKS_IN_PROGRESS
 
-        la_recorded, la_failed = self._summarise_checks(self.LA_CHECK_FIELDS)
+        la_recorded, la_in_progress, la_failed = self._summarise_checks(
+            self.LA_CHECK_FIELDS
+        )
         if la_failed:
             return self.PreApprovalStatus.FAILED_LA_CHECKS
         if la_recorded == 0:
             return self.PreApprovalStatus.WAITING_FOR_LA_CHECKS
-        if la_recorded < len(self.LA_CHECK_FIELDS):
+        if la_in_progress or la_recorded < len(self.LA_CHECK_FIELDS):
             return self.PreApprovalStatus.LA_CHECKS_IN_PROGRESS
 
         if not self.sponsor_certification_code_emailed:

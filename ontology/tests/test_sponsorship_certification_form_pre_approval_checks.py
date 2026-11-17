@@ -13,6 +13,7 @@ PRE_APPROVAL_CHECK_FIELDS = UKVI_CHECK_FIELDS + LA_CHECK_FIELDS
 
 ALL_UKVI_PASSED = dict.fromkeys(UKVI_CHECK_FIELDS, CheckStatus.PASSED)
 ALL_LA_PASSED = dict.fromkeys(LA_CHECK_FIELDS, CheckStatus.PASSED)
+ALL_IN_PROGRESS = dict.fromkeys(PRE_APPROVAL_CHECK_FIELDS, CheckStatus.IN_PROGRESS)
 ALL_NOT_STARTED = dict.fromkeys(PRE_APPROVAL_CHECK_FIELDS, CheckStatus.NOT_STARTED)
 
 
@@ -51,11 +52,37 @@ class SponsorshipCertificationFormGetPreApprovalStatusTests(SimpleTestCase):
 
         self.assertEqual(uam.get_pre_approval_status(), Status.WAITING_FOR_UKVI_CHECKS)
 
+    def test_ukvi_checks_in_progress_when_all_ukvi_checks_in_progress(self):
+        uam = build_uam(**ALL_IN_PROGRESS)
+
+        self.assertEqual(uam.get_pre_approval_status(), Status.UKVI_CHECKS_IN_PROGRESS)
+
+    def test_ukvi_checks_in_progress_when_some_ukvi_checks_in_progress(self):
+        uam = build_uam(
+            **{
+                **ALL_NOT_STARTED,
+                "uk_consent_form_status": CheckStatus.IN_PROGRESS,
+            }
+        )
+
+        self.assertEqual(uam.get_pre_approval_status(), Status.UKVI_CHECKS_IN_PROGRESS)
+
     def test_ukvi_checks_in_progress_when_some_ukvi_checks_passed(self):
         uam = build_uam(
             **{
                 **ALL_NOT_STARTED,
                 "uk_consent_form_status": CheckStatus.PASSED,
+            }
+        )
+
+        self.assertEqual(uam.get_pre_approval_status(), Status.UKVI_CHECKS_IN_PROGRESS)
+
+    def test_ukvi_checks_in_progress_when_some_ukvi_checks_passed_and_in_progress(self):
+        uam = build_uam(
+            **{
+                **ALL_NOT_STARTED,
+                "uk_consent_form_status": CheckStatus.PASSED,
+                "ukraine_consent_form_status": CheckStatus.IN_PROGRESS,
             }
         )
 
@@ -89,12 +116,45 @@ class SponsorshipCertificationFormGetPreApprovalStatusTests(SimpleTestCase):
 
         self.assertEqual(uam.get_pre_approval_status(), Status.WAITING_FOR_LA_CHECKS)
 
+    def test_la_checks_in_progress_when_all_la_checks_in_progress(self):
+        uam = build_uam(
+            **{
+                **ALL_IN_PROGRESS,
+                **ALL_UKVI_PASSED,
+            }
+        )
+
+        self.assertEqual(uam.get_pre_approval_status(), Status.LA_CHECKS_IN_PROGRESS)
+
+    def test_la_checks_in_progress_when_some_la_checks_in_progress(self):
+        uam = build_uam(
+            **{
+                **ALL_IN_PROGRESS,
+                **ALL_UKVI_PASSED,
+                "accommodation_exists_status": CheckStatus.IN_PROGRESS,
+            }
+        )
+
+        self.assertEqual(uam.get_pre_approval_status(), Status.LA_CHECKS_IN_PROGRESS)
+
     def test_la_checks_in_progress_when_some_la_checks_passed(self):
         uam = build_uam(
             **{
                 **ALL_NOT_STARTED,
                 **ALL_UKVI_PASSED,
                 "accommodation_exists_status": CheckStatus.PASSED,
+            }
+        )
+
+        self.assertEqual(uam.get_pre_approval_status(), Status.LA_CHECKS_IN_PROGRESS)
+
+    def test_la_checks_in_progress_when_some_la_checks_passed_and_in_progress(self):
+        uam = build_uam(
+            **{
+                **ALL_NOT_STARTED,
+                **ALL_UKVI_PASSED,
+                "accommodation_exists_status": CheckStatus.PASSED,
+                "accommodation_suitable_status": CheckStatus.IN_PROGRESS,
             }
         )
 
