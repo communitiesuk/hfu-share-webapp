@@ -38,6 +38,7 @@ LA_CHECKS_PENDING_UKVI_MESSAGE = (
     "Local authorities can record their checks once the sponsor has passed "
     "all UKVI checks."
 )
+LA_CHECKS_AVAILABLE_UKVI_MESSAGE = "Local authorities can now record their checks."
 LA_CHECKS_BLOCKED_MESSAGE = (
     "You cannot start local authority checks until all UKVI checks have been passed."
 )
@@ -210,7 +211,7 @@ class UamChecksViewTests(TestSessionTokenMixin, UamsBaseTestCase):
         self.assertTrue(all(href is None for _, href, _ in la_rows))
 
         page_text = soup.get_text()
-        self.assertIn(LA_CHECKS_PENDING_UKVI_MESSAGE, page_text)
+        self.assertIn(LA_CHECKS_AVAILABLE_UKVI_MESSAGE, page_text)
         self.assertNotIn(LA_CHECKS_AVAILABLE_MESSAGE, page_text)
 
     def test_la_user_can_edit_la_checks_when_status_ready_except_code_sent(self):

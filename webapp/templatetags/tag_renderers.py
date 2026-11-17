@@ -250,7 +250,10 @@ def render_app_la_pre_approval_check_status_tag(
     pre_approval_status: SponsorshipCertificationForm.PreApprovalStatus,
     status: SponsorshipCertificationForm.PreApprovalCheckStatus | None,
 ) -> str:
-    if pre_approval_status in LA_PRE_APPROVAL_CHECK_ALLOWED_STATUSES:
+    if (pre_approval_status in LA_PRE_APPROVAL_CHECK_ALLOWED_STATUSES) or (
+        status
+        not in [None, SponsorshipCertificationForm.PreApprovalCheckStatus.NOT_STARTED]
+    ):
         # Prevent crashing if the status check is None
         if status is None:
             status = SponsorshipCertificationForm.PreApprovalCheckStatus.NOT_STARTED

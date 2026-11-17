@@ -32,6 +32,7 @@ from ontology.models import (
 )
 from uams.mixins import UamsChecksMixin
 from webapp.constants import (
+    LA_PRE_APPROVAL_CHECK_ALLOWED_STATUSES,
     UAM_CAN_EDIT_LA_CHECKS_GROUP_TYPE,
     UAM_CAN_EDIT_UKVI_CHECKS_GROUP_TYPE,
     UAMS_SEARCH_FIELDS,
@@ -44,7 +45,6 @@ from webapp.mixins import (
     PermissionsMixin,
     PIISafeRecordNameMixin,
     SectionHeadingMixin,
-    UserActionsMixinProtocol,
 )
 from webapp.s3 import (
     get_govuk_forms_attachment_filepath,
@@ -271,7 +271,7 @@ class UamsListView(
         return super().get_queryset().only(*fields_needed)
 
 
-class UamsDetailViewMixin(UserActionsMixinProtocol, DetailViewMixin):
+class UamsDetailViewMixin(DetailViewMixin):
     namespace = "uams"
     singular_name = "Application to sponsor a child"
     plural_name = "Applications to sponsor a child"
@@ -378,13 +378,16 @@ class UamsChecksView(
 
         can_edit_ukvi_checks = self.can_edit_ukvi_checks()
         can_edit_la_checks = self.can_edit_la_checks(pre_approval_status)
-        can_send_code = pre_approval_check_code_sent_status in (
+        can_edit_send_code = pre_approval_check_code_sent_status in (
             SponsorshipCertificationForm.PreApprovalCheckCodeSentStatus.CODE_NOT_SENT,
             SponsorshipCertificationForm.PreApprovalCheckCodeSentStatus.CODE_SENT,
         )
 
         context["can_edit_ukvi_checks"] = can_edit_ukvi_checks
         context["can_edit_la_checks"] = can_edit_la_checks
+        context["ukvi_checks_completed"] = (
+            pre_approval_status in LA_PRE_APPROVAL_CHECK_ALLOWED_STATUSES
+        )
 
         context["ukvi_checks"] = (
             (
@@ -491,7 +494,7 @@ class UamsChecksView(
                 render_app_la_pre_approval_check_code_sent_to_sponsor_tag(
                     pre_approval_check_code_sent_status
                 ),
-                can_edit_la_checks and can_send_code,
+                can_edit_la_checks and can_edit_send_code,
             ),
         )
 

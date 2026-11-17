@@ -1,17 +1,17 @@
 <ul class="govuk-task-list govuk-!-margin-bottom-0">
     {% for title, href, status_tag, show_edit_link in checks %}
-        <li class="govuk-task-list__item govuk-task-list__item--with-link">
+        <li class="govuk-task-list__item{% if show_edit_link %} govuk-task-list__item--with-link{% endif %}">
             <div class="govuk-task-list__name-and-hint">
                 {% if show_edit_link %}
                     <a class="govuk-link govuk-task-list__link"
                        href="{{ href }}"
-                       aria-describedby="{{ check_type }}-{{ loop.index }}-status">{{ title }}</a>
+                       aria-describedby="{{ check_type }}-{{ forloop.counter }}-status">{{ title }}</a>
                 {% else %}
                     <div>{{ title }}</div>
                 {% endif %}
             </div>
             <div class="govuk-task-list__status"
-                 id="{{ check_type }}-{{ loop.index }}-status">{{ status_tag }}</div>
+                 id="{{ check_type }}-{{ forloop.counter }}-status">{{ status_tag }}</div>
         </li>
     {% endfor %}
 </ul>

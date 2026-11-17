@@ -84,9 +84,39 @@ class RenderLaPreApprovalCheckStatusTagTests(
                 )
                 self.assertTag(html, text=text, colour=colour)
 
+    def test_shows_status_if_it_has_one_but_ukvi_checks_in_progress(self):
+        cases = [
+            (None, "Cannot start checks", "grey"),
+            (CheckStatus.NOT_STARTED, "Cannot start checks", "grey"),
+            (CheckStatus.IN_PROGRESS, "Checks in progress", "yellow"),
+            (CheckStatus.PASSED, "Passed", "green"),
+            (CheckStatus.FAILED, "Failed LA checks", "red"),
+        ]
+        for status, text, colour in cases:
+            with self.subTest(status=status):
+                html = render_app_la_pre_approval_check_status_tag(
+                    PreApprovalStatus.UKVI_CHECKS_IN_PROGRESS, status
+                )
+                self.assertTag(html, text=text, colour=colour)
+
+    def test_shows_status_if_it_has_one_but_ukvi_checks_failed(self):
+        cases = [
+            (None, "No longer needed", "grey"),
+            (CheckStatus.NOT_STARTED, "No longer needed", "grey"),
+            (CheckStatus.IN_PROGRESS, "Checks in progress", "yellow"),
+            (CheckStatus.PASSED, "Passed", "green"),
+            (CheckStatus.FAILED, "Failed LA checks", "red"),
+        ]
+        for status, text, colour in cases:
+            with self.subTest(status=status):
+                html = render_app_la_pre_approval_check_status_tag(
+                    PreApprovalStatus.FAILED_UKVI_CHECKS, status
+                )
+                self.assertTag(html, text=text, colour=colour)
+
     def test_shows_no_longer_needed_when_ukvi_checks_failed(self):
         html = render_app_la_pre_approval_check_status_tag(
-            PreApprovalStatus.FAILED_UKVI_CHECKS, CheckStatus.PASSED
+            PreApprovalStatus.FAILED_UKVI_CHECKS, CheckStatus.NOT_STARTED
         )
         self.assertTag(html, text="No longer needed", colour="grey")
 
@@ -94,7 +124,7 @@ class RenderLaPreApprovalCheckStatusTagTests(
         for pre_approval_status in LA_NOT_READY_STATUSES:
             with self.subTest(pre_approval_status=pre_approval_status):
                 html = render_app_la_pre_approval_check_status_tag(
-                    pre_approval_status, CheckStatus.PASSED
+                    pre_approval_status, CheckStatus.NOT_STARTED
                 )
                 self.assertTag(html, text="Cannot start checks", colour="grey")
 

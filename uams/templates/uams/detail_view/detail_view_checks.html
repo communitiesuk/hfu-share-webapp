@@ -16,7 +16,13 @@
         <p class="govuk-body">Local authority checks are now available.</p>
     {% else %}
         {% if can_edit_ukvi_checks %}
-            <p class="govuk-body">Local authorities can record their checks once the sponsor has passed all UKVI checks.</p>
+            <p class="govuk-body">
+                {% if ukvi_checks_completed %}
+                    Local authorities can now record their checks.
+                {% else %}
+                    Local authorities can record their checks once the sponsor has passed all UKVI checks.
+                {% endif %}
+            </p>
         {% else %}
             <div class="govuk-inset-text">You cannot start local authority checks until all UKVI checks have been passed.</div>
         {% endif %}
