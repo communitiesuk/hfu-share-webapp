@@ -262,6 +262,42 @@ class SelectPrimaryAccommodationAndHostWizardTestCase(
         self.assertContains(response, "Confirm and continue")
         self.assertContains(response, "Cancel")
 
+    def test_confirm_primary_accommodation_page_excludes_duplicate_accommodations(
+        self,
+    ):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        duplicate_accommodation = MvAccommodationFactory(
+            full_address="Duplicate Accommodation",
+            is_principal=False,
+        )
+        principal_accommodation = MvAccommodationFactory(
+            full_address="Principal Accommodation",
+            is_principal=True,
+        )
+        self.accommodation_request.accommodation_id = [
+            self.accommodation_1.id,
+            duplicate_accommodation.id,
+            principal_accommodation.id,
+        ]
+        self.accommodation_request.save()
+
+        response = self.client.get(
+            reverse(
+                "accommodation-requests:select-primary-step",
+                kwargs={
+                    "pk": self.accommodation_request.pk,
+                    "step": SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION,
+                },
+            )
+        )
+
+        self.assertEqual(response.status_code, http.client.OK)
+        self.assertContains(response, "Accommodation 1")
+        self.assertContains(response, "Principal Accommodation")
+        self.assertNotContains(response, "Duplicate Accommodation")
+
     def test_confirm_primary_accomodation_page_errors(self):
         user = get_admin_user()
         self.client.force_login(user)
