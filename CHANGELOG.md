@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.31.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.30.0...2.31.0) (2026-11-17)
+
+
+### Features
+
+* [migration] add new checks fields to sponshorship cert form (HFURB-4271) ([#324](https://github.com/communitiesuk/hfu-share-webapp/issues/324)) ([3c4ea33](https://github.com/communitiesuk/hfu-share-webapp/commit/3c4ea33ab06394d88be83fdd9fe15800d46e6ee8))
+* add application status tag to overview (HFURB-4273) ([#328](https://github.com/communitiesuk/hfu-share-webapp/issues/328)) ([b0d9be5](https://github.com/communitiesuk/hfu-share-webapp/commit/b0d9be59086becd9f3ead0a63fb6e9b5f6979b48))
+* add application status to ATSAC list view and filters (HFURB-4274) ([#329](https://github.com/communitiesuk/hfu-share-webapp/issues/329)) ([ec337a1](https://github.com/communitiesuk/hfu-share-webapp/commit/ec337a14c8ebae07549b0b4e3dc333b10b9d6e67))
+* add counter to ATSAC tile (HFURB-4272) ([#331](https://github.com/communitiesuk/hfu-share-webapp/issues/331)) ([53efa9c](https://github.com/communitiesuk/hfu-share-webapp/commit/53efa9c22aaf551e31005bc2b63cc1f1f0d67366))
+* add EOI explainer and add EOI host to sponsor properties tab (HFURB-3996) ([#339](https://github.com/communitiesuk/hfu-share-webapp/issues/339)) ([41cf328](https://github.com/communitiesuk/hfu-share-webapp/commit/41cf328237985c3f03c14ffe0037d82ccd83c17e))
+* remove extra button under side nav on record overviews ([#336](https://github.com/communitiesuk/hfu-share-webapp/issues/336)) ([f62318e](https://github.com/communitiesuk/hfu-share-webapp/commit/f62318ea3ce161f0d06cbf9fcef8110126c46d19))
+
+
+### Bug Fixes
+
+* filter duplicate accommodations from primary sponsor options ([#342](https://github.com/communitiesuk/hfu-share-webapp/issues/342)) ([de4ceb1](https://github.com/communitiesuk/hfu-share-webapp/commit/de4ceb1aff8ee904fad4ce78e85051c0cfb00711))
+* filter duplicate accommodations from rematch options ([#340](https://github.com/communitiesuk/hfu-share-webapp/issues/340)) ([c248e00](https://github.com/communitiesuk/hfu-share-webapp/commit/c248e00e21ac9420a3b1544768a49db322a0d2d6))
+
 ## [2.30.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.29.0...2.30.0) (2026-11-11)
 
 
