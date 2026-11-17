@@ -38,8 +38,10 @@ from webapp.constants import (
     UAMS_SEARCH_FIELDS,
 )
 from webapp.mixins import (
+    AuditLogTimelineEventsMixin,
     DetailViewMixin,
     FilterPanelMixin,
+    InteractionTimelineEventsMixin,
     PageTitleMixin,
     PaginatorClassMixin,
     PermissionsMixin,
@@ -284,6 +286,7 @@ class UamsDetailViewMixin(DetailViewMixin):
             UamsFilesView,
             UamsDetailLinkedRecordsView,
             UamsDetailPropertiesView,
+            UamsDetailHistoryView,
         )
 
     def get_url_args(self):
@@ -862,6 +865,53 @@ class UamsDownloadGOVUKFormsAttachmentView(PermissionsMixin, SingleObjectMixin, 
 
         return redirect(presigned_url)
 
+class UamsDetailHistoryView(
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    InteractionTimelineEventsMixin,
+    AuditLogTimelineEventsMixin,
+    UamsDetailViewMixin,
+    DetailView,
+):
+    group_type = [
+        GroupType.DEV,
+        GroupType.LOCAL_AUTHORITY,
+        GroupType.DEVOLVED_ADMINISTRATION,
+        GroupType.MHCLG,
+        GroupType.HOME_OFFICE,
+        GroupType.SERVICE_SUPPORT,
+    ]
+    # interaction_restrictions = {
+    #     GroupType.LOCAL_AUTHORITY: {
+    #         "allowed_contacts": [
+    #             MvInteraction.InteractionContact.RECORD_DEDUPLICATED,
+    #             MvInteraction.InteractionContact.RECORD_DEDUPLICATION_UNDONE,
+    #         ],
+    #         "show_actor_names": False,
+    #     },
+    #     GroupType.DEVOLVED_ADMINISTRATION: {
+    #         "allowed_contacts": [
+    #             MvInteraction.InteractionContact.RECORD_DEDUPLICATED,
+    #             MvInteraction.InteractionContact.RECORD_DEDUPLICATION_UNDONE,
+    #         ],
+    #         "show_actor_names": False,
+    #     },
+    # }
+    # audit_log_restrictions = {
+    #     GroupType.LOCAL_AUTHORITY: {"hide_audit_logs": True},
+    #     GroupType.DEVOLVED_ADMINISTRATION: {"hide_audit_logs": True},
+    # }
+
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     context["history_description"] = (
+    #         "This history shows the dates a change was made to the accommodation "
+    #         "record on the system."
+    #     )
+    #     return context
+
+    view_name = "history"
+    model = SponsorshipCertificationForm
 
 class UamsChecksEditView(
     PageTitleMixin,
