@@ -289,13 +289,6 @@ class UamsDetailViewMixin(UserActionsMixinProtocol, DetailViewMixin):
     def get_url_args(self):
         return (self.object.pk,)
 
-    def should_show_tab_for_user(self, view_name: str) -> bool:
-        match view_name:
-            case "checks":
-                return self.user_action_allowed(group_types=UamsChecksView.group_type)
-            case _:
-                return True
-
     @property
     def page_heading(self):
         return self.object.get_full_name()
