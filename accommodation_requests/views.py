@@ -1829,7 +1829,9 @@ class SelectPrimaryAccommodationAndHostWizard(
         match step:
             case SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION:
                 kwargs["accommodations"] = (
-                    self.object.get_accommodations_restrict_for_user(self.request.user)
+                    self.object.get_accommodations_restrict_for_user(
+                        self.request.user
+                    ).exclude(is_principal=False)
                 )
             case SelectPrimaryAccommodationAndHostSteps.HOST:
                 accommodation_step_data = (
@@ -1840,9 +1842,9 @@ class SelectPrimaryAccommodationAndHostWizard(
                 )
                 accommodation_id = accommodation_step_data.get("accommodation")
                 kwargs["hosts"] = (
-                    MvAccommodation.objects.get(
-                        id=accommodation_id
-                    ).get_hosts_restrict_for_user(self.request.user)
+                    MvAccommodation.objects.get(id=accommodation_id)
+                    .get_hosts_restrict_for_user(self.request.user)
+                    .exclude(is_principal=False)
                     if accommodation_id
                     else MvVolunteer.objects.none()
                 )
