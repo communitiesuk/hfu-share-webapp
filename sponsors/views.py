@@ -521,6 +521,7 @@ class SponsorDetailPropertiesView(
 
     email = Column(verbose_name="Email address")
     passport_details = Column(verbose_name="Passport number")
+    is_eoi = Column(verbose_name="EOI host")
 
     class Meta:
         exclude_fields = [
