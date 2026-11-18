@@ -441,17 +441,21 @@ class GuestEditEligibleChildTests(TestSessionTokenMixin, BaseTestCase):
         soup = BeautifulSoup(response.content, "html.parser")
         self.assertTrue(soup.find_all("input", {"name": "is_uam", "type": "radio"}))
 
-    def test_other_users_do_not_see_eligible_child(self):
+    def test_la_user_does_not_see_eligible_child(self):
         la_user = get_la_user()
         la_user.groups.add(self.ltla_group)
-        ukvi_user = get_ukvi_user()
+        self.client.force_login(la_user)
 
-        for user in [la_user, ukvi_user]:
-            with self.subTest(user=user):
-                self.client.force_login(user)
-                response = self.client.get(self.edit_url)
+        response = self.client.get(self.edit_url)
 
-                self.assertNotContains(response, "Eligible child (UAM)")
+        self.assertNotContains(response, "Eligible child (UAM)")
+
+    def test_ukvi_user_does_not_see_eligible_child(self):
+        self.client.force_login(get_ukvi_user())
+
+        response = self.client.get(self.edit_url)
+
+        self.assertNotContains(response, "Eligible child (UAM)")
 
     def test_la_user_cannot_change_eligible_child(self):
         la_user = get_la_user()
