@@ -178,3 +178,46 @@ class MvAccommodationRequestSplitGuestsTest(BaseTestCase):
 
         self.assertTrue(guest2.edited_in_app)
         self.assertFalse(guest1.edited_in_app)
+
+
+class MvAccommodationRequestSplitGuestsIsUamTest(BaseTestCase):
+    def setUp(self):
+        super().setUp()
+        self.child = MvPersonFactory(first_name="Child", is_uam=True)
+        self.sibling = MvPersonFactory(first_name="Sibling", is_uam=False)
+        self.accommodation_request = MvAccommodationRequestFactory(
+            person_id=[self.child.id, self.sibling.id],
+            is_uam=True,
+            is_uam_edited_time=None,
+        )
+
+    def test_moving_non_uam_guest_unflags_new_ar(self):
+        new_request = self.accommodation_request.split_guests([self.sibling.id])
+
+        new_request.refresh_from_db()
+        self.accommodation_request.refresh_from_db()
+        self.assertFalse(new_request.is_uam)
+        self.assertIsNotNone(new_request.is_uam_edited_time)
+        self.assertTrue(self.accommodation_request.is_uam)
+        self.assertIsNone(self.accommodation_request.is_uam_edited_time)
+
+    def test_moving_uam_guest_unflags_original_ar(self):
+        new_request = self.accommodation_request.split_guests([self.child.id])
+
+        new_request.refresh_from_db()
+        self.accommodation_request.refresh_from_db()
+        self.assertTrue(new_request.is_uam)
+        self.assertFalse(self.accommodation_request.is_uam)
+        self.assertIsNotNone(self.accommodation_request.is_uam_edited_time)
+
+    def test_moving_uam_guest_flags_new_ar_when_original_was_not_flagged(self):
+        self.accommodation_request.is_uam = None
+        self.accommodation_request.save()
+
+        new_request = self.accommodation_request.split_guests([self.child.id])
+
+        new_request.refresh_from_db()
+        self.accommodation_request.refresh_from_db()
+        self.assertTrue(new_request.is_uam)
+        self.assertIsNotNone(new_request.is_uam_edited_time)
+        self.assertIsNone(self.accommodation_request.is_uam)

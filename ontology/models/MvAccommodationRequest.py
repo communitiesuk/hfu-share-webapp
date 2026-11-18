@@ -1222,6 +1222,14 @@ class MvAccommodationRequest(models.Model):
     def update_number_of_people(self):
         self.number_of_people = len(self.person_id)
 
+    def update_is_uam(self) -> None:
+        is_uam = any(guest.is_uam for guest in self.get_people())
+        if bool(self.is_uam) == is_uam:
+            return
+
+        self.is_uam = is_uam
+        self.is_uam_edited_time = timezone.now()
+
     def split_guests(self, guest_ids: list[str]):
         group = self.get_group()
         if group is not None:
@@ -1236,6 +1244,7 @@ class MvAccommodationRequest(models.Model):
         new_request.update_number_of_people()
         new_request.update_primary_contact(new_request.get_primary_contact_person())
         new_request.update_title()
+        new_request.update_is_uam()
         new_request.save()
 
         # Link guests to new ar
@@ -1249,6 +1258,7 @@ class MvAccommodationRequest(models.Model):
         self.update_number_of_people()
         self.update_primary_contact(self.get_primary_contact_person())
         self.update_title()
+        self.update_is_uam()
         self.save()
 
         return new_request
