@@ -123,6 +123,7 @@ def tab_texts(soup):
     return [a.get_text(strip=True) for a in soup.select(".moj-side-navigation a")]
 
 
+@override_settings(UAM_CHECKS_ENABLED=True)
 class UamChecksViewTests(TestSessionTokenMixin, UamsBaseTestCase):
     def setUp(self):
         super().setUp()
