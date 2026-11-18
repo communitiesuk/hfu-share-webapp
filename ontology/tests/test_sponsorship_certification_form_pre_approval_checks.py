@@ -17,19 +17,20 @@ ALL_NOT_STARTED = dict.fromkeys(PRE_APPROVAL_CHECK_FIELDS, CheckStatus.NOT_START
 
 def build_uam(code_emailed=False, **check_statuses):
     return SponsorshipCertificationForm(
-        sponsor_certification_code_emailed=code_emailed, **check_statuses
+        sponsor_certification_code_emailed=code_emailed,
+        **{**dict.fromkeys(PRE_APPROVAL_CHECK_FIELDS), **check_statuses},
     )
 
 
 class SponsorshipCertificationFormPreApprovalCheckDefaultTests(TestCase):
-    def test_new_application_has_no_checks_recorded(self):
+    def test_new_application_defaults_all_checks_to_not_started(self):
         SponsorshipCertificationFormFactory(reference="SCF001")
 
         uam = SponsorshipCertificationForm.objects.get(reference="SCF001")
 
         for field in PRE_APPROVAL_CHECK_FIELDS:
             with self.subTest(field=field):
-                self.assertIsNone(getattr(uam, field))
+                self.assertEqual(getattr(uam, field), CheckStatus.NOT_STARTED)
 
     def test_new_application_defaults_code_sent_to_sponsor_to_false(self):
         SponsorshipCertificationFormFactory(reference="SCF001")
