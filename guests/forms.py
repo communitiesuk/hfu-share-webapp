@@ -4,6 +4,7 @@ from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import HTML, Button, Div, Field, Fieldset, Layout
 from crispy_forms_gds.layout.constants import Size
 from django import forms
+from django.template.loader import render_to_string
 
 from ontology.models import MvPerson
 from webapp.layout import Link
@@ -16,11 +17,28 @@ GENDERS = (
     ("Male", "Male"),
 )
 
+IS_UAM_LABEL = "Eligible child (UAM)"
+
 
 class GuestBaseForm(ReadOnlyFieldsMixin, forms.ModelForm):
     class Meta:
         model = MvPerson
         fields: list[str] = []
+
+    def get_is_uam_field_layout(self) -> list[HTML | Field]:
+        if self.instance.is_uam is None:
+            value = "No value"
+        else:
+            value = "Yes" if self.instance.is_uam else "No"
+
+        return [
+            HTML(
+                render_to_string(
+                    "webapp/components/forms/readonly_form_field.html",
+                    {"label": IS_UAM_LABEL, "value": value},
+                )
+            )
+        ]
 
     def get_upe_visa_status_field_layout(self):
         return [
@@ -130,6 +148,7 @@ class GuestEditForm(GuestBaseForm):
             Field.text("first_name", legend_size=Size.SMALL, label_size=Size.SMALL),
             Field.text("last_name", legend_size=Size.SMALL, label_size=Size.SMALL),
             Field.text("date_of_birth", legend_size=Size.SMALL, label_size=Size.SMALL),
+            *self.get_is_uam_field_layout(),
             Field(
                 "gender",
                 context={"label_size": "govuk-fieldset__legend--s"},
@@ -181,6 +200,25 @@ class UPEVisaStatusFieldMixin:
         }
 
 
+class IsUamFieldMixin:
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["is_uam"] = forms.TypedChoiceField(
+            label=IS_UAM_LABEL,
+            required=False,
+            empty_value=None,
+            help_text=(
+                "Is the guest an eligible child travelling without a parent or "
+                "guardian?"
+            ),
+            choices=((True, "Yes"), (False, "No")),
+            widget=forms.RadioSelect(),
+        )
+
+    def get_is_uam_field_layout(self) -> list[HTML | Field]:
+        return [Field.radios("is_uam", legend_size=Size.SMALL)]
+
+
 class GuestEditUKVIForm(UPEVisaStatusFieldMixin, GuestBaseForm):
     class Meta:
         model = MvPerson
@@ -193,6 +231,7 @@ class GuestEditUKVIForm(UPEVisaStatusFieldMixin, GuestBaseForm):
             HTML(self.render_readonly_field("First Name", "first_name")),
             HTML(self.render_readonly_field("Last Name", "last_name")),
             HTML(self.render_readonly_field("Date of Birth", "date_of_birth")),
+            *self.get_is_uam_field_layout(),
             HTML(self.render_readonly_field("Email", "email")),
             HTML(self.render_readonly_field("Phone", "phone")),
             HTML(self.render_readonly_field("Passport number", "passport_id")),
@@ -202,9 +241,14 @@ class GuestEditUKVIForm(UPEVisaStatusFieldMixin, GuestBaseForm):
         )
 
 
-class GuestEditAdminForm(UPEVisaStatusFieldMixin, GuestEditForm):
+class GuestEditMHCLGForm(IsUamFieldMixin, GuestEditForm):
     class Meta(GuestEditForm.Meta):
-        fields = GuestEditForm.Meta.fields + ["upe_visa_status"]
+        fields = GuestEditForm.Meta.fields + ["is_uam"]
+
+
+class GuestEditAdminForm(IsUamFieldMixin, UPEVisaStatusFieldMixin, GuestEditForm):
+    class Meta(GuestEditForm.Meta):
+        fields = GuestEditForm.Meta.fields + ["upe_visa_status", "is_uam"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

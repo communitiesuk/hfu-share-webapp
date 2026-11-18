@@ -10,6 +10,7 @@ from django.forms.widgets import CheckboxInput, CheckboxSelectMultiple
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
+from django.utils import timezone
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.views.generic import DetailView, UpdateView
@@ -77,7 +78,12 @@ from webapp.views import (
 )
 from webapp.widgets import CheckboxSelectMultipleWithTags, DatePicker, StackedRangeInput
 
-from .forms import GuestEditAdminForm, GuestEditForm, GuestEditUKVIForm
+from .forms import (
+    GuestEditAdminForm,
+    GuestEditForm,
+    GuestEditMHCLGForm,
+    GuestEditUKVIForm,
+)
 
 
 class GuestsTable(tables.Table):
@@ -419,6 +425,7 @@ class GuestDetailOverviewView(
             "first_name",
             "last_name",
             "date_of_birth",
+            "is_uam",
             "gender",
             "email",
             "phone",
@@ -450,6 +457,7 @@ class GuestDetailOverviewView(
                 GroupType.LOCAL_AUTHORITY,
                 GroupType.DEVOLVED_ADMINISTRATION,
                 GroupType.HOME_OFFICE,
+                GroupType.MHCLG,
             ]
         ):
             ctx["edit_url"] = reverse(
@@ -784,6 +792,8 @@ class GuestEditView(
             return GuestEditUKVIForm
         if self.request.user.is_dev():
             return GuestEditAdminForm
+        if self.request.user.is_mhclg():
+            return GuestEditMHCLGForm
         return GuestEditForm
 
     def get_form(self, form_class=None):
@@ -807,8 +817,19 @@ class GuestEditView(
 
     def form_valid(self, form):
         form.instance.title = form.instance.first_name + " " + form.instance.last_name
+
+        is_uam_changed = (
+            "is_uam" in form.fields
+            and form.instance.is_uam != form.initial.get("is_uam")
+        )
+        if is_uam_changed:
+            form.instance.is_uam_edited_time = timezone.now()
+
         person = form.save()
         person.update_primary_contact_on_linked_objects()
+
+        if is_uam_changed:
+            person.update_is_uam_on_accommodation_request(person.is_uam_edited_time)
 
         return redirect(self.get_success_url())
 

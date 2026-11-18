@@ -1027,9 +1027,9 @@ class SafeguardingDetailPropertiesView(
     accommodation_request__edited_end_date_at = SummaryListRow(
         verbose_name="Edited end date at"
     )
-    accommodation_request__is_uam = SummaryListRow(verbose_name="Eligible minor")
+    accommodation_request__is_uam = SummaryListRow(verbose_name="Eligible child (UAM)")
     accommodation_request__is_uam_edited_time = SummaryListRow(
-        verbose_name="Eligible minor edited time"
+        verbose_name="Eligible child (UAM) edited time"
     )
     accommodation_request__expected_check_in_date_confirmed = SummaryListRow(
         verbose_name="Expected check-in date confirmed"
