@@ -326,9 +326,10 @@ class LandingPageView(UserActionsMixin, MultiTableMixin, TemplateView):
         statuses: set[SponsorshipCertificationForm.PreApprovalStatus],
     ) -> int:
         uams = SponsorshipCertificationForm.objects.get_for_user(user).only(
-            *SponsorshipCertificationForm.UKVI_CHECK_FIELDS,
-            *SponsorshipCertificationForm.LA_CHECK_FIELDS,
-            "sponsor_certification_code_emailed",
+            *[
+                field.value
+                for field in SponsorshipCertificationForm.PreApprovalCheckField
+            ],
         )
         return len([uam for uam in uams if uam.get_pre_approval_status() in statuses])
 

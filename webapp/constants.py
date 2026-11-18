@@ -13,6 +13,13 @@ from ontology.models import (
 )
 from webapp.templatetags.timeline_extras import AuditEventType
 
+PreApprovalCheckField = SponsorshipCertificationForm.PreApprovalCheckField
+PreApprovalStatus = SponsorshipCertificationForm.PreApprovalStatus
+PreApprovalCheckStatus = SponsorshipCertificationForm.PreApprovalCheckStatus
+PreApprovalCheckCodeSentStatus = (
+    SponsorshipCertificationForm.PreApprovalCheckCodeSentStatus
+)
+
 # GOV.UK tag colours constants
 GREY = "grey"
 GREEN = "green"
@@ -122,56 +129,107 @@ safeguarding_check_status_tag_label_text = {
     DevCheckV2.CheckStatus.UNAVAILABLE: "Check status unavailable",
 }
 
+pre_approval_check_status_title = {
+    PreApprovalCheckField.UK_CONSENT_FORM_STATUS: {
+        "title": "UK consent form",
+        "hint": "UK sponsorship arrangement consent form has been checked and "
+        "accepted.",
+    },
+    PreApprovalCheckField.UKRAINE_CONSENT_FORM_STATUS: {
+        "title": "Ukraine consent form",
+        "hint": "Ukraine certified consent form has been checked and accepted.",
+    },
+    PreApprovalCheckField.SPONSOR_IMMIGRATION_ELIGIBILITY_STATUS: {
+        "title": "Sponsor immigration eligibility",
+        "hint": "Evidence received of sponsor's identity and immigration status.",
+    },
+    PreApprovalCheckField.SPONSOR_HOUSEHOLD_SECURITY_CHECKS_STATUS: {
+        "title": "Sponsor and household security checks",
+        "hint": "Security and criminal record checks for all adults who will live "
+        "in the same household as the eligible child. Adults aged 18 and over.",
+    },
+    PreApprovalCheckField.SPONSOR_HOUSEHOLD_ENHANCED_DBS_STATUS: {
+        "title": "Sponsor and household members enhanced DBS",
+        "hint": "Enhanced DBS checks for everyone aged 16 and over who will live in "
+        "the same household as the eligible child. In Scotland, they must "
+        "pass Level 2 with barred list check.",
+    },
+    PreApprovalCheckField.ACCOMMODATION_EXISTS_STATUS: {
+        "title": "Accommodation exists",
+        "hint": "Check the accommodation exists and can be used as residential "
+        "accommodation.",
+    },
+    PreApprovalCheckField.ACCOMMODATION_SUITABLE_STATUS: {
+        "title": "Accommodation suitable",
+        "hint": "Visit the accommodation and check it is suitable.",
+    },
+    PreApprovalCheckField.SPONSOR_ROLE_AND_EXPECTATIONS_STATUS: {
+        "title": "Sponsor role and expectations",
+        "hint": "Sponsor understands what is expected of them, as explained in "
+        "sponsor guidance.",
+    },
+    PreApprovalCheckField.SPONSOR_ARRANGEMENTS_SUITABLE_STATUS: {
+        "title": "Sponsor arrangements suitable",
+        "hint": "Suitable arrangements for the whole of the child's stay.",
+    },
+    PreApprovalCheckField.SPONSOR_CERTIFICATION_CODE_EMAILED: {
+        "title": "Code sent to sponsor",
+    },
+}
+
 pre_approval_status_tag_colours = {
-    SponsorshipCertificationForm.PreApprovalStatus.WAITING_FOR_UKVI_CHECKS: YELLOW,
-    SponsorshipCertificationForm.PreApprovalStatus.UKVI_CHECKS_IN_PROGRESS: YELLOW,
-    SponsorshipCertificationForm.PreApprovalStatus.FAILED_UKVI_CHECKS: RED,
-    SponsorshipCertificationForm.PreApprovalStatus.WAITING_FOR_LA_CHECKS: BLUE,
-    SponsorshipCertificationForm.PreApprovalStatus.LA_CHECKS_IN_PROGRESS: BLUE,
-    SponsorshipCertificationForm.PreApprovalStatus.FAILED_LA_CHECKS: RED,
-    SponsorshipCertificationForm.PreApprovalStatus.PASSED_ALL_CHECKS: BLUE,
-    SponsorshipCertificationForm.PreApprovalStatus.COMPLETED: GREEN,
-    SponsorshipCertificationForm.PreApprovalStatus.STATUS_NOT_RECORDED: GREY,
+    PreApprovalStatus.WAITING_FOR_UKVI_CHECKS: YELLOW,
+    PreApprovalStatus.UKVI_CHECKS_IN_PROGRESS: YELLOW,
+    PreApprovalStatus.FAILED_UKVI_CHECKS: RED,
+    PreApprovalStatus.WAITING_FOR_LA_CHECKS: BLUE,
+    PreApprovalStatus.LA_CHECKS_IN_PROGRESS: BLUE,
+    PreApprovalStatus.FAILED_LA_CHECKS: RED,
+    PreApprovalStatus.PASSED_ALL_CHECKS: BLUE,
+    PreApprovalStatus.COMPLETED: GREEN,
+    PreApprovalStatus.STATUS_NOT_RECORDED: GREY,
 }
 
 ukvi_pre_approval_check_status_to_text = {
-    SponsorshipCertificationForm.PreApprovalCheckStatus.NOT_STARTED: "Not started",
-    SponsorshipCertificationForm.PreApprovalCheckStatus.IN_PROGRESS: (
-        "Checks in progress"
-    ),
-    SponsorshipCertificationForm.PreApprovalCheckStatus.FAILED: "Failed UKVI checks",
-    SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED: "Passed",
+    PreApprovalCheckStatus.NOT_STARTED: "Not started",
+    PreApprovalCheckStatus.IN_PROGRESS: ("Checks in progress"),
+    PreApprovalCheckStatus.FAILED: "Failed UKVI checks",
+    PreApprovalCheckStatus.PASSED: "Passed",
 }
 
 pre_approval_check_status_tag_colours = {
-    SponsorshipCertificationForm.PreApprovalCheckStatus.NOT_STARTED: BLUE,
-    SponsorshipCertificationForm.PreApprovalCheckStatus.IN_PROGRESS: YELLOW,
-    SponsorshipCertificationForm.PreApprovalCheckStatus.FAILED: RED,
-    SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED: GREEN,
+    PreApprovalCheckStatus.NOT_STARTED: BLUE,
+    PreApprovalCheckStatus.IN_PROGRESS: YELLOW,
+    PreApprovalCheckStatus.FAILED: RED,
+    PreApprovalCheckStatus.PASSED: GREEN,
 }
 
 la_pre_approval_check_status_to_text = {
-    SponsorshipCertificationForm.PreApprovalCheckStatus.NOT_STARTED: "Not started",
-    SponsorshipCertificationForm.PreApprovalCheckStatus.IN_PROGRESS: (
-        "Checks in progress"
-    ),
-    SponsorshipCertificationForm.PreApprovalCheckStatus.FAILED: "Failed LA checks",
-    SponsorshipCertificationForm.PreApprovalCheckStatus.PASSED: "Passed",
+    PreApprovalCheckStatus.NOT_STARTED: "Not started",
+    PreApprovalCheckStatus.IN_PROGRESS: ("Checks in progress"),
+    PreApprovalCheckStatus.FAILED: "Failed LA checks",
+    PreApprovalCheckStatus.PASSED: "Passed",
 }
 
 LA_PRE_APPROVAL_CHECK_ALLOWED_STATUSES = {
-    SponsorshipCertificationForm.PreApprovalStatus.WAITING_FOR_LA_CHECKS,
-    SponsorshipCertificationForm.PreApprovalStatus.LA_CHECKS_IN_PROGRESS,
-    SponsorshipCertificationForm.PreApprovalStatus.FAILED_LA_CHECKS,
-    SponsorshipCertificationForm.PreApprovalStatus.PASSED_ALL_CHECKS,
-    SponsorshipCertificationForm.PreApprovalStatus.COMPLETED,
+    PreApprovalStatus.WAITING_FOR_LA_CHECKS,
+    PreApprovalStatus.LA_CHECKS_IN_PROGRESS,
+    PreApprovalStatus.FAILED_LA_CHECKS,
+    PreApprovalStatus.PASSED_ALL_CHECKS,
+    PreApprovalStatus.COMPLETED,
+}
+
+UKVI_PRE_APPROVAL_CHECK_STATUS_PASSED = LA_PRE_APPROVAL_CHECK_ALLOWED_STATUSES
+
+PRE_APPROVAL_CODE_SENT_EDITABLE_STATUSES = {
+    PreApprovalCheckCodeSentStatus.CODE_NOT_SENT,
+    PreApprovalCheckCodeSentStatus.CODE_SENT,
 }
 
 pre_approval_check_code_sent_status_tag_colours = {
-    SponsorshipCertificationForm.PreApprovalCheckCodeSentStatus.CANNOT_SEND_CODE: GREY,
-    SponsorshipCertificationForm.PreApprovalCheckCodeSentStatus.NO_LONGER_NEEDED: GREY,
-    SponsorshipCertificationForm.PreApprovalCheckCodeSentStatus.CODE_NOT_SENT: BLUE,
-    SponsorshipCertificationForm.PreApprovalCheckCodeSentStatus.CODE_SENT: GREEN,
+    PreApprovalCheckCodeSentStatus.CANNOT_SEND_CODE: GREY,
+    PreApprovalCheckCodeSentStatus.NO_LONGER_NEEDED: GREY,
+    PreApprovalCheckCodeSentStatus.CODE_NOT_SENT: BLUE,
+    PreApprovalCheckCodeSentStatus.CODE_SENT: GREEN,
 }
 
 ACCOMMODATION_REQUEST_SAFEGUARDING_NO_STATUS_TAG_COLOUR = GREY
@@ -244,10 +302,12 @@ def status_to_tag_colour(status_type: str, value: str) -> str | None:
 message_level_to_notification_banner_variant_override = {
     messages.SUCCESS: "success",
     messages.ERROR: "error",
+    messages.WARNING: "warning",
 }  # Regular variant by default
 message_level_to_notification_banner_title_override = {
     messages.SUCCESS: "Success",
     messages.ERROR: "Error",
+    messages.WARNING: "Warning",
 }  # "Important" by default
 
 # Search

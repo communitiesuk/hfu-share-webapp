@@ -25,7 +25,9 @@ class SponsorshipCertificationFormUpdatePreApprovalCheckStatusTests(BaseTestCase
         )
 
         uam.update_pre_approval_check_status(
-            "uk_consent_form_status", CheckStatus.PASSED, self.user
+            SponsorshipCertificationForm.PreApprovalCheckField.UK_CONSENT_FORM_STATUS,
+            CheckStatus.PASSED,
+            self.user,
         )
 
         uam.refresh_from_db()
@@ -55,19 +57,19 @@ class SponsorshipCertificationFormUpdatePreApprovalCheckStatusTests(BaseTestCase
             SponsorshipCertificationForm.UKVI_CHECK_FIELDS
             + SponsorshipCertificationForm.LA_CHECK_FIELDS
         )
-        for attribute in fields:
-            details = PRE_APPROVAL_CHECK_INTERACTION[attribute]
+        for field in fields:
+            details = PRE_APPROVAL_CHECK_INTERACTION[field]
             for status in (
                 CheckStatus.NOT_STARTED,
                 CheckStatus.IN_PROGRESS,
                 CheckStatus.PASSED,
                 CheckStatus.FAILED,
             ):
-                with self.subTest(attribute=attribute, status=status):
+                with self.subTest(attribute=field.value, status=status):
                     uam = SponsorshipCertificationFormFactory()
-                    uam.update_pre_approval_check_status(attribute, status, self.user)
+                    uam.update_pre_approval_check_status(field, status, self.user)
                     uam.refresh_from_db()
-                    self.assertEqual(getattr(uam, attribute), status)
+                    self.assertEqual(getattr(uam, field.value), status)
                     interaction = MvInteraction.objects.get(linked_uam=uam)
                     self.assertEqual(
                         interaction.interaction_notes,
@@ -81,7 +83,9 @@ class SponsorshipCertificationFormUpdatePreApprovalCheckStatusTests(BaseTestCase
         )
 
         uam.update_pre_approval_check_status(
-            "sponsor_certification_code_emailed", True, self.user
+            SponsorshipCertificationForm.PreApprovalCheckField.SPONSOR_CERTIFICATION_CODE_EMAILED,
+            True,
+            self.user,
         )
 
         uam.refresh_from_db()
@@ -106,7 +110,7 @@ class SponsorshipCertificationFormUpdatePreApprovalCheckStatusTests(BaseTestCase
 
         with self.assertRaises(ValueError):
             uam.update_pre_approval_check_status(
-                "not_a_real_field", CheckStatus.PASSED, self.user
+                CheckStatus.PASSED, CheckStatus.PASSED, self.user
             )
 
         uam.refresh_from_db()
@@ -122,7 +126,9 @@ class SponsorshipCertificationFormUpdatePreApprovalCheckStatusTests(BaseTestCase
         with patch.object(MvInteraction.objects, "create", side_effect=DatabaseError):
             with self.assertRaises(DatabaseError):
                 uam.update_pre_approval_check_status(
-                    "uk_consent_form_status", CheckStatus.PASSED, self.user
+                    SponsorshipCertificationForm.PreApprovalCheckField.UK_CONSENT_FORM_STATUS,
+                    CheckStatus.PASSED,
+                    self.user,
                 )
 
         uam.refresh_from_db()

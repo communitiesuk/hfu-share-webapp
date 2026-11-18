@@ -5,6 +5,7 @@ from webapp.constants import (
     la_pre_approval_check_status_to_text,
     pre_approval_check_code_sent_status_tag_colours,
     pre_approval_check_status_tag_colours,
+    pre_approval_check_status_title,
     pre_approval_status_tag_colours,
     ukvi_pre_approval_check_status_to_text,
 )
@@ -17,6 +18,18 @@ def pre_approval_status_to_tag_colour(value: str) -> str:
     return pre_approval_status_tag_colours[
         SponsorshipCertificationForm.PreApprovalStatus(value)
     ]
+
+
+def pre_approval_check_status_to_title(
+    value: SponsorshipCertificationForm.PreApprovalCheckField,
+) -> str:
+    return pre_approval_check_status_title[value]["title"]
+
+
+def pre_approval_check_status_to_hint(
+    value: SponsorshipCertificationForm.PreApprovalCheckField,
+) -> str:
+    return pre_approval_check_status_title[value]["hint"]
 
 
 @register.filter
