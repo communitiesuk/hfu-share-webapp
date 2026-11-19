@@ -1,6 +1,8 @@
 from django.urls import path
 
 from .views import (
+    UamsChecksEditView,
+    UamsChecksView,
     UamsDetailLinkedRecordsView,
     UamsDetailOverviewView,
     UamsDetailPropertiesView,
@@ -21,6 +23,11 @@ urlpatterns = [
         "<str:pk>/overview",
         UamsDetailOverviewView.as_view(),
         name="detail-overview",
+    ),
+    path(
+        "<str:pk>/checks",
+        UamsChecksView.as_view(),
+        name="detail-checks",
     ),
     path(
         "<str:pk>/properties",
@@ -46,5 +53,10 @@ urlpatterns = [
         "<str:pk>/download-forms-attachment/<str:consent_file_type>",
         UamsDownloadGOVUKFormsAttachmentView.as_view(),
         name="download-govuk-forms-attachment",
+    ),
+    path(
+        "<str:pk>/checks/<slug:check>/edit",
+        UamsChecksEditView.as_view(),
+        name="checks-edit",
     ),
 ]

@@ -1,0 +1,38 @@
+{% extends "webapp/components/record_tabs/record_overview_base.html" %}
+{% block selected_tab %}
+    <p class="govuk-body">
+        {% if not can_edit_ukvi_checks %}Local authorities cannot edit these records.{% endif %}
+        These checks are managed by UK Visas and Immigration (UKVI).
+    </p>
+    <div class="govuk-summary-card">
+        <div class="govuk-summary-card__title-wrapper">
+            <h2 class="govuk-summary-card__title">UK Visas and Immigration checks</h2>
+        </div>
+        <div class="govuk-summary-card__content">
+            {% include "uams/detail_view/checks_task_list.html" with checks=ukvi_checks check_type="ukvi-checks" %}
+        </div>
+    </div>
+    {% if can_edit_la_checks %}
+        <p class="govuk-body">Local authority checks are now available.</p>
+    {% else %}
+        {% if can_edit_ukvi_checks %}
+            <p class="govuk-body">
+                {% if ukvi_checks_completed %}
+                    Local authorities can now record their checks.
+                {% else %}
+                    Local authorities can record their checks once the sponsor has passed all UKVI checks.
+                {% endif %}
+            </p>
+        {% else %}
+            <div class="govuk-inset-text">You cannot start local authority checks until all UKVI checks have been passed.</div>
+        {% endif %}
+    {% endif %}
+    <div class="govuk-summary-card">
+        <div class="govuk-summary-card__title-wrapper">
+            <h2 class="govuk-summary-card__title">Local authority checks</h2>
+        </div>
+        <div class="govuk-summary-card__content">
+            {% include "uams/detail_view/checks_task_list.html" with checks=la_checks check_type="la-checks" %}
+        </div>
+    </div>
+{% endblock selected_tab %}

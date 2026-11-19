@@ -1,3 +1,5 @@
+from enum import Enum
+
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.db.models import Case, Q, Value, When
@@ -63,6 +65,7 @@ class SponsorshipCertificationForm(models.Model):
 
     class PreApprovalCheckStatus(models.TextChoices):
         NOT_STARTED = ("Not started", "Not started")
+        IN_PROGRESS = ("In progress", "In progress")
         PASSED = ("Passed", "Passed")
         FAILED = ("Failed", "Failed")
 
@@ -82,6 +85,12 @@ class SponsorshipCertificationForm(models.Model):
         COMPLETED = ("Completed", "Completed")
         # Applications submitted before the pre-approval process was added
         STATUS_NOT_RECORDED = ("Status not recorded", "Status not recorded")
+
+    class PreApprovalCheckCodeSentStatus(Enum):
+        CANNOT_SEND_CODE = "Cannot send code"
+        NO_LONGER_NEEDED = "No longer needed"
+        CODE_NOT_SENT = "Code not sent"
+        CODE_SENT = "Code sent"
 
     UKVI_CHECK_FIELDS = (
         "uk_consent_form_status",
@@ -356,9 +365,17 @@ class SponsorshipCertificationForm(models.Model):
             status
             for status in statuses
             if status
-            in (self.PreApprovalCheckStatus.PASSED, self.PreApprovalCheckStatus.FAILED)
+            in (
+                self.PreApprovalCheckStatus.IN_PROGRESS,
+                self.PreApprovalCheckStatus.PASSED,
+                self.PreApprovalCheckStatus.FAILED,
+            )
         ]
-        return len(recorded), self.PreApprovalCheckStatus.FAILED in recorded
+        return (
+            len(recorded),
+            self.PreApprovalCheckStatus.IN_PROGRESS in recorded,
+            self.PreApprovalCheckStatus.FAILED in recorded,
+        )
 
     def get_pre_approval_status(self) -> PreApprovalStatus:
         """
@@ -371,26 +388,46 @@ class SponsorshipCertificationForm(models.Model):
         if all(getattr(self, field) is None for field in all_check_fields):
             return self.PreApprovalStatus.STATUS_NOT_RECORDED
 
-        ukvi_recorded, ukvi_failed = self._summarise_checks(self.UKVI_CHECK_FIELDS)
+        ukvi_recorded, ukvi_in_progress, ukvi_failed = self._summarise_checks(
+            self.UKVI_CHECK_FIELDS
+        )
         if ukvi_failed:
             return self.PreApprovalStatus.FAILED_UKVI_CHECKS
         if ukvi_recorded == 0:
             return self.PreApprovalStatus.WAITING_FOR_UKVI_CHECKS
-        if ukvi_recorded < len(self.UKVI_CHECK_FIELDS):
+        if ukvi_in_progress or ukvi_recorded < len(self.UKVI_CHECK_FIELDS):
             return self.PreApprovalStatus.UKVI_CHECKS_IN_PROGRESS
 
-        la_recorded, la_failed = self._summarise_checks(self.LA_CHECK_FIELDS)
+        la_recorded, la_in_progress, la_failed = self._summarise_checks(
+            self.LA_CHECK_FIELDS
+        )
         if la_failed:
             return self.PreApprovalStatus.FAILED_LA_CHECKS
         if la_recorded == 0:
             return self.PreApprovalStatus.WAITING_FOR_LA_CHECKS
-        if la_recorded < len(self.LA_CHECK_FIELDS):
+        if la_in_progress or la_recorded < len(self.LA_CHECK_FIELDS):
             return self.PreApprovalStatus.LA_CHECKS_IN_PROGRESS
 
         if not self.sponsor_certification_code_emailed:
             return self.PreApprovalStatus.PASSED_ALL_CHECKS
 
         return self.PreApprovalStatus.COMPLETED
+
+    def get_pre_approval_check_code_sent_status(self) -> PreApprovalCheckCodeSentStatus:
+        pre_approval_status = self.get_pre_approval_status()
+        if pre_approval_status in [
+            self.PreApprovalStatus.PASSED_ALL_CHECKS,
+            self.PreApprovalStatus.COMPLETED,
+        ]:
+            if self.sponsor_certification_code_emailed:
+                return self.PreApprovalCheckCodeSentStatus.CODE_SENT
+
+            return self.PreApprovalCheckCodeSentStatus.CODE_NOT_SENT
+
+        if pre_approval_status is self.PreApprovalStatus.FAILED_UKVI_CHECKS:
+            return self.PreApprovalCheckCodeSentStatus.NO_LONGER_NEEDED
+
+        return self.PreApprovalCheckCodeSentStatus.CANNOT_SEND_CODE
 
     def get_accommodation_requests_restrict_for_user(self, user):
         from ontology.models.MvAccommodationRequest import MvAccommodationRequest
