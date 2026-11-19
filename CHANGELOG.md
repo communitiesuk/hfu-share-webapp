@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.32.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.31.0...2.32.0) (2026-11-19)
+
+
+### Features
+
+* AR uam status is recalculated during rematch and reassign if new AR was created ([#350](https://github.com/communitiesuk/hfu-share-webapp/issues/350)) ([6c04d35](https://github.com/communitiesuk/hfu-share-webapp/commit/6c04d359f0cb8ea812286fd413cea538fd299ee0))
+* HFURB-4275 add method and interaction for updating the uam ([#345](https://github.com/communitiesuk/hfu-share-webapp/issues/345)) ([9ff52f0](https://github.com/communitiesuk/hfu-share-webapp/commit/9ff52f0eb203ff818c0ec8d1534ab15754bfec05))
+* HFURB-4275 add the summary page for the UAM checks ([#341](https://github.com/communitiesuk/hfu-share-webapp/issues/341)) ([4dfde7f](https://github.com/communitiesuk/hfu-share-webapp/commit/4dfde7faae1fc618d200eaaea0e15469e68dff45))
+* HFURB-4381 add feature flag for the UAMs checks work ([#343](https://github.com/communitiesuk/hfu-share-webapp/issues/343)) ([a337596](https://github.com/communitiesuk/hfu-share-webapp/commit/a337596c844bd6b404b9bf35ca811b21242cee50))
+
 ## [2.31.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.30.0...2.31.0) (2026-11-17)
 
 
