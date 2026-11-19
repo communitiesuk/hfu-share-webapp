@@ -907,9 +907,10 @@ class MvAccommodationRequest(models.Model):
         self.save()
 
         VisaApplication.objects.filter(
+            Q(ltla_name__isnull=True) | Q(ltla_name=""),
             application_unique_application_number__in=(
                 self.unique_application_number or []
-            )
+            ),
         ).update(
             ltla_name=ltla_name,
             utla_name=utla_name,
