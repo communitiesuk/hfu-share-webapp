@@ -378,10 +378,9 @@ class AssignLocalAuthorityFormTestCase(TestSessionTokenMixin, BaseTestCase):
         )[0]
         blank.ltla_name = ""
         blank.save()
-        already_assigned.ltla_name = "Cardiff"
-        already_assigned.utla_name = None
-        already_assigned.is_editable = False
-        already_assigned.save()
+        MvAccommodation.objects.filter(id=already_assigned.id).update(
+            ltla_name="Cardiff", utla_name=None, is_editable=False
+        )
 
         self.complete_form(self.unassigned_ar, self.english_la)
 
