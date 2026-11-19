@@ -31,6 +31,7 @@ from ontology.models import (
     SponsorshipCertificationForm,
 )
 from uams.mixins import UamsChecksMixin
+from uams.utils import uam_check_group_types
 from webapp.constants import (
     LA_PRE_APPROVAL_CHECK_ALLOWED_STATUSES,
     UAM_CAN_EDIT_LA_CHECKS_GROUP_TYPE,
@@ -45,6 +46,7 @@ from webapp.mixins import (
     PermissionsMixin,
     PIISafeRecordNameMixin,
     SectionHeadingMixin,
+    UserActionsMixinProtocol,
 )
 from webapp.s3 import (
     get_govuk_forms_attachment_filepath,
@@ -271,7 +273,7 @@ class UamsListView(
         return super().get_queryset().only(*fields_needed)
 
 
-class UamsDetailViewMixin(DetailViewMixin):
+class UamsDetailViewMixin(UserActionsMixinProtocol, DetailViewMixin):
     namespace = "uams"
     singular_name = "Application to sponsor a child"
     plural_name = "Applications to sponsor a child"
@@ -288,6 +290,15 @@ class UamsDetailViewMixin(DetailViewMixin):
 
     def get_url_args(self):
         return (self.object.pk,)
+
+    def should_show_tab_for_user(self, view_name: str) -> bool:
+        match view_name:
+            case "checks":
+                return self.user_action_allowed(
+                    group_types=uam_check_group_types(UamsChecksView.group_type)
+                )
+            case _:
+                return True
 
     @property
     def page_heading(self):
@@ -348,14 +359,19 @@ class UamsChecksView(
     UamsDetailViewMixin,
     SummaryListView,
 ):
-    group_type = [
+    group_type = {
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
         GroupType.DEVOLVED_ADMINISTRATION,
         GroupType.MHCLG,
         GroupType.HOME_OFFICE,
         GroupType.SERVICE_SUPPORT,
-    ]
+    }
+
+    # TODO: Remove when releasing the feature to all
+    def get_group_type(self):
+        return uam_check_group_types(self.group_type)
+
     view_name = "checks"
     model = SponsorshipCertificationForm
 
@@ -870,9 +886,12 @@ class UamsChecksEditView(
     SingleObjectMixin,
     View,
 ):
-    group_type = UAM_CAN_EDIT_LA_CHECKS_GROUP_TYPE.union(
-        UAM_CAN_EDIT_UKVI_CHECKS_GROUP_TYPE
-    )
+    group_type = UAM_CAN_EDIT_LA_CHECKS_GROUP_TYPE | UAM_CAN_EDIT_UKVI_CHECKS_GROUP_TYPE
+
+    # TODO: Remove when releasing the feature to all
+    def get_group_type(self):
+        return uam_check_group_types(self.group_type)
+
     model = SponsorshipCertificationForm
 
     class UKVIChecks(Enum):

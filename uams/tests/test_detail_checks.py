@@ -1,6 +1,7 @@
 import http.client
 
 from bs4 import BeautifulSoup
+from django.test import override_settings
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
@@ -118,6 +119,11 @@ def active_tab_text(soup):
     return link.get_text(strip=True) if link else None
 
 
+def tab_texts(soup):
+    return [a.get_text(strip=True) for a in soup.select(".moj-side-navigation a")]
+
+
+@override_settings(UAM_CHECKS_ENABLED=True)
 class UamChecksViewTests(TestSessionTokenMixin, UamsBaseTestCase):
     def setUp(self):
         super().setUp()
@@ -307,3 +313,57 @@ class UamChecksViewTests(TestSessionTokenMixin, UamsBaseTestCase):
         self.assertEqual(response.status_code, http.client.OK)
         self.assertEqual(active_tab_text(soup), "Checks")
         self.assertIsNotNone(card_by_heading(soup, UKVI_CARD_HEADING))
+
+
+class UamChecksTabFeatureFlagTests(TestSessionTokenMixin, UamsBaseTestCase):
+    def setUp(self):
+        super().setUp()
+
+        self.checks_uam = SponsorshipCertificationFormFactory(
+            reference="SPON-CHECKS-FLAG",
+            ltla_name=[self.ltla_one_a_name],
+            utla_name=[self.utla_one_name],
+            **check_statuses(),
+        )
+
+    def overview_url(self, uam):
+        return reverse("uams:detail-overview", kwargs={"pk": uam.pk})
+
+    def checks_url(self, uam):
+        return reverse("uams:detail-checks", kwargs={"pk": uam.pk})
+
+    @override_settings(UAM_CHECKS_ENABLED=False)
+    def test_checks_tab_hidden_for_non_dev_user_when_flag_disabled(self):
+        self.client.force_login(self.ltla_one_a_user)
+        response = self.client.get(self.overview_url(self.checks_uam))
+        soup = parse(response)
+
+        self.assertEqual(response.status_code, http.client.OK)
+        self.assertNotIn("Checks", tab_texts(soup))
+
+    @override_settings(UAM_CHECKS_ENABLED=True)
+    def test_checks_tab_shown_for_non_dev_user_when_flag_enabled(self):
+        self.client.force_login(self.ltla_one_a_user)
+        response = self.client.get(self.overview_url(self.checks_uam))
+        soup = parse(response)
+
+        self.assertEqual(response.status_code, http.client.OK)
+        self.assertIn("Checks", tab_texts(soup))
+
+    @override_settings(UAM_CHECKS_ENABLED=False)
+    def test_checks_tab_shown_for_dev_user_regardless_of_flag(self):
+        self.client.force_login(get_admin_user())
+        response = self.client.get(self.overview_url(self.checks_uam))
+        soup = parse(response)
+
+        self.assertEqual(response.status_code, http.client.OK)
+        self.assertIn("Checks", tab_texts(soup))
+
+    @override_settings(UAM_CHECKS_ENABLED=True)
+    def test_non_dev_user_can_load_checks_tab_when_flag_enabled(self):
+        self.client.force_login(self.ltla_one_a_user)
+        response = self.client.get(self.checks_url(self.checks_uam))
+        soup = parse(response)
+
+        self.assertEqual(response.status_code, http.client.OK)
+        self.assertEqual(active_tab_text(soup), "Checks")

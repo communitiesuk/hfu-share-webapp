@@ -1,5 +1,6 @@
 import http.client
 
+from django.test import override_settings
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
@@ -30,6 +31,7 @@ UKVI_ALL_PASSED = {
 }
 
 
+@override_settings(UAM_CHECKS_ENABLED=True)
 class UamChecksEditViewAccessTests(TestSessionTokenMixin, UamsBaseTestCase):
     def setUp(self):
         super().setUp()
@@ -147,3 +149,24 @@ class UamChecksEditViewAccessTests(TestSessionTokenMixin, UamsBaseTestCase):
             with self.subTest(slug=slug):
                 response = self.client.get(self.edit_url(self.ready_uam, slug))
                 self.assertEqual(response.status_code, GRANTED)
+
+    @override_settings(UAM_CHECKS_ENABLED=False)
+    def test_non_dev_user_denied_when_flag_disabled(self):
+        self.client.force_login(get_ukvi_user())
+        response = self.client.get(self.edit_url(self.ready_uam, A_UKVI_SLUG))
+
+        self.assertEqual(response.status_code, http.client.NOT_FOUND)
+
+    @override_settings(UAM_CHECKS_ENABLED=True)
+    def test_non_dev_user_granted_when_flag_enabled(self):
+        self.client.force_login(get_ukvi_user())
+        response = self.client.get(self.edit_url(self.ready_uam, A_UKVI_SLUG))
+
+        self.assertEqual(response.status_code, GRANTED)
+
+    @override_settings(UAM_CHECKS_ENABLED=False)
+    def test_dev_user_granted_regardless_of_flag(self):
+        self.client.force_login(get_admin_user())
+        response = self.client.get(self.edit_url(self.ready_uam, A_UKVI_SLUG))
+
+        self.assertEqual(response.status_code, GRANTED)

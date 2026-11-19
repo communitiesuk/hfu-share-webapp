@@ -67,6 +67,9 @@ ENHANCED_DEDUPLICATION_LOGGING = (
     os.environ.get("ENHANCED_DEDUPLICATION_LOGGING", "False") == "True"
 )
 
+# Feature flag to enable uam checks view
+UAM_CHECKS_ENABLED = os.environ.get("UAM_CHECKS_ENABLED", "False") == "True"
+
 # Application definition
 
 INSTALLED_APPS = [
