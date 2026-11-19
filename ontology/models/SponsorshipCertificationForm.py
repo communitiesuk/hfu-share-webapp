@@ -1,11 +1,13 @@
 from enum import Enum
 
 from django.contrib.postgres.fields import ArrayField
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Case, Q, Value, When
 from django.db.models.functions import Concat
 
+from accounts.models import User
 from ontology.mixins import LocalAuthorityPermissionsManagerMixin
+from ontology.models.MvInteraction import MvInteraction
 from ontology.utils import LinkedRecordData
 
 
@@ -105,6 +107,63 @@ class SponsorshipCertificationForm(models.Model):
         "sponsor_role_and_expectations_status",
         "sponsor_arrangements_suitable_status",
     )
+
+    PRE_APPROVAL_CHECK_INTERACTION = {
+        "uk_consent_form_status": {
+            "title": MvInteraction.InteractionContact.UK_CONSENT_FORM_STATUS_CHECK,
+            "note": "UK consent form: {check_status}",
+        },
+        "ukraine_consent_form_status": {
+            "title": MvInteraction.InteractionContact.UKRAINE_CONSENT_FORM_STATUS_CHECK,
+            "note": "Ukraine consent form: {check_status}",
+        },
+        "sponsor_immigration_eligibility_status": {
+            "title": (
+                MvInteraction.InteractionContact.SPONSOR_IMMIGRATION_ELIGIBILITY_STATUS_CHECK
+            ),
+            "note": "Sponsor immigration eligibility: {check_status}",
+        },
+        "sponsor_household_security_checks_status": {
+            "title": (
+                MvInteraction.InteractionContact.SPONSOR_HOUSEHOLD_SECURITY_CHECKS_STATUS_CHECK
+            ),
+            "note": "Sponsor and household security checks: {check_status}",
+        },
+        "sponsor_household_enhanced_dbs_status": {
+            "title": (
+                MvInteraction.InteractionContact.SPONSOR_HOUSEHOLD_ENHANCED_DBS_STATUS_CHECK
+            ),
+            "note": "Sponsor and household members enhanced DBS: {check_status}",
+        },
+        "accommodation_exists_status": {
+            "title": (MvInteraction.InteractionContact.ACCOMMODATION_EXISTS_CHECK),
+            "note": "Accommodation exists: {check_status}",
+        },
+        "accommodation_suitable_status": {
+            "title": (
+                MvInteraction.InteractionContact.ACCOMMODATION_SUITABLE_STATUS_CHECK
+            ),
+            "note": "Accommodation suitable: {check_status}",
+        },
+        "sponsor_role_and_expectations_status": {
+            "title": (
+                MvInteraction.InteractionContact.SPONSOR_ROLE_AND_EXPECTATIONS_STATUS_CHECK
+            ),
+            "note": "Sponsor role and expectations: {check_status}",
+        },
+        "sponsor_arrangements_suitable_status": {
+            "title": (
+                MvInteraction.InteractionContact.SPONSOR_ARRANGEMENTS_SUITABLE_STATUS_CHECK
+            ),
+            "note": "Sponsor arrangements suitable: {check_status}",
+        },
+        "sponsor_certification_code_emailed": {
+            "title": (
+                MvInteraction.InteractionContact.SPONSOR_CERTIFICATION_CODE_EMAILED_CHECK
+            ),
+            "note": ("Sponsor certification code: {reference_code} emailed to sponsor"),
+        },
+    }
 
     certificate_reference = models.TextField(
         null=True,
@@ -428,6 +487,39 @@ class SponsorshipCertificationForm(models.Model):
             return self.PreApprovalCheckCodeSentStatus.NO_LONGER_NEEDED
 
         return self.PreApprovalCheckCodeSentStatus.CANNOT_SEND_CODE
+
+    @transaction.atomic
+    def update_pre_approval_check_status(
+        self, attribute: str, check: PreApprovalCheckStatus | bool, user: User
+    ):
+        if (
+            attribute not in self.UKVI_CHECK_FIELDS
+            and attribute not in self.LA_CHECK_FIELDS
+            and attribute != "sponsor_certification_code_emailed"
+        ):
+            raise ValueError(f"Unknown pre-approval check attribute: {attribute!r}")
+
+        setattr(self, attribute, check)
+        self.save(update_fields=[attribute])
+
+        interaction_details = self.PRE_APPROVAL_CHECK_INTERACTION[attribute]
+        interaction_title = interaction_details["title"]
+
+        if attribute == "sponsor_certification_code_emailed":
+            format_kwargs = {"reference_code": self.certificate_reference}
+        else:
+            format_kwargs = {"check_status": check.lower()}
+
+        interaction_notes = interaction_details["note"].format(**format_kwargs)
+
+        MvInteraction.objects.create(
+            interaction_contact=interaction_title,
+            interaction_type=interaction_title,
+            linked_uam=self,
+            interaction_notes=interaction_notes,
+            created_by=user,
+            title=interaction_title,
+        )
 
     def get_accommodation_requests_restrict_for_user(self, user):
         from ontology.models.MvAccommodationRequest import MvAccommodationRequest
