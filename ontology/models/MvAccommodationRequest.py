@@ -916,7 +916,11 @@ class MvAccommodationRequest(models.Model):
             country=local_authority.da_name,
         )
 
-        for accommodation in self.get_accommodations():
+        unassigned_accommodations = self.get_accommodations().filter(
+            Q(ltla_name__isnull=True) | Q(ltla_name="")
+        )
+
+        for accommodation in unassigned_accommodations:
             accommodation.ltla_name = ltla_name
             accommodation.utla_name = utla_name
             accommodation.is_editable = True

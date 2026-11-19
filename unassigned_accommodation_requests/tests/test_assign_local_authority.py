@@ -371,6 +371,29 @@ class AssignLocalAuthorityFormTestCase(TestSessionTokenMixin, BaseTestCase):
             self.assertIsNone(record.ltla_name)
             self.assertIsNone(record.utla_name)
 
+    def test_completing_the_form_leaves_accommodations_already_in_an_la_alone(self):
+        self.client.force_login(get_mhclg_user())
+        unassigned, blank, already_assigned = self.link_records_to(
+            self.unassigned_ar, accommodation_count=3
+        )[0]
+        blank.ltla_name = ""
+        blank.save()
+        already_assigned.ltla_name = "Cardiff"
+        already_assigned.utla_name = None
+        already_assigned.is_editable = False
+        already_assigned.save()
+
+        self.complete_form(self.unassigned_ar, self.english_la)
+
+        for accommodation in (unassigned, blank):
+            accommodation.refresh_from_db()
+            self.assertEqual(accommodation.ltla_name, "Boston")
+            self.assertEqual(accommodation.utla_name, "Lincolnshire")
+        already_assigned.refresh_from_db()
+        self.assertEqual(already_assigned.ltla_name, "Cardiff")
+        self.assertIsNone(already_assigned.utla_name)
+        self.assertFalse(already_assigned.is_editable)
+
     def test_users_without_access_cannot_submit_the_form(self):
         self.client.force_login(get_la_user())
         accommodations, visa_applications = self.link_records_to(self.unassigned_ar)
