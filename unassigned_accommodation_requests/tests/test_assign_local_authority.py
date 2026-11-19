@@ -1,6 +1,7 @@
 from unittest import mock
 from unittest.mock import patch
 
+from auditlog.models import LogEntry
 from django.db import DatabaseError
 from django.urls import reverse
 
@@ -415,6 +416,17 @@ class AssignLocalAuthorityFormTestCase(TestSessionTokenMixin, BaseTestCase):
         self.assertEqual(already_assigned.ltla_name, "Cardiff")
         self.assertIsNone(already_assigned.utla_name)
         self.assertEqual(already_assigned.country, "Wales")
+
+    def test_completing_the_form_records_visa_application_changes_in_history(self):
+        self.client.force_login(get_mhclg_user())
+        _accommodations, visa_applications = self.link_records_to(self.unassigned_ar)
+
+        self.complete_form(self.unassigned_ar, self.english_la)
+
+        for visa_application in visa_applications:
+            entry = LogEntry.objects.get_for_object(visa_application).latest()
+            self.assertEqual(entry.action, LogEntry.Action.UPDATE)
+            self.assertEqual(entry.changes_dict["ltla_name"], ["None", "Boston"])
 
     def test_users_without_access_cannot_submit_the_form(self):
         self.client.force_login(get_la_user())
