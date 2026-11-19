@@ -161,7 +161,7 @@ class SponsorshipCertificationForm(models.Model):
             "title": (
                 MvInteraction.InteractionContact.SPONSOR_CERTIFICATION_CODE_EMAILED_CHECK
             ),
-            "note": ("Sponsor certification code: {check_status} emailed to sponsor"),
+            "note": ("Sponsor certification code: {reference_code} emailed to sponsor"),
         },
     }
 
@@ -506,13 +506,11 @@ class SponsorshipCertificationForm(models.Model):
         interaction_title = interaction_details["title"]
 
         if attribute == "sponsor_certification_code_emailed":
-            check_status_text = self.certificate_reference
+            format_kwargs = {"reference_code": self.certificate_reference}
         else:
-            check_status_text = check.lower()
+            format_kwargs = {"check_status": check.lower()}
 
-        interaction_notes = interaction_details["note"].format(
-            check_status=check_status_text
-        )
+        interaction_notes = interaction_details["note"].format(**format_kwargs)
 
         MvInteraction.objects.create(
             interaction_contact=interaction_title,
