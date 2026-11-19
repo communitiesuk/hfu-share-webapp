@@ -220,4 +220,5 @@ class MvAccommodationRequestSplitGuestsIsUamTest(BaseTestCase):
         self.accommodation_request.refresh_from_db()
         self.assertTrue(new_request.is_uam)
         self.assertIsNotNone(new_request.is_uam_edited_time)
-        self.assertIsNone(self.accommodation_request.is_uam)
+        self.assertFalse(self.accommodation_request.is_uam)
+        self.assertIsNotNone(self.accommodation_request.is_uam_edited_time)

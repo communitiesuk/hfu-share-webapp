@@ -1224,7 +1224,7 @@ class MvAccommodationRequest(models.Model):
 
     def update_is_uam(self) -> None:
         is_uam = any(guest.is_uam for guest in self.get_people())
-        if bool(self.is_uam) == is_uam:
+        if self.is_uam is is_uam:
             return
 
         self.is_uam = is_uam
