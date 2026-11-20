@@ -906,17 +906,24 @@ class MvAccommodationRequest(models.Model):
         self.utla_name = [utla_name] if utla_name else []
         self.save()
 
-        VisaApplication.objects.filter(
+        unassigned_visa_applications = VisaApplication.objects.filter(
+            Q(ltla_name__isnull=True) | Q(ltla_name=""),
             application_unique_application_number__in=(
                 self.unique_application_number or []
-            )
-        ).update(
-            ltla_name=ltla_name,
-            utla_name=utla_name,
-            country=local_authority.da_name,
+            ),
         )
 
-        for accommodation in self.get_accommodations():
+        for visa_application in unassigned_visa_applications:
+            visa_application.ltla_name = ltla_name
+            visa_application.utla_name = utla_name
+            visa_application.country = local_authority.da_name
+            visa_application.save(update_fields=["ltla_name", "utla_name", "country"])
+
+        unassigned_accommodations = self.get_accommodations().filter(
+            Q(ltla_name__isnull=True) | Q(ltla_name="")
+        )
+
+        for accommodation in unassigned_accommodations:
             accommodation.ltla_name = ltla_name
             accommodation.utla_name = utla_name
             accommodation.is_editable = True
