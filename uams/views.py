@@ -48,6 +48,7 @@ from webapp.constants import (
 from webapp.mixins import (
     DetailViewMixin,
     FilterPanelMixin,
+    InteractionTimelineEventsMixin,
     PageTitleMixin,
     PaginatorClassMixin,
     PermissionsMixin,
@@ -298,6 +299,7 @@ class UamsDetailViewMixin(UserActionsMixinProtocol, DetailViewMixin):
             UamsFilesView,
             UamsDetailLinkedRecordsView,
             UamsDetailPropertiesView,
+            UamsDetailHistoryView,
         )
 
     def get_url_args(self):
@@ -305,9 +307,14 @@ class UamsDetailViewMixin(UserActionsMixinProtocol, DetailViewMixin):
 
     def should_show_tab_for_user(self, view_name: str) -> bool:
         match view_name:
+            # TODO: Remove both cases when releasing the feature to all
             case "checks":
                 return self.user_action_allowed(
                     group_types=uam_check_group_types(UamsChecksView.group_type)
+                )
+            case "history":
+                return self.user_action_allowed(
+                    group_types=uam_check_group_types(UamsDetailHistoryView.group_type)
                 )
             case _:
                 return True
@@ -723,6 +730,38 @@ class UamsFilesView(
                     }
                 )
 
+        return context
+
+
+class UamsDetailHistoryView(
+    PIISafeRecordNameMixin,
+    PermissionsMixin,
+    InteractionTimelineEventsMixin,
+    UamsDetailViewMixin,
+    DetailView,
+):
+    group_type = [
+        GroupType.DEV,
+        GroupType.LOCAL_AUTHORITY,
+        GroupType.DEVOLVED_ADMINISTRATION,
+        GroupType.MHCLG,
+        GroupType.HOME_OFFICE,
+        GroupType.SERVICE_SUPPORT,
+    ]
+
+    # TODO: Remove when releasing the feature to all
+    def get_group_type(self):
+        return uam_check_group_types(self.group_type)
+
+    view_name = "history"
+    model = SponsorshipCertificationForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["history_description"] = (
+            "This history shows the dates a change was made to the application to "
+            "sponsor a child record on the system."
+        )
         return context
 
 
