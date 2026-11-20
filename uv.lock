@@ -547,7 +547,7 @@ wheels = [
 
 [[package]]
 name = "hfu-case-management-webapp"
-version = "2.32.0"
+version = "2.33.0"
 source = { editable = "." }
 default-groups = "all"
 dependencies = [
