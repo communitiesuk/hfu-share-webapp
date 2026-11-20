@@ -3,6 +3,7 @@ from django.urls import path
 from .views import (
     UamsChecksEditView,
     UamsChecksView,
+    UamsDetailHistoryView,
     UamsDetailLinkedRecordsView,
     UamsDetailOverviewView,
     UamsDetailPropertiesView,
@@ -43,6 +44,11 @@ urlpatterns = [
         "<str:pk>/files",
         UamsFilesView.as_view(),
         name="detail-files",
+    ),
+    path(
+        "<str:pk>/history",
+        UamsDetailHistoryView.as_view(),
+        name="detail-history",
     ),
     path(
         "<str:pk>/download-attachment/<str:metadata_id>",
