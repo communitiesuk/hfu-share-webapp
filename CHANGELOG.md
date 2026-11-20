@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.33.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.32.0...2.33.0) (2026-11-20)
+
+
+### Features
+
+* [migration] add eligible child edit flag option to guests edit form for ops users (HFURB-4277) ([#349](https://github.com/communitiesuk/hfu-share-webapp/issues/349)) ([b93391f](https://github.com/communitiesuk/hfu-share-webapp/commit/b93391feb1ba31ba29ac0265e265d869240061f9))
+
 ## [2.32.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.31.0...2.32.0) (2026-11-19)
 
 
