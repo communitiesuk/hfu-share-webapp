@@ -1069,7 +1069,7 @@ class UamsChecksEditView(
         # LA changed from complete to not complete
         elif _changed_from(PreApprovalStatus.COMPLETED):
             if self._check_is_for_code_emailed():
-                heading = "Sponsor certification code marked as not sent."
+                heading = "Sponsor certification code marked as not sent"
 
             warning = (
                 f"Checks status changed from {previous_pre_approval_status.value} "

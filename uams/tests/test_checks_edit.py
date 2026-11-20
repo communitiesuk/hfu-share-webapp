@@ -739,7 +739,7 @@ class UamChecksEditViewSuccessBannerTests(UamChecksEditViewBaseTestCase):
         self.assertEqual(response.status_code, http.client.OK)
         self.assertSuccessBanner(
             response,
-            heading="Sponsor certification code marked as not sent.",
+            heading="Sponsor certification code marked as not sent",
             body=None,
             warning=(
                 "Checks status changed from Completed to Passed all checks. "
