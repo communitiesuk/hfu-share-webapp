@@ -341,13 +341,13 @@ class MvAccommodationRequest(models.Model):
         null=True, blank=True, db_column="edited_end_date_at"
     )
     is_uam = models.BooleanField(
-        null=True, blank=True, db_column="is_uam", verbose_name="Is UAM"
+        null=True, blank=True, db_column="is_uam", verbose_name="Eligible child (UAM)"
     )
     is_uam_edited_time = models.DateTimeField(
         null=True,
         blank=True,
         db_column="is_uam_edited_time",
-        verbose_name="Is UAM edited time",
+        verbose_name="Eligible child (UAM) edited time",
     )
     expected_check_in_date_confirmed = models.BooleanField(
         null=True, blank=True, db_column="expected_check_in_date_confirmed"

@@ -1,6 +1,7 @@
 import http.client
 from datetime import date, datetime, timezone
 
+from bs4 import BeautifulSoup
 from django.urls import reverse
 
 from accounts.enums import GroupType
@@ -14,6 +15,7 @@ from user_management.tests.base import (
     get_admin_user,
     get_da_user,
     get_la_user,
+    get_mhclg_user,
     get_ukvi_user,
 )
 
@@ -152,6 +154,28 @@ class GuestDetailOverviewViewTests(TestSessionTokenMixin, BaseTestCase):
             response,
             'Change<span class="govuk-visually-hidden">record details</span>',
             html=True,
+        )
+
+    def test_overview_shows_eligible_child(self):
+        self.guest.is_uam = True
+        self.guest.save()
+        self.client.force_login(get_admin_user())
+
+        response = self.client.get(self.overview_url)
+
+        soup = BeautifulSoup(response.content, "html.parser")
+        label = soup.find("dt", string="Eligible child (UAM)")
+        self.assertEqual(label.find_next_sibling("dd").get_text(strip=True), "Yes")
+
+    def test_mhclg_user_sees_change_link(self):
+        self.guest.is_principal = True
+        self.guest.save()
+        self.client.force_login(get_mhclg_user())
+
+        response = self.client.get(self.overview_url)
+
+        self.assertContains(
+            response, reverse("guests:detail-edit", kwargs={"pk": self.guest.pk})
         )
 
     def test_duplicate_label_renders_for_duplicate_guests_only(
