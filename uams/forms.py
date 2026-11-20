@@ -16,9 +16,6 @@ from webapp.layout import Link
 
 
 class PreApprovalCheckStatusForm(forms.Form):
-    check_name: str
-    check_hint: str
-
     status = forms.ChoiceField(
         choices=[
             Choice(
@@ -48,7 +45,7 @@ class PreApprovalCheckStatusForm(forms.Form):
             Div(
                 Button("submit", "Save check"),
                 Link.cancel(),
-                css_class="govuk-button-group",
+                css_class="govuk-button-group govuk-!-margin-top-9",
             ),
         )
 
@@ -80,6 +77,6 @@ class SponsorCertificationCodeEmailedForm(forms.Form):
             Div(
                 Button("submit", "Save check"),
                 Link.cancel(),
-                css_class="govuk-button-group",
+                css_class="govuk-button-group govuk-!-margin-top-9",
             ),
         )

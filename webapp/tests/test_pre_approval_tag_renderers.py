@@ -128,6 +128,22 @@ class RenderLaPreApprovalCheckStatusTagTests(
                 )
                 self.assertTag(html, text="Cannot start checks", colour="grey")
 
+    def test_not_started_as_raw_string_is_treated_as_not_started(self):
+        not_started_string = CheckStatus.NOT_STARTED.value
+        self.assertIsInstance(not_started_string, str)
+
+        for pre_approval_status in LA_NOT_READY_STATUSES:
+            with self.subTest(pre_approval_status=pre_approval_status):
+                html = render_app_la_pre_approval_check_status_tag(
+                    pre_approval_status, not_started_string
+                )
+                self.assertTag(html, text="Cannot start checks", colour="grey")
+
+        html = render_app_la_pre_approval_check_status_tag(
+            PreApprovalStatus.FAILED_UKVI_CHECKS, not_started_string
+        )
+        self.assertTag(html, text="No longer needed", colour="grey")
+
 
 class RenderLaCodeSentToSponsorTagTests(
     PreApprovalTagRendererTestMixin, BaseSimpleTestCase

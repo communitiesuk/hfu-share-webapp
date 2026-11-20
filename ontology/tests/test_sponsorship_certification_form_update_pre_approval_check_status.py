@@ -102,6 +102,31 @@ class SponsorshipCertificationFormUpdatePreApprovalCheckStatusTests(BaseTestCase
             "Sponsor certification code: CERT-123456 emailed to sponsor",
         )
 
+    def test_code_emailed_boolean_records_interaction_when_set_to_false(self):
+        uam = SponsorshipCertificationFormFactory(
+            reference="SCF-CODE", certificate_reference="CERT-123456"
+        )
+
+        uam.update_pre_approval_check_status(
+            SponsorshipCertificationForm.PreApprovalCheckField.SPONSOR_CERTIFICATION_CODE_EMAILED,
+            False,
+            self.user,
+        )
+
+        uam.refresh_from_db()
+        self.assertFalse(uam.sponsor_certification_code_emailed)
+
+        interaction = MvInteraction.objects.get()
+        self.assertEqual(interaction.linked_uam, uam)
+        self.assertEqual(
+            interaction.title,
+            InteractionContact.SPONSOR_CERTIFICATION_CODE_NOT_EMAILED_CHECK,
+        )
+        self.assertEqual(
+            interaction.interaction_notes,
+            "Sponsor certification code marked as not sent",
+        )
+
     def test_unknown_attribute_raises_value_error_and_writes_nothing(self):
         uam = SponsorshipCertificationFormFactory(
             reference="SCF-BAD",

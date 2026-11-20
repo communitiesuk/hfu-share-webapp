@@ -50,7 +50,7 @@ ALL_CHECKS_PASSED = {
     + SponsorshipCertificationForm.LA_CHECK_FIELDS
 }
 
-PAGE_CAPTION = "Application to sponsor a child for"
+PAGE_CAPTION = "Application to sponsor a child record for"
 UKVI_SUB_HEADING = "Update UK Visas and Immigration checks"
 LA_SUB_HEADING = "Local authority checks"
 CODE_EMAILED_LABEL = "Sponsor certification code emailed to sponsor."
@@ -739,7 +739,7 @@ class UamChecksEditViewSuccessBannerTests(UamChecksEditViewBaseTestCase):
         self.assertEqual(response.status_code, http.client.OK)
         self.assertSuccessBanner(
             response,
-            heading="Code sent to sponsor: no",
+            heading="Sponsor certification code marked as not sent.",
             body=None,
             warning=(
                 "Checks status changed from Completed to Passed all checks. "

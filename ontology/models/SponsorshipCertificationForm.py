@@ -174,10 +174,20 @@ class SponsorshipCertificationForm(models.Model):
             "note": "Sponsor arrangements suitable: {check_status}",
         },
         PreApprovalCheckField.SPONSOR_CERTIFICATION_CODE_EMAILED: {
-            "title": (
-                MvInteraction.InteractionContact.SPONSOR_CERTIFICATION_CODE_EMAILED_CHECK
-            ),
-            "note": ("Sponsor certification code: {reference_code} emailed to sponsor"),
+            "sent": {
+                "title": (
+                    MvInteraction.InteractionContact.SPONSOR_CERTIFICATION_CODE_EMAILED_CHECK
+                ),
+                "note": (
+                    "Sponsor certification code: {reference_code} emailed to sponsor"
+                ),
+            },
+            "not_sent": {
+                "title": (
+                    MvInteraction.InteractionContact.SPONSOR_CERTIFICATION_CODE_NOT_EMAILED_CHECK
+                ),
+                "note": "Sponsor certification code marked as not sent",
+            },
         },
     }
 
@@ -436,7 +446,7 @@ class SponsorshipCertificationForm(models.Model):
 
     def _summarise_checks(
         self, check_fields: tuple[PreApprovalCheckField, ...]
-    ) -> tuple[int, bool]:
+    ) -> tuple[int, bool, bool]:
         statuses = [getattr(self, field.value) for field in check_fields]
         recorded = [
             status
@@ -496,13 +506,13 @@ class SponsorshipCertificationForm(models.Model):
         if pre_approval_status is None:
             pre_approval_status = self.get_pre_approval_status()
 
+        if self.sponsor_certification_code_emailed:
+            return self.PreApprovalCheckCodeSentStatus.CODE_SENT
+
         if pre_approval_status in [
             self.PreApprovalStatus.PASSED_ALL_CHECKS,
             self.PreApprovalStatus.COMPLETED,
         ]:
-            if self.sponsor_certification_code_emailed:
-                return self.PreApprovalCheckCodeSentStatus.CODE_SENT
-
             return self.PreApprovalCheckCodeSentStatus.CODE_NOT_SENT
 
         if pre_approval_status in [
@@ -512,6 +522,22 @@ class SponsorshipCertificationForm(models.Model):
             return self.PreApprovalCheckCodeSentStatus.NO_LONGER_NEEDED
 
         return self.PreApprovalCheckCodeSentStatus.CANNOT_SEND_CODE
+
+    def _get_interaction_details_for_update_pre_approval_check_status(
+        self, check: PreApprovalCheckField, check_status: PreApprovalCheckStatus | bool
+    ):
+        if check is self.PreApprovalCheckField.SPONSOR_CERTIFICATION_CODE_EMAILED:
+            interaction_details = self.PRE_APPROVAL_CHECK_INTERACTION[check][
+                "sent" if check_status else "not_sent"
+            ]
+            format_kwargs = {"reference_code": self.certificate_reference}
+        else:
+            interaction_details = self.PRE_APPROVAL_CHECK_INTERACTION[check]
+            format_kwargs = {"check_status": check_status.lower()}
+
+        return interaction_details["title"], interaction_details["note"].format(
+            **format_kwargs
+        )
 
     @transaction.atomic
     def update_pre_approval_check_status(
@@ -526,15 +552,11 @@ class SponsorshipCertificationForm(models.Model):
         setattr(self, check.value, check_status)
         self.save(update_fields=[check.value])
 
-        interaction_details = self.PRE_APPROVAL_CHECK_INTERACTION[check]
-        interaction_title = interaction_details["title"]
-
-        if check is self.PreApprovalCheckField.SPONSOR_CERTIFICATION_CODE_EMAILED:
-            format_kwargs = {"reference_code": self.certificate_reference}
-        else:
-            format_kwargs = {"check_status": check_status.lower()}
-
-        interaction_notes = interaction_details["note"].format(**format_kwargs)
+        interaction_title, interaction_notes = (
+            self._get_interaction_details_for_update_pre_approval_check_status(
+                check, check_status
+            )
+        )
 
         MvInteraction.objects.create(
             interaction_contact=interaction_title,

@@ -218,11 +218,17 @@ LA_PRE_APPROVAL_CHECK_ALLOWED_STATUSES = {
     PreApprovalStatus.COMPLETED,
 }
 
-UKVI_PRE_APPROVAL_CHECK_STATUS_PASSED = LA_PRE_APPROVAL_CHECK_ALLOWED_STATUSES
+UKVI_PRE_APPROVAL_CHECK_STATUS_PASSED = {
+    PreApprovalStatus.WAITING_FOR_LA_CHECKS,
+    PreApprovalStatus.LA_CHECKS_IN_PROGRESS,
+    PreApprovalStatus.FAILED_LA_CHECKS,
+    PreApprovalStatus.PASSED_ALL_CHECKS,
+    PreApprovalStatus.COMPLETED,
+}
 
 PRE_APPROVAL_CODE_SENT_EDITABLE_STATUSES = {
-    PreApprovalCheckCodeSentStatus.CODE_NOT_SENT,
-    PreApprovalCheckCodeSentStatus.CODE_SENT,
+    PreApprovalStatus.PASSED_ALL_CHECKS,
+    PreApprovalStatus.COMPLETED,
 }
 
 pre_approval_check_code_sent_status_tag_colours = {

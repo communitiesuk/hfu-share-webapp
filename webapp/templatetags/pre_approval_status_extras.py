@@ -29,7 +29,7 @@ def pre_approval_check_status_to_title(
 def pre_approval_check_status_to_hint(
     value: SponsorshipCertificationForm.PreApprovalCheckField,
 ) -> str:
-    return pre_approval_check_status_title[value]["hint"]
+    return pre_approval_check_status_title[value].get("hint", "")
 
 
 @register.filter

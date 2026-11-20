@@ -371,6 +371,8 @@ class UamsChecksView(
     UamsDetailViewMixin,
     SummaryListView,
 ):
+    object: SponsorshipCertificationForm
+
     group_type = {
         GroupType.DEV,
         GroupType.LOCAL_AUTHORITY,
@@ -415,8 +417,7 @@ class UamsChecksView(
         can_edit_ukvi_checks = self.can_edit_ukvi_checks()
         can_edit_la_checks = self.can_edit_la_checks(pre_approval_status)
         can_edit_send_code = (
-            pre_approval_check_code_sent_status
-            in PRE_APPROVAL_CODE_SENT_EDITABLE_STATUSES
+            pre_approval_status in PRE_APPROVAL_CODE_SENT_EDITABLE_STATUSES
         )
 
         context["can_edit_ukvi_checks"] = can_edit_ukvi_checks
@@ -842,7 +843,7 @@ class UamsChecksEditView(
 
     model = SponsorshipCertificationForm
     template_name = "uams/uams_check_edit_page.html"
-    page_caption = "Application to sponsor a child for"
+    page_caption = "Application to sponsor a child record for"
 
     _check = None
 
@@ -893,8 +894,7 @@ class UamsChecksEditView(
             raise PermissionDenied("You do not have permission to access this page.")
 
         if self._check_is_for_code_emailed() and (
-            self.object.get_pre_approval_check_code_sent_status(pre_approval_status)
-            not in PRE_APPROVAL_CODE_SENT_EDITABLE_STATUSES
+            pre_approval_status not in PRE_APPROVAL_CODE_SENT_EDITABLE_STATUSES
         ):
             raise PermissionDenied("You do not have permission to access this page.")
 
@@ -991,6 +991,119 @@ class UamsChecksEditView(
 
         return status.value.lower()
 
+    def _ukvi_banner_message(
+        self,
+        previous_pre_approval_status: PreApprovalStatus,
+        current_pre_approval_status: PreApprovalStatus,
+        heading: str,
+        changed_warning: str,
+    ):
+        def _changed_to(target):
+            return self._changed_to(
+                previous_pre_approval_status, current_pre_approval_status, target
+            )
+
+        def _changed_from(target):
+            return self._changed_from(
+                previous_pre_approval_status, current_pre_approval_status, target
+            )
+
+        body = None
+        warning = None
+
+        # UKVI changed from not passed to passed
+        if _changed_to(UKVI_PRE_APPROVAL_CHECK_STATUS_PASSED):
+            ltla_name = (
+                self.object.ltla_name[0]
+                if self.object.ltla_name
+                else "The local authority"
+            )
+            body = (
+                "Sponsor passed all UK Visas and Immigration checks. "
+                f"{ltla_name} will now complete their checks."
+            )
+
+        # UKVI changed from not failed to failed
+        elif _changed_to(PreApprovalStatus.FAILED_UKVI_CHECKS):
+            body = (
+                "Sponsor failed UK Visas and Immigration checks. "
+                "The Ministry of Housing, Communities and Local Government (MHCLG) "
+                "will contact the sponsor with this decision."
+            )
+
+        # UKVI changed from passed to not passed or
+        # UKVI changed from failed to not failed
+        if _changed_from(UKVI_PRE_APPROVAL_CHECK_STATUS_PASSED) or _changed_from(
+            PreApprovalStatus.FAILED_UKVI_CHECKS
+        ):
+            warning = changed_warning
+
+        return heading, body, warning
+
+    def _la_banner_message(
+        self,
+        previous_pre_approval_status: PreApprovalStatus,
+        current_pre_approval_status: PreApprovalStatus,
+        heading: str,
+        changed_warning: str,
+    ):
+        def _changed_to(target):
+            return self._changed_to(
+                previous_pre_approval_status, current_pre_approval_status, target
+            )
+
+        def _changed_from(target):
+            return self._changed_from(
+                previous_pre_approval_status, current_pre_approval_status, target
+            )
+
+        body = None
+        warning = None
+
+        # LA changed from not complete to complete
+        if _changed_to(PreApprovalStatus.COMPLETED):
+            heading = (
+                "All checks passed and Sponsor Certification code sent to sponsor."
+            )
+
+        # LA changed from complete to not complete
+        elif _changed_from(PreApprovalStatus.COMPLETED):
+            if self._check_is_for_code_emailed():
+                heading = "Sponsor certification code marked as not sent."
+
+            warning = (
+                f"Checks status changed from {previous_pre_approval_status.value} "
+                f"to {current_pre_approval_status.value}. "
+                "If the Sponsor Certification code has already been sent, contact "
+                "the Ministry of Housing, Communities and Local Government (MHCLG)"
+            )
+
+        # LA changed from not passed to passed
+        elif _changed_to(PreApprovalStatus.PASSED_ALL_CHECKS):
+            body = "Sponsor passed all suitability checks."
+            warning = (
+                "Send the Sponsor Certification code "
+                f"{self.object.certificate_reference} to the sponsor."
+            )
+
+        # LA changed from not failed to failed
+        if _changed_to(PreApprovalStatus.FAILED_LA_CHECKS):
+            body = (
+                "Sponsor failed local authority checks. "
+                "The Ministry of Housing, Communities and Local Government (MHCLG) "
+                "will contact the sponsor with this decision."
+            )
+
+        # LA changed from passed to not passed and not all checks completed
+        # LA changed from failed to not failed
+        if (
+            _changed_from(PreApprovalStatus.PASSED_ALL_CHECKS)
+            and not _changed_to(PreApprovalStatus.COMPLETED)
+        ) or _changed_from(PreApprovalStatus.FAILED_LA_CHECKS):
+            warning = changed_warning
+
+        return heading, body, warning
+
     def _get_success_banner_message(
         self,
         previous_check_status: PreApprovalCheckStatus | bool,
@@ -1005,128 +1118,27 @@ class UamsChecksEditView(
         previous_check_status_text = self._check_status_text(previous_check_status)
         current_check_status_text = self._check_status_text(current_check_status)
 
-        message_heading = f"{name_of_check}: {current_check_status_text}"
-        message_body = None
-        warning_message = None
+        default_heading = f"{name_of_check}: {current_check_status_text}"
+        changed_warning = (
+            f"You changed {name_of_check} from {previous_check_status_text} to "
+            f"{current_check_status_text}. "
+            "Raise a support ticket to stop any follow-on actions."
+        )
 
         if self._is_ukvi_check():
-            # UKVI changed from not passed to passed
-            if self._changed_to(
+            return self._ukvi_banner_message(
                 previous_pre_approval_status,
                 current_pre_approval_status,
-                UKVI_PRE_APPROVAL_CHECK_STATUS_PASSED,
-            ):
-                ltla_name = (
-                    self.object.ltla_name[0]
-                    if self.object.ltla_name
-                    else "The local authority"
-                )
-                message_body = (
-                    "Sponsor passed all UK Visas and Immigration checks. "
-                    f"{ltla_name} will now complete their checks."
-                )
+                default_heading,
+                changed_warning,
+            )
 
-            # UKVI changed from not failed to failed
-            elif self._changed_to(
-                previous_pre_approval_status,
-                current_pre_approval_status,
-                PreApprovalStatus.FAILED_UKVI_CHECKS,
-            ):
-                message_body = (
-                    "Sponsor failed UK Visas and Immigration checks. "
-                    "The Ministry of Housing, Communities and Local Government (MHCLG) "
-                    "will contact the sponsor with this decision."
-                )
-
-            # UKVI changed from passed to not passed or
-            # UKVI changed from failed to not failed
-            if self._changed_from(
-                previous_pre_approval_status,
-                current_pre_approval_status,
-                UKVI_PRE_APPROVAL_CHECK_STATUS_PASSED,
-            ) or self._changed_from(
-                previous_pre_approval_status,
-                current_pre_approval_status,
-                PreApprovalStatus.FAILED_UKVI_CHECKS,
-            ):
-                warning_message = (
-                    f"You changed {name_of_check} from {previous_check_status_text} to "
-                    f"{current_check_status_text}. Raise a support ticket to stop "
-                    "any follow-on actions."
-                )
-        else:
-            # LA changed from not complete to complete
-            if self._changed_to(
-                previous_pre_approval_status,
-                current_pre_approval_status,
-                PreApprovalStatus.COMPLETED,
-            ):
-                message_heading = (
-                    "All checks passed and Sponsor Certification code sent to sponsor."
-                )
-
-            # LA changed from complete to not complete
-            elif self._changed_from(
-                previous_pre_approval_status,
-                current_pre_approval_status,
-                PreApprovalStatus.COMPLETED,
-            ):
-                warning_message = (
-                    f"Checks status changed from {previous_pre_approval_status.value} "
-                    f"to {current_pre_approval_status.value}. "
-                    "If the Sponsor Certification code has already been sent, contact "
-                    "the Ministry of Housing, Communities and Local Government (MHCLG)"
-                )
-
-            # LA changed from not passed to passed
-            elif self._changed_to(
-                previous_pre_approval_status,
-                current_pre_approval_status,
-                PreApprovalStatus.PASSED_ALL_CHECKS,
-            ):
-                message_body = "Sponsor passed all suitability checks."
-                warning_message = (
-                    "Send the Sponsor Certification code "
-                    f"{self.object.certificate_reference} to the sponsor."
-                )
-
-            # LA changed from not failed to failed
-            if self._changed_to(
-                previous_pre_approval_status,
-                current_pre_approval_status,
-                PreApprovalStatus.FAILED_LA_CHECKS,
-            ):
-                message_body = (
-                    "Sponsor failed local authority checks. "
-                    "The Ministry of Housing, Communities and Local Government (MHCLG) "
-                    "will contact the sponsor with this decision."
-                )
-
-            # LA changed from passed to not passed and not all checks completed
-            # LA changed from failed to not failed
-            if (
-                self._changed_from(
-                    previous_pre_approval_status,
-                    current_pre_approval_status,
-                    PreApprovalStatus.PASSED_ALL_CHECKS,
-                )
-                and not self._changed_to(
-                    previous_pre_approval_status,
-                    current_pre_approval_status,
-                    PreApprovalStatus.COMPLETED,
-                )
-            ) or self._changed_from(
-                previous_pre_approval_status,
-                current_pre_approval_status,
-                PreApprovalStatus.FAILED_LA_CHECKS,
-            ):
-                warning_message = (
-                    f"You changed {name_of_check} from {previous_check_status_text} to "
-                    f"{current_check_status_text}. "
-                    "Raise a support ticket to stop any follow-on actions."
-                )
-
-        return message_heading, message_body, warning_message
+        return self._la_banner_message(
+            previous_pre_approval_status,
+            current_pre_approval_status,
+            default_heading,
+            changed_warning,
+        )
 
     def _set_success_banner(
         self,

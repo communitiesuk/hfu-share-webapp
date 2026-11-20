@@ -254,7 +254,7 @@ def render_app_la_pre_approval_check_status_tag(
         status = SponsorshipCertificationForm.PreApprovalCheckStatus.NOT_STARTED
 
     if (pre_approval_status in LA_PRE_APPROVAL_CHECK_ALLOWED_STATUSES) or (
-        status is not SponsorshipCertificationForm.PreApprovalCheckStatus.NOT_STARTED
+        status != SponsorshipCertificationForm.PreApprovalCheckStatus.NOT_STARTED
     ):
         return render_govuk_tag(
             la_pre_approval_check_status_to_tag_text(status),
