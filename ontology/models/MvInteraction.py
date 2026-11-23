@@ -64,6 +64,9 @@ class MvInteraction(models.Model):
             "Sponsor arrangements suitable check"
         )
         SPONSOR_CERTIFICATION_CODE_EMAILED_CHECK = "Sponsor certification code sent"
+        SPONSOR_CERTIFICATION_CODE_NOT_EMAILED_CHECK = (
+            "Sponsor certification code not sent"
+        )
 
     attachment = models.TextField(null=True, blank=True, db_column="attachment")
     created_at = models.DateTimeField(

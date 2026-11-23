@@ -730,8 +730,8 @@ class UnassignedAccommodationRequestsBadgeTests(TestSessionTokenMixin, BaseTestC
         self.assertIsNone(self.get_unassigned_badge_value(get_la_user()))
 
 
-UKVI_CHECKS = SponsorshipCertificationForm.UKVI_CHECK_FIELDS
-LA_CHECKS = SponsorshipCertificationForm.LA_CHECK_FIELDS
+UKVI_CHECKS = [check.value for check in SponsorshipCertificationForm.UKVI_CHECK_FIELDS]
+LA_CHECKS = [check.value for check in SponsorshipCertificationForm.LA_CHECK_FIELDS]
 
 WAITING_FOR_UKVI_CHECKS = dict.fromkeys(UKVI_CHECKS + LA_CHECKS, "Not started")
 UKVI_CHECKS_IN_PROGRESS = {**WAITING_FOR_UKVI_CHECKS, UKVI_CHECKS[0]: "Passed"}

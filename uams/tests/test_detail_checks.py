@@ -5,6 +5,7 @@ from django.test import override_settings
 from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
+from ontology.models import SponsorshipCertificationForm
 from ontology.tests.base import UamsBaseTestCase
 from ontology.tests.factories import SponsorshipCertificationFormFactory
 from user_management.tests.base import (
@@ -14,6 +15,9 @@ from user_management.tests.base import (
     get_service_support_user,
     get_ukvi_user,
 )
+
+PreApprovalCheckField = SponsorshipCertificationForm.PreApprovalCheckField
+
 
 UKVI_CARD_HEADING = "UK Visas and Immigration checks"
 LA_CARD_HEADING = "Local authority checks"
@@ -44,40 +48,23 @@ LA_CHECKS_BLOCKED_MESSAGE = (
     "You cannot start local authority checks until all UKVI checks have been passed."
 )
 
-UKVI_FIELDS = (
-    "uk_consent_form_status",
-    "ukraine_consent_form_status",
-    "sponsor_immigration_eligibility_status",
-    "sponsor_household_security_checks_status",
-)
-LA_FIELDS = (
-    "sponsor_household_enhanced_dbs_status",
-    "accommodation_exists_status",
-    "accommodation_suitable_status",
-    "sponsor_role_and_expectations_status",
-    "sponsor_arrangements_suitable_status",
-)
-
 UKVI_CHECK_SLUGS = [
-    "uk-consent-form-status",
-    "ukraine-consent-form-status",
-    "sponsor-immigration-eligibility-status",
-    "sponsor-household-security-checks-status",
+    check.value for check in SponsorshipCertificationForm.UKVI_CHECK_FIELDS
 ]
 LA_CHECK_SLUGS = [
-    "sponsor-household-enhanced-dbs-status",
-    "accommodation-exists-status",
-    "accommodation-suitable-status",
-    "sponsor-role-and-expectations-status",
-    "sponsor-arrangements-suitable-status",
-    "sponsor-certification-code-emailed",
+    check.value for check in SponsorshipCertificationForm.LA_CHECK_FIELDS
+] + [
+    PreApprovalCheckField.SPONSOR_CERTIFICATION_CODE_EMAILED.value,
 ]
 
 
 def check_statuses(ukvi="Passed", la="Passed"):
     return {
-        **{field: ukvi for field in UKVI_FIELDS},
-        **{field: la for field in LA_FIELDS},
+        **{
+            field.value: ukvi
+            for field in SponsorshipCertificationForm.UKVI_CHECK_FIELDS
+        },
+        **{field.value: la for field in SponsorshipCertificationForm.LA_CHECK_FIELDS},
     }
 
 
@@ -237,7 +224,7 @@ class UamChecksViewTests(TestSessionTokenMixin, UamsBaseTestCase):
 
         self.assertTitlesInOrder(la_rows, LA_CHECK_TITLES)
         for (_, href, _), slug in zip(la_rows, LA_CHECK_SLUGS, strict=True):
-            if slug == "sponsor-certification-code-emailed":
+            if slug == PreApprovalCheckField.SPONSOR_CERTIFICATION_CODE_EMAILED.value:
                 self.assertIsNone(href)
             else:
                 self.assertEqual(href, edit_url(uam, slug))

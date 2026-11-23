@@ -7,8 +7,12 @@ CheckStatus = SponsorshipCertificationForm.PreApprovalCheckStatus
 Status = SponsorshipCertificationForm.PreApprovalStatus
 CodeSentStatus = SponsorshipCertificationForm.PreApprovalCheckCodeSentStatus
 
-UKVI_CHECK_FIELDS = SponsorshipCertificationForm.UKVI_CHECK_FIELDS
-LA_CHECK_FIELDS = SponsorshipCertificationForm.LA_CHECK_FIELDS
+UKVI_CHECK_FIELDS = [
+    field.value for field in SponsorshipCertificationForm.UKVI_CHECK_FIELDS
+]
+LA_CHECK_FIELDS = [
+    field.value for field in SponsorshipCertificationForm.LA_CHECK_FIELDS
+]
 PRE_APPROVAL_CHECK_FIELDS = UKVI_CHECK_FIELDS + LA_CHECK_FIELDS
 
 ALL_UKVI_PASSED = dict.fromkeys(UKVI_CHECK_FIELDS, CheckStatus.PASSED)
@@ -232,6 +236,20 @@ class SponsorshipCertificationFormGetCodeSentStatusTests(SimpleTestCase):
             CodeSentStatus.NO_LONGER_NEEDED,
         )
 
+    def test_send_code_no_longer_needed_when_ukvi_checks_failed(self):
+        uam = build_uam(
+            **{
+                **ALL_UKVI_PASSED,
+                **ALL_LA_PASSED,
+                "accommodation_suitable_status": CheckStatus.FAILED,
+            }
+        )
+
+        self.assertEqual(
+            uam.get_pre_approval_check_code_sent_status(),
+            CodeSentStatus.NO_LONGER_NEEDED,
+        )
+
     def test_cannot_send_code_for_other_statuses(self):
         cases = [
             (Status.STATUS_NOT_RECORDED, build_uam()),
@@ -253,16 +271,6 @@ class SponsorshipCertificationFormGetCodeSentStatusTests(SimpleTestCase):
                         **ALL_NOT_STARTED,
                         **ALL_UKVI_PASSED,
                         "accommodation_exists_status": CheckStatus.PASSED,
-                    }
-                ),
-            ),
-            (
-                Status.FAILED_LA_CHECKS,
-                build_uam(
-                    **{
-                        **ALL_UKVI_PASSED,
-                        **ALL_LA_PASSED,
-                        "accommodation_suitable_status": CheckStatus.FAILED,
                     }
                 ),
             ),
