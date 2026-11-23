@@ -887,7 +887,7 @@ class UamsChecksEditView(
 
     @property
     def form_class(self):
-        if self._check_is_for_code_emailed():
+        if self._current_check_is_for_code_sent_status():
             return SponsorCertificationCodeEmailedForm
 
         return PreApprovalCheckStatusForm
@@ -908,7 +908,7 @@ class UamsChecksEditView(
     def page_heading(self):
         return self.object.get_full_name()
 
-    def _check_is_for_code_emailed(self):
+    def _current_check_is_for_code_sent_status(self):
         return self.check is PreApprovalCheckField.SPONSOR_CERTIFICATION_CODE_EMAILED
 
     def _is_ukvi_check(self):
@@ -931,7 +931,7 @@ class UamsChecksEditView(
         ):
             raise Http404("You do not have permission to access this page.")
 
-        if self._check_is_for_code_emailed() and (
+        if self._current_check_is_for_code_sent_status() and (
             pre_approval_status not in PRE_APPROVAL_CODE_SENT_EDITABLE_STATUSES
         ):
             raise Http404("You do not have permission to access this page.")
@@ -943,7 +943,7 @@ class UamsChecksEditView(
 
         value = getattr(self.object, self.check.value)
 
-        if self._check_is_for_code_emailed():
+        if self._current_check_is_for_code_sent_status():
             kwargs["initial"]["status"] = value
         else:
             kwargs["check_label"] = pre_approval_check_status_to_title(self.check)
@@ -966,13 +966,13 @@ class UamsChecksEditView(
                 self._set_success_banner(
                     previous_check_status=(
                         form.initial["status"]
-                        if self._check_is_for_code_emailed()
+                        if self._current_check_is_for_code_sent_status()
                         else PreApprovalCheckStatus(form.initial["status"])
                     ),
                     previous_pre_approval_status=previous_pre_approval_status,
                     current_check_status=(
                         form.cleaned_data["status"]
-                        if self._check_is_for_code_emailed()
+                        if self._current_check_is_for_code_sent_status()
                         else PreApprovalCheckStatus(form.cleaned_data["status"])
                     ),
                     current_pre_approval_status=self.object.get_pre_approval_status(),
@@ -1106,7 +1106,7 @@ class UamsChecksEditView(
 
         # LA changed from complete to not complete
         elif _changed_from(PreApprovalStatus.COMPLETED):
-            if self._check_is_for_code_emailed():
+            if self._current_check_is_for_code_sent_status():
                 heading = "Sponsor certification code marked as not sent"
 
             warning = (
