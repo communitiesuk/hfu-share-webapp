@@ -598,7 +598,7 @@ class ReassignmentRequestDetailView(
                         # new ar resulted from splitting
                         pre_split_ar = ar
                         pre_split_person_id = list(pre_split_ar.person_id or [])
-                        ar = ar.split_guests(guest_ids)
+                        ar = ar.split_guests(guest_ids, author=self.request.user)
                         log_event(
                             "accept_reassignment_request: guests split to new AR",
                             reassignment_request_pk=reassignment_request.pk,
