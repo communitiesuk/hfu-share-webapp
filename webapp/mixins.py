@@ -38,6 +38,7 @@ from ontology.models import (
     MvPerson,
     MvUkPostcode,
     MvVolunteer,
+    SponsorshipCertificationForm,
 )
 from webapp.constants import AUDIT_EVENT_TYPE_ACTION
 from webapp.formatting import format_date_value, to_local_date
@@ -722,6 +723,12 @@ class BaseInteractionTimelineEventsMixin(BaseTimelineEventsMixin):
         elif isinstance(obj, MvAccommodation):
             return MvInteraction.objects.filter(
                 linked_accommodation=obj,
+                created_at__gte=start,
+                created_at__lte=end,
+            )
+        elif isinstance(obj, SponsorshipCertificationForm):
+            return MvInteraction.objects.filter(
+                linked_uam=obj,
                 created_at__gte=start,
                 created_at__lte=end,
             )
