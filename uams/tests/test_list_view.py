@@ -121,6 +121,23 @@ class UamsListViewTestCase(TestSessionTokenMixin, UamsBaseTestCase):
             html=True,
         )
 
+    def test_shows_eligible_child_name_column(self):
+        SponsorshipCertificationFormFactory(
+            uk_consent_form_status="Passed",
+            minor_given_name="David",
+            minor_family_name="Cohen",
+        )
+
+        self.client.force_login(get_admin_user())
+        response = self.client.get(reverse("uams:uams"))
+
+        self.assertContains(response, "Eligible child name")
+        self.assertContains(
+            response,
+            "David Cohen",
+            html=True,
+        )
+
     def test_shows_status_filter_options(self):
         self.client.force_login(get_admin_user())
         response = self.client.get(reverse("uams:uams"))

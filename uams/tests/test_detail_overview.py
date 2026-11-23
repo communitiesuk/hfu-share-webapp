@@ -35,6 +35,8 @@ class UamDetailOverviewViewTests(TestSessionTokenMixin, UamsBaseTestCase):
             reference="000000",
             certificate_reference="111111",
             created_at=datetime(2025, 8, 1, tzinfo=timezone.utc),
+            minor_given_name="David",
+            minor_family_name="Cohen",
         )
 
     def test_renders_correctly(self):
@@ -78,6 +80,7 @@ class UamDetailOverviewViewTests(TestSessionTokenMixin, UamsBaseTestCase):
         self.assertContains(response, "111111")
         self.assertContains(response, "Date created")
         self.assertContains(response, "1 August 2025 at 1:00am")
+        self.assertContains(response, "David Cohen")
 
     def test_shows_status_not_recorded_when_no_checks_recorded(self):
         self.client.force_login(get_admin_user())

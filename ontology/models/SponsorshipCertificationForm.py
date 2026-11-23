@@ -8,7 +8,7 @@ from django.db.models.functions import Concat
 from accounts.models import User
 from ontology.mixins import LocalAuthorityPermissionsManagerMixin
 from ontology.models.MvInteraction import MvInteraction
-from ontology.utils import LinkedRecordData
+from ontology.utils import LinkedRecordData, get_full_name
 
 
 class SponsorshipCertificationFormQuerySet(models.QuerySet):
@@ -32,14 +32,40 @@ class SponsorshipCertificationFormQuerySet(models.QuerySet):
             )
         )
 
+    def with_minor_full_name(self):
+        missing_minor_given_name = Q(minor_given_name__isnull=True) | Q(
+            minor_given_name__exact=""
+        )
+        missing_minor_family_name = Q(minor_family_name__isnull=True) | Q(
+            minor_family_name__exact=""
+        )
+
+        return self.annotate(
+            eligible_child_name=Case(
+                When(
+                    missing_minor_given_name & missing_minor_family_name,
+                    then=Value(None, output_field=models.TextField()),
+                ),
+                default=Concat(
+                    "minor_given_name",
+                    Value(" "),
+                    "minor_family_name",
+                    output_field=models.TextField(),
+                ),
+                output_field=models.TextField(),
+            )
+        )
+
 
 class SponsorshipCertificationFormManager(
     LocalAuthorityPermissionsManagerMixin, models.Manager
 ):
     def get_queryset(self):
-        return SponsorshipCertificationFormQuerySet(
-            self.model, using=self._db
-        ).with_sponsor_full_name()
+        return (
+            SponsorshipCertificationFormQuerySet(self.model, using=self._db)
+            .with_sponsor_full_name()
+            .with_minor_full_name()
+        )
 
     def _filter_by_ltla_name(self, ltla_names: list[str]) -> Q:
         return Q(ltla_name__overlap=ltla_names) & ~Q(ltla_name__contained_by=[])
@@ -603,8 +629,10 @@ class SponsorshipCertificationForm(models.Model):
         verbose_name = "Uam"
 
     def get_full_name(self):
-        name = f"{self.given_name or ''} {self.family_name or ''}".strip()
-        return name or "Unknown"
+        return get_full_name(self.given_name, self.family_name)
+
+    def get_minor_full_name(self):
+        return get_full_name(self.minor_given_name, self.minor_family_name)
 
     def display_link_data(self, linked_from, linked_as) -> LinkedRecordData:
         return LinkedRecordData(

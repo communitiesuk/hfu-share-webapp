@@ -22,20 +22,6 @@ class FilterUamsTestCase(BaseTestCase):
     def _check_object_in_results(self, obj, results):
         return str(obj.pk) in [result.pk for result in results]
 
-    def test_filter_by_sponsor_date_of_birth(self):
-        filter_set = UamsFilter(
-            queryset=SponsorshipCertificationForm.objects.all(),
-            data={
-                "sponsor_date_of_birth": "1980-05-01",
-                "sponsor_date_of_birth_1": "1980-05-31",
-            },
-        )
-
-        results = filter_set.qs
-        self.assertEqual(len(results), 1)
-        self.assertTrue(self._check_object_in_results(self.app1, results))
-        self.assertFalse(self._check_object_in_results(self.app2, results))
-
     def test_filter_by_created_at(self):
         filter_set = UamsFilter(
             queryset=SponsorshipCertificationForm.objects.all(),

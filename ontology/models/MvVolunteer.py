@@ -10,7 +10,7 @@ from ontology.mixins import LocalAuthorityPermissionsManagerMixin
 from ontology.models import CheckType, DevCheckV2
 from ontology.models.DevCheckV2 import validate_safeguarding_status
 from ontology.models.MvPerson import MvPerson
-from ontology.utils import LinkedRecordData
+from ontology.utils import LinkedRecordData, get_full_name
 
 
 def generate_id():
@@ -192,9 +192,7 @@ class MvVolunteer(models.Model):
     is_archived = models.BooleanField(null=False, default=False)
 
     def build_full_name(self):
-        if self.first_name or self.last_name:
-            return (f"{self.first_name or ''} {self.last_name or ''}").strip()
-        return None
+        return get_full_name(self.first_name, self.last_name, None)
 
     def get_full_name(self):
         if self.full_name:

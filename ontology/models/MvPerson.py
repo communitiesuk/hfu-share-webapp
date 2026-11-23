@@ -8,7 +8,7 @@ from django.db.models.functions import Concat
 from accounts.models import User
 from ontology.mixins import LocalAuthorityPermissionsManagerMixin
 from ontology.models import DevCheckV2
-from ontology.utils import LinkedRecordData
+from ontology.utils import LinkedRecordData, get_full_name
 
 
 class MvPersonQuerySet(models.QuerySet):
@@ -316,8 +316,7 @@ class MvPerson(models.Model):
         return today
 
     def get_full_name(self):
-        name = (f"{self.first_name or ''} {self.last_name or ''}").strip()
-        return name or "Unknown"
+        return get_full_name(self.first_name, self.last_name)
 
     def get_initials(self) -> str:
         initials = ""
