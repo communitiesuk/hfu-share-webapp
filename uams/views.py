@@ -5,7 +5,6 @@ from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import Field, Fieldset, Layout
 from crispy_forms_gds.layout.constants import Size
 from django.contrib import messages
-from django.core.exceptions import PermissionDenied
 from django.db import DatabaseError
 from django.db.models import Case, OrderBy, QuerySet, TextField, Value, When
 from django.http import (
@@ -930,12 +929,12 @@ class UamsChecksEditView(
         if (self.check in ukvi_checks and not self.can_edit_ukvi_checks()) or (
             self.check in la_checks and not self.can_edit_la_checks(pre_approval_status)
         ):
-            raise PermissionDenied("You do not have permission to access this page.")
+            raise Http404("You do not have permission to access this page.")
 
         if self._check_is_for_code_emailed() and (
             pre_approval_status not in PRE_APPROVAL_CODE_SENT_EDITABLE_STATUSES
         ):
-            raise PermissionDenied("You do not have permission to access this page.")
+            raise Http404("You do not have permission to access this page.")
 
         return super().dispatch(request, *args, **kwargs)
 

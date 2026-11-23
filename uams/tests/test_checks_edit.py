@@ -234,7 +234,7 @@ class UamChecksEditViewAccessTests(UamChecksEditViewBaseTestCase):
         self.client.force_login(self.ltla_one_a_user)
         response = self.client.get(self.edit_url(self.ready_uam, A_UKVI_SLUG))
 
-        self.assertEqual(response.status_code, http.client.FORBIDDEN)
+        self.assertEqual(response.status_code, http.client.NOT_FOUND)
 
     def test_mhclg_user_can_edit_ukvi_check(self):
         self.client.force_login(get_mhclg_user())
@@ -246,13 +246,13 @@ class UamChecksEditViewAccessTests(UamChecksEditViewBaseTestCase):
         self.client.force_login(get_service_support_user())
         response = self.client.get(self.edit_url(self.ready_uam, A_UKVI_SLUG))
 
-        self.assertEqual(response.status_code, http.client.FORBIDDEN)
+        self.assertEqual(response.status_code, http.client.NOT_FOUND)
 
     def test_da_user_cannot_edit_ukvi_check(self):
         self.client.force_login(get_da_user())
         response = self.client.get(self.edit_url(self.ready_uam_da, A_UKVI_SLUG))
 
-        self.assertEqual(response.status_code, http.client.FORBIDDEN)
+        self.assertEqual(response.status_code, http.client.NOT_FOUND)
 
     def test_la_user_can_edit_la_check_when_status_ready(self):
         self.client.force_login(self.ltla_one_a_user)
@@ -264,7 +264,7 @@ class UamChecksEditViewAccessTests(UamChecksEditViewBaseTestCase):
         self.client.force_login(self.ltla_one_a_user)
         response = self.client.get(self.edit_url(self.not_ready_uam, A_LA_SLUG))
 
-        self.assertEqual(response.status_code, http.client.FORBIDDEN)
+        self.assertEqual(response.status_code, http.client.NOT_FOUND)
 
     def test_dev_user_can_edit_la_check_when_status_ready(self):
         self.client.force_login(get_admin_user())
@@ -282,7 +282,7 @@ class UamChecksEditViewAccessTests(UamChecksEditViewBaseTestCase):
         self.client.force_login(get_ukvi_user())
         response = self.client.get(self.edit_url(self.ready_uam, A_LA_SLUG))
 
-        self.assertEqual(response.status_code, http.client.FORBIDDEN)
+        self.assertEqual(response.status_code, http.client.NOT_FOUND)
 
     def test_mhclg_user_can_edit_la_check(self):
         self.client.force_login(get_mhclg_user())
@@ -303,13 +303,13 @@ class UamChecksEditViewAccessTests(UamChecksEditViewBaseTestCase):
         self.client.force_login(get_admin_user())
         response = self.client.get(self.edit_url(self.ready_uam, CODE_EMAILED_SLUG))
 
-        self.assertEqual(response.status_code, http.client.FORBIDDEN)
+        self.assertEqual(response.status_code, http.client.NOT_FOUND)
 
     def test_la_user_code_emailed_blocked_when_code_cannot_be_sent(self):
         self.client.force_login(self.ltla_one_a_user)
         response = self.client.get(self.edit_url(self.ready_uam, CODE_EMAILED_SLUG))
 
-        self.assertEqual(response.status_code, http.client.FORBIDDEN)
+        self.assertEqual(response.status_code, http.client.NOT_FOUND)
 
     def test_code_emailed_editable_when_all_checks_passed(self):
         self.client.force_login(self.ltla_one_a_user)
