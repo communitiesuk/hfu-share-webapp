@@ -1230,7 +1230,9 @@ class MvAccommodationRequest(models.Model):
         self.is_uam = is_uam
         self.is_uam_edited_time = timezone.now()
 
-    def split_guests(self, guest_ids: list[str]):
+    def split_guests(
+        self, guest_ids: list[str], *, author: User
+    ) -> "MvAccommodationRequest":
         group = self.get_group()
         if group is not None:
             new_group = self.group.split_group(guest_ids)
@@ -1239,6 +1241,8 @@ class MvAccommodationRequest(models.Model):
 
         new_request = deepcopy(self)
         new_request.id = uuid4()
+        new_request.created_at = timezone.now()
+        new_request.created_by = author.email
         new_request.person_id = guest_ids
         new_request.group = new_group
         new_request.update_number_of_people()

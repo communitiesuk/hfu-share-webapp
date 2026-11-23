@@ -1016,7 +1016,9 @@ class AccommodationRequestCloseForGuests(
         if selected_guests and len(accommodation_request.person_id or []) != len(
             selected_guests
         ):
-            accommodation_request = accommodation_request.split_guests(selected_guests)
+            accommodation_request = accommodation_request.split_guests(
+                selected_guests, author=self.request.user
+            )
 
         accommodation_request.update_checks_status(
             MvAccommodationRequest.ChecksStatus.CLOSED_LEFT_PROGRAMME,
@@ -1422,7 +1424,7 @@ class RematchGuestsFormWizard(
                 if len(ar.person_id or []) != len(guests_to_move):
                     pre_split_ar = ar
                     pre_split_person_id = list(pre_split_ar.person_id or [])
-                    ar = ar.split_guests(guest_ids)
+                    ar = ar.split_guests(guest_ids, author=self.request.user)
                     log_event(
                         "rematch_guests: guests split to new AR",
                         original_ar_pk=pre_split_ar.pk,
