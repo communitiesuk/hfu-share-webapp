@@ -929,12 +929,12 @@ class UamsChecksEditView(
         if (self.check in ukvi_checks and not self.can_edit_ukvi_checks()) or (
             self.check in la_checks and not self.can_edit_la_checks(pre_approval_status)
         ):
-            raise Http404("You do not have permission to access this page.")
+            raise Http404("Check not recognised.")
 
         if self._current_check_is_for_code_sent_status() and (
             pre_approval_status not in PRE_APPROVAL_CODE_SENT_EDITABLE_STATUSES
         ):
-            raise Http404("You do not have permission to access this page.")
+            raise Http404("Check not recognised.")
 
         return super().dispatch(request, *args, **kwargs)
 
