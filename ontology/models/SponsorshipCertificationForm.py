@@ -523,17 +523,19 @@ class SponsorshipCertificationForm(models.Model):
 
         return self.PreApprovalCheckCodeSentStatus.CANNOT_SEND_CODE
 
-    def _get_interaction_details_for_update_pre_approval_check_status(
-        self, check: PreApprovalCheckField, check_status: PreApprovalCheckStatus | bool
+    def _get_interaction_details(
+        self,
+        check: PreApprovalCheckField,
+        check_status_or_code_sent: PreApprovalCheckStatus | bool,
     ):
         if check is self.PreApprovalCheckField.SPONSOR_CERTIFICATION_CODE_EMAILED:
             interaction_details = self.PRE_APPROVAL_CHECK_INTERACTION[check][
-                "sent" if check_status else "not_sent"
+                "sent" if check_status_or_code_sent else "not_sent"
             ]
             format_kwargs = {"reference_code": self.certificate_reference}
         else:
             interaction_details = self.PRE_APPROVAL_CHECK_INTERACTION[check]
-            format_kwargs = {"check_status": check_status.lower()}
+            format_kwargs = {"check_status": check_status_or_code_sent.lower()}
 
         return interaction_details["title"], interaction_details["note"].format(
             **format_kwargs
@@ -543,19 +545,17 @@ class SponsorshipCertificationForm(models.Model):
     def update_pre_approval_check_status(
         self,
         check: PreApprovalCheckField,
-        check_status: PreApprovalCheckStatus | bool,
+        check_status_or_code_sent: PreApprovalCheckStatus | bool,
         user: User,
     ):
         if check not in self.PreApprovalCheckField:
             raise ValueError(f"Unknown pre-approval check attribute: {check!r}")
 
-        setattr(self, check.value, check_status)
+        setattr(self, check.value, check_status_or_code_sent)
         self.save(update_fields=[check.value])
 
-        interaction_title, interaction_notes = (
-            self._get_interaction_details_for_update_pre_approval_check_status(
-                check, check_status
-            )
+        interaction_title, interaction_notes = self._get_interaction_details(
+            check, check_status_or_code_sent
         )
 
         MvInteraction.objects.create(

@@ -236,7 +236,7 @@ class SponsorshipCertificationFormGetCodeSentStatusTests(SimpleTestCase):
             CodeSentStatus.NO_LONGER_NEEDED,
         )
 
-    def test_send_code_no_longer_needed_when_ukvi_checks_failed(self):
+    def test_send_code_no_longer_needed_when_la_checks_failed(self):
         uam = build_uam(
             **{
                 **ALL_UKVI_PASSED,
@@ -248,6 +248,35 @@ class SponsorshipCertificationFormGetCodeSentStatusTests(SimpleTestCase):
         self.assertEqual(
             uam.get_pre_approval_check_code_sent_status(),
             CodeSentStatus.NO_LONGER_NEEDED,
+        )
+
+    def test_code_sent_when_ukvi_checks_failed_and_code_sent(self):
+        uam = build_uam(
+            code_emailed=True,
+            **{
+                **ALL_NOT_STARTED,
+                "uk_consent_form_status": CheckStatus.FAILED,
+            },
+        )
+
+        self.assertEqual(
+            uam.get_pre_approval_check_code_sent_status(),
+            CodeSentStatus.CODE_SENT,
+        )
+
+    def test_code_sent_when_la_checks_failed_and_code_sent(self):
+        uam = build_uam(
+            code_emailed=True,
+            **{
+                **ALL_UKVI_PASSED,
+                **ALL_LA_PASSED,
+                "accommodation_suitable_status": CheckStatus.FAILED,
+            },
+        )
+
+        self.assertEqual(
+            uam.get_pre_approval_check_code_sent_status(),
+            CodeSentStatus.CODE_SENT,
         )
 
     def test_cannot_send_code_for_other_statuses(self):
