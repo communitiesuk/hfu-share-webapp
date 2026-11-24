@@ -8,7 +8,7 @@ from webapp.constants import (
     PINK,
     PURPLE,
     RED,
-    TURQUOISE,
+    TEAL,
     YELLOW,
     status_to_tag_colour,
 )
@@ -31,7 +31,7 @@ class StatusToTagColourTest(BaseTestCase):
 
     def test_status_to_tag_colour(self):
         self.assert_status_to_tag_colour("visa_status", "Arrived", GREEN)
-        self.assert_status_to_tag_colour("visa_status", "Issued", TURQUOISE)
+        self.assert_status_to_tag_colour("visa_status", "Issued", TEAL)
         self.assert_status_to_tag_colour("visa_status", "Confirmed", BLUE)
         self.assert_status_to_tag_colour("visa_status", "Flow Visa Pending", PURPLE)
         self.assert_status_to_tag_colour("visa_status", "Pending", YELLOW)
