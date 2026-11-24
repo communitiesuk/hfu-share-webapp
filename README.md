@@ -14,7 +14,7 @@ Django app to manage data for the 'Homes for Ukraine' scheme.
 
 ## Quickstart
 
-For general development, the instructions below are sufficient for running the app.  Refer to other sections of this README for more detailed information.
+For general development, the instructions below are sufficient for running the app. Refer to other sections of this README for more detailed information.
 
 ### Requirements
 
@@ -65,7 +65,7 @@ docker compose run web python manage.py
 
 #### 3. Access at http://localhost:8010
 
-These instructions will get the app running.  You may also want to seed the database. See [seed data](#seed-data).
+These instructions will get the app running. You may also want to seed the database. See [seed data](#seed-data).
 
 ## Database management and seed data
 
