@@ -136,6 +136,9 @@ class SharePage:
     def click_breadcrumb_link(self, link_text: str):
         self.click_link(link_text, element=self.page.locator(".govuk-breadcrumbs"))
 
+    def click_record_tab(self, tab_text: str):
+        self.click_link(tab_text, element=self.page.locator(".moj-side-navigation"))
+
     def click_footer_link(self, link_text: str):
         self.click_link(link_text, element=self.page.locator(".govuk-footer"))
 
