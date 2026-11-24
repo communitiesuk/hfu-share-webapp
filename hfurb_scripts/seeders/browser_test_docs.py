@@ -107,6 +107,9 @@ def _scenario_extras(scenario: dict) -> str:  # noqa: C901
     if scenario.get("make_uam"):
         parts.append("unaccompanied minor (UAM, Flow Visa Pending)")
 
+    if scenario.get("uams_status"):
+        parts.append(f"UAM status: {scenario['uams_status'].label}")
+
     if scenario.get("accommodation_type"):
         parts.append("accommodation type is temporary accommodation")
 

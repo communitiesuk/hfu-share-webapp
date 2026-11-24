@@ -22,3 +22,9 @@ class SeededAccommodationRequest:
     address: str
     sponsor: str
     guest_full_names: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class SeededUam:
+    reference: str
+    sponsor_full_name: str
