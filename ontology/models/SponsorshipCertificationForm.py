@@ -8,28 +8,42 @@ from django.db.models.functions import Concat
 from accounts.models import User
 from ontology.mixins import LocalAuthorityPermissionsManagerMixin
 from ontology.models.MvInteraction import MvInteraction
-from ontology.utils import LinkedRecordData
+from ontology.utils import LinkedRecordData, build_full_name
 
 
 class SponsorshipCertificationFormQuerySet(models.QuerySet):
-    def with_sponsor_full_name(self):
-        missing_given_name = Q(given_name__isnull=True) | Q(given_name__exact="")
-        missing_family_name = Q(family_name__isnull=True) | Q(family_name__exact="")
+    def _with_full_name(self, given_name_attribute, family_name_attribute, annotation):
+        missing_given_name = Q(**{f"{given_name_attribute}__isnull": True}) | Q(
+            **{f"{given_name_attribute}__exact": ""}
+        )
+        missing_family_name = Q(**{f"{family_name_attribute}__isnull": True}) | Q(
+            **{f"{family_name_attribute}__exact": ""}
+        )
 
         return self.annotate(
-            sponsor_full_name=Case(
-                When(
-                    missing_given_name & missing_family_name,
-                    then=Value(None, output_field=models.TextField()),
-                ),
-                default=Concat(
-                    "given_name",
-                    Value(" "),
-                    "family_name",
+            **{
+                annotation: Case(
+                    When(
+                        missing_given_name & missing_family_name,
+                        then=Value(None, output_field=models.TextField()),
+                    ),
+                    default=Concat(
+                        given_name_attribute,
+                        Value(" "),
+                        family_name_attribute,
+                        output_field=models.TextField(),
+                    ),
                     output_field=models.TextField(),
-                ),
-                output_field=models.TextField(),
-            )
+                )
+            }
+        )
+
+    def with_sponsor_full_name(self):
+        return self._with_full_name("given_name", "family_name", "sponsor_full_name")
+
+    def with_minor_full_name(self):
+        return self._with_full_name(
+            "minor_given_name", "minor_family_name", "eligible_child_name"
         )
 
 
@@ -37,9 +51,11 @@ class SponsorshipCertificationFormManager(
     LocalAuthorityPermissionsManagerMixin, models.Manager
 ):
     def get_queryset(self):
-        return SponsorshipCertificationFormQuerySet(
-            self.model, using=self._db
-        ).with_sponsor_full_name()
+        return (
+            SponsorshipCertificationFormQuerySet(self.model, using=self._db)
+            .with_sponsor_full_name()
+            .with_minor_full_name()
+        )
 
     def _filter_by_ltla_name(self, ltla_names: list[str]) -> Q:
         return Q(ltla_name__overlap=ltla_names) & ~Q(ltla_name__contained_by=[])
@@ -603,8 +619,10 @@ class SponsorshipCertificationForm(models.Model):
         verbose_name = "Uam"
 
     def get_full_name(self):
-        name = f"{self.given_name or ''} {self.family_name or ''}".strip()
-        return name or "Unknown"
+        return build_full_name(self.given_name, self.family_name)
+
+    def get_minor_full_name(self):
+        return build_full_name(self.minor_given_name, self.minor_family_name)
 
     def display_link_data(self, linked_from, linked_as) -> LinkedRecordData:
         return LinkedRecordData(

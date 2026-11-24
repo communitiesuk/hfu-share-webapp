@@ -1,5 +1,7 @@
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, TypeVar
+
+T = TypeVar("T")
 
 
 @dataclass
@@ -14,3 +16,10 @@ class LinkedRecordData:
 
     def __post_init__(self) -> None:
         self.title = self.title or "Unknown"
+
+
+def build_full_name(
+    first_name: str | None, family_name: str | None, default_value: str | T = "Unknown"
+) -> str | T:
+    name = f"{first_name or ''} {family_name or ''}".strip()
+    return name or default_value

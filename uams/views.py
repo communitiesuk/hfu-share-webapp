@@ -77,7 +77,6 @@ from webapp.templatetags.tag_renderers import (
     render_app_ukvi_pre_approval_check_status_tag,
 )
 from webapp.utils import (
-    CustomDateColumn,
     CustomDateFromToRangeFilter,
     CustomDateTimeColumn,
     date_hint_text,
@@ -99,14 +98,12 @@ class UamsTable(tables.Table):
     pre_approval_status = Column(
         verbose_name="Application status", accessor="get_pre_approval_status"
     )
-    sponsor_date_of_birth = CustomDateColumn(verbose_name="Sponsor date of birth")
-    email = Column(verbose_name="Email address")
-    identification_type = Column(verbose_name="Identification type")
     identification_number = Column(verbose_name="Identification number")
     residential_postcode = Column(verbose_name="Postcode")
     ltla_name = Column(verbose_name="Local authority")
     reference = Column(verbose_name="Sponsorship certification application number")
     created_at = CustomDateTimeColumn(verbose_name="Created at")
+    eligible_child_name = Column(verbose_name="Eligible child name")
 
     def render_sponsor_full_name(self, record: SponsorshipCertificationForm, value):
         return render_govuk_link(
@@ -139,14 +136,12 @@ class UamsTable(tables.Table):
         fields = (
             "sponsor_full_name",
             "pre_approval_status",
-            "sponsor_date_of_birth",
-            "email",
-            "identification_type",
             "identification_number",
             "residential_postcode",
             "ltla_name",
             "reference",
             "created_at",
+            "eligible_child_name",
         )
 
 
@@ -164,23 +159,6 @@ class UamsFilter(FilterSet, FilterPanelMixin):
         widget=CheckboxSelectMultipleWithTags(
             label_to_tag_colour=pre_approval_status_to_tag_colour
         ),
-    )
-
-    sponsor_date_of_birth = CustomDateFromToRangeFilter(
-        label="Sponsor date of birth",
-        widget=StackedRangeInput(
-            sub_widget=DatePicker,
-            attrs={
-                "from_help_text": date_hint_text(20000),
-                "to_help_text": date_hint_text(9500),
-                "from_label": "Date from",
-                "to_label": "Date to",
-            },
-        ),
-        error_messages={
-            "invalid_range": "'Sponsor date of birth from' must be before "
-            "'Sponsor date of birth to'.",
-        },
     )
 
     created_at = CustomDateFromToRangeFilter(
@@ -227,10 +205,6 @@ class UamsFilter(FilterSet, FilterPanelMixin):
                 css_class="govuk-!-margin-bottom-5",
             ),
             Field(
-                "sponsor_date_of_birth",
-                context={"legend_size": "govuk-fieldset__legend--m"},
-            ),
-            Field(
                 "created_at",
                 context={"legend_size": "govuk-fieldset__legend--m"},
             ),
@@ -242,7 +216,6 @@ class UamsFilter(FilterSet, FilterPanelMixin):
         fields = [
             "search",
             "status",
-            "sponsor_date_of_birth",
             "created_at",
         ]
 
@@ -272,9 +245,6 @@ class UamsListView(
         fields_needed = [
             "given_name",
             "family_name",
-            "sponsor_date_of_birth",
-            "email",
-            "identification_type",
             "identification_number",
             "residential_postcode",
             "ltla_name",
@@ -349,6 +319,12 @@ class UamsDetailOverviewView(
                 render_app_pre_approval_status_tag(
                     self.object.get_pre_approval_status()
                 ),
+            ),
+        )
+        ctx["fields"].append(
+            (
+                "Eligible child name",
+                self.object.get_minor_full_name(),
             ),
         )
         return ctx

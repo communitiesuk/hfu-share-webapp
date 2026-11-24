@@ -13,6 +13,8 @@ class SearchUamsTestCase(BaseTestCase):
             identification_number="12345678",
             ltla_name=["York"],
             reference="UAM-1234",
+            minor_given_name="David",
+            minor_family_name="Cohen",
         )
         self.app2 = SponsorshipCertificationFormFactory(
             given_name="Jane",
@@ -20,6 +22,8 @@ class SearchUamsTestCase(BaseTestCase):
             identification_number="87654321",
             ltla_name=["Manchester"],
             reference="UAM-5678",
+            minor_given_name="Davina",
+            minor_family_name="Cohen",
         )
 
     def _check_object_in_results(self, obj, results):
@@ -36,6 +40,14 @@ class SearchUamsTestCase(BaseTestCase):
     def test_search_by_ltla_name(self):
         results = perform_search(
             "York", SponsorshipCertificationForm.objects.all(), UAMS_SEARCH_FIELDS
+        )
+
+        self.assertTrue(self._check_object_in_results(self.app1, results))
+        self.assertFalse(self._check_object_in_results(self.app2, results))
+
+    def test_search_by_minor_full_name(self):
+        results = perform_search(
+            "David", SponsorshipCertificationForm.objects.all(), UAMS_SEARCH_FIELDS
         )
 
         self.assertTrue(self._check_object_in_results(self.app1, results))

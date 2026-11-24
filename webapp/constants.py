@@ -410,6 +410,7 @@ UAMS_SEARCH_FIELDS: list[str] = [
     "identification_number",
     "ltla_name",
     "reference",
+    "eligible_child_name",
 ]
 
 APP_TABLE_TD_CLASSES = "govuk-table__cell govuk-body-s govuk-!-margin-0 app-table--td"
