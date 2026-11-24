@@ -6,7 +6,11 @@ from django.db.models import QuerySet
 from accounts.enums import GroupType
 from accounts.tests.factories import GroupFactory, UserFactory
 from ontology.mixins import DaViewerGroupNames
-from ontology.models import MvAccommodation, MvVolunteer
+from ontology.models import (
+    MvAccommodation,
+    MvVolunteer,
+    SponsorshipCertificationForm,
+)
 from ontology.tests.factories import (
     MvAccommodationFactory,
     MvAccommodationRequestFactory,
@@ -18,6 +22,12 @@ from ontology.tests.factories import (
     VisaApplicationFactory,
 )
 from test_utils.base import BaseTestCase
+
+NO_CHECKS_RECORDED = dict.fromkeys(
+    field.value
+    for field in SponsorshipCertificationForm.UKVI_CHECK_FIELDS
+    + SponsorshipCertificationForm.LA_CHECK_FIELDS
+)
 
 
 def create_mock_queryset(result: list) -> QuerySet:
@@ -935,29 +945,34 @@ class UamsBaseTestCase(LocalAuthorityBaseTestCaseMixin):
             reference="SPON-1",
             ltla_name=[self.ltla_one_a_name],
             utla_name=[self.utla_one_name],
+            **NO_CHECKS_RECORDED,
         )
         self.ltla_two_a_uam = SponsorshipCertificationFormFactory(
             reference="SPON-2",
             ltla_name=[self.ltla_two_a_name],
             utla_name=[self.utla_two_name],
+            **NO_CHECKS_RECORDED,
         )
 
         self.scotland_da_uam = SponsorshipCertificationFormFactory(
             reference="SPON-3",
             ltla_name=["Aberdeenshire"],
             utla_name=["Aberdeenshire"],
+            **NO_CHECKS_RECORDED,
         )
 
         self.multiple_ltlas = SponsorshipCertificationFormFactory(
             reference="SPON-4",
             ltla_name=[self.ltla_one_a_name, self.ltla_one_b_name],
             utla_name=[self.utla_one_name],
+            **NO_CHECKS_RECORDED,
         )
 
         self.multiple_utlas = SponsorshipCertificationFormFactory(
             reference="SPON-5",
             ltla_name=[self.ltla_two_a_name],
             utla_name=[self.utla_one_name, self.utla_two_name],
+            **NO_CHECKS_RECORDED,
         )
 
         self.all_uams = [

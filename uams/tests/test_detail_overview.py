@@ -5,7 +5,7 @@ from django.urls import reverse
 
 from accounts.tests.base import TestSessionTokenMixin
 from ontology.models import SponsorshipCertificationForm
-from ontology.tests.base import UamsBaseTestCase
+from ontology.tests.base import NO_CHECKS_RECORDED, UamsBaseTestCase
 from ontology.tests.factories import SponsorshipCertificationFormFactory
 from user_management.tests.base import (
     get_admin_user,
@@ -34,6 +34,7 @@ class UamDetailOverviewViewTests(TestSessionTokenMixin, UamsBaseTestCase):
             ltla_name=["Test"],
             reference="000000",
             certificate_reference="111111",
+            **NO_CHECKS_RECORDED,
             created_at=datetime(2025, 8, 1, tzinfo=timezone.utc),
         )
 

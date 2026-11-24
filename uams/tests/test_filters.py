@@ -1,4 +1,5 @@
 from ontology.models import SponsorshipCertificationForm
+from ontology.tests.base import NO_CHECKS_RECORDED
 from ontology.tests.factories import SponsorshipCertificationFormFactory
 from test_utils.base import BaseTestCase
 from uams.views import UamsFilter
@@ -11,12 +12,14 @@ class FilterUamsTestCase(BaseTestCase):
             family_name="Doe",
             sponsor_date_of_birth="1980-05-15",
             created_at="2025-08-01T00:00:00Z",
+            **NO_CHECKS_RECORDED,
         )
         self.app2 = SponsorshipCertificationFormFactory(
             given_name="Jane",
             family_name="Doe",
             sponsor_date_of_birth="1980-06-15",
             created_at="2025-09-01T00:00:00Z",
+            **NO_CHECKS_RECORDED,
         )
 
     def _check_object_in_results(self, obj, results):
