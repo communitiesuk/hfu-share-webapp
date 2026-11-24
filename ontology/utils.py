@@ -18,7 +18,7 @@ class LinkedRecordData:
         self.title = self.title or "Unknown"
 
 
-def get_full_name(
+def build_full_name(
     first_name: str | None, family_name: str | None, default_value: str | T = "Unknown"
 ) -> str | T:
     name = f"{first_name or ''} {family_name or ''}".strip()

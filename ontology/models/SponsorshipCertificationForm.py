@@ -8,7 +8,7 @@ from django.db.models.functions import Concat
 from accounts.models import User
 from ontology.mixins import LocalAuthorityPermissionsManagerMixin
 from ontology.models.MvInteraction import MvInteraction
-from ontology.utils import LinkedRecordData, get_full_name
+from ontology.utils import LinkedRecordData, build_full_name
 
 
 class SponsorshipCertificationFormQuerySet(models.QuerySet):
@@ -629,10 +629,10 @@ class SponsorshipCertificationForm(models.Model):
         verbose_name = "Uam"
 
     def get_full_name(self):
-        return get_full_name(self.given_name, self.family_name)
+        return build_full_name(self.given_name, self.family_name)
 
     def get_minor_full_name(self):
-        return get_full_name(self.minor_given_name, self.minor_family_name)
+        return build_full_name(self.minor_given_name, self.minor_family_name)
 
     def display_link_data(self, linked_from, linked_as) -> LinkedRecordData:
         return LinkedRecordData(
