@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.33.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.32.0...2.33.0) (2026-11-24)
+
+
+### Features
+
+* [migration] add eligible child edit flag option to guests edit form for ops users (HFURB-4277) ([#349](https://github.com/communitiesuk/hfu-share-webapp/issues/349)) ([b93391f](https://github.com/communitiesuk/hfu-share-webapp/commit/b93391feb1ba31ba29ac0265e265d869240061f9))
+* add history view for ATSAC (HFURB-4275) ([#355](https://github.com/communitiesuk/hfu-share-webapp/issues/355)) ([f3a4dff](https://github.com/communitiesuk/hfu-share-webapp/commit/f3a4dff4946ec71fc496705c482a1a74b143035f))
+* ARs created from a partial split gain new created_at and created_by values (HFURB-4397) ([#358](https://github.com/communitiesuk/hfu-share-webapp/issues/358)) ([bfd78b3](https://github.com/communitiesuk/hfu-share-webapp/commit/bfd78b3ffdd362db5d90de92099a6aaa00075e4a))
+* HFURB-4275 add the forms for the status checks ([#353](https://github.com/communitiesuk/hfu-share-webapp/issues/353)) ([ba24bf7](https://github.com/communitiesuk/hfu-share-webapp/commit/ba24bf7a61fc51e0687500433f7a50b543500eec))
+* HFURB-4330 remove old properties and add Eligible child name to the list view and the overview ([#359](https://github.com/communitiesuk/hfu-share-webapp/issues/359)) ([10c7946](https://github.com/communitiesuk/hfu-share-webapp/commit/10c79462660325b6fe917666cd04af67a3c7b119))
+
+
+### Bug Fixes
+
+* stop assigning an LA from moving records already in another LA ([#352](https://github.com/communitiesuk/hfu-share-webapp/issues/352)) ([42bbebd](https://github.com/communitiesuk/hfu-share-webapp/commit/42bbebd02dc5b6282c69fa064f62ac2026227c29))
+
 ## [2.32.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.31.0...2.32.0) (2026-11-19)
 
 
