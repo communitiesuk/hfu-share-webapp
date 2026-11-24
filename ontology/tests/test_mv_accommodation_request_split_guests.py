@@ -1,5 +1,9 @@
 from datetime import datetime, timedelta
+from datetime import timezone as dt_timezone
 
+from django.utils import timezone
+
+from accounts.tests.factories import UserFactory
 from ontology.models import MvPerson
 from ontology.tests.factories import (
     MvAccommodationFactory,
@@ -37,7 +41,9 @@ class MvAccommodationRequestSplitGuestsTest(BaseTestCase):
             primary_accommodation=accommodation,
         )
 
-        new_request = accommodation_request.split_guests([guest2.id])
+        new_request = accommodation_request.split_guests(
+            [guest2.id], author=UserFactory()
+        )
 
         # check new request is created
         self.assertNotEqual(new_request.id, accommodation_request.id)
@@ -91,7 +97,9 @@ class MvAccommodationRequestSplitGuestsTest(BaseTestCase):
         )
 
         # Split ar guests
-        new_request = accommodation_request.split_guests([guest3.id])
+        new_request = accommodation_request.split_guests(
+            [guest3.id], author=UserFactory()
+        )
         accommodation_request.refresh_from_db()
 
         self.assertNotEqual(new_request.id, accommodation_request.id)
@@ -124,7 +132,9 @@ class MvAccommodationRequestSplitGuestsTest(BaseTestCase):
         )
 
         # Split guests
-        new_request = accommodation_request.split_guests([guest2.id])
+        new_request = accommodation_request.split_guests(
+            [guest2.id], author=UserFactory()
+        )
 
         accommodation_request.refresh_from_db()
         guest1.refresh_from_db()
@@ -171,10 +181,81 @@ class MvAccommodationRequestSplitGuestsTest(BaseTestCase):
             edited_in_app=False
         )
 
-        accommodation_request.split_guests([guest2.id])
+        accommodation_request.split_guests([guest2.id], author=UserFactory())
 
         guest2.refresh_from_db()
         guest1.refresh_from_db()
 
         self.assertTrue(guest2.edited_in_app)
         self.assertFalse(guest1.edited_in_app)
+
+    def test_split_guests_sets_created_at_and_created_by_on_new_ar(self):
+        guest1 = MvPersonFactory(first_name="Guest1")
+        guest2 = MvPersonFactory(first_name="Guest2")
+        original_created_at = datetime(2022, 3, 1, tzinfo=dt_timezone.utc)
+        accommodation_request = MvAccommodationRequestFactory(
+            person_id=[guest1.id, guest2.id],
+            created_at=original_created_at,
+            created_by="test",
+        )
+        author = UserFactory()
+
+        before_split = timezone.now()
+        new_request = accommodation_request.split_guests([guest2.id], author=author)
+
+        new_request.refresh_from_db()
+        accommodation_request.refresh_from_db()
+        self.assertGreaterEqual(new_request.created_at, before_split)
+        self.assertEqual(new_request.created_by, author.email)
+        self.assertEqual(accommodation_request.created_at, original_created_at)
+        self.assertEqual(accommodation_request.created_by, "test")
+
+
+class MvAccommodationRequestSplitGuestsIsUamTest(BaseTestCase):
+    def setUp(self):
+        super().setUp()
+        self.child = MvPersonFactory(first_name="Child", is_uam=True)
+        self.sibling = MvPersonFactory(first_name="Sibling", is_uam=False)
+        self.accommodation_request = MvAccommodationRequestFactory(
+            person_id=[self.child.id, self.sibling.id],
+            is_uam=True,
+            is_uam_edited_time=None,
+        )
+
+    def test_moving_non_uam_guest_unflags_new_ar(self):
+        new_request = self.accommodation_request.split_guests(
+            [self.sibling.id], author=UserFactory()
+        )
+
+        new_request.refresh_from_db()
+        self.accommodation_request.refresh_from_db()
+        self.assertFalse(new_request.is_uam)
+        self.assertIsNotNone(new_request.is_uam_edited_time)
+        self.assertTrue(self.accommodation_request.is_uam)
+        self.assertIsNone(self.accommodation_request.is_uam_edited_time)
+
+    def test_moving_uam_guest_unflags_original_ar(self):
+        new_request = self.accommodation_request.split_guests(
+            [self.child.id], author=UserFactory()
+        )
+
+        new_request.refresh_from_db()
+        self.accommodation_request.refresh_from_db()
+        self.assertTrue(new_request.is_uam)
+        self.assertFalse(self.accommodation_request.is_uam)
+        self.assertIsNotNone(self.accommodation_request.is_uam_edited_time)
+
+    def test_moving_uam_guest_flags_new_ar_when_original_was_not_flagged(self):
+        self.accommodation_request.is_uam = None
+        self.accommodation_request.save()
+
+        new_request = self.accommodation_request.split_guests(
+            [self.child.id], author=UserFactory()
+        )
+
+        new_request.refresh_from_db()
+        self.accommodation_request.refresh_from_db()
+        self.assertTrue(new_request.is_uam)
+        self.assertIsNotNone(new_request.is_uam_edited_time)
+        self.assertFalse(self.accommodation_request.is_uam)
+        self.assertIsNotNone(self.accommodation_request.is_uam_edited_time)

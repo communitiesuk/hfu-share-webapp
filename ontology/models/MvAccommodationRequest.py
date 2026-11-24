@@ -341,13 +341,13 @@ class MvAccommodationRequest(models.Model):
         null=True, blank=True, db_column="edited_end_date_at"
     )
     is_uam = models.BooleanField(
-        null=True, blank=True, db_column="is_uam", verbose_name="Is UAM"
+        null=True, blank=True, db_column="is_uam", verbose_name="Eligible child (UAM)"
     )
     is_uam_edited_time = models.DateTimeField(
         null=True,
         blank=True,
         db_column="is_uam_edited_time",
-        verbose_name="Is UAM edited time",
+        verbose_name="Eligible child (UAM) edited time",
     )
     expected_check_in_date_confirmed = models.BooleanField(
         null=True, blank=True, db_column="expected_check_in_date_confirmed"
@@ -1222,7 +1222,17 @@ class MvAccommodationRequest(models.Model):
     def update_number_of_people(self):
         self.number_of_people = len(self.person_id)
 
-    def split_guests(self, guest_ids: list[str]):
+    def update_is_uam(self) -> None:
+        is_uam = any(guest.is_uam for guest in self.get_people())
+        if self.is_uam is is_uam:
+            return
+
+        self.is_uam = is_uam
+        self.is_uam_edited_time = timezone.now()
+
+    def split_guests(
+        self, guest_ids: list[str], *, author: User
+    ) -> "MvAccommodationRequest":
         group = self.get_group()
         if group is not None:
             new_group = self.group.split_group(guest_ids)
@@ -1231,11 +1241,14 @@ class MvAccommodationRequest(models.Model):
 
         new_request = deepcopy(self)
         new_request.id = uuid4()
+        new_request.created_at = timezone.now()
+        new_request.created_by = author.email
         new_request.person_id = guest_ids
         new_request.group = new_group
         new_request.update_number_of_people()
         new_request.update_primary_contact(new_request.get_primary_contact_person())
         new_request.update_title()
+        new_request.update_is_uam()
         new_request.save()
 
         # Link guests to new ar
@@ -1249,6 +1262,7 @@ class MvAccommodationRequest(models.Model):
         self.update_number_of_people()
         self.update_primary_contact(self.get_primary_contact_person())
         self.update_title()
+        self.update_is_uam()
         self.save()
 
         return new_request

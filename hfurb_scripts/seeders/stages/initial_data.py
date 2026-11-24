@@ -11,7 +11,7 @@ from hfurb_scripts.seeders.mutators import (
     mutate_closed_left_programme,
     mutate_rematch_required,
 )
-from ontology.models import MvAccommodationRequest
+from ontology.models import MvAccommodationRequest, SponsorshipCertificationForm
 
 SEEDING_COUNT = int(os.environ.get("SEEDING_COUNT", 250))
 
@@ -39,6 +39,18 @@ def seed_initial_data():
         MvAccommodationRequest.ChecksStatus.REMATCH_REQUIRED: 5,
     }
 
+    uam_statuses = {
+        SponsorshipCertificationForm.PreApprovalStatus.WAITING_FOR_UKVI_CHECKS: 20,
+        SponsorshipCertificationForm.PreApprovalStatus.UKVI_CHECKS_IN_PROGRESS: 5,
+        SponsorshipCertificationForm.PreApprovalStatus.FAILED_UKVI_CHECKS: 5,
+        SponsorshipCertificationForm.PreApprovalStatus.WAITING_FOR_LA_CHECKS: 20,
+        SponsorshipCertificationForm.PreApprovalStatus.LA_CHECKS_IN_PROGRESS: 5,
+        SponsorshipCertificationForm.PreApprovalStatus.FAILED_LA_CHECKS: 5,
+        SponsorshipCertificationForm.PreApprovalStatus.PASSED_ALL_CHECKS: 10,
+        SponsorshipCertificationForm.PreApprovalStatus.COMPLETED: 5,
+        SponsorshipCertificationForm.PreApprovalStatus.STATUS_NOT_RECORDED: 20,
+    }
+
     with transaction.atomic():
         for i in range(SEEDING_COUNT):
             # Randomly select parameters
@@ -55,12 +67,18 @@ def seed_initial_data():
                 list(checks_statuses.keys()), weights=list(checks_statuses.values())
             )[0]
 
+            # Randomly select UAM status
+            uams_status = choices(
+                list(uam_statuses.keys()), weights=list(uam_statuses.values())
+            )[0]
+
             # Create accommodation request
             ar = build_complete_accommodation_scenario(
                 num_guests=num_guests,
                 ltla_name=ltla_name,
                 visa_statuses=visa_statuses,
                 checks_status=checks_status,
+                uams_status=uams_status,
             )
 
             # Mutate the accommodation request

@@ -109,7 +109,7 @@ class MvPerson(models.Model):
         null=True, blank=True, db_column="disability_flag"
     )
     is_uam = models.BooleanField(
-        null=True, blank=True, db_column="is_uam", verbose_name="Eligible minor"
+        null=True, blank=True, db_column="is_uam", verbose_name="Eligible child (UAM)"
     )
     email = ArrayField(models.TextField(), null=True, blank=True, db_column="email")
     email_after_decision = ArrayField(
@@ -159,7 +159,10 @@ class MvPerson(models.Model):
     id = models.TextField(primary_key=True, db_column="id", verbose_name="ID")
     is_principal = models.BooleanField(null=True, blank=True, db_column="is_principal")
     is_uam_edited_time = models.DateTimeField(
-        null=True, blank=True, db_column="is_uam_edited_time"
+        null=True,
+        blank=True,
+        db_column="is_uam_edited_time",
+        verbose_name="Eligible child (UAM) edited time",
     )
     last_edited_at = models.DateTimeField(
         null=True, blank=True, db_column="last_edited_at"
@@ -339,6 +342,16 @@ class MvPerson(models.Model):
     def save(self, *args, **kwargs):
         self.edited_in_app = True
         super(MvPerson, self).save(*args, **kwargs)
+
+    def update_is_uam_on_accommodation_request(self, edited_at: datetime) -> None:
+        ar = self.accommodation_request
+        if ar is None:
+            return
+
+        other_guests = [guest for guest in ar.get_people() if guest.pk != self.pk]
+        ar.is_uam = bool(self.is_uam) or any(guest.is_uam for guest in other_guests)
+        ar.is_uam_edited_time = edited_at
+        ar.save(update_fields=["is_uam", "is_uam_edited_time", "edited_in_app"])
 
     def update_primary_contact_on_linked_objects(self):
         if self.group.is_primary_contact(self):

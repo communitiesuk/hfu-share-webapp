@@ -1,5 +1,47 @@
 # Changelog
 
+## [2.32.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.31.0...2.32.0) (2026-11-19)
+
+
+### Features
+
+* AR uam status is recalculated during rematch and reassign if new AR was created ([#350](https://github.com/communitiesuk/hfu-share-webapp/issues/350)) ([6c04d35](https://github.com/communitiesuk/hfu-share-webapp/commit/6c04d359f0cb8ea812286fd413cea538fd299ee0))
+* HFURB-4275 add method and interaction for updating the uam ([#345](https://github.com/communitiesuk/hfu-share-webapp/issues/345)) ([9ff52f0](https://github.com/communitiesuk/hfu-share-webapp/commit/9ff52f0eb203ff818c0ec8d1534ab15754bfec05))
+* HFURB-4275 add the summary page for the UAM checks ([#341](https://github.com/communitiesuk/hfu-share-webapp/issues/341)) ([4dfde7f](https://github.com/communitiesuk/hfu-share-webapp/commit/4dfde7faae1fc618d200eaaea0e15469e68dff45))
+* HFURB-4381 add feature flag for the UAMs checks work ([#343](https://github.com/communitiesuk/hfu-share-webapp/issues/343)) ([a337596](https://github.com/communitiesuk/hfu-share-webapp/commit/a337596c844bd6b404b9bf35ca811b21242cee50))
+
+## [2.31.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.30.0...2.31.0) (2026-11-17)
+
+
+### Features
+
+* [migration] add new checks fields to sponshorship cert form (HFURB-4271) ([#324](https://github.com/communitiesuk/hfu-share-webapp/issues/324)) ([3c4ea33](https://github.com/communitiesuk/hfu-share-webapp/commit/3c4ea33ab06394d88be83fdd9fe15800d46e6ee8))
+* add application status tag to overview (HFURB-4273) ([#328](https://github.com/communitiesuk/hfu-share-webapp/issues/328)) ([b0d9be5](https://github.com/communitiesuk/hfu-share-webapp/commit/b0d9be59086becd9f3ead0a63fb6e9b5f6979b48))
+* add application status to ATSAC list view and filters (HFURB-4274) ([#329](https://github.com/communitiesuk/hfu-share-webapp/issues/329)) ([ec337a1](https://github.com/communitiesuk/hfu-share-webapp/commit/ec337a14c8ebae07549b0b4e3dc333b10b9d6e67))
+* add counter to ATSAC tile (HFURB-4272) ([#331](https://github.com/communitiesuk/hfu-share-webapp/issues/331)) ([53efa9c](https://github.com/communitiesuk/hfu-share-webapp/commit/53efa9c22aaf551e31005bc2b63cc1f1f0d67366))
+* add EOI explainer and add EOI host to sponsor properties tab (HFURB-3996) ([#339](https://github.com/communitiesuk/hfu-share-webapp/issues/339)) ([41cf328](https://github.com/communitiesuk/hfu-share-webapp/commit/41cf328237985c3f03c14ffe0037d82ccd83c17e))
+* remove extra button under side nav on record overviews ([#336](https://github.com/communitiesuk/hfu-share-webapp/issues/336)) ([f62318e](https://github.com/communitiesuk/hfu-share-webapp/commit/f62318ea3ce161f0d06cbf9fcef8110126c46d19))
+
+
+### Bug Fixes
+
+* filter duplicate accommodations from primary sponsor options ([#342](https://github.com/communitiesuk/hfu-share-webapp/issues/342)) ([de4ceb1](https://github.com/communitiesuk/hfu-share-webapp/commit/de4ceb1aff8ee904fad4ce78e85051c0cfb00711))
+* filter duplicate accommodations from rematch options ([#340](https://github.com/communitiesuk/hfu-share-webapp/issues/340)) ([c248e00](https://github.com/communitiesuk/hfu-share-webapp/commit/c248e00e21ac9420a3b1544768a49db322a0d2d6))
+
+## [2.30.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.29.0...2.30.0) (2026-11-11)
+
+
+### Features
+
+* HFURB-2853 switch record pages to side navigation ([#276](https://github.com/communitiesuk/hfu-share-webapp/issues/276)) ([28b5ad7](https://github.com/communitiesuk/hfu-share-webapp/commit/28b5ad7c23a7e2eee9097c8c6025e1cfe1fe626d))
+* HFURB-4267 add some text related to DBS checks to explain them a bit more ([#321](https://github.com/communitiesuk/hfu-share-webapp/issues/321)) ([5a15146](https://github.com/communitiesuk/hfu-share-webapp/commit/5a15146617bbed8e9eee909c8736e812515581d5))
+* HFURB-4309 update the layout of filters to match MOJ Frontend recommendations ([#280](https://github.com/communitiesuk/hfu-share-webapp/issues/280)) ([cae9f2c](https://github.com/communitiesuk/hfu-share-webapp/commit/cae9f2cedaf7701f5e5de1a6925cf1e15bab89ba))
+
+
+### Bug Fixes
+
+* HFURB-2853 use fetch to reload the content of the page and maintain the location ([#291](https://github.com/communitiesuk/hfu-share-webapp/issues/291)) ([29707c5](https://github.com/communitiesuk/hfu-share-webapp/commit/29707c5a3205c8fc3472eebb4b9baf77dc817862))
+
 ## [2.29.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.28.0...2.29.0) (2026-11-10)
 
 

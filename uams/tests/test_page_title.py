@@ -31,6 +31,11 @@ class UAMSPageTitlesTestCase(TestSessionTokenMixin, BaseTestCase):
                 f"{self.service_name} - GOV.UK",
             ),
             (
+                "uams:detail-checks",
+                f"Applications to sponsor a child: TU, Checks - "
+                f"{self.service_name} - GOV.UK",
+            ),
+            (
                 "uams:detail-properties",
                 f"Applications to sponsor a child: TU, Properties"
                 f" - {self.service_name} - GOV.UK",

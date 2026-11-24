@@ -1,5 +1,5 @@
 # Multilayer build to install UV
-FROM python:3.13.18-alpine3.24@sha256:1e1f6334529d1fb26a2ef619d7cffb30a7c7d7cc1cc7338ebee283a58d1aeaca AS builder
+FROM python:3.13.18-alpine3.24@sha256:9ef1a599f863231c3d91e941389bfdc4a2d6070557243d54df1a4e57015b960e AS builder
 
 COPY --from=docker.io/astral/uv:0.13.5@sha256:32a7bb39b496babbd997b0a39a4d66c126bdaf5661b302bf6f06abda8deca6ff /uv /uvx /bin/
 
@@ -25,7 +25,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     UV_INDEX_CODEARTIFACT_PASSWORD="$(cat /run/secrets/codeartifact_token)" \
     uv sync --frozen --no-install-project --no-dev
 
-FROM python:3.13.18-alpine3.24@sha256:1e1f6334529d1fb26a2ef619d7cffb30a7c7d7cc1cc7338ebee283a58d1aeaca
+FROM python:3.13.18-alpine3.24@sha256:9ef1a599f863231c3d91e941389bfdc4a2d6070557243d54df1a4e57015b960e
 
 # Update alpine dependency library and add curl for healthchecks
 RUN apk add --update --no-cache curl=8.23.0-r0

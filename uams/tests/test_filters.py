@@ -49,3 +49,37 @@ class FilterUamsTestCase(BaseTestCase):
         self.assertEqual(len(results), 1)
         self.assertFalse(self._check_object_in_results(self.app1, results))
         self.assertTrue(self._check_object_in_results(self.app2, results))
+
+    def test_filter_by_status(self):
+        in_progress = SponsorshipCertificationFormFactory(
+            uk_consent_form_status="Passed"
+        )
+        failed = SponsorshipCertificationFormFactory(uk_consent_form_status="Failed")
+
+        filter_set = UamsFilter(
+            queryset=SponsorshipCertificationForm.objects.all(),
+            data={"status": ["UKVI checks in progress"]},
+        )
+
+        results = filter_set.qs
+        self.assertEqual(len(results), 1)
+        self.assertTrue(self._check_object_in_results(in_progress, results))
+        self.assertFalse(self._check_object_in_results(failed, results))
+
+    def test_filter_by_multiple_statuses(self):
+        in_progress = SponsorshipCertificationFormFactory(
+            uk_consent_form_status="Passed"
+        )
+        failed = SponsorshipCertificationFormFactory(uk_consent_form_status="Failed")
+
+        filter_set = UamsFilter(
+            queryset=SponsorshipCertificationForm.objects.all(),
+            data={"status": ["UKVI checks in progress", "Status not recorded"]},
+        )
+
+        results = filter_set.qs
+        self.assertEqual(len(results), 3)
+        self.assertTrue(self._check_object_in_results(in_progress, results))
+        self.assertTrue(self._check_object_in_results(self.app1, results))
+        self.assertTrue(self._check_object_in_results(self.app2, results))
+        self.assertFalse(self._check_object_in_results(failed, results))

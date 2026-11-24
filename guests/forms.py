@@ -16,6 +16,8 @@ GENDERS = (
     ("Male", "Male"),
 )
 
+IS_UAM_LABEL = "Eligible child (UAM)"
+
 
 class GuestBaseForm(ReadOnlyFieldsMixin, forms.ModelForm):
     class Meta:
@@ -130,6 +132,11 @@ class GuestEditForm(GuestBaseForm):
             Field.text("first_name", legend_size=Size.SMALL, label_size=Size.SMALL),
             Field.text("last_name", legend_size=Size.SMALL, label_size=Size.SMALL),
             Field.text("date_of_birth", legend_size=Size.SMALL, label_size=Size.SMALL),
+            *(
+                [Field.radios("is_uam", legend_size=Size.SMALL)]
+                if "is_uam" in self.fields
+                else []
+            ),
             Field(
                 "gender",
                 context={"label_size": "govuk-fieldset__legend--s"},
@@ -181,6 +188,22 @@ class UPEVisaStatusFieldMixin:
         }
 
 
+class IsUamFieldMixin:
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["is_uam"] = forms.TypedChoiceField(
+            label=IS_UAM_LABEL,
+            required=False,
+            empty_value=None,
+            help_text=(
+                "Is the guest an eligible child travelling without a parent or "
+                "guardian?"
+            ),
+            choices=((True, "Yes"), (False, "No")),
+            widget=forms.RadioSelect(),
+        )
+
+
 class GuestEditUKVIForm(UPEVisaStatusFieldMixin, GuestBaseForm):
     class Meta:
         model = MvPerson
@@ -202,9 +225,14 @@ class GuestEditUKVIForm(UPEVisaStatusFieldMixin, GuestBaseForm):
         )
 
 
-class GuestEditAdminForm(UPEVisaStatusFieldMixin, GuestEditForm):
+class GuestEditMHCLGForm(IsUamFieldMixin, GuestEditForm):
     class Meta(GuestEditForm.Meta):
-        fields = GuestEditForm.Meta.fields + ["upe_visa_status"]
+        fields = GuestEditForm.Meta.fields + ["is_uam"]
+
+
+class GuestEditAdminForm(IsUamFieldMixin, UPEVisaStatusFieldMixin, GuestEditForm):
+    class Meta(GuestEditForm.Meta):
+        fields = GuestEditForm.Meta.fields + ["upe_visa_status", "is_uam"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

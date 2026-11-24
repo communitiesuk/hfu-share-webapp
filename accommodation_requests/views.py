@@ -1016,7 +1016,9 @@ class AccommodationRequestCloseForGuests(
         if selected_guests and len(accommodation_request.person_id or []) != len(
             selected_guests
         ):
-            accommodation_request = accommodation_request.split_guests(selected_guests)
+            accommodation_request = accommodation_request.split_guests(
+                selected_guests, author=self.request.user
+            )
 
         accommodation_request.update_checks_status(
             MvAccommodationRequest.ChecksStatus.CLOSED_LEFT_PROGRAMME,
@@ -1422,7 +1424,7 @@ class RematchGuestsFormWizard(
                 if len(ar.person_id or []) != len(guests_to_move):
                     pre_split_ar = ar
                     pre_split_person_id = list(pre_split_ar.person_id or [])
-                    ar = ar.split_guests(guest_ids)
+                    ar = ar.split_guests(guest_ids, author=self.request.user)
                     log_event(
                         "rematch_guests: guests split to new AR",
                         original_ar_pk=pre_split_ar.pk,
@@ -1829,7 +1831,9 @@ class SelectPrimaryAccommodationAndHostWizard(
         match step:
             case SelectPrimaryAccommodationAndHostSteps.ACCOMMODATION:
                 kwargs["accommodations"] = (
-                    self.object.get_accommodations_restrict_for_user(self.request.user)
+                    self.object.get_accommodations_restrict_for_user(
+                        self.request.user
+                    ).exclude(is_principal=False)
                 )
             case SelectPrimaryAccommodationAndHostSteps.HOST:
                 accommodation_step_data = (
@@ -1840,9 +1844,9 @@ class SelectPrimaryAccommodationAndHostWizard(
                 )
                 accommodation_id = accommodation_step_data.get("accommodation")
                 kwargs["hosts"] = (
-                    MvAccommodation.objects.get(
-                        id=accommodation_id
-                    ).get_hosts_restrict_for_user(self.request.user)
+                    MvAccommodation.objects.get(id=accommodation_id)
+                    .get_hosts_restrict_for_user(self.request.user)
+                    .exclude(is_principal=False)
                     if accommodation_id
                     else MvVolunteer.objects.none()
                 )
@@ -2005,7 +2009,7 @@ class RematchSelectAccommodationFormStepView(
 
     def get_queryset(self):
         qs = super().get_queryset()
-        return qs.filter(ltla_name__in=self.ltla or [])
+        return qs.filter(ltla_name__in=self.ltla or [], is_principal=True)
 
     def get_context_data(self, **kwargs):
         # Lifted from filters library
