@@ -821,7 +821,7 @@ class VIRFilter(FilterSet, FilterPanelMixin):
         return perform_search(value, queryset, VIR_SEARCH_FIELDS)
 
     request_status = MultipleChoiceFilter(
-        choices=[(value.name, value.name) for value in vir_status_list],
+        choices=[(value.name, value.label) for value in vir_status_list],
         label="",
         widget=CheckboxSelectMultipleWithTags(
             label_to_tag_colour=vir_status_to_tag_colour

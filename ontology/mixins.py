@@ -1,10 +1,14 @@
 from enum import StrEnum
-from typing import Protocol
+from typing import Generic, Protocol, TypeVar
 
 from django.db.models import Exists, OuterRef, Q, QuerySet
 
 from accounts.enums import BROWSER_TEST_LTLA_NAMES, GroupType
 from accounts.models import GroupInfo, User
+
+# Queryset type a manager returns, so get_for_user / get_queryset keep the
+# concrete queryset subtype (and its custom methods) instead of a bare QuerySet.
+_QS = TypeVar("_QS", bound=QuerySet)
 
 
 class DaViewerGroupNames(StrEnum):
@@ -66,27 +70,21 @@ def get_las_for_user(user: User):
     return ltla_names, utla_names
 
 
-class LocalAuthorityPermissionsManagerMixinProtocol(Protocol):
-    def get_queryset(self, *args, **kwargs) -> QuerySet:
-        return QuerySet()
+class LocalAuthorityPermissionsManagerMixinProtocol(Protocol[_QS]):
+    def get_queryset(self, *args, **kwargs) -> _QS: ...
 
-    def get_for_user(self, user: User) -> QuerySet:
-        return QuerySet()
+    def get_for_user(self, user: User) -> _QS: ...
 
-    def _filter_by_ltla_name(self, ltla_names: list[str]) -> Q:
-        return Q()
+    def _filter_by_ltla_name(self, ltla_names: list[str]) -> Q: ...
 
-    def _filter_by_utla_name(self, utla_names: list[str]) -> Q:
-        return Q()
+    def _filter_by_utla_name(self, utla_names: list[str]) -> Q: ...
 
-    def _filter_by_viewer_group_name(self, viewer_group_names: list[str]) -> Q:
-        return Q()
+    def _filter_by_viewer_group_name(self, viewer_group_names: list[str]) -> Q: ...
 
-    def exclude_browser_test_records(self, queryset: QuerySet) -> QuerySet:
-        return QuerySet()
+    def exclude_browser_test_records(self, queryset: _QS) -> _QS: ...
 
 
-class LocalAuthorityPermissionsManagerMixin:
+class LocalAuthorityPermissionsManagerMixin(Generic[_QS]):
     def _filter_by_ltla_name(self, ltla_names: list[str]) -> Q:
         raise NotImplementedError(
             "Implement this method to take a list of ltla_names"
@@ -108,8 +106,8 @@ class LocalAuthorityPermissionsManagerMixin:
         )
 
     def exclude_browser_test_records(
-        self: LocalAuthorityPermissionsManagerMixinProtocol, queryset: QuerySet
-    ) -> QuerySet:
+        self: "LocalAuthorityPermissionsManagerMixinProtocol[_QS]", queryset: _QS
+    ) -> _QS:
         return queryset.exclude(
             pk__in=self.get_queryset()
             .filter(self._filter_by_ltla_name(BROWSER_TEST_LTLA_NAMES))
@@ -117,15 +115,15 @@ class LocalAuthorityPermissionsManagerMixin:
         )
 
     def get_all_annotate_with_user_can_view(
-        self: LocalAuthorityPermissionsManagerMixinProtocol, user: User
+        self: "LocalAuthorityPermissionsManagerMixinProtocol[_QS]", user: User
     ):
         return self.get_queryset().annotate(
             user_can_view=Exists(self.get_for_user(user).filter(pk=OuterRef("pk")))
         )
 
     def get_for_user(
-        self: LocalAuthorityPermissionsManagerMixinProtocol, user: User
-    ) -> QuerySet:
+        self: "LocalAuthorityPermissionsManagerMixinProtocol[_QS]", user: User
+    ) -> _QS:
         user_group_types = set(
             user.groups.values_list("groupinfo__group_type", flat=True)
         )
