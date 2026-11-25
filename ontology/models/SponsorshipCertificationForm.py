@@ -394,6 +394,7 @@ class SponsorshipCertificationForm(models.Model):
         null=True,
         blank=True,
         db_column="uk_consent_form_status",
+        db_default=PreApprovalCheckStatus.NOT_STARTED,
         choices=PreApprovalCheckStatus.choices,
         verbose_name="UK consent form",
     )
@@ -401,6 +402,7 @@ class SponsorshipCertificationForm(models.Model):
         null=True,
         blank=True,
         db_column="ukraine_consent_form_status",
+        db_default=PreApprovalCheckStatus.NOT_STARTED,
         choices=PreApprovalCheckStatus.choices,
         verbose_name="Ukraine consent form",
     )
@@ -408,6 +410,7 @@ class SponsorshipCertificationForm(models.Model):
         null=True,
         blank=True,
         db_column="sponsor_immigration_eligibility_status",
+        db_default=PreApprovalCheckStatus.NOT_STARTED,
         choices=PreApprovalCheckStatus.choices,
         verbose_name="Sponsor immigration eligibility",
     )
@@ -415,6 +418,7 @@ class SponsorshipCertificationForm(models.Model):
         null=True,
         blank=True,
         db_column="sponsor_household_security_checks_status",
+        db_default=PreApprovalCheckStatus.NOT_STARTED,
         choices=PreApprovalCheckStatus.choices,
         verbose_name="Sponsor and household security checks",
     )
@@ -423,6 +427,7 @@ class SponsorshipCertificationForm(models.Model):
         null=True,
         blank=True,
         db_column="sponsor_household_enhanced_dbs_status",
+        db_default=PreApprovalCheckStatus.NOT_STARTED,
         choices=PreApprovalCheckStatus.choices,
         verbose_name="Sponsor and household members enhanced DBS",
     )
@@ -430,6 +435,7 @@ class SponsorshipCertificationForm(models.Model):
         null=True,
         blank=True,
         db_column="accommodation_exists_status",
+        db_default=PreApprovalCheckStatus.NOT_STARTED,
         choices=PreApprovalCheckStatus.choices,
         verbose_name="Accommodation exists",
     )
@@ -437,6 +443,7 @@ class SponsorshipCertificationForm(models.Model):
         null=True,
         blank=True,
         db_column="accommodation_suitable_status",
+        db_default=PreApprovalCheckStatus.NOT_STARTED,
         choices=PreApprovalCheckStatus.choices,
         verbose_name="Accommodation suitable",
     )
@@ -444,6 +451,7 @@ class SponsorshipCertificationForm(models.Model):
         null=True,
         blank=True,
         db_column="sponsor_role_and_expectations_status",
+        db_default=PreApprovalCheckStatus.NOT_STARTED,
         choices=PreApprovalCheckStatus.choices,
         verbose_name="Sponsor role and expectations",
     )
@@ -451,6 +459,7 @@ class SponsorshipCertificationForm(models.Model):
         null=True,
         blank=True,
         db_column="sponsor_arrangements_suitable_status",
+        db_default=PreApprovalCheckStatus.NOT_STARTED,
         choices=PreApprovalCheckStatus.choices,
         verbose_name="Sponsor arrangements suitable",
     )
