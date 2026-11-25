@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from django.contrib import messages
+from django.utils.functional import Promise
 
 from accounts.enums import GroupType
 from accounts.models import AccessRequest
@@ -10,6 +11,7 @@ from ontology.models import (
     ReassignmentRequest,
     SafeguardingReferral,
     SponsorshipCertificationForm,
+    VisaInformationRequest,
 )
 from webapp.templatetags.timeline_extras import AuditEventType
 
@@ -63,17 +65,36 @@ visa_status_list_ordered = sorted(visa_status_list, key=lambda x: x.sort_order)
 class VIRStatus:
     id: int
     name: str | None
+    label: str | Promise | None
     tag_colour: str  # one of the .govuk-tag--* colours
     sort_order: int
 
+    @classmethod
+    def from_status(
+        cls,
+        id: int,
+        status: VisaInformationRequest.RequestStatus | None,
+        tag_colour: str,
+        sort_order: int,
+    ) -> "VIRStatus":
+        return cls(
+            id=id,
+            name=status.value if status else None,
+            label=status.label if status else None,
+            tag_colour=tag_colour,
+            sort_order=sort_order,
+        )
+
 
 vir_status_list = [
-    VIRStatus(1, "Awaiting UKVI", ORANGE, 1),
-    VIRStatus(2, "Awaiting LA", PURPLE, 2),
-    VIRStatus(3, "Closed", GREEN, 3),
+    VIRStatus.from_status(
+        1, VisaInformationRequest.RequestStatus.AWAITING_UKVI, YELLOW, 1
+    ),
+    VIRStatus.from_status(2, VisaInformationRequest.RequestStatus.AWAITING_LA, BLUE, 2),
+    VIRStatus.from_status(3, VisaInformationRequest.RequestStatus.CLOSED, GREEN, 3),
 ]
-no_vir_status = VIRStatus(10, None, GREY, 10)
-vir_status_by_name = {value.name: value for value in vir_status_list}
+no_vir_status = VIRStatus.from_status(10, None, GREY, 10)
+vir_status_by_label = {value.label: value for value in vir_status_list}
 vir_status_list_ordered = sorted(vir_status_list, key=lambda x: x.sort_order)
 
 ACCOMMODATION_REQUEST_CHECKS_NO_STATUS_TAG_COLOUR = GREY

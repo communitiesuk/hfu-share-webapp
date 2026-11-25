@@ -106,7 +106,9 @@ def render_app_visa_status_tag(visa_status: str):
 def render_app_vir_status_tag(vir_status: str):
     return render_govuk_tag(
         cast(str, VisaInformationRequest.RequestStatus(vir_status).label),
-        colour=vir_status_to_tag_colour(vir_status),
+        colour=vir_status_to_tag_colour(
+            VisaInformationRequest.RequestStatus(vir_status).label
+        ),
         css_class="app-tag--nowrap",
     )
 
