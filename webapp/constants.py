@@ -23,7 +23,7 @@ PreApprovalCheckCodeSentStatus = (
 # GOV.UK tag colours constants
 GREY = "grey"
 GREEN = "green"
-TURQUOISE = "turquoise"
+TEAL = "teal"
 BLUE = "blue"
 PURPLE = "purple"
 PINK = "pink"
@@ -43,7 +43,7 @@ class VisaStatus:
 
 visa_status_list = [
     VisaStatus(1, "Arrived", GREEN, 5),
-    VisaStatus(2, "Issued", TURQUOISE, 4),
+    VisaStatus(2, "Issued", TEAL, 4),
     VisaStatus(3, "Confirmed", BLUE, 3),
     VisaStatus(4, "Flow Visa Pending", PURPLE, 9),  # specific to UAMs
     VisaStatus(5, "Pending", YELLOW, 2),
@@ -53,7 +53,7 @@ visa_status_list = [
     VisaStatus(9, "Missing Application", PINK, 1),
 ]
 no_visa_status = VisaStatus(10, None, GREY, 10)
-visa_status_some_issued = VisaStatus(2, "Some issued", TURQUOISE, 11)
+visa_status_some_issued = VisaStatus(2, "Some issued", TEAL, 11)
 visa_status_by_name = {value.name: value for value in visa_status_list}
 visa_status_list_ordered = sorted(visa_status_list, key=lambda x: x.sort_order)
 
@@ -279,7 +279,7 @@ accommodation_request_will_notify_la_central_case_flag_tag_colours = {
 alerted_status_tag_colours = {
     SafeguardingReferral.AlertedStatus.ALERTED: RED,
     SafeguardingReferral.AlertedStatus.NOT_ALERTED: GREY,
-    SafeguardingReferral.AlertedStatus.SOME_ALERTED: TURQUOISE,
+    SafeguardingReferral.AlertedStatus.SOME_ALERTED: TEAL,
 }
 
 
