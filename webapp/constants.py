@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 
 from django.contrib import messages
-from django.utils.functional import Promise
 
 from accounts.enums import GroupType
 from accounts.models import AccessRequest
@@ -65,7 +64,7 @@ visa_status_list_ordered = sorted(visa_status_list, key=lambda x: x.sort_order)
 class VIRStatus:
     id: int
     name: str | None
-    label: str | Promise | None
+    label: str | None
     tag_colour: str  # one of the .govuk-tag--* colours
     sort_order: int
 
@@ -80,7 +79,7 @@ class VIRStatus:
         return cls(
             id=id,
             name=status.value if status else None,
-            label=status.label if status else None,
+            label=str(status.label) if status else None,
             tag_colour=tag_colour,
             sort_order=sort_order,
         )
