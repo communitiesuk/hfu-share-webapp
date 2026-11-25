@@ -353,10 +353,13 @@ class MvPerson(models.Model):
         ar.save(update_fields=["is_uam", "is_uam_edited_time", "edited_in_app"])
 
     def update_primary_contact_on_linked_objects(self):
-        if self.group.is_primary_contact(self):
-            self.group.refresh_data()
-        if self.accommodation_request.is_primary_contact(self):
-            self.accommodation_request.update_primary_contact(self)
+        group = self.get_group()
+        if group and group.is_primary_contact(self):
+            group.refresh_data()
+
+        accommodation_request = self.get_accommodation_request()
+        if accommodation_request and accommodation_request.is_primary_contact(self):
+            accommodation_request.update_primary_contact(self)
 
     def get_page_title(self) -> str:
         name = self.get_full_name() or "Unknown"
@@ -405,6 +408,14 @@ class MvPerson(models.Model):
         return visa_applications.filter(
             application_unique_application_number__in=self.application_number
         )
+
+    def get_group(self):
+        from ontology.models.MvGroup import MvGroup
+
+        if self.group_id:
+            return MvGroup.objects.filter(id=self.group_id).first()
+
+        return None
 
     def get_accommodation_request(self):
         from ontology.models.MvAccommodationRequest import MvAccommodationRequest
