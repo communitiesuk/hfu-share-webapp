@@ -4,7 +4,7 @@ from ontology.models.VisaInformationRequest import VisaInformationRequest
 from webapp.constants import (
     no_vir_status,
     no_visa_status,
-    vir_status_by_name,
+    vir_status_by_label,
     visa_status_by_name,
 )
 
@@ -23,7 +23,7 @@ def visa_status_to_tag_colour(value: str | None) -> str:
 
 @register.filter
 def vir_status_to_tag_colour(value: str | None) -> str:
-    return vir_status_by_name.get(value, no_vir_status).tag_colour
+    return vir_status_by_label.get(value, no_vir_status).tag_colour
 
 
 @register.filter

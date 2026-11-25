@@ -319,7 +319,7 @@ def _special_scenarios_section(
 def _visa_information_requests_section() -> list[str]:
     rows = [
         [
-            "VIR awaiting LA",
+            "VIR waiting for LA",
             VisaInformationRequest.RequestStatus.AWAITING_LA.label,
             (
                 "1 UKVI message asking whether the guest still resides at the "
@@ -327,7 +327,7 @@ def _visa_information_requests_section() -> list[str]:
             ),
         ],
         [
-            "VIR awaiting UKVI",
+            "VIR waiting for UKVI",
             VisaInformationRequest.RequestStatus.AWAITING_UKVI.label,
             "UKVI asks for the arrival date, the LA replies confirming it",
         ],

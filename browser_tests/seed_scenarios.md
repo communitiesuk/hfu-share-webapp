@@ -78,8 +78,8 @@ Three conversations attached to the first three visa applications in the test LA
 
 | Label | Status | Conversation |
 | --- | --- | --- |
-| VIR awaiting LA | Awaiting LA | 1 UKVI message asking whether the guest still resides at the sponsor's address |
-| VIR awaiting UKVI | Awaiting UKVI | UKVI asks for the arrival date, the LA replies confirming it |
+| VIR waiting for LA | Waiting for LA | 1 UKVI message asking whether the guest still resides at the sponsor's address |
+| VIR waiting for UKVI | Waiting for UKVI | UKVI asks for the arrival date, the LA replies confirming it |
 | VIR closed | Closed | UKVI asks whether guests are known, the LA confirms, UKVI closes the request |
 
 UK Visas and Immigration (UKVI) messages are authored as `browser-test-ukvi`; LA replies are authored as the browser test user.
