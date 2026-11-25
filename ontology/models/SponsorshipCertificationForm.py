@@ -136,7 +136,7 @@ class SponsorshipCertificationFormQuerySet(models.QuerySet):
 
 
 class SponsorshipCertificationFormManager(
-    LocalAuthorityPermissionsManagerMixin,
+    LocalAuthorityPermissionsManagerMixin[SponsorshipCertificationFormQuerySet],
     models.Manager.from_queryset(SponsorshipCertificationFormQuerySet),
 ):
     def get_queryset(self):

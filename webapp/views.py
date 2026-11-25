@@ -325,12 +325,9 @@ class LandingPageView(UserActionsMixin, MultiTableMixin, TemplateView):
         user: User,
         statuses: set[SponsorshipCertificationForm.PreApprovalStatus],
     ) -> int:
-        scoped_pks = SponsorshipCertificationForm.objects.get_for_user(user).values(
-            "pk"
-        )
         return (
-            SponsorshipCertificationForm.objects.with_pre_approval_status()
-            .filter(pk__in=scoped_pks)
+            SponsorshipCertificationForm.objects.get_for_user(user)
+            .with_pre_approval_status()
             .filter(pre_approval_status__in=statuses)
             .count()
         )

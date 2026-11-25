@@ -20,42 +20,6 @@ ALL_LA_PASSED = dict.fromkeys(LA_CHECK_FIELDS, CheckStatus.PASSED)
 ALL_IN_PROGRESS = dict.fromkeys(PRE_APPROVAL_CHECK_FIELDS, CheckStatus.IN_PROGRESS)
 ALL_NOT_STARTED = dict.fromkeys(PRE_APPROVAL_CHECK_FIELDS, CheckStatus.NOT_STARTED)
 
-# One set of check-field values per PreApprovalStatus branch, used to assert the
-# SQL annotation agrees with the Python method.
-PRE_APPROVAL_STATE_CASES = {
-    Status.STATUS_NOT_RECORDED: {},
-    Status.WAITING_FOR_UKVI_CHECKS: {**ALL_NOT_STARTED},
-    Status.UKVI_CHECKS_IN_PROGRESS: {
-        **ALL_NOT_STARTED,
-        "uk_consent_form_status": CheckStatus.PASSED,
-    },
-    Status.FAILED_UKVI_CHECKS: {
-        **ALL_NOT_STARTED,
-        "uk_consent_form_status": CheckStatus.FAILED,
-    },
-    Status.WAITING_FOR_LA_CHECKS: {**ALL_NOT_STARTED, **ALL_UKVI_PASSED},
-    Status.LA_CHECKS_IN_PROGRESS: {
-        **ALL_NOT_STARTED,
-        **ALL_UKVI_PASSED,
-        "accommodation_exists_status": CheckStatus.PASSED,
-    },
-    Status.FAILED_LA_CHECKS: {
-        **ALL_NOT_STARTED,
-        **ALL_UKVI_PASSED,
-        "accommodation_exists_status": CheckStatus.FAILED,
-    },
-    Status.PASSED_ALL_CHECKS: {
-        **ALL_UKVI_PASSED,
-        **ALL_LA_PASSED,
-        "sponsor_certification_code_emailed": False,
-    },
-    Status.COMPLETED: {
-        **ALL_UKVI_PASSED,
-        **ALL_LA_PASSED,
-        "sponsor_certification_code_emailed": True,
-    },
-}
-
 
 def build_uam(code_emailed=False, **check_statuses):
     return SponsorshipCertificationForm(
