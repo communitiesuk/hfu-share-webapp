@@ -325,13 +325,12 @@ class LandingPageView(UserActionsMixin, MultiTableMixin, TemplateView):
         user: User,
         statuses: set[SponsorshipCertificationForm.PreApprovalStatus],
     ) -> int:
-        uams = SponsorshipCertificationForm.objects.get_for_user(user).only(
-            *[
-                field.value
-                for field in SponsorshipCertificationForm.PreApprovalCheckField
-            ],
+        return (
+            SponsorshipCertificationForm.objects.get_for_user(user)
+            .with_pre_approval_status()
+            .filter(pre_approval_status__in=statuses)
+            .count()
         )
-        return len([uam for uam in uams if uam.get_pre_approval_status() in statuses])
 
     def get_tables(self):
         pending_sort = self.request.GET.get("pending-sort") or "-created_at"
