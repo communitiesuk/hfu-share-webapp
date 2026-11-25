@@ -52,6 +52,7 @@ jobs:
           cp .env.dev .env
           echo "GOOGLE_ANALYTICS_ID=G-12345" >> .env
           echo "GOOGLE_ANALYTICS_ENABLED=Enabled" >> .env
+          echo "UAM_CHECKS_ENABLED=True" >> .env
 
       - name: Bring up docker container
         run: |

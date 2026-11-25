@@ -78,6 +78,7 @@ MULTI_LA_SECOND_LTLA = BROWSER_TEST_LTLA_NAMES[1]
 
 ChecksStatus = MvAccommodationRequest.ChecksStatus
 Status = MvAccommodationRequest.Status
+PreApprovalStatus = SponsorshipCertificationForm.PreApprovalStatus
 AccommodationType = MvAccommodation.AccommodationType
 
 # one entry per seeded accommodation request; every checks status and AR
@@ -132,6 +133,7 @@ AR_SCENARIOS: list[dict] = [
         "checks_status": ChecksStatus.CHECKS_REQUIRED,
         "visa_statuses": ["Refused"],
         "make_uam": True,
+        "uams_status": PreApprovalStatus.WAITING_FOR_LA_CHECKS,
     },
     {
         "checks_status": ChecksStatus.CHECKS_REQUIRED,
@@ -872,6 +874,7 @@ def seed_browser_test_la() -> None:
                 id_prefix=BROWSER_TEST_ID_PREFIX,
                 status=scenario.get("ar_status"),
                 make_uam=scenario.get("make_uam"),
+                uams_status=scenario.get("uams_status"),
             )
             ars.append(ar)
 

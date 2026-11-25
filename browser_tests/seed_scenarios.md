@@ -35,7 +35,7 @@ One accommodation request (AR) per row, created in this order. Guest count equal
 | 10 | browser-test-ar-00010 | Susan Robson to Flat 60 Gary o, G77 5UL | Closed - Left programme | Issued | leaving programme interaction ("Return to Ukraine") |
 | 11 | browser-test-ar-00011 | Jonathan Greenwood and 1 other to 35 Amelia fiel, L8 1TQ | Checks partially completed | Confirmed, Arrived | 1 passed check, 2 case comments |
 | 12 | browser-test-ar-00012 | Yvonne Smith and 2 others to Flat 95 Roy cr, M36 5FL | Checks completed | Pending, Arrived, Issued | 4 passed checks |
-| 13 | browser-test-ar-00013 | Amber Ellis to Flat 4 Irene river, Hobbiton | Checks required | Refused | unaccompanied minor (UAM, Flow Visa Pending) |
+| 13 | browser-test-ar-00013 | Amber Ellis to Flat 4 Irene river, Hobbiton | Checks required | Refused | unaccompanied minor (UAM, Flow Visa Pending), UAM status: Waiting for LA checks |
 | 14 | browser-test-ar-00014 | Ian Yates and 1 other to Flat 32J Bates, SW0Y 7AR | Checks required | Arrived, Confirmed |  |
 | 15 | browser-test-ar-00015 | Molly Mills and 2 others to 1 Melanie isle, CV1B 5WN | Checks partially completed | Withdrawn, Arrived, Pending | 1 passed check |
 | 16 | browser-test-ar-00016 | Valerie Jordan to 756 Knight bri, N7 0JG | Checks completed | Lapsed | 4 passed checks, pending outbound reassignment to Bree (Browser test LTLA) |
