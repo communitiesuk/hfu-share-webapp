@@ -925,7 +925,9 @@ class MvAccommodationRequest(models.Model):
 
         for accommodation in unassigned_accommodations:
             accommodation.ltla_name = ltla_name
+            accommodation.local_authority = ltla_name
             accommodation.utla_name = utla_name
+            accommodation.country = local_authority.da_name
             accommodation.is_editable = True
             accommodation.save()
 

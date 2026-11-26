@@ -283,6 +283,19 @@ class AssignLocalAuthorityFormTestCase(TestSessionTokenMixin, BaseTestCase):
             self.assertEqual(accommodation.ltla_name, "Boston")
             self.assertEqual(accommodation.utla_name, "Lincolnshire")
 
+    def test_completing_the_form_assigns_the_accommodations_local_authority_and_country(
+        self,
+    ):
+        self.client.force_login(get_mhclg_user())
+        accommodations, _visa_applications = self.link_records_to(self.unassigned_ar)
+
+        self.complete_form(self.unassigned_ar, self.english_la)
+
+        for accommodation in accommodations:
+            accommodation.refresh_from_db()
+            self.assertEqual(accommodation.local_authority, "Boston")
+            self.assertEqual(accommodation.country, "England")
+
     def test_completing_the_form_assigns_the_local_authority_to_the_visa_applications(
         self,
     ):
