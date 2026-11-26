@@ -6,7 +6,7 @@
     </li>
     <li class="govuk-breadcrumbs__list-item">Review request</li>
 {% endblock breadcrumb_content %}
-{% block narrow_content %}
+{% block after_heading_content %}
     {% include "webapp/components/record_tabs/record_summary_list.html" with fields=fields %}
     {% if show_accept_reject_form %}
         <form method="post" novalidate>
@@ -20,4 +20,4 @@
             <a class="govuk-button govuk-button--warning" href="./cancel">Cancel request</a>
         </div>
     {% endif %}
-{% endblock narrow_content %}
+{% endblock after_heading_content %}

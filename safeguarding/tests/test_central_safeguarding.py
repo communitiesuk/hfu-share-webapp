@@ -89,6 +89,14 @@ class SafeguardingDetailCentralSafeguardingViewTestCase(
         response = self.client.get(self.url)
         self.assertRegex(response.content.decode(), r'value="Alerted"\s+checked')
 
+    def test_alerted_status_form_is_not_nested_in_another_form(self):
+        response = self.client.get(self.url)
+
+        card = response.content.decode().split("app-alerted-status-card", 1)[1]
+        form_markup = card.split("</form>", 1)[0]
+        self.assertEqual(form_markup.count("<form"), 1)
+        self.assertIn("novalidate", form_markup)
+
     def test_accommodation_and_sponsor_dbs_checks_displayed(self):
         response = self.client.get(self.url)
         self.assertContains(response, "Accommodation suitable check failed")

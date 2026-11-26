@@ -1,6 +1,9 @@
 from django.urls import path
 
 from .views import (
+    UamsChecksEditView,
+    UamsChecksView,
+    UamsDetailHistoryView,
     UamsDetailLinkedRecordsView,
     UamsDetailOverviewView,
     UamsDetailPropertiesView,
@@ -23,6 +26,11 @@ urlpatterns = [
         name="detail-overview",
     ),
     path(
+        "<str:pk>/checks",
+        UamsChecksView.as_view(),
+        name="detail-checks",
+    ),
+    path(
         "<str:pk>/properties",
         UamsDetailPropertiesView.as_view(),
         name="detail-properties",
@@ -38,6 +46,11 @@ urlpatterns = [
         name="detail-files",
     ),
     path(
+        "<str:pk>/history",
+        UamsDetailHistoryView.as_view(),
+        name="detail-history",
+    ),
+    path(
         "<str:pk>/download-attachment/<str:metadata_id>",
         UamsDownloadAttachmentView.as_view(),
         name="download-attachment",
@@ -46,5 +59,10 @@ urlpatterns = [
         "<str:pk>/download-forms-attachment/<str:consent_file_type>",
         UamsDownloadGOVUKFormsAttachmentView.as_view(),
         name="download-govuk-forms-attachment",
+    ),
+    path(
+        "<str:pk>/checks/<slug:check>/edit",
+        UamsChecksEditView.as_view(),
+        name="checks-edit",
     ),
 ]

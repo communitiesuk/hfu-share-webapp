@@ -8,7 +8,7 @@ from django.db.models.functions import Concat
 from accounts.models import User
 from ontology.mixins import LocalAuthorityPermissionsManagerMixin
 from ontology.models import DevCheckV2
-from ontology.utils import LinkedRecordData
+from ontology.utils import LinkedRecordData, build_full_name
 
 
 class MvPersonQuerySet(models.QuerySet):
@@ -109,7 +109,7 @@ class MvPerson(models.Model):
         null=True, blank=True, db_column="disability_flag"
     )
     is_uam = models.BooleanField(
-        null=True, blank=True, db_column="is_uam", verbose_name="Eligible minor"
+        null=True, blank=True, db_column="is_uam", verbose_name="Eligible child (UAM)"
     )
     email = ArrayField(models.TextField(), null=True, blank=True, db_column="email")
     email_after_decision = ArrayField(
@@ -159,7 +159,10 @@ class MvPerson(models.Model):
     id = models.TextField(primary_key=True, db_column="id", verbose_name="ID")
     is_principal = models.BooleanField(null=True, blank=True, db_column="is_principal")
     is_uam_edited_time = models.DateTimeField(
-        null=True, blank=True, db_column="is_uam_edited_time"
+        null=True,
+        blank=True,
+        db_column="is_uam_edited_time",
+        verbose_name="Eligible child (UAM) edited time",
     )
     last_edited_at = models.DateTimeField(
         null=True, blank=True, db_column="last_edited_at"
@@ -313,8 +316,7 @@ class MvPerson(models.Model):
         return today
 
     def get_full_name(self):
-        name = (f"{self.first_name or ''} {self.last_name or ''}").strip()
-        return name or "Unknown"
+        return build_full_name(self.first_name, self.last_name)
 
     def get_initials(self) -> str:
         initials = ""
@@ -340,11 +342,24 @@ class MvPerson(models.Model):
         self.edited_in_app = True
         super(MvPerson, self).save(*args, **kwargs)
 
+    def update_is_uam_on_accommodation_request(self, edited_at: datetime) -> None:
+        ar = self.accommodation_request
+        if ar is None:
+            return
+
+        other_guests = [guest for guest in ar.get_people() if guest.pk != self.pk]
+        ar.is_uam = bool(self.is_uam) or any(guest.is_uam for guest in other_guests)
+        ar.is_uam_edited_time = edited_at
+        ar.save(update_fields=["is_uam", "is_uam_edited_time", "edited_in_app"])
+
     def update_primary_contact_on_linked_objects(self):
-        if self.group.is_primary_contact(self):
-            self.group.refresh_data()
-        if self.accommodation_request.is_primary_contact(self):
-            self.accommodation_request.update_primary_contact(self)
+        group = self.get_group()
+        if group and group.is_primary_contact(self):
+            group.refresh_data()
+
+        accommodation_request = self.get_accommodation_request()
+        if accommodation_request and accommodation_request.is_primary_contact(self):
+            accommodation_request.update_primary_contact(self)
 
     def get_page_title(self) -> str:
         name = self.get_full_name() or "Unknown"
@@ -393,6 +408,14 @@ class MvPerson(models.Model):
         return visa_applications.filter(
             application_unique_application_number__in=self.application_number
         )
+
+    def get_group(self):
+        from ontology.models.MvGroup import MvGroup
+
+        if self.group_id:
+            return MvGroup.objects.filter(id=self.group_id).first()
+
+        return None
 
     def get_accommodation_request(self):
         from ontology.models.MvAccommodationRequest import MvAccommodationRequest

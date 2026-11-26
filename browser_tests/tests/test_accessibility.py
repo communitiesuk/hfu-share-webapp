@@ -80,7 +80,7 @@ class TestAccessibility(BrowserTest):
 
         tab_hrefs = [
             tab.get_attribute("href")
-            for tab in home_page.page.locator("a.govuk-tabs__tab").all()
+            for tab in home_page.page.locator(".moj-side-navigation a").all()
         ]
         for href in tab_hrefs:
             home_page.goto(cast(str, href))

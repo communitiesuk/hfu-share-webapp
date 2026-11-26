@@ -52,6 +52,7 @@ jobs:
           cp .env.dev .env
           echo "GOOGLE_ANALYTICS_ID=G-12345" >> .env
           echo "GOOGLE_ANALYTICS_ENABLED=Enabled" >> .env
+          echo "UAM_CHECKS_ENABLED=True" >> .env
 
       - name: Bring up docker container
         run: |
@@ -62,6 +63,9 @@ jobs:
           uv run seed-groups
           uv run seed-browser-test-users
           uv run python manage.py seed_browser_test_la --seed
+
+      - name: Validate the seed scenario docs
+        run: uv run python manage.py generate_browser_test_docs --check
 
       - parallel:
           - name: Browser tests

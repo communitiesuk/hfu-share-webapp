@@ -143,7 +143,7 @@ class AccessRequestFormLocalAuthorityStep(forms.Form):
             group_type=GroupType.LOCAL_AUTHORITY
         ).order_by("group__name"),
         empty_label="",
-        label="Select an upper tier or lower tier local authority",
+        label="Select your upper tier or lower tier local authority (UTLA or LTLA).",
         help_text=render_to_string(
             "user_management/access_request_form/help_text/local_authority_hint.html"
         ),

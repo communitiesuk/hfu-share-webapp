@@ -1,3 +1,5 @@
+from datetime import date
+
 from ontology.tests.base import LocalAuthorityBaseTestCaseMixin
 from ontology.tests.factories import (
     MvAccommodationRequestFactory,
@@ -131,3 +133,76 @@ class MvPersonTest(LocalAuthorityBaseTestCaseMixin):
 
         self.assertFalse(sponsor.is_archived)
         self.assertIsNone(sponsor.archived_at)
+
+    def test_get_group_returns_group(self):
+        group = MvGroupFactory(id="Group-123")
+        person = MvPersonFactory(group=group)
+
+        self.assertEqual(person.get_group(), group)
+
+    def test_get_group_returns_none_if_no_group_id(self):
+        person = MvPersonFactory(group=None)
+
+        self.assertIsNone(person.get_group())
+
+    def test_update_primary_contact_on_linked_objects_with_no_group(self):
+        ar = MvAccommodationRequestFactory(id="AR-without-group")
+        person = MvPersonFactory(
+            first_name="Alison",
+            last_name="Jones",
+            date_of_birth=date(1990, 1, 1),
+            age=35,
+            group=None,
+            accommodation_request=ar,
+        )
+        ar.person_id = [person.id]
+        ar.save()
+
+        person.update_primary_contact_on_linked_objects()
+
+        ar.refresh_from_db()
+        self.assertEqual("Alison", ar.primary_contact_first_name)
+        self.assertEqual("Jones", ar.primary_contact_last_name)
+
+    def test_update_primary_contact_on_linked_objects_with_no_accommodation_request(
+        self,
+    ):
+        group = MvGroupFactory(id="Group-without-ar")
+        person = MvPersonFactory(
+            first_name="Bob",
+            last_name="Smith",
+            date_of_birth=date(1980, 1, 1),
+            age=45,
+            group=group,
+            accommodation_request=None,
+        )
+
+        person.update_primary_contact_on_linked_objects()
+
+        group.refresh_from_db()
+        self.assertEqual("Bob", group.primary_contact_first_name)
+        self.assertEqual("Smith", group.primary_contact_last_name)
+        self.assertEqual(1, group.number_of_people_in_group)
+
+    def test_update_primary_contact_on_linked_objects_updates_group_and_ar(self):
+        group = MvGroupFactory(id="Group-with-ar")
+        ar = MvAccommodationRequestFactory(id="AR-with-group")
+        person = MvPersonFactory(
+            first_name="Chidi",
+            last_name="Okafor",
+            date_of_birth=date(1975, 1, 1),
+            age=50,
+            group=group,
+            accommodation_request=ar,
+        )
+        ar.person_id = [person.id]
+        ar.save()
+
+        person.update_primary_contact_on_linked_objects()
+
+        group.refresh_from_db()
+        ar.refresh_from_db()
+        self.assertEqual("Chidi", group.primary_contact_first_name)
+        self.assertEqual(1, group.number_of_people_in_group)
+        self.assertEqual("Chidi", ar.primary_contact_first_name)
+        self.assertEqual("Okafor", ar.primary_contact_last_name)

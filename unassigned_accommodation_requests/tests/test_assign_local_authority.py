@@ -1,6 +1,7 @@
 from unittest import mock
 from unittest.mock import patch
 
+from auditlog.models import LogEntry
 from django.db import DatabaseError
 from django.urls import reverse
 
@@ -370,6 +371,62 @@ class AssignLocalAuthorityFormTestCase(TestSessionTokenMixin, BaseTestCase):
             record.refresh_from_db()
             self.assertIsNone(record.ltla_name)
             self.assertIsNone(record.utla_name)
+
+    def test_completing_the_form_leaves_accommodations_already_in_an_la_alone(self):
+        self.client.force_login(get_mhclg_user())
+        unassigned, blank, already_assigned = self.link_records_to(
+            self.unassigned_ar, accommodation_count=3
+        )[0]
+        blank.ltla_name = ""
+        blank.save()
+        MvAccommodation.objects.filter(id=already_assigned.id).update(
+            ltla_name="Cardiff", utla_name=None, is_editable=False
+        )
+
+        self.complete_form(self.unassigned_ar, self.english_la)
+
+        for accommodation in (unassigned, blank):
+            accommodation.refresh_from_db()
+            self.assertEqual(accommodation.ltla_name, "Boston")
+            self.assertEqual(accommodation.utla_name, "Lincolnshire")
+        already_assigned.refresh_from_db()
+        self.assertEqual(already_assigned.ltla_name, "Cardiff")
+        self.assertIsNone(already_assigned.utla_name)
+        self.assertFalse(already_assigned.is_editable)
+
+    def test_completing_the_form_leaves_visa_applications_already_in_an_la_alone(
+        self,
+    ):
+        self.client.force_login(get_mhclg_user())
+        _accommodations, (unassigned, already_assigned) = self.link_records_to(
+            self.unassigned_ar
+        )
+        already_assigned.ltla_name = "Cardiff"
+        already_assigned.utla_name = None
+        already_assigned.country = "Wales"
+        already_assigned.save()
+
+        self.complete_form(self.unassigned_ar, self.english_la)
+
+        unassigned.refresh_from_db()
+        self.assertEqual(unassigned.ltla_name, "Boston")
+        self.assertEqual(unassigned.utla_name, "Lincolnshire")
+        self.assertEqual(unassigned.country, "England")
+        already_assigned.refresh_from_db()
+        self.assertEqual(already_assigned.ltla_name, "Cardiff")
+        self.assertIsNone(already_assigned.utla_name)
+        self.assertEqual(already_assigned.country, "Wales")
+
+    def test_completing_the_form_records_visa_application_changes_in_history(self):
+        self.client.force_login(get_mhclg_user())
+        _accommodations, visa_applications = self.link_records_to(self.unassigned_ar)
+
+        self.complete_form(self.unassigned_ar, self.english_la)
+
+        for visa_application in visa_applications:
+            entry = LogEntry.objects.get_for_object(visa_application).latest()
+            self.assertEqual(entry.action, LogEntry.Action.UPDATE)
+            self.assertEqual(entry.changes_dict["ltla_name"], ["None", "Boston"])
 
     def test_users_without_access_cannot_submit_the_form(self):
         self.client.force_login(get_la_user())

@@ -2,7 +2,7 @@
 {% block breadcrumb_content %}
     <li class="govuk-breadcrumbs__list-item">Escalated checks</li>
 {% endblock breadcrumb_content %}
-{% block narrow_content %}
+{% block after_heading_content %}
     <p class="govuk-body">
         Review failed safeguarding checks and escalations to UK Visas and Immigration (UKVI). The table shows all unique application numbers (UANs) and global web form numbers (GWFs) that are linked to each guest.
     </p>
@@ -21,7 +21,7 @@
             </strong>
         </div>
     {% endif %}
-{% endblock narrow_content %}
-{% block wide_content %}
+{% endblock after_heading_content %}
+{% block full_content %}
     <div class="visa-applications-table">{% include "safeguarding/escalated_checks_table.html" %}</div>
-{% endblock wide_content %}
+{% endblock full_content %}

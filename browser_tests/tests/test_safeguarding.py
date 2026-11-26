@@ -74,7 +74,7 @@ def _navigate_to_add_safeguarding_check(
     safeguarding_page.assert_summary_list_item("Status", "Checks Required")
 
     safeguarding_page.click_link("Safeguarding checks")
-    safeguarding_page.assert_has_secondary_heading("Safeguarding checks", level=4)
+    safeguarding_page.assert_has_secondary_heading("Safeguarding checks")
 
     safeguarding_page.assert_safeguarding_check_completion_check()
 
@@ -157,7 +157,7 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
         safeguarding_page.assert_has_heading(
             _record_heading(AR_CHECKS_REQUIRED_THREE_GUESTS)
         )
-        safeguarding_page.assert_has_secondary_heading("Safeguarding checks", level=4)
+        safeguarding_page.assert_has_secondary_heading("Safeguarding checks")
 
     def test_complete_a_passed_safeguarding_check(
         self, safeguarding_page: SafeguardingPage
@@ -320,7 +320,7 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
         safeguarding_page.assert_has_heading(
             _record_heading(AR_CHECKS_REQUIRED_THREE_GUESTS)
         )
-        safeguarding_page.assert_has_secondary_heading("Safeguarding checks", level=4)
+        safeguarding_page.assert_has_secondary_heading("Safeguarding checks")
 
         safeguarding_page.assert_safeguarding_check_completion_check(
             accommodation_suitable_check=(
@@ -344,7 +344,7 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
         )
 
         safeguarding_page.click_link("Overview")
-        safeguarding_page.assert_has_secondary_heading("Overview", level=4)
+        safeguarding_page.assert_has_secondary_heading("Overview")
 
         safeguarding_page.assert_summary_list_item("Status", "Checks Completed")
 
@@ -381,7 +381,7 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
         safeguarding_page.assert_has_heading(
             _record_heading(AR_CHECKS_REQUIRED_TWO_GUESTS)
         )
-        safeguarding_page.assert_has_secondary_heading("Safeguarding checks", level=4)
+        safeguarding_page.assert_has_secondary_heading("Safeguarding checks")
 
         safeguarding_page.assert_safeguarding_check_completion_check(
             accommodation_suitable_check=(
@@ -394,7 +394,7 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
         )
 
         safeguarding_page.click_link("Overview")
-        safeguarding_page.assert_has_secondary_heading("Overview", level=4)
+        safeguarding_page.assert_has_secondary_heading("Overview")
 
         safeguarding_page.assert_summary_list_item(
             "Status", "Checks Partially Completed"
@@ -414,7 +414,7 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
         )
 
         safeguarding_page.click_link("Safeguarding checks")
-        safeguarding_page.assert_has_secondary_heading("Safeguarding checks", level=4)
+        safeguarding_page.assert_has_secondary_heading("Safeguarding checks")
 
         safeguarding_page.assert_safeguarding_check_completion_check(
             accommodation_exists_check=(
@@ -473,7 +473,7 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
         safeguarding_page.assert_has_heading(
             _record_heading(AR_REJECTED_OUTBOUND_REASSIGNMENT)
         )
-        safeguarding_page.assert_has_secondary_heading("Safeguarding checks", level=4)
+        safeguarding_page.assert_has_secondary_heading("Safeguarding checks")
 
         safeguarding_page.assert_safeguarding_check_completion_check(
             accommodation_exists_check=(
@@ -488,7 +488,7 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
         )
 
         safeguarding_page.click_link("Overview")
-        safeguarding_page.assert_has_secondary_heading("Overview", level=4)
+        safeguarding_page.assert_has_secondary_heading("Overview")
 
         safeguarding_page.assert_summary_list_item("Status", "Some Checks Failed")
 
@@ -506,7 +506,7 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
         )
 
         safeguarding_page.click_link("Safeguarding checks")
-        safeguarding_page.assert_has_secondary_heading("Safeguarding checks", level=4)
+        safeguarding_page.assert_has_secondary_heading("Safeguarding checks")
 
         safeguarding_page.assert_safeguarding_check_completion_check(
             accommodation_suitable_check=(
@@ -576,7 +576,7 @@ class TestSafeguardingAccommodationSuitible(BrowserTest):
         safeguarding_page.assert_has_heading(
             _record_heading(AR_CHECKS_PARTIALLY_COMPLETED_WITH_CASE_COMMENTS)
         )
-        safeguarding_page.assert_has_secondary_heading("Safeguarding checks", level=4)
+        safeguarding_page.assert_has_secondary_heading("Safeguarding checks")
 
     def test_javascript_functionality_accommodation_exists(
         self, safeguarding_page: SafeguardingPage

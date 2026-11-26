@@ -6,6 +6,10 @@ from ontology.models import CheckType
 from ontology.models.MvInteraction import MvInteraction
 from webapp.formatting import format_date_value
 
+# Prefix of the interaction note generated for a passed Enhanced DBS check.
+# Due to additional text on interaction being displayed
+ENHANCED_DBS_CHECK_NOTE_PREFIX = "Enhanced DBS check:"
+
 
 class DevCheckV2(models.Model):
     class CheckStatus(models.TextChoices):
@@ -330,7 +334,7 @@ class DevCheckV2(models.Model):
                 self.check_subtype
                 and self.check_subtype == self.SponsorDBSPassedType.ENHANCED_DBS
             ):
-                return f"Enhanced DBS check: {status} on {date}"
+                return f"{ENHANCED_DBS_CHECK_NOTE_PREFIX} {status} on {date}"
 
         return interaction_type + f": {status} on {date}"
 

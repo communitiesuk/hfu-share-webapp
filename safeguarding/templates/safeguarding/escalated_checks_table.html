@@ -1,9 +1,9 @@
 {% extends "webapp/components/tables/table_with_filters.html" %}
+{% load link_renderers %}
 {% block extra_buttons %}
     {% if user_can_download %}
-        <div class="app-margin--left-auto">
-            <a href="{% url 'safeguarding:escalated_checks_download_csv' %}?{{ request.GET.urlencode }}"
-               class="govuk-button govuk-button--secondary">Download data in the table</a>
-        </div>
+        <div class="moj-action-bar__filter"></div>
+        {% url "safeguarding:escalated_checks_download_csv" as download_url %}
+        {% render_govuk_link_as_button "Download data in the table" download_url|add:"?"|add:request.GET.urlencode type="secondary" %}
     {% endif %}
 {% endblock extra_buttons %}

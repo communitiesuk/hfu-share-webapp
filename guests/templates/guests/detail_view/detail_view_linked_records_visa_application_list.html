@@ -9,15 +9,15 @@
     </li>
     <li class="govuk-breadcrumbs__list-item">Visa applications associated with this guest</li>
 {% endblock breadcrumb_content %}
-{% block narrow_content %}
+{% block after_heading_content %}
     <p class="govuk-body">Results may include visa applications by other people, which contain the guest's name.</p>
-{% endblock narrow_content %}
-{% block wide_content %}
+{% endblock after_heading_content %}
+{% block full_content %}
     {% block visa_applications_list_table %}
         {% include "webapp/components/tables/table.html" %}
     {% endblock visa_applications_list_table %}
-{% endblock wide_content %}
-{% block lower_narrow_content %}
+{% endblock full_content %}
+{% block two_thirds_content %}
     <a href="{% url 'guests:detail-linked-records' object.pk %}"
        class="govuk-button govuk-button--secondary">Back to guest record</a>
-{% endblock lower_narrow_content %}
+{% endblock two_thirds_content %}

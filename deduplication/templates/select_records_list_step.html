@@ -2,12 +2,12 @@
 {% block breadcrumb_content %}
     <li class="govuk-breadcrumbs__list-item">Fix duplicate records</li>
 {% endblock breadcrumb_content %}
-{% block narrow_content %}
+{% block after_heading_content %}
     <p class="govuk-body">Select a record to review and deduplicate. You can use the filter panel to find records.</p>
     <p class="govuk-body">
         You cannot deduplicate records across lower tier local authorities (LAs). Records with links to multiple LAs are hidden from the list.
     </p>
-{% endblock narrow_content %}
-{% block wide_content %}
+{% endblock after_heading_content %}
+{% block full_content %}
     {% include table_template_url %}
-{% endblock wide_content %}
+{% endblock full_content %}

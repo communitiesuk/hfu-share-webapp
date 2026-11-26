@@ -10,6 +10,14 @@
             </div>
         </div>
     </div>
+{% elif level|message_level_to_notification_banner_variant == 'warning' %}
+    <div class="govuk-warning-text">
+        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+        <strong class="govuk-warning-text__text">
+            <span class="govuk-visually-hidden">{{ level|message_level_to_notification_banner_title }}</span>
+            {{ text }}
+        </strong>
+    </div>
 {% else %}
     <div class="govuk-notification-banner {% if level|message_level_to_notification_banner_variant %}govuk-notification-banner--{{ level|message_level_to_notification_banner_variant }}{% endif %}"
          role="region"

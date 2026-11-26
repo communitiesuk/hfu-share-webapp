@@ -1,5 +1,79 @@
 # Changelog
 
+## [2.33.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.32.0...2.33.0) (2026-11-24)
+
+
+### Features
+
+* [migration] add eligible child edit flag option to guests edit form for ops users (HFURB-4277) ([#349](https://github.com/communitiesuk/hfu-share-webapp/issues/349)) ([b93391f](https://github.com/communitiesuk/hfu-share-webapp/commit/b93391feb1ba31ba29ac0265e265d869240061f9))
+* add history view for ATSAC (HFURB-4275) ([#355](https://github.com/communitiesuk/hfu-share-webapp/issues/355)) ([f3a4dff](https://github.com/communitiesuk/hfu-share-webapp/commit/f3a4dff4946ec71fc496705c482a1a74b143035f))
+* ARs created from a partial split gain new created_at and created_by values (HFURB-4397) ([#358](https://github.com/communitiesuk/hfu-share-webapp/issues/358)) ([bfd78b3](https://github.com/communitiesuk/hfu-share-webapp/commit/bfd78b3ffdd362db5d90de92099a6aaa00075e4a))
+* HFURB-4275 add the forms for the status checks ([#353](https://github.com/communitiesuk/hfu-share-webapp/issues/353)) ([ba24bf7](https://github.com/communitiesuk/hfu-share-webapp/commit/ba24bf7a61fc51e0687500433f7a50b543500eec))
+* HFURB-4330 remove old properties and add Eligible child name to the list view and the overview ([#359](https://github.com/communitiesuk/hfu-share-webapp/issues/359)) ([10c7946](https://github.com/communitiesuk/hfu-share-webapp/commit/10c79462660325b6fe917666cd04af67a3c7b119))
+
+
+### Bug Fixes
+
+* stop assigning an LA from moving records already in another LA ([#352](https://github.com/communitiesuk/hfu-share-webapp/issues/352)) ([42bbebd](https://github.com/communitiesuk/hfu-share-webapp/commit/42bbebd02dc5b6282c69fa064f62ac2026227c29))
+
+## [2.32.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.31.0...2.32.0) (2026-11-19)
+
+
+### Features
+
+* AR uam status is recalculated during rematch and reassign if new AR was created ([#350](https://github.com/communitiesuk/hfu-share-webapp/issues/350)) ([6c04d35](https://github.com/communitiesuk/hfu-share-webapp/commit/6c04d359f0cb8ea812286fd413cea538fd299ee0))
+* HFURB-4275 add method and interaction for updating the uam ([#345](https://github.com/communitiesuk/hfu-share-webapp/issues/345)) ([9ff52f0](https://github.com/communitiesuk/hfu-share-webapp/commit/9ff52f0eb203ff818c0ec8d1534ab15754bfec05))
+* HFURB-4275 add the summary page for the UAM checks ([#341](https://github.com/communitiesuk/hfu-share-webapp/issues/341)) ([4dfde7f](https://github.com/communitiesuk/hfu-share-webapp/commit/4dfde7faae1fc618d200eaaea0e15469e68dff45))
+* HFURB-4381 add feature flag for the UAMs checks work ([#343](https://github.com/communitiesuk/hfu-share-webapp/issues/343)) ([a337596](https://github.com/communitiesuk/hfu-share-webapp/commit/a337596c844bd6b404b9bf35ca811b21242cee50))
+
+## [2.31.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.30.0...2.31.0) (2026-11-17)
+
+
+### Features
+
+* [migration] add new checks fields to sponshorship cert form (HFURB-4271) ([#324](https://github.com/communitiesuk/hfu-share-webapp/issues/324)) ([3c4ea33](https://github.com/communitiesuk/hfu-share-webapp/commit/3c4ea33ab06394d88be83fdd9fe15800d46e6ee8))
+* add application status tag to overview (HFURB-4273) ([#328](https://github.com/communitiesuk/hfu-share-webapp/issues/328)) ([b0d9be5](https://github.com/communitiesuk/hfu-share-webapp/commit/b0d9be59086becd9f3ead0a63fb6e9b5f6979b48))
+* add application status to ATSAC list view and filters (HFURB-4274) ([#329](https://github.com/communitiesuk/hfu-share-webapp/issues/329)) ([ec337a1](https://github.com/communitiesuk/hfu-share-webapp/commit/ec337a14c8ebae07549b0b4e3dc333b10b9d6e67))
+* add counter to ATSAC tile (HFURB-4272) ([#331](https://github.com/communitiesuk/hfu-share-webapp/issues/331)) ([53efa9c](https://github.com/communitiesuk/hfu-share-webapp/commit/53efa9c22aaf551e31005bc2b63cc1f1f0d67366))
+* add EOI explainer and add EOI host to sponsor properties tab (HFURB-3996) ([#339](https://github.com/communitiesuk/hfu-share-webapp/issues/339)) ([41cf328](https://github.com/communitiesuk/hfu-share-webapp/commit/41cf328237985c3f03c14ffe0037d82ccd83c17e))
+* remove extra button under side nav on record overviews ([#336](https://github.com/communitiesuk/hfu-share-webapp/issues/336)) ([f62318e](https://github.com/communitiesuk/hfu-share-webapp/commit/f62318ea3ce161f0d06cbf9fcef8110126c46d19))
+
+
+### Bug Fixes
+
+* filter duplicate accommodations from primary sponsor options ([#342](https://github.com/communitiesuk/hfu-share-webapp/issues/342)) ([de4ceb1](https://github.com/communitiesuk/hfu-share-webapp/commit/de4ceb1aff8ee904fad4ce78e85051c0cfb00711))
+* filter duplicate accommodations from rematch options ([#340](https://github.com/communitiesuk/hfu-share-webapp/issues/340)) ([c248e00](https://github.com/communitiesuk/hfu-share-webapp/commit/c248e00e21ac9420a3b1544768a49db322a0d2d6))
+
+## [2.30.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.29.0...2.30.0) (2026-11-11)
+
+
+### Features
+
+* HFURB-2853 switch record pages to side navigation ([#276](https://github.com/communitiesuk/hfu-share-webapp/issues/276)) ([28b5ad7](https://github.com/communitiesuk/hfu-share-webapp/commit/28b5ad7c23a7e2eee9097c8c6025e1cfe1fe626d))
+* HFURB-4267 add some text related to DBS checks to explain them a bit more ([#321](https://github.com/communitiesuk/hfu-share-webapp/issues/321)) ([5a15146](https://github.com/communitiesuk/hfu-share-webapp/commit/5a15146617bbed8e9eee909c8736e812515581d5))
+* HFURB-4309 update the layout of filters to match MOJ Frontend recommendations ([#280](https://github.com/communitiesuk/hfu-share-webapp/issues/280)) ([cae9f2c](https://github.com/communitiesuk/hfu-share-webapp/commit/cae9f2cedaf7701f5e5de1a6925cf1e15bab89ba))
+
+
+### Bug Fixes
+
+* HFURB-2853 use fetch to reload the content of the page and maintain the location ([#291](https://github.com/communitiesuk/hfu-share-webapp/issues/291)) ([29707c5](https://github.com/communitiesuk/hfu-share-webapp/commit/29707c5a3205c8fc3472eebb4b9baf77dc817862))
+
+## [2.29.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.28.0...2.29.0) (2026-11-10)
+
+
+### Features
+
+* HFURB-4265 update the VIR acronym to mainly say visa information requests ([#320](https://github.com/communitiesuk/hfu-share-webapp/issues/320)) ([cab8ffb](https://github.com/communitiesuk/hfu-share-webapp/commit/cab8ffb8bb83016811a3821a08ed8bc1faad2ac1))
+* update guidance on local authority selection screen when requesting access (HFURB-1006) ([#314](https://github.com/communitiesuk/hfu-share-webapp/issues/314)) ([648dad9](https://github.com/communitiesuk/hfu-share-webapp/commit/648dad99f155109fcae31d2846cf7218249a685b))
+
+## [2.28.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.27.0...2.28.0) (2026-11-02)
+
+
+### Features
+
+* HFURB-4314 move pages onto shared page base ([#288](https://github.com/communitiesuk/hfu-share-webapp/issues/288)) ([63565cb](https://github.com/communitiesuk/hfu-share-webapp/commit/63565cb6b60f73580e11421bc8b3b4025d99fb73))
+* HFURB-4314++ notification banner content width ([#289](https://github.com/communitiesuk/hfu-share-webapp/issues/289)) ([c3bbc95](https://github.com/communitiesuk/hfu-share-webapp/commit/c3bbc952d75f67315cc907566300c20c41309b83))
+
 ## [2.27.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.26.1...2.27.0) (2026-10-28)
 
 

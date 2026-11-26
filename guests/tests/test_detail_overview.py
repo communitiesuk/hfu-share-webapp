@@ -1,6 +1,7 @@
 import http.client
 from datetime import date, datetime, timezone
 
+from bs4 import BeautifulSoup
 from django.urls import reverse
 
 from accounts.enums import GroupType
@@ -14,6 +15,7 @@ from user_management.tests.base import (
     get_admin_user,
     get_da_user,
     get_la_user,
+    get_mhclg_user,
     get_ukvi_user,
 )
 
@@ -154,6 +156,28 @@ class GuestDetailOverviewViewTests(TestSessionTokenMixin, BaseTestCase):
             html=True,
         )
 
+    def test_overview_shows_eligible_child(self):
+        self.guest.is_uam = True
+        self.guest.save()
+        self.client.force_login(get_admin_user())
+
+        response = self.client.get(self.overview_url)
+
+        soup = BeautifulSoup(response.content, "html.parser")
+        label = soup.find("dt", string="Eligible child (UAM)")
+        self.assertEqual(label.find_next_sibling("dd").get_text(strip=True), "Yes")
+
+    def test_mhclg_user_sees_change_link(self):
+        self.guest.is_principal = True
+        self.guest.save()
+        self.client.force_login(get_mhclg_user())
+
+        response = self.client.get(self.overview_url)
+
+        self.assertContains(
+            response, reverse("guests:detail-edit", kwargs={"pk": self.guest.pk})
+        )
+
     def test_duplicate_label_renders_for_duplicate_guests_only(
         self,
     ):
@@ -221,3 +245,22 @@ class GuestDetailOverviewViewTests(TestSessionTokenMixin, BaseTestCase):
         self.assertNotContains(
             response, "This record is a duplicate and cannot be changed."
         )
+
+    def test_overview_page_shows_record_sections_as_side_navigation(self):
+        admin_user = get_admin_user()
+        admin_user.groups.add(self.ltla_group)
+        self.client.force_login(admin_user)
+        properties_url = reverse(
+            "guests:detail-properties", kwargs={"pk": self.guest.pk}
+        )
+
+        response = self.client.get(self.overview_url)
+
+        content = response.content.decode()
+        self.assertContains(response, 'aria-label="Record sections"')
+        self.assertInHTML(
+            f'<a href="{self.overview_url}" aria-current="location">Overview</a>',
+            content,
+        )
+        self.assertInHTML(f'<a href="{properties_url}">Properties</a>', content)
+        self.assertNotContains(response, "govuk-tabs")

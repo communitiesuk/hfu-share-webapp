@@ -60,6 +60,40 @@ class TimelineTemplateTests(BaseSimpleTestCase):
         self.assertIn("This is a test note.", rendered)
         self.assertIn("12 August 2025 at 5:09pm", rendered)
 
+    def test_enhanced_dbs_check_interaction_renders_disclosure_scotland_note(self):
+        enhanced_dbs_event = {
+            "created_at": timezone.datetime(2025, 8, 12, 17, 9),
+            "title": "DBS check and Sponsor suitable: Enhanced DBS",
+            "interaction_notes": "Enhanced DBS check: passed on 12 August 2025",
+        }
+        template_string = """
+            {% load timeline_extras %}
+            {% include 'webapp/components/timeline/timeline_item.html' with date=event.created_at title=event.title content=event.interaction_notes|format_interaction_content forloop=forloop %}
+            """  # noqa: E501
+        context = {"event": enhanced_dbs_event, "forloop": {"counter": 1}}
+        rendered = self.render_template(template_string, context)
+        self.assertIn("Enhanced DBS check: passed on 12 August 2025", rendered)
+        self.assertIn(
+            "(For Disclosure Scotland this refers to "
+            "‘Level 2 with barred list check’.)",
+            rendered,
+        )
+
+    def test_basic_dbs_check_interaction_does_not_render_disclosure_note(self):
+        basic_dbs_event = {
+            "created_at": timezone.datetime(2025, 8, 12, 17, 9),
+            "title": "DBS check and Sponsor suitable: Basic DBS",
+            "interaction_notes": "Basic DBS check: passed on 12 August 2025",
+        }
+        template_string = """
+            {% load timeline_extras %}
+            {% include 'webapp/components/timeline/timeline_item.html' with date=event.created_at title=event.title content=event.interaction_notes|format_interaction_content forloop=forloop %}
+            """  # noqa: E501
+        context = {"event": basic_dbs_event, "forloop": {"counter": 1}}
+        rendered = self.render_template(template_string, context)
+        self.assertIn("Basic DBS check: passed on 12 August 2025", rendered)
+        self.assertNotIn("Disclosure Scotland", rendered)
+
     def test_interactions_timeline_list_renders(self):
         template_string = """
         {% include 'webapp/components/timeline/timeline_list.html' with events=events %}

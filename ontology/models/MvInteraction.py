@@ -45,6 +45,28 @@ class MvInteraction(models.Model):
         CURRENT_ACCOMMODATION_AND_HOST_CONFIRMED = (
             "Current accommodation and host confirmed"
         )
+        UK_CONSENT_FORM_STATUS_CHECK = "UK consent form check"
+        UKRAINE_CONSENT_FORM_STATUS_CHECK = "Ukraine consent form check"
+        SPONSOR_IMMIGRATION_ELIGIBILITY_STATUS_CHECK = (
+            "Sponsor immigration eligibility check"
+        )
+        SPONSOR_HOUSEHOLD_SECURITY_CHECKS_STATUS_CHECK = (
+            "Sponsor and household security checks"
+        )
+        SPONSOR_HOUSEHOLD_ENHANCED_DBS_STATUS_CHECK = (
+            "Sponsor and household members enhanced DBS check"
+        )
+        ACCOMMODATION_SUITABLE_STATUS_CHECK = "Accommodation suitable check"
+        SPONSOR_ROLE_AND_EXPECTATIONS_STATUS_CHECK = (
+            "Sponsor role and expectations check"
+        )
+        SPONSOR_ARRANGEMENTS_SUITABLE_STATUS_CHECK = (
+            "Sponsor arrangements suitable check"
+        )
+        SPONSOR_CERTIFICATION_CODE_EMAILED_CHECK = "Sponsor certification code sent"
+        SPONSOR_CERTIFICATION_CODE_NOT_EMAILED_CHECK = (
+            "Sponsor certification code not sent"
+        )
 
     attachment = models.TextField(null=True, blank=True, db_column="attachment")
     created_at = models.DateTimeField(
@@ -144,6 +166,15 @@ class MvInteraction(models.Model):
         blank=True,
         db_constraint=False,
         db_column="linked_safeguarding_notification",
+    )
+    linked_uam = models.ForeignKey(
+        "ontology.SponsorshipCertificationForm",
+        on_delete=models.CASCADE,
+        related_name="+",
+        null=True,
+        blank=True,
+        db_constraint=False,
+        db_column="linked_uam_id",
     )
     old_accommodation_request = models.ForeignKey(
         "ontology.MvAccommodationRequest",

@@ -1,9 +1,9 @@
 {% extends "unassigned_accommodation_requests/assign_local_authority/assign_local_authority_base.html" %}
 {% load crispy_forms_tags %}
-{% block narrow_content %}
+{% block after_heading_content %}
     <form method="post" novalidate>
         {% csrf_token %}
         {{ wizard.management_form }}
         {% crispy form %}
     </form>
-{% endblock narrow_content %}
+{% endblock after_heading_content %}

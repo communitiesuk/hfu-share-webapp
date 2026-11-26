@@ -38,6 +38,7 @@ from ontology.models import (
     MvPerson,
     MvUkPostcode,
     MvVolunteer,
+    SponsorshipCertificationForm,
 )
 from webapp.constants import AUDIT_EVENT_TYPE_ACTION
 from webapp.formatting import format_date_value, to_local_date
@@ -725,6 +726,12 @@ class BaseInteractionTimelineEventsMixin(BaseTimelineEventsMixin):
                 created_at__gte=start,
                 created_at__lte=end,
             )
+        elif isinstance(obj, SponsorshipCertificationForm):
+            return MvInteraction.objects.filter(
+                linked_uam=obj,
+                created_at__gte=start,
+                created_at__lte=end,
+            )
         return MvInteraction.objects.none()
 
     def _get_applicable_group_configs(self) -> list[dict]:
@@ -1002,11 +1009,12 @@ class DetailViewMixin(ABC):
         "safeguarding-checks": "Safeguarding checks",
         "actions": "Actions",
         "linked-records": "Linked records",
+        "checks": "Checks",
         "files": "Files",
         "properties": "Properties",
         "comments": "Comments",
         "history": "History",
-        "vir": "VIR",
+        "vir": "Visa information request",
     }
     views_with_full_width_tab_content = {
         "properties",

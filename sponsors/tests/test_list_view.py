@@ -69,6 +69,18 @@ class DeduplicationSponsorListViewTestCase(TestSessionTokenMixin, BaseTestCase):
         self.assertContains(response, "EOI host")
         self.assertContains(response, "Date added")
 
+    def test_renders_eoi_host_explanation(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("sponsors:sponsors"))
+
+        self.assertContains(
+            response,
+            "'EOI host' shows that the host applied through the "
+            "'record your interest' form, or expression of interest (EOI).",
+        )
+
     def test_renders_sponsor_list_content(self):
         user = get_admin_user()
         self.client.force_login(user)

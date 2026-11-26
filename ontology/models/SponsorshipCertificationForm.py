@@ -1,41 +1,164 @@
+from enum import Enum
+from functools import reduce
+from operator import add
+
 from django.contrib.postgres.fields import ArrayField
-from django.db import models
-from django.db.models import Case, Q, Value, When
+from django.db import models, transaction
+from django.db.models import Case, CharField, IntegerField, Q, Value, When
 from django.db.models.functions import Concat
 
+from accounts.models import User
 from ontology.mixins import LocalAuthorityPermissionsManagerMixin
-from ontology.utils import LinkedRecordData
+from ontology.models.MvInteraction import MvInteraction
+from ontology.utils import LinkedRecordData, build_full_name
 
 
 class SponsorshipCertificationFormQuerySet(models.QuerySet):
-    def with_sponsor_full_name(self):
-        missing_given_name = Q(given_name__isnull=True) | Q(given_name__exact="")
-        missing_family_name = Q(family_name__isnull=True) | Q(family_name__exact="")
+    def _with_full_name(self, given_name_attribute, family_name_attribute, annotation):
+        missing_given_name = Q(**{f"{given_name_attribute}__isnull": True}) | Q(
+            **{f"{given_name_attribute}__exact": ""}
+        )
+        missing_family_name = Q(**{f"{family_name_attribute}__isnull": True}) | Q(
+            **{f"{family_name_attribute}__exact": ""}
+        )
 
         return self.annotate(
-            sponsor_full_name=Case(
-                When(
-                    missing_given_name & missing_family_name,
-                    then=Value(None, output_field=models.TextField()),
-                ),
-                default=Concat(
-                    "given_name",
-                    Value(" "),
-                    "family_name",
+            **{
+                annotation: Case(
+                    When(
+                        missing_given_name & missing_family_name,
+                        then=Value(None, output_field=models.TextField()),
+                    ),
+                    default=Concat(
+                        given_name_attribute,
+                        Value(" "),
+                        family_name_attribute,
+                        output_field=models.TextField(),
+                    ),
                     output_field=models.TextField(),
+                )
+            }
+        )
+
+    def with_sponsor_full_name(self):
+        return self._with_full_name("given_name", "family_name", "sponsor_full_name")
+
+    def with_minor_full_name(self):
+        return self._with_full_name(
+            "minor_given_name", "minor_family_name", "eligible_child_name"
+        )
+
+    def with_pre_approval_status(self):
+        # Allows status and filters to run this on the same queryset chain
+        if "pre_approval_status" in self.query.annotations:
+            return self
+
+        model: SponsorshipCertificationForm = self.model
+
+        passed = model.PreApprovalCheckStatus.PASSED
+        in_progress = model.PreApprovalCheckStatus.IN_PROGRESS
+        failed = model.PreApprovalCheckStatus.FAILED
+
+        ukvi_fields = model.UKVI_CHECK_FIELDS
+        la_fields = model.LA_CHECK_FIELDS
+        all_check_fields = ukvi_fields + la_fields
+
+        def recorded_count(fields):
+            return reduce(
+                add,
+                (
+                    Case(
+                        When(
+                            Q(**{field.value: passed})
+                            | Q(**{field.value: in_progress})
+                            | Q(**{field.value: failed}),
+                            then=Value(1),
+                        ),
+                        default=Value(0),
+                        output_field=IntegerField(),
+                    )
+                    for field in fields
                 ),
-                output_field=models.TextField(),
+            )
+
+        def any_in_state(fields, state):
+            return Q(
+                *[Q(**{field.value: state}) for field in fields],
+                _connector=Q.OR,
+            )
+
+        all_not_recorded = Q(
+            *[Q(**{f"{field.value}__isnull": True}) for field in all_check_fields],
+            _connector=Q.AND,
+        )
+
+        ukvi_failed = any_in_state(ukvi_fields, failed)
+        ukvi_in_progres = any_in_state(ukvi_fields, in_progress)
+        la_failed = any_in_state(la_fields, failed)
+        la_in_progres = any_in_state(la_fields, in_progress)
+
+        return self.alias(
+            ukvi_recorded=recorded_count(ukvi_fields),
+            la_recorded=recorded_count(la_fields),
+        ).annotate(
+            pre_approval_status=Case(
+                When(
+                    all_not_recorded,
+                    then=Value(model.PreApprovalStatus.STATUS_NOT_RECORDED),
+                ),
+                When(
+                    ukvi_failed,
+                    then=Value(model.PreApprovalStatus.FAILED_UKVI_CHECKS),
+                ),
+                When(
+                    ukvi_recorded=0,
+                    then=Value(model.PreApprovalStatus.WAITING_FOR_UKVI_CHECKS),
+                ),
+                When(
+                    ukvi_in_progres,
+                    then=Value(model.PreApprovalStatus.UKVI_CHECKS_IN_PROGRESS),
+                ),
+                When(
+                    ukvi_recorded__lt=len(ukvi_fields),
+                    then=Value(model.PreApprovalStatus.UKVI_CHECKS_IN_PROGRESS),
+                ),
+                When(
+                    la_failed,
+                    then=Value(model.PreApprovalStatus.FAILED_LA_CHECKS),
+                ),
+                When(
+                    la_recorded=0,
+                    then=Value(model.PreApprovalStatus.WAITING_FOR_LA_CHECKS),
+                ),
+                When(
+                    la_in_progres,
+                    then=Value(model.PreApprovalStatus.LA_CHECKS_IN_PROGRESS),
+                ),
+                When(
+                    la_recorded__lt=len(la_fields),
+                    then=Value(model.PreApprovalStatus.LA_CHECKS_IN_PROGRESS),
+                ),
+                When(
+                    Q(sponsor_certification_code_emailed=False)
+                    | Q(sponsor_certification_code_emailed__isnull=True),
+                    then=Value(model.PreApprovalStatus.PASSED_ALL_CHECKS),
+                ),
+                default=Value(model.PreApprovalStatus.COMPLETED),
+                output_field=CharField(),
             )
         )
 
 
 class SponsorshipCertificationFormManager(
-    LocalAuthorityPermissionsManagerMixin, models.Manager
+    LocalAuthorityPermissionsManagerMixin[SponsorshipCertificationFormQuerySet],
+    models.Manager.from_queryset(SponsorshipCertificationFormQuerySet),
 ):
     def get_queryset(self):
-        return SponsorshipCertificationFormQuerySet(
-            self.model, using=self._db
-        ).with_sponsor_full_name()
+        return (
+            SponsorshipCertificationFormQuerySet(self.model, using=self._db)
+            .with_sponsor_full_name()
+            .with_minor_full_name()
+        )
 
     def _filter_by_ltla_name(self, ltla_names: list[str]) -> Q:
         return Q(ltla_name__overlap=ltla_names) & ~Q(ltla_name__contained_by=[])
@@ -60,6 +183,132 @@ class SponsorshipCertificationForm(models.Model):
         PHOTO_DRIVING_LICENCE = ("photo_driving_licence", "Photo driving licence")
         REFUGEE_TRAVEL_DOCUMENT = ("refugee_travel_document", "Refugee Travel Document")
         NONE = ("none", "None provided")
+
+    class PreApprovalCheckStatus(models.TextChoices):
+        NOT_STARTED = ("Not started", "Not started")
+        IN_PROGRESS = ("In progress", "In progress")
+        PASSED = ("Passed", "Passed")
+        FAILED = ("Failed", "Failed")
+
+    class PreApprovalStatus(models.TextChoices):
+        """
+        Overall status of the pre-approval checks, worked out from the
+        individual check fields. Used for display only, not stored.
+        """
+
+        WAITING_FOR_UKVI_CHECKS = ("Waiting for UKVI checks", "Waiting for UKVI checks")
+        UKVI_CHECKS_IN_PROGRESS = ("UKVI checks in progress", "UKVI checks in progress")
+        FAILED_UKVI_CHECKS = ("Failed UKVI checks", "Failed UKVI checks")
+        WAITING_FOR_LA_CHECKS = ("Waiting for LA checks", "Waiting for LA checks")
+        LA_CHECKS_IN_PROGRESS = ("LA checks in progress", "LA checks in progress")
+        FAILED_LA_CHECKS = ("Failed LA checks", "Failed LA checks")
+        PASSED_ALL_CHECKS = ("Passed all checks", "Passed all checks")
+        COMPLETED = ("Completed", "Completed")
+        # Applications submitted before the pre-approval process was added
+        STATUS_NOT_RECORDED = ("Status not recorded", "Status not recorded")
+
+    class PreApprovalCheckCodeSentStatus(Enum):
+        CANNOT_SEND_CODE = "Cannot send code"
+        NO_LONGER_NEEDED = "No longer needed"
+        CODE_NOT_SENT = "Code not sent"
+        CODE_SENT = "Code sent"
+
+    class PreApprovalCheckField(Enum):
+        UK_CONSENT_FORM_STATUS = "uk_consent_form_status"
+        UKRAINE_CONSENT_FORM_STATUS = "ukraine_consent_form_status"
+        SPONSOR_IMMIGRATION_ELIGIBILITY_STATUS = (
+            "sponsor_immigration_eligibility_status"
+        )
+        SPONSOR_HOUSEHOLD_SECURITY_CHECKS_STATUS = (
+            "sponsor_household_security_checks_status"
+        )
+        SPONSOR_HOUSEHOLD_ENHANCED_DBS_STATUS = "sponsor_household_enhanced_dbs_status"
+        ACCOMMODATION_EXISTS_STATUS = "accommodation_exists_status"
+        ACCOMMODATION_SUITABLE_STATUS = "accommodation_suitable_status"
+        SPONSOR_ROLE_AND_EXPECTATIONS_STATUS = "sponsor_role_and_expectations_status"
+        SPONSOR_ARRANGEMENTS_SUITABLE_STATUS = "sponsor_arrangements_suitable_status"
+        SPONSOR_CERTIFICATION_CODE_EMAILED = "sponsor_certification_code_emailed"
+
+    UKVI_CHECK_FIELDS = (
+        PreApprovalCheckField.UK_CONSENT_FORM_STATUS,
+        PreApprovalCheckField.UKRAINE_CONSENT_FORM_STATUS,
+        PreApprovalCheckField.SPONSOR_IMMIGRATION_ELIGIBILITY_STATUS,
+        PreApprovalCheckField.SPONSOR_HOUSEHOLD_SECURITY_CHECKS_STATUS,
+    )
+    LA_CHECK_FIELDS = (
+        PreApprovalCheckField.SPONSOR_HOUSEHOLD_ENHANCED_DBS_STATUS,
+        PreApprovalCheckField.ACCOMMODATION_EXISTS_STATUS,
+        PreApprovalCheckField.ACCOMMODATION_SUITABLE_STATUS,
+        PreApprovalCheckField.SPONSOR_ROLE_AND_EXPECTATIONS_STATUS,
+        PreApprovalCheckField.SPONSOR_ARRANGEMENTS_SUITABLE_STATUS,
+    )
+
+    PRE_APPROVAL_CHECK_INTERACTION = {
+        PreApprovalCheckField.UK_CONSENT_FORM_STATUS: {
+            "title": MvInteraction.InteractionContact.UK_CONSENT_FORM_STATUS_CHECK,
+            "note": "UK consent form: {check_status}",
+        },
+        PreApprovalCheckField.UKRAINE_CONSENT_FORM_STATUS: {
+            "title": MvInteraction.InteractionContact.UKRAINE_CONSENT_FORM_STATUS_CHECK,
+            "note": "Ukraine consent form: {check_status}",
+        },
+        PreApprovalCheckField.SPONSOR_IMMIGRATION_ELIGIBILITY_STATUS: {
+            "title": (
+                MvInteraction.InteractionContact.SPONSOR_IMMIGRATION_ELIGIBILITY_STATUS_CHECK
+            ),
+            "note": "Sponsor immigration eligibility: {check_status}",
+        },
+        PreApprovalCheckField.SPONSOR_HOUSEHOLD_SECURITY_CHECKS_STATUS: {
+            "title": (
+                MvInteraction.InteractionContact.SPONSOR_HOUSEHOLD_SECURITY_CHECKS_STATUS_CHECK
+            ),
+            "note": "Sponsor and household security checks: {check_status}",
+        },
+        PreApprovalCheckField.SPONSOR_HOUSEHOLD_ENHANCED_DBS_STATUS: {
+            "title": (
+                MvInteraction.InteractionContact.SPONSOR_HOUSEHOLD_ENHANCED_DBS_STATUS_CHECK
+            ),
+            "note": "Sponsor and household members enhanced DBS: {check_status}",
+        },
+        PreApprovalCheckField.ACCOMMODATION_EXISTS_STATUS: {
+            "title": (MvInteraction.InteractionContact.ACCOMMODATION_EXISTS_CHECK),
+            "note": "Accommodation exists: {check_status}",
+        },
+        PreApprovalCheckField.ACCOMMODATION_SUITABLE_STATUS: {
+            "title": (
+                MvInteraction.InteractionContact.ACCOMMODATION_SUITABLE_STATUS_CHECK
+            ),
+            "note": "Accommodation suitable: {check_status}",
+        },
+        PreApprovalCheckField.SPONSOR_ROLE_AND_EXPECTATIONS_STATUS: {
+            "title": (
+                MvInteraction.InteractionContact.SPONSOR_ROLE_AND_EXPECTATIONS_STATUS_CHECK
+            ),
+            "note": "Sponsor role and expectations: {check_status}",
+        },
+        PreApprovalCheckField.SPONSOR_ARRANGEMENTS_SUITABLE_STATUS: {
+            "title": (
+                MvInteraction.InteractionContact.SPONSOR_ARRANGEMENTS_SUITABLE_STATUS_CHECK
+            ),
+            "note": "Sponsor arrangements suitable: {check_status}",
+        },
+        PreApprovalCheckField.SPONSOR_CERTIFICATION_CODE_EMAILED: {
+            "sent": {
+                "title": (
+                    MvInteraction.InteractionContact.SPONSOR_CERTIFICATION_CODE_EMAILED_CHECK
+                ),
+                "note": (
+                    "Sponsor certification code: {reference_code} emailed to sponsor"
+                ),
+            },
+            "not_sent": {
+                "title": (
+                    MvInteraction.InteractionContact.SPONSOR_CERTIFICATION_CODE_NOT_EMAILED_CHECK
+                ),
+                "note": "Sponsor certification code marked as not sent",
+            },
+        },
+    }
 
     certificate_reference = models.TextField(
         null=True,
@@ -243,6 +492,199 @@ class SponsorshipCertificationForm(models.Model):
     viewer_group_names = ArrayField(
         models.TextField(), null=True, blank=True, db_column="viewer_group_names"
     )
+    # UKVI checks
+    uk_consent_form_status = models.TextField(
+        null=True,
+        blank=True,
+        db_column="uk_consent_form_status",
+        choices=PreApprovalCheckStatus.choices,
+        verbose_name="UK consent form",
+    )
+    ukraine_consent_form_status = models.TextField(
+        null=True,
+        blank=True,
+        db_column="ukraine_consent_form_status",
+        choices=PreApprovalCheckStatus.choices,
+        verbose_name="Ukraine consent form",
+    )
+    sponsor_immigration_eligibility_status = models.TextField(
+        null=True,
+        blank=True,
+        db_column="sponsor_immigration_eligibility_status",
+        choices=PreApprovalCheckStatus.choices,
+        verbose_name="Sponsor immigration eligibility",
+    )
+    sponsor_household_security_checks_status = models.TextField(
+        null=True,
+        blank=True,
+        db_column="sponsor_household_security_checks_status",
+        choices=PreApprovalCheckStatus.choices,
+        verbose_name="Sponsor and household security checks",
+    )
+    # Local authority checks
+    sponsor_household_enhanced_dbs_status = models.TextField(
+        null=True,
+        blank=True,
+        db_column="sponsor_household_enhanced_dbs_status",
+        choices=PreApprovalCheckStatus.choices,
+        verbose_name="Sponsor and household members enhanced DBS",
+    )
+    accommodation_exists_status = models.TextField(
+        null=True,
+        blank=True,
+        db_column="accommodation_exists_status",
+        choices=PreApprovalCheckStatus.choices,
+        verbose_name="Accommodation exists",
+    )
+    accommodation_suitable_status = models.TextField(
+        null=True,
+        blank=True,
+        db_column="accommodation_suitable_status",
+        choices=PreApprovalCheckStatus.choices,
+        verbose_name="Accommodation suitable",
+    )
+    sponsor_role_and_expectations_status = models.TextField(
+        null=True,
+        blank=True,
+        db_column="sponsor_role_and_expectations_status",
+        choices=PreApprovalCheckStatus.choices,
+        verbose_name="Sponsor role and expectations",
+    )
+    sponsor_arrangements_suitable_status = models.TextField(
+        null=True,
+        blank=True,
+        db_column="sponsor_arrangements_suitable_status",
+        choices=PreApprovalCheckStatus.choices,
+        verbose_name="Sponsor arrangements suitable",
+    )
+    sponsor_certification_code_emailed = models.BooleanField(
+        db_column="sponsor_certification_code_emailed",
+        db_default=False,
+        verbose_name="Code sent to sponsor",
+    )
+
+    def _summarise_checks(
+        self, check_fields: tuple[PreApprovalCheckField, ...]
+    ) -> tuple[int, bool, bool]:
+        statuses = [getattr(self, field.value) for field in check_fields]
+        recorded = [
+            status
+            for status in statuses
+            if status
+            in (
+                self.PreApprovalCheckStatus.IN_PROGRESS,
+                self.PreApprovalCheckStatus.PASSED,
+                self.PreApprovalCheckStatus.FAILED,
+            )
+        ]
+        return (
+            len(recorded),
+            self.PreApprovalCheckStatus.IN_PROGRESS in recorded,
+            self.PreApprovalCheckStatus.FAILED in recorded,
+        )
+
+    def get_pre_approval_status(self) -> PreApprovalStatus:
+        """
+        The UKVI checks are done first, then the LA checks, then the sponsor
+        certification code is emailed to the sponsor. A set of checks fails as
+        soon as any check in it fails, and only passes once every check in it
+        has passed.
+        """
+        all_check_fields = self.UKVI_CHECK_FIELDS + self.LA_CHECK_FIELDS
+        if all(getattr(self, field.value) is None for field in all_check_fields):
+            return self.PreApprovalStatus.STATUS_NOT_RECORDED
+
+        ukvi_recorded, ukvi_in_progress, ukvi_failed = self._summarise_checks(
+            self.UKVI_CHECK_FIELDS
+        )
+        if ukvi_failed:
+            return self.PreApprovalStatus.FAILED_UKVI_CHECKS
+        if ukvi_recorded == 0:
+            return self.PreApprovalStatus.WAITING_FOR_UKVI_CHECKS
+        if ukvi_in_progress or ukvi_recorded < len(self.UKVI_CHECK_FIELDS):
+            return self.PreApprovalStatus.UKVI_CHECKS_IN_PROGRESS
+
+        la_recorded, la_in_progress, la_failed = self._summarise_checks(
+            self.LA_CHECK_FIELDS
+        )
+        if la_failed:
+            return self.PreApprovalStatus.FAILED_LA_CHECKS
+        if la_recorded == 0:
+            return self.PreApprovalStatus.WAITING_FOR_LA_CHECKS
+        if la_in_progress or la_recorded < len(self.LA_CHECK_FIELDS):
+            return self.PreApprovalStatus.LA_CHECKS_IN_PROGRESS
+
+        if not self.sponsor_certification_code_emailed:
+            return self.PreApprovalStatus.PASSED_ALL_CHECKS
+
+        return self.PreApprovalStatus.COMPLETED
+
+    def get_pre_approval_check_code_sent_status(
+        self, pre_approval_status: PreApprovalStatus | None = None
+    ) -> PreApprovalCheckCodeSentStatus:
+        if pre_approval_status is None:
+            pre_approval_status = self.get_pre_approval_status()
+
+        if self.sponsor_certification_code_emailed:
+            return self.PreApprovalCheckCodeSentStatus.CODE_SENT
+
+        if pre_approval_status in [
+            self.PreApprovalStatus.PASSED_ALL_CHECKS,
+            self.PreApprovalStatus.COMPLETED,
+        ]:
+            return self.PreApprovalCheckCodeSentStatus.CODE_NOT_SENT
+
+        if pre_approval_status in [
+            self.PreApprovalStatus.FAILED_UKVI_CHECKS,
+            self.PreApprovalStatus.FAILED_LA_CHECKS,
+        ]:
+            return self.PreApprovalCheckCodeSentStatus.NO_LONGER_NEEDED
+
+        return self.PreApprovalCheckCodeSentStatus.CANNOT_SEND_CODE
+
+    def _get_interaction_details(
+        self,
+        check: PreApprovalCheckField,
+        check_status_or_code_sent: PreApprovalCheckStatus | bool,
+    ):
+        if check is self.PreApprovalCheckField.SPONSOR_CERTIFICATION_CODE_EMAILED:
+            interaction_details = self.PRE_APPROVAL_CHECK_INTERACTION[check][
+                "sent" if check_status_or_code_sent else "not_sent"
+            ]
+            format_kwargs = {"reference_code": self.certificate_reference}
+        else:
+            interaction_details = self.PRE_APPROVAL_CHECK_INTERACTION[check]
+            format_kwargs = {"check_status": check_status_or_code_sent.lower()}
+
+        return interaction_details["title"], interaction_details["note"].format(
+            **format_kwargs
+        )
+
+    @transaction.atomic
+    def update_pre_approval_check_status(
+        self,
+        check: PreApprovalCheckField,
+        check_status_or_code_sent: PreApprovalCheckStatus | bool,
+        user: User,
+    ):
+        if check not in self.PreApprovalCheckField:
+            raise ValueError(f"Unknown pre-approval check attribute: {check!r}")
+
+        setattr(self, check.value, check_status_or_code_sent)
+        self.save(update_fields=[check.value])
+
+        interaction_title, interaction_notes = self._get_interaction_details(
+            check, check_status_or_code_sent
+        )
+
+        MvInteraction.objects.create(
+            interaction_contact=interaction_title,
+            interaction_type=interaction_title,
+            linked_uam=self,
+            interaction_notes=interaction_notes,
+            created_by=user,
+            title=interaction_title,
+        )
 
     def get_accommodation_requests_restrict_for_user(self, user):
         from ontology.models.MvAccommodationRequest import MvAccommodationRequest
@@ -280,8 +722,10 @@ class SponsorshipCertificationForm(models.Model):
         verbose_name = "Uam"
 
     def get_full_name(self):
-        name = f"{self.given_name or ''} {self.family_name or ''}".strip()
-        return name or "Unknown"
+        return build_full_name(self.given_name, self.family_name)
+
+    def get_minor_full_name(self):
+        return build_full_name(self.minor_given_name, self.minor_family_name)
 
     def display_link_data(self, linked_from, linked_as) -> LinkedRecordData:
         return LinkedRecordData(

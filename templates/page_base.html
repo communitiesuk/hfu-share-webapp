@@ -16,15 +16,23 @@
     {% block page_heading %}
         {% include "webapp/components/heading/heading.html" with caption=page_caption page_heading=page_heading tag=page_heading_tag %}
     {% endblock page_heading %}
-    {% block narrow_content %}
-    {% endblock narrow_content %}
+    {% block after_heading_content %}
+    {% endblock after_heading_content %}
 {% endgrid_row %}
 {% grid_row "full" %}
-{% block wide_content %}
-{% endblock wide_content %}
+{% block full_content %}
+{% endblock full_content %}
 {% endgrid_row %}
 {% grid_row "two-thirds" %}
-{% block lower_narrow_content %}
-{% endblock lower_narrow_content %}
+{% block two_thirds_content %}
+{% endblock two_thirds_content %}
+{% endgrid_row %}
+{% grid_row "one-half" %}
+{% block half_content %}
+{% endblock half_content %}
+{% endgrid_row %}
+{% grid_row "one-third" %}
+{% block one_third_content %}
+{% endblock one_third_content %}
 {% endgrid_row %}
 {% endblock content %}

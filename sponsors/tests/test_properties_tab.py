@@ -194,3 +194,16 @@ class SponsorsPropertiesTestCase(
         self.assertNotContains(response, "Archived at")
         self.assertNotContains(response, "Is archived")
         self.assertNotContains(response, "Viewer group names")
+
+    def test_is_eoi_is_labelled_eoi_host(self):
+        user = get_admin_user()
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse(
+                "sponsors:detail-properties",
+                args=[self.sponsor.pk],
+            )
+        )
+
+        self.assertContains(response, "EOI host")

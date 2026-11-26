@@ -13,10 +13,15 @@ from browser_tests.tests.test_safeguarding import (
     AR_DEDUPLICATED_GUEST_PAIR,
     AR_REJECTED_OUTBOUND_REASSIGNMENT,
 )
+from browser_tests.tests.test_uam_checks import UAM_WAITING_FOR_LA_CHECKS
 from hfurb_scripts.seeders.stages.seed_browser_test_la import seed_browser_test_la
 from hfurb_scripts.seeders.tests.factories import create_browser_test_la_groups
 from hfurb_scripts.tests.base import BaseScriptTestCase
-from ontology.models import MvAccommodationRequest, MvPerson
+from ontology.models import (
+    MvAccommodationRequest,
+    MvPerson,
+    SponsorshipCertificationForm,
+)
 
 
 @override_settings(ENVIRONMENT="dev")
@@ -68,6 +73,19 @@ class BrowserTestSeededRecordsTestCase(BaseScriptTestCase):
         ):
             with self.subTest(expected.full_name):
                 self.assert_seeded_accommodation_request(expected)
+
+    def test_uam_the_checks_journey_relies_on_is_waiting_for_la_checks(self):
+        uam = SponsorshipCertificationForm.objects.get(
+            reference=UAM_WAITING_FOR_LA_CHECKS.reference
+        )
+
+        self.assertEqual(
+            uam.get_full_name(), UAM_WAITING_FOR_LA_CHECKS.sponsor_full_name
+        )
+        self.assertEqual(
+            uam.get_pre_approval_status(),
+            SponsorshipCertificationForm.PreApprovalStatus.WAITING_FOR_LA_CHECKS,
+        )
 
     def test_guests_the_dedupe_journey_relies_on_are_seeded(self):
         for expected in (

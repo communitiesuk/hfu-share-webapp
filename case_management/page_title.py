@@ -144,13 +144,14 @@ def get_tab_title(resolver_match: ResolverMatch) -> str:
         "LinkedRecords": "Linked records",
         "Actions": "Actions",
         "History": "History",
-        "VIRView": "Visa Information Request",
+        "VIRView": "Visa information request",
         "CommentsView": "Comments",
         "SafeguardingChecksView": "Safeguarding checks",
         "MadePageView": "Requests made",
         "ReceivedPageView": "Requests received",
         "FilesView": "Files",
         "CentralSafeguarding": "Central safeguarding",
+        "ChecksView": "Checks",
     }
 
     func_path = resolver_match._func_path

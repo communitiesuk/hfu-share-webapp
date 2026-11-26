@@ -5,7 +5,7 @@
     </li>
     <li class="govuk-breadcrumbs__list-item">Undo deduplication</li>
 {% endblock breadcrumb_content %}
-{% block narrow_content %}
+{% block after_heading_content %}
     <h4 class="govuk-heading-s">Review restored records</h4>
     <p class="govuk-body govuk-!-margin-top-1 govuk-!-margin-bottom-5">
         Review the restored {{ type }} records and linked accommodation requests.
@@ -20,4 +20,4 @@
     <br>
     <a href="{{ type_list_url }}"
        class="govuk-button govuk-button--secondary">Back to list of {{ type_title_plural|lower }}</a>
-{% endblock narrow_content %}
+{% endblock after_heading_content %}

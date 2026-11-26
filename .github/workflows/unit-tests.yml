@@ -48,7 +48,6 @@ jobs:
 
       - name: Test
         run: |
-          uv run python manage.py collectstatic --noinput
           uv run test-parallel ${{ inputs.test_args }}
         env:
           SECRET_KEY: 'a_very_long_and_random_string_for_tests'

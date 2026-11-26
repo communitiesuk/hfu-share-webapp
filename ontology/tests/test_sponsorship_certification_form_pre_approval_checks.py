@@ -1,0 +1,348 @@
+from django.test import SimpleTestCase, TestCase
+
+from ontology.models import SponsorshipCertificationForm
+from ontology.tests.factories import SponsorshipCertificationFormFactory
+
+CheckStatus = SponsorshipCertificationForm.PreApprovalCheckStatus
+Status = SponsorshipCertificationForm.PreApprovalStatus
+CodeSentStatus = SponsorshipCertificationForm.PreApprovalCheckCodeSentStatus
+
+UKVI_CHECK_FIELDS = [
+    field.value for field in SponsorshipCertificationForm.UKVI_CHECK_FIELDS
+]
+LA_CHECK_FIELDS = [
+    field.value for field in SponsorshipCertificationForm.LA_CHECK_FIELDS
+]
+PRE_APPROVAL_CHECK_FIELDS = UKVI_CHECK_FIELDS + LA_CHECK_FIELDS
+
+ALL_UKVI_PASSED = dict.fromkeys(UKVI_CHECK_FIELDS, CheckStatus.PASSED)
+ALL_LA_PASSED = dict.fromkeys(LA_CHECK_FIELDS, CheckStatus.PASSED)
+ALL_IN_PROGRESS = dict.fromkeys(PRE_APPROVAL_CHECK_FIELDS, CheckStatus.IN_PROGRESS)
+ALL_NOT_STARTED = dict.fromkeys(PRE_APPROVAL_CHECK_FIELDS, CheckStatus.NOT_STARTED)
+
+
+def build_uam(code_emailed=False, **check_statuses):
+    return SponsorshipCertificationForm(
+        sponsor_certification_code_emailed=code_emailed, **check_statuses
+    )
+
+
+class SponsorshipCertificationFormPreApprovalCheckDefaultTests(TestCase):
+    def test_new_application_has_no_checks_recorded(self):
+        SponsorshipCertificationFormFactory(reference="SCF001")
+
+        uam = SponsorshipCertificationForm.objects.get(reference="SCF001")
+
+        for field in PRE_APPROVAL_CHECK_FIELDS:
+            with self.subTest(field=field):
+                self.assertIsNone(getattr(uam, field))
+
+    def test_new_application_defaults_code_sent_to_sponsor_to_false(self):
+        SponsorshipCertificationFormFactory(reference="SCF001")
+
+        uam = SponsorshipCertificationForm.objects.get(reference="SCF001")
+
+        self.assertIs(uam.sponsor_certification_code_emailed, False)
+
+
+class GetPreApprovalStatusTestsMixin:
+    """
+    Tests that `get_pre_approval_status` and the `with_pre_approval_status`
+    SQL annotation return the same results and remain in sync.
+    """
+
+    def build_uam(self, **kwrags):
+        return build_uam(**kwrags)
+
+    def get_result(self, uam):
+        raise NotImplementedError
+
+    def test_status_not_recorded_when_no_checks_recorded(self):
+        uam = self.build_uam()
+
+        self.assertEqual(self.get_result(uam), Status.STATUS_NOT_RECORDED)
+
+    def test_waiting_for_ukvi_checks_when_all_checks_not_started(self):
+        uam = self.build_uam(**ALL_NOT_STARTED)
+
+        self.assertEqual(self.get_result(uam), Status.WAITING_FOR_UKVI_CHECKS)
+
+    def test_ukvi_checks_in_progress_when_all_ukvi_checks_in_progress(self):
+        uam = self.build_uam(**ALL_IN_PROGRESS)
+
+        self.assertEqual(self.get_result(uam), Status.UKVI_CHECKS_IN_PROGRESS)
+
+    def test_ukvi_checks_in_progress_when_some_ukvi_checks_in_progress(self):
+        uam = self.build_uam(
+            **{
+                **ALL_NOT_STARTED,
+                "uk_consent_form_status": CheckStatus.IN_PROGRESS,
+            }
+        )
+
+        self.assertEqual(self.get_result(uam), Status.UKVI_CHECKS_IN_PROGRESS)
+
+    def test_ukvi_checks_in_progress_when_some_ukvi_checks_passed(self):
+        uam = self.build_uam(
+            **{
+                **ALL_NOT_STARTED,
+                "uk_consent_form_status": CheckStatus.PASSED,
+            }
+        )
+
+        self.assertEqual(self.get_result(uam), Status.UKVI_CHECKS_IN_PROGRESS)
+
+    def test_ukvi_checks_in_progress_when_some_ukvi_checks_passed_and_in_progress(self):
+        uam = self.build_uam(
+            **{
+                **ALL_NOT_STARTED,
+                "uk_consent_form_status": CheckStatus.PASSED,
+                "ukraine_consent_form_status": CheckStatus.IN_PROGRESS,
+            }
+        )
+
+        self.assertEqual(self.get_result(uam), Status.UKVI_CHECKS_IN_PROGRESS)
+
+    def test_failed_ukvi_checks_when_one_ukvi_check_failed_and_others_not_started(
+        self,
+    ):
+        uam = self.build_uam(
+            **{
+                **ALL_NOT_STARTED,
+                "uk_consent_form_status": CheckStatus.FAILED,
+            }
+        )
+
+        self.assertEqual(self.get_result(uam), Status.FAILED_UKVI_CHECKS)
+
+    def test_failed_ukvi_checks_when_all_ukvi_checks_recorded_and_one_failed(self):
+        uam = self.build_uam(
+            **{
+                **ALL_NOT_STARTED,
+                **ALL_UKVI_PASSED,
+                "sponsor_immigration_eligibility_status": CheckStatus.FAILED,
+            }
+        )
+
+        self.assertEqual(self.get_result(uam), Status.FAILED_UKVI_CHECKS)
+
+    def test_waiting_for_la_checks_when_all_ukvi_checks_passed(self):
+        uam = self.build_uam(**{**ALL_NOT_STARTED, **ALL_UKVI_PASSED})
+
+        self.assertEqual(self.get_result(uam), Status.WAITING_FOR_LA_CHECKS)
+
+    def test_la_checks_in_progress_when_all_la_checks_in_progress(self):
+        uam = self.build_uam(
+            **{
+                **ALL_IN_PROGRESS,
+                **ALL_UKVI_PASSED,
+            }
+        )
+
+        self.assertEqual(self.get_result(uam), Status.LA_CHECKS_IN_PROGRESS)
+
+    def test_la_checks_in_progress_when_some_la_checks_in_progress(self):
+        uam = self.build_uam(
+            **{
+                **ALL_IN_PROGRESS,
+                **ALL_UKVI_PASSED,
+                "accommodation_exists_status": CheckStatus.IN_PROGRESS,
+            }
+        )
+
+        self.assertEqual(self.get_result(uam), Status.LA_CHECKS_IN_PROGRESS)
+
+    def test_la_checks_in_progress_when_some_la_checks_passed(self):
+        uam = self.build_uam(
+            **{
+                **ALL_NOT_STARTED,
+                **ALL_UKVI_PASSED,
+                "accommodation_exists_status": CheckStatus.PASSED,
+            }
+        )
+
+        self.assertEqual(self.get_result(uam), Status.LA_CHECKS_IN_PROGRESS)
+
+    def test_la_checks_in_progress_when_some_la_checks_passed_and_in_progress(self):
+        uam = self.build_uam(
+            **{
+                **ALL_NOT_STARTED,
+                **ALL_UKVI_PASSED,
+                "accommodation_exists_status": CheckStatus.PASSED,
+                "accommodation_suitable_status": CheckStatus.IN_PROGRESS,
+            }
+        )
+
+        self.assertEqual(self.get_result(uam), Status.LA_CHECKS_IN_PROGRESS)
+
+    def test_failed_la_checks_when_one_la_check_failed_and_others_not_started(self):
+        uam = self.build_uam(
+            **{
+                **ALL_NOT_STARTED,
+                **ALL_UKVI_PASSED,
+                "accommodation_exists_status": CheckStatus.FAILED,
+            }
+        )
+
+        self.assertEqual(self.get_result(uam), Status.FAILED_LA_CHECKS)
+
+    def test_failed_la_checks_when_all_la_checks_recorded_and_one_failed(self):
+        uam = self.build_uam(
+            **{
+                **ALL_UKVI_PASSED,
+                **ALL_LA_PASSED,
+                "accommodation_suitable_status": CheckStatus.FAILED,
+            }
+        )
+
+        self.assertEqual(self.get_result(uam), Status.FAILED_LA_CHECKS)
+
+    def test_passed_all_checks_when_all_checks_passed_and_code_not_sent(self):
+        uam = self.build_uam(**{**ALL_UKVI_PASSED, **ALL_LA_PASSED})
+
+        self.assertEqual(self.get_result(uam), Status.PASSED_ALL_CHECKS)
+
+    def test_completed_when_all_checks_passed_and_code_sent(self):
+        uam = self.build_uam(code_emailed=True, **{**ALL_UKVI_PASSED, **ALL_LA_PASSED})
+
+        self.assertEqual(self.get_result(uam), Status.COMPLETED)
+
+    def test_failed_ukvi_checks_takes_priority_over_la_checks(self):
+        uam = self.build_uam(
+            **{
+                **ALL_UKVI_PASSED,
+                **ALL_LA_PASSED,
+                "uk_consent_form_status": CheckStatus.FAILED,
+            }
+        )
+
+        self.assertEqual(self.get_result(uam), Status.FAILED_UKVI_CHECKS)
+
+
+class SponsorshipCertificationFormGetPreApprovalStatusTests(
+    GetPreApprovalStatusTestsMixin, SimpleTestCase
+):
+    def get_result(self, uam):
+        return uam.get_pre_approval_status()
+
+
+class SponsorshipCertificationFormGetPreApprovalStatusTestsFromQuery(
+    GetPreApprovalStatusTestsMixin, TestCase
+):
+    def build_uam(self, **kwargs):
+        uam = build_uam(**kwargs)
+        uam.save()
+
+        return uam
+
+    def get_result(self, uam):
+        return (
+            SponsorshipCertificationForm.objects.with_pre_approval_status()
+            .get(pk=uam.pk)
+            .pre_approval_status
+        )
+
+
+class SponsorshipCertificationFormGetCodeSentStatusTests(SimpleTestCase):
+    def test_code_sent_when_all_checks_passed_and_code_sent(self):
+        uam = build_uam(code_emailed=True, **{**ALL_UKVI_PASSED, **ALL_LA_PASSED})
+
+        self.assertEqual(
+            uam.get_pre_approval_check_code_sent_status(), CodeSentStatus.CODE_SENT
+        )
+
+    def test_code_not_sent_when_all_checks_passed_but_code_not_sent(self):
+        uam = build_uam(**{**ALL_UKVI_PASSED, **ALL_LA_PASSED})
+
+        self.assertEqual(
+            uam.get_pre_approval_check_code_sent_status(), CodeSentStatus.CODE_NOT_SENT
+        )
+
+    def test_no_longer_needed_when_ukvi_checks_failed(self):
+        uam = build_uam(
+            **{
+                **ALL_NOT_STARTED,
+                "uk_consent_form_status": CheckStatus.FAILED,
+            }
+        )
+
+        self.assertEqual(
+            uam.get_pre_approval_check_code_sent_status(),
+            CodeSentStatus.NO_LONGER_NEEDED,
+        )
+
+    def test_send_code_no_longer_needed_when_la_checks_failed(self):
+        uam = build_uam(
+            **{
+                **ALL_UKVI_PASSED,
+                **ALL_LA_PASSED,
+                "accommodation_suitable_status": CheckStatus.FAILED,
+            }
+        )
+
+        self.assertEqual(
+            uam.get_pre_approval_check_code_sent_status(),
+            CodeSentStatus.NO_LONGER_NEEDED,
+        )
+
+    def test_code_sent_when_ukvi_checks_failed_and_code_sent(self):
+        uam = build_uam(
+            code_emailed=True,
+            **{
+                **ALL_NOT_STARTED,
+                "uk_consent_form_status": CheckStatus.FAILED,
+            },
+        )
+
+        self.assertEqual(
+            uam.get_pre_approval_check_code_sent_status(),
+            CodeSentStatus.CODE_SENT,
+        )
+
+    def test_code_sent_when_la_checks_failed_and_code_sent(self):
+        uam = build_uam(
+            code_emailed=True,
+            **{
+                **ALL_UKVI_PASSED,
+                **ALL_LA_PASSED,
+                "accommodation_suitable_status": CheckStatus.FAILED,
+            },
+        )
+
+        self.assertEqual(
+            uam.get_pre_approval_check_code_sent_status(),
+            CodeSentStatus.CODE_SENT,
+        )
+
+    def test_cannot_send_code_for_other_statuses(self):
+        cases = [
+            (Status.STATUS_NOT_RECORDED, build_uam()),
+            (Status.WAITING_FOR_UKVI_CHECKS, build_uam(**ALL_NOT_STARTED)),
+            (
+                Status.UKVI_CHECKS_IN_PROGRESS,
+                build_uam(
+                    **{**ALL_NOT_STARTED, "uk_consent_form_status": CheckStatus.PASSED}
+                ),
+            ),
+            (
+                Status.WAITING_FOR_LA_CHECKS,
+                build_uam(**{**ALL_NOT_STARTED, **ALL_UKVI_PASSED}),
+            ),
+            (
+                Status.LA_CHECKS_IN_PROGRESS,
+                build_uam(
+                    **{
+                        **ALL_NOT_STARTED,
+                        **ALL_UKVI_PASSED,
+                        "accommodation_exists_status": CheckStatus.PASSED,
+                    }
+                ),
+            ),
+        ]
+        for pre_approval_status, uam in cases:
+            with self.subTest(pre_approval_status=pre_approval_status):
+                self.assertEqual(uam.get_pre_approval_status(), pre_approval_status)
+                self.assertEqual(
+                    uam.get_pre_approval_check_code_sent_status(),
+                    CodeSentStatus.CANNOT_SEND_CODE,
+                )

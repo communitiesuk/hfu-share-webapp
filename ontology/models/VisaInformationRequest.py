@@ -51,8 +51,8 @@ class VisaInformationRequest(models.Model):
         SPONSOR_DBS = "3", _("DBS check and Sponsor suitable")
 
     class RequestStatus(models.TextChoices):
-        AWAITING_UKVI = "Awaiting UKVI", _("Awaiting UKVI")
-        AWAITING_LA = "Awaiting LA", _("Awaiting LA")
+        AWAITING_UKVI = "Awaiting UKVI", _("Waiting for UKVI")
+        AWAITING_LA = "Awaiting LA", _("Waiting for LA")
         CLOSED = "Closed", _("Closed")
 
     objects = VisaInformationRequestManager()

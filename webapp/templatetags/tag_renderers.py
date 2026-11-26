@@ -8,6 +8,7 @@ from case_management import settings
 from ontology.models import (
     DevCheckV2,
     ReassignmentRequest,
+    SponsorshipCertificationForm,
     VisaInformationRequest,
 )
 from user_management.templatetags.access_request_extras import (
@@ -18,11 +19,19 @@ from visa_applications.templatetags.visa_application_extras import (
     visa_status_to_tag_colour,
 )
 from webapp.component_builders import TagBuilder
+from webapp.constants import LA_PRE_APPROVAL_CHECK_ALLOWED_STATUSES
 from webapp.templatetags.alerted_status_extras import alerted_status_to_tag_colour
 from webapp.templatetags.checks_status_extras import (
     accommodation_checks_status_label_to_tag_colour,
     accommodation_request_status_label_to_tag_colour,
     accommodation_safeguarding_status_label_to_tag_colour,
+)
+from webapp.templatetags.pre_approval_status_extras import (
+    la_pre_approval_check_status_to_tag_text,
+    pre_approval_check_status_to_tag_colour,
+    pre_approval_checkcode_sent_status_to_tag_colour,
+    pre_approval_status_to_tag_colour,
+    ukvi_pre_approval_check_status_to_tag_text,
 )
 from webapp.templatetags.reassignment_request_extras import (
     reassignment_request_outcome_to_tag_colour,
@@ -95,9 +104,10 @@ def render_app_visa_status_tag(visa_status: str):
 
 @register.filter
 def render_app_vir_status_tag(vir_status: str):
+    label = str(VisaInformationRequest.RequestStatus(vir_status).label)
     return render_govuk_tag(
-        cast(str, VisaInformationRequest.RequestStatus(vir_status).label),
-        colour=vir_status_to_tag_colour(vir_status),
+        label,
+        colour=vir_status_to_tag_colour(label),
         css_class="app-tag--nowrap",
     )
 
@@ -206,6 +216,77 @@ def render_app_safeguarding_status_tag(status: str):
     return render_govuk_tag(
         status,
         colour=accommodation_safeguarding_status_label_to_tag_colour(status),
+        css_class="app-tag--nowrap",
+    )
+
+
+@register.filter
+def render_app_pre_approval_status_tag(
+    status: SponsorshipCertificationForm.PreApprovalStatus,
+) -> str:
+    return render_govuk_tag(
+        status,
+        colour=pre_approval_status_to_tag_colour(status),
+        css_class="app-tag--nowrap",
+    )
+
+
+@register.filter
+def render_app_ukvi_pre_approval_check_status_tag(
+    status: SponsorshipCertificationForm.PreApprovalCheckStatus | None,
+) -> str:
+    # Prevent crashing if the status check is None
+    if status is None:
+        status = SponsorshipCertificationForm.PreApprovalCheckStatus.NOT_STARTED
+
+    return render_govuk_tag(
+        ukvi_pre_approval_check_status_to_tag_text(status),
+        colour=pre_approval_check_status_to_tag_colour(status),
+        css_class="app-tag--nowrap",
+    )
+
+
+@register.filter
+def render_app_la_pre_approval_check_status_tag(
+    pre_approval_status: SponsorshipCertificationForm.PreApprovalStatus,
+    status: SponsorshipCertificationForm.PreApprovalCheckStatus | None,
+) -> str:
+    if status is None:
+        status = SponsorshipCertificationForm.PreApprovalCheckStatus.NOT_STARTED
+
+    if (pre_approval_status in LA_PRE_APPROVAL_CHECK_ALLOWED_STATUSES) or (
+        status != SponsorshipCertificationForm.PreApprovalCheckStatus.NOT_STARTED
+    ):
+        return render_govuk_tag(
+            la_pre_approval_check_status_to_tag_text(status),
+            colour=pre_approval_check_status_to_tag_colour(status),
+            css_class="app-tag--nowrap",
+        )
+
+    if (
+        pre_approval_status
+        is SponsorshipCertificationForm.PreApprovalStatus.FAILED_UKVI_CHECKS
+    ):
+        return render_govuk_tag(
+            "No longer needed",
+            colour="grey",
+            css_class="app-tag--nowrap",
+        )
+
+    return render_govuk_tag(
+        "Cannot start checks",
+        colour="grey",
+        css_class="app-tag--nowrap",
+    )
+
+
+@register.filter
+def render_app_la_pre_approval_check_code_sent_to_sponsor_tag(
+    status: SponsorshipCertificationForm.PreApprovalCheckCodeSentStatus,
+) -> str:
+    return render_govuk_tag(
+        status.value,
+        colour=pre_approval_checkcode_sent_status_to_tag_colour(status.value),
         css_class="app-tag--nowrap",
     )
 
