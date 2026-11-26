@@ -30,8 +30,8 @@ logger = logging.getLogger(__name__)
 
 RECORDS_BUCKET_NAME = settings.MANUAL_DATA_IMPORTS_S3_BUCKET_NAME
 
-ACCOMMODATIONS_FILE_KEY = "accommodations_moved_2026-11-25.csv"
-VISA_APPLICATIONS_FILE_KEY = "visa_application_candidates_2026-11-25.csv"
+ACCOMMODATIONS_FILE_KEY = "accommodations_moved.csv"
+VISA_APPLICATIONS_FILE_KEY = "visa_application_candidates.csv"
 
 
 # Reasons a record is not corrected
