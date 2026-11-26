@@ -211,22 +211,80 @@ class DownloadsViewVisaApplicationTestCase(TestSessionTokenMixin, BaseTestCase):
 
             mock_get_for_user.assert_called()
 
+    @patch("downloads.views.time.perf_counter", side_effect=[0, 2])
+    @patch("downloads.views.sentry_sdk.metrics.distribution")
     @patch("downloads.views.sentry_sdk.metrics.count")
-    def test_sponsor_download_sends_sentry_metric(self, sentry_metrics):
+    def test_sponsor_download_sends_sentry_metric(
+        self, sentry_metrics_count, sentry_metrics_distribution, perf_counter
+    ):
         user = get_da_user()
         self.client.force_login(user)
 
-        self.client.post(
+        visa_application_details = {
+            "application_unique_application_number": "VA12345",
+            "visa_status": "Approved",
+            "address_preference": "123 Main Street",
+            "ltla_name": "City of Edinburgh",
+        }
+
+        VisaApplicationFactory(**visa_application_details)
+
+        response = self.client.post(
             reverse("downloads:download-page"),
             data={"download_type": DownloadType.VISA_APPLICATIONS},
         )
+
+        # Exhaust the iterator into an empty deque
+        deque(response.streaming_content, maxlen=0)
 
         expected_call_attributes = {
             "download_type": "visa_applications",
             "user_id": user.id,
         }
-        self.assertEqual(sentry_metrics.call_count, 1)
+
+        expected_completed_call_attributes = {
+            "download_type": "visa_applications",
+            "duration_bucket": "0-5s",
+            "row_count_bucket": "0-100",
+            "file_size_bucket": "0-1MB",
+        }
+
+        self.assertEqual(sentry_metrics_count.call_count, 2)
         self.assertEqual(
-            sentry_metrics.call_args_list,
-            [call("csv_download", 1, attributes=expected_call_attributes)],
+            sentry_metrics_count.call_args_list,
+            [
+                call("csv_download", 1, attributes=expected_call_attributes),
+                call("completed_csv_download", 1, attributes=expected_call_attributes),
+            ],
+        )
+
+        self.assertEqual(sentry_metrics_distribution.call_count, 3)
+
+        duration_call, size_call, rows_call = sentry_metrics_distribution.call_args_list
+
+        self.assertEqual(
+            duration_call,
+            call(
+                "csv_download_duration",
+                2,
+                unit="second",
+                attributes=expected_completed_call_attributes,
+            ),
+        )
+        self.assertEqual(
+            rows_call,
+            call(
+                "csv_download_rows",
+                1,
+                unit="none",
+                attributes=expected_completed_call_attributes,
+            ),
+        )
+
+        # size: present and positive (file is not empty); exact value is not meaningful
+        self.assertEqual(size_call.args[0], "csv_download_size")
+        self.assertGreater(size_call.args[1], 0)
+        self.assertEqual(size_call.kwargs["unit"], "byte")
+        self.assertEqual(
+            size_call.kwargs["attributes"], expected_completed_call_attributes
         )
