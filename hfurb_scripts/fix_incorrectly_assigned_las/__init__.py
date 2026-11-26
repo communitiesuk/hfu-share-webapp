@@ -135,18 +135,18 @@ def get_reason_target_is_invalid(
 
 
 def get_reason_not_to_fix_accommodation(
-    accommodation: MvAccommodation, fix: AccommodationFix
+    accommodation: MvAccommodation, accommodation_fix: AccommodationFix
 ) -> str | None:
     # Checked before CHANGED_SINCE_EXPORT, which an already corrected record also meets
     if (
-        accommodation.ltla_name == fix.ltla_should_have
-        and accommodation.utla_name == fix.utla_should_have
+        accommodation.ltla_name == accommodation_fix.ltla_should_have
+        and accommodation.utla_name == accommodation_fix.utla_should_have
     ):
         return ALREADY_CORRECT
 
     if (
-        accommodation.ltla_name != fix.ltla_changed_to
-        or accommodation.utla_name != fix.utla_changed_to
+        accommodation.ltla_name != accommodation_fix.ltla_changed_to
+        or accommodation.utla_name != accommodation_fix.utla_changed_to
     ):
         return CHANGED_SINCE_EXPORT
 
@@ -159,19 +159,19 @@ def get_reason_not_to_fix_accommodation(
 
 def get_reason_not_to_fix_visa_application(
     visa_application: VisaApplication,
-    fix: VisaApplicationFix,
+    visa_application_fix: VisaApplicationFix,
     group: GroupInfo,
 ) -> str | None:
     if (
-        visa_application.ltla_name == fix.ltla_should_have
+        visa_application.ltla_name == visa_application_fix.ltla_should_have
         and visa_application.utla_name == group.utla_name
     ):
         return ALREADY_CORRECT
 
     if (
-        visa_application.ltla_name != fix.ltla_changed_to
-        or visa_application.utla_name != fix.utla_changed_to
-        or visa_application.country != fix.country_changed_to
+        visa_application.ltla_name != visa_application_fix.ltla_changed_to
+        or visa_application.utla_name != visa_application_fix.utla_changed_to
+        or visa_application.country != visa_application_fix.country_changed_to
     ):
         return CHANGED_SINCE_EXPORT
 
@@ -226,23 +226,28 @@ def revert_visa_application(
 
 
 def fix_accommodation(
-    accommodation: MvAccommodation, fix: AccommodationFix, dry_run: bool
+    accommodation: MvAccommodation, accommodation_fix: AccommodationFix, dry_run: bool
 ) -> str | None:
     try:
-        if not fix.ltla_should_have:
+        if not accommodation_fix.ltla_should_have:
             return NO_TARGET
 
-        groups = get_local_authority_groups(fix.ltla_should_have)
-        reason = get_reason_target_is_invalid(groups, fix.utla_should_have)
+        groups = get_local_authority_groups(accommodation_fix.ltla_should_have)
+        reason = get_reason_target_is_invalid(
+            groups, accommodation_fix.utla_should_have
+        )
         if reason:
             return reason
 
-        reason = get_reason_not_to_fix_accommodation(accommodation, fix)
+        reason = get_reason_not_to_fix_accommodation(accommodation, accommodation_fix)
         if reason:
             return reason
 
         revert_accommodation(
-            accommodation, fix.ltla_should_have, fix.utla_should_have, dry_run
+            accommodation,
+            accommodation_fix.ltla_should_have,
+            accommodation_fix.utla_should_have,
+            dry_run,
         )
     except Exception as exc:
         logger.warning(
@@ -256,25 +261,31 @@ def fix_accommodation(
 
 
 def fix_visa_application(
-    visa_application: VisaApplication, fix: VisaApplicationFix, dry_run: bool
+    visa_application: VisaApplication,
+    visa_application_fix: VisaApplicationFix,
+    dry_run: bool,
 ) -> str | None:
     try:
-        if not fix.ltla_should_have:
+        if not visa_application_fix.ltla_should_have:
             return NO_TARGET
 
-        groups = get_local_authority_groups(fix.ltla_should_have)
-        reason = get_reason_target_is_invalid(groups, fix.utla_should_have)
+        groups = get_local_authority_groups(visa_application_fix.ltla_should_have)
+        reason = get_reason_target_is_invalid(
+            groups, visa_application_fix.utla_should_have
+        )
         if reason:
             return reason
 
         group = groups[0]
-        reason = get_reason_not_to_fix_visa_application(visa_application, fix, group)
+        reason = get_reason_not_to_fix_visa_application(
+            visa_application, visa_application_fix, group
+        )
         if reason:
             return reason
 
         revert_visa_application(
             visa_application,
-            fix.ltla_should_have,
+            visa_application_fix.ltla_should_have,
             group.utla_name,
             group.da_name,
             dry_run,
@@ -307,58 +318,73 @@ def log_summary(
         logger.info("%s not reverted as %s: %s", len(ids), reason, ", ".join(ids))
 
 
-def process_accommodations(fixes: list[AccommodationFix], dry_run: bool) -> None:
+def process_accommodations(
+    accommodation_fixes: list[AccommodationFix], dry_run: bool
+) -> None:
     reverted_count = 0
     not_reverted: dict[str, list[str]] = defaultdict(list)
 
-    id_counts = Counter(fix.accommodation_id for fix in fixes)
+    id_counts = Counter(
+        accommodation_fix.accommodation_id for accommodation_fix in accommodation_fixes
+    )
     accommodations = MvAccommodation.objects_including_archived.in_bulk(list(id_counts))
 
-    for fix in fixes:
-        accommodation = accommodations.get(fix.accommodation_id)
+    for accommodation_fix in accommodation_fixes:
+        accommodation = accommodations.get(accommodation_fix.accommodation_id)
         reason: str | None
-        if id_counts[fix.accommodation_id] > 1:
+        if id_counts[accommodation_fix.accommodation_id] > 1:
             reason = DUPLICATE_IN_FILE
         elif accommodation is None:
             reason = NOT_FOUND
         else:
-            reason = fix_accommodation(accommodation, fix, dry_run)
+            reason = fix_accommodation(accommodation, accommodation_fix, dry_run)
 
         if reason:
             logger.info(
-                "Not reverting Accommodation %s as %s", fix.accommodation_id, reason
+                "Not reverting Accommodation %s as %s",
+                accommodation_fix.accommodation_id,
+                reason,
             )
-            not_reverted[reason].append(fix.accommodation_id)
+            not_reverted[reason].append(accommodation_fix.accommodation_id)
         else:
             reverted_count += 1
 
     log_summary("Accommodations", reverted_count, not_reverted, dry_run)
 
 
-def process_visa_applications(fixes: list[VisaApplicationFix], dry_run: bool) -> None:
+def process_visa_applications(
+    visa_application_fixes: list[VisaApplicationFix], dry_run: bool
+) -> None:
     reverted_count = 0
     not_reverted: dict[str, list[str]] = defaultdict(list)
 
-    id_counts = Counter(fix.visa_application_id for fix in fixes)
+    id_counts = Counter(
+        visa_application_fix.visa_application_id
+        for visa_application_fix in visa_application_fixes
+    )
     visa_applications = VisaApplication.objects.in_bulk(list(id_counts))
 
-    for fix in fixes:
-        visa_application = visa_applications.get(fix.visa_application_id)
+    for visa_application_fix in visa_application_fixes:
+        visa_application = visa_applications.get(
+            visa_application_fix.visa_application_id
+        )
         reason: str | None
-        if id_counts[fix.visa_application_id] > 1:
+        if id_counts[visa_application_fix.visa_application_id] > 1:
             reason = DUPLICATE_IN_FILE
         elif visa_application is None:
             reason = NOT_FOUND
         else:
-            reason = fix_visa_application(visa_application, fix, dry_run)
+            reason = fix_visa_application(
+                visa_application, visa_application_fix, dry_run
+            )
 
         if reason:
             logger.info(
                 "Not reverting VisaApplication %s as %s",
-                fix.visa_application_id,
+                visa_application_fix.visa_application_id,
                 reason,
             )
-            not_reverted[reason].append(fix.visa_application_id)
+            not_reverted[reason].append(visa_application_fix.visa_application_id)
         else:
             reverted_count += 1
 
