@@ -189,6 +189,7 @@ Every record the seeder creates, grouped by model, in creation order. Generated 
 | browser-test-person-00081 | Eileen Austin | Confirmed | browser-test-ar-00042 |
 | browser-test-person-00082 | Eileen AUSTIN | Confirmed |  |
 | browser-test-person-00083 | Abigail Richards | Confirmed | browser-test-ar-00043 |
+| browser-test-person-00084 | Eileen Austin | Confirmed | browser-test-ar-00042 |
 
 ### Sponsors (MvVolunteer)
 
@@ -239,6 +240,7 @@ Every record the seeder creates, grouped by model, in creation order. Generated 
 | browser-test-sponsor-00043 | June Evans | browser-test-ar-00042 |
 | browser-test-sponsor-00044 | Heather Hudson |  |
 | browser-test-sponsor-00045 | Heather hudson |  |
+| browser-test-sponsor-00046 | Heather Hudson | browser-test-ar-00043 |
 
 ### Accommodations (MvAccommodation)
 
@@ -480,19 +482,34 @@ Every record the seeder creates, grouped by model, in creation order. Generated 
 | browser-test-check-00053 | DBS check and Sponsor suitable | Passed |  | browser-test-ar-00040 |
 | browser-test-check-00054 | Guests have arrived in their accommodation | Passed |  | browser-test-ar-00040 |
 
+### Interactions
+
+| Id | Type | AR | Guest |
+| --- | --- | --- | --- |
+| browser-test-interaction-00001 | Return to Ukraine | browser-test-ar-00010 |  |
+| browser-test-interaction-00002 | Rematch Required | browser-test-ar-00041 |  |
+| browser-test-interaction-00003 | DBS and sponsor suitable check | browser-test-ar-00007 |  |
+| browser-test-interaction-00004 | Record deduplicated | browser-test-ar-00042 |  |
+| browser-test-interaction-00005 | Record deduplicated |  | browser-test-person-00084 |
+| browser-test-interaction-00006 | Record deduplicated |  |  |
+| browser-test-interaction-00007 | Record deduplicated |  | browser-test-person-00081 |
+| browser-test-interaction-00008 | Record deduplicated |  | browser-test-person-00082 |
+| browser-test-interaction-00009 | Record deduplicated |  |  |
+| browser-test-interaction-00010 | Record deduplicated |  |  |
+
 ### Safeguarding notifications
 
 | Id | AR | Check |
 | --- | --- | --- |
-| (random UUID, varies per seed run) | browser-test-ar-00007 | browser-test-check-00008 |
+| browser-test-safeguarding-notification-00001 | browser-test-ar-00007 | browser-test-check-00008 |
 
 ### Reassignment requests
 
 | Id | Outcome | Destination LA | AR |
 | --- | --- | --- | --- |
-| browser-test-rr-00001 | Rejected | Bree (Browser test LTLA) | browser-test-ar-00039 |
-| rr-18f74a82-5549-483a-ae3f-818715483340 | Accepted | Hobbiton (Browser test LTLA) | browser-test-ar-00041 |
-| rr-ab5f413d-003f-4891-ac8c-e6dca38298d7 | Pending | Bree (Browser test LTLA) | browser-test-ar-00016 |
+| browser-test-rr-00001 | Pending | Bree (Browser test LTLA) | browser-test-ar-00016 |
+| browser-test-rr-00002 | Accepted | Hobbiton (Browser test LTLA) | browser-test-ar-00041 |
+| browser-test-rr-00003 | Rejected | Bree (Browser test LTLA) | browser-test-ar-00039 |
 
 ### Visa information request records
 

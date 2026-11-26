@@ -51,6 +51,9 @@ def reset_record_id_counters() -> None:
 
 
 def record_id(kind: str, id_prefix: str = "") -> str:
+    # With a prefix, ids are sequential per kind (browser-test-ar-00001, ...) and
+    # the counters reset at the start of each seed run, so a record keeps its id
+    # for as long as the creation order is unchanged. Without one, a random uuid.
     if id_prefix:
         return f"{id_prefix}-{kind}-{next_serial(f'{id_prefix}-{kind}'):05d}"
     return f"{kind}-{uuid.uuid4()}"

@@ -19,9 +19,18 @@ from ontology.tests.factories import (
 )
 
 
-def mutate_closed_left_programme(accommodation_request: MvAccommodationRequest) -> None:
+def _seeded_id(kind: str, id_prefix: str) -> str:
+    # fake.uuid4() is always drawn, even when a prefixed id is used instead, so
+    # the Faker sequence (and every seeded name and address) stays the same.
+    random_id = f"{kind}-{fake.uuid4()}"
+    return record_id(kind, id_prefix) if id_prefix else random_id
+
+
+def mutate_closed_left_programme(
+    accommodation_request: MvAccommodationRequest, id_prefix: str = ""
+) -> None:
     InteractionFactory(
-        id=f"interaction-{fake.uuid4()}",
+        id=_seeded_id("interaction", id_prefix),
         interaction_contact=MvInteraction.InteractionContact.LEAVING_PROGRAMME,
         interaction_type="Return to Ukraine",
         linked_accommodation_request=accommodation_request,
@@ -36,6 +45,7 @@ def mutate_rematch_required(
     approve: bool | None = None,
     author: User | None = None,
     reason: str = "Reason for rematch required",
+    id_prefix: str = "",
 ) -> None:
     # Create RR
     if destination_ltla_name is None:
@@ -49,7 +59,7 @@ def mutate_rematch_required(
     destination = get_group_info_from_ltla(destination_ltla_name)
 
     reassignment_request = ReassignmentRequest(
-        id=f"rr-{fake.uuid4()}",
+        id=_seeded_id("rr", id_prefix),
         accommodation_request=accommodation_request,
         outcome=ReassignmentRequest.Outcome.PENDING,
         reason=reason,
@@ -77,7 +87,7 @@ def mutate_rematch_required(
     reassignment_request.save()
 
     InteractionFactory(
-        id=f"interaction-{fake.uuid4()}",
+        id=_seeded_id("interaction", id_prefix),
         interaction_contact=MvInteraction.InteractionContact.REMATCH_REQUIRED,
         interaction_type="Rematch Required",
         linked_accommodation_request=accommodation_request,

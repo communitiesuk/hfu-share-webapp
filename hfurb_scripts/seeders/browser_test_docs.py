@@ -31,6 +31,7 @@ from ontology.models import (
     MvAccommodation,
     MvAccommodationRequest,
     MvGroup,
+    MvInteraction,
     MvPerson,
     MvVolunteer,
     ReassignmentRequest,
@@ -43,9 +44,6 @@ ChecksStatus = MvAccommodationRequest.ChecksStatus
 Status = MvAccommodationRequest.Status
 
 PREFIX = f"{BROWSER_TEST_ID_PREFIX}-"
-
-#: shown in place of the safeguarding notification's random (non-seeded) UUID id
-SAFEGUARDING_ID_PLACEHOLDER = "(random UUID, varies per seed run)"
 
 #: default location of the generated document, relative to the repo root
 DEFAULT_OUTPUT_PATH = (
@@ -523,17 +521,28 @@ def _all_records_section(ars: list[MvAccommodationRequest]) -> list[str]:
     lines += _table(["Id", "Type", "Status", "Failure reason", "AR(s)"], check_rows)
     lines += [""]
 
-    # Safeguarding notifications. The id is a random UUID assigned by the real
-    # safeguarding form (not seeded from BROWSER_TEST_SEED), so it changes every
-    # run; mask it to keep this document deterministic. The AR and check it
-    # points at are the stable references.
+    interactions = (
+        MvInteraction.objects.filter(id__startswith=PREFIX)
+        .order_by("id")
+        .values_list(
+            "id", "interaction_type", "linked_accommodation_request", "linked_guest"
+        )
+    )
+    interaction_rows = [
+        [interaction_id, interaction_type or "", ar_id or "", guest_id or ""]
+        for interaction_id, interaction_type, ar_id, guest_id in interactions
+    ]
+    lines += ["### Interactions", ""]
+    lines += _table(["Id", "Type", "AR", "Guest"], interaction_rows)
+    lines += [""]
+
     safeguarding_rows = [
-        [SAFEGUARDING_ID_PLACEHOLDER, ar_id or "", check_id or ""]
-        for ar_id, check_id in SafeguardingNotification.objects.filter(
+        [notification_id, ar_id or "", check_id or ""]
+        for notification_id, ar_id, check_id in SafeguardingNotification.objects.filter(
             ar__id__startswith=PREFIX
         )
         .order_by("id")
-        .values_list("ar", "dev_check_v2")
+        .values_list("id", "ar", "dev_check_v2")
     ]
     lines += ["### Safeguarding notifications", ""]
     lines += _table(["Id", "AR", "Check"], safeguarding_rows)
