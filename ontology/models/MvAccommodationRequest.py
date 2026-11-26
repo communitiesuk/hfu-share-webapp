@@ -904,6 +904,12 @@ class MvAccommodationRequest(models.Model):
 
         self.ltla_name = [ltla_name]
         self.utla_name = [utla_name] if utla_name else []
+        self.ltla_code_id = (
+            [local_authority.gss_code] if local_authority.gss_code else []
+        )
+        self.utla_code_id = (
+            [local_authority.utla_gss_code] if local_authority.utla_gss_code else []
+        )
         self.save()
 
         unassigned_visa_applications = VisaApplication.objects.filter(
