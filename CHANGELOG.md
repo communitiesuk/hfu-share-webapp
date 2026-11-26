@@ -1,5 +1,27 @@
 # Changelog
 
+## [2.34.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.33.0...2.34.0) (2026-11-26)
+
+
+### Features
+
+* HFURB-4365 store labels as plain strings ([#365](https://github.com/communitiesuk/hfu-share-webapp/issues/365)) ([7b97a6b](https://github.com/communitiesuk/hfu-share-webapp/commit/7b97a6b35f77066226a7736a432480c32f1c3ac5))
+* HFURB-4365 update VIR statuses to match those of UAMs ([#361](https://github.com/communitiesuk/hfu-share-webapp/issues/361)) ([b599c0d](https://github.com/communitiesuk/hfu-share-webapp/commit/b599c0d2b348bbbadf42a5d1e572682b449ed2be))
+
+
+### Bug Fixes
+
+* add script to update local authorities from a file ([#369](https://github.com/communitiesuk/hfu-share-webapp/issues/369)) ([b0dae10](https://github.com/communitiesuk/hfu-share-webapp/commit/b0dae106f75843dd967e7cb2f2d0c12743ec5fb3))
+* browser test seeder prefixed ids (improvements) ([#185](https://github.com/communitiesuk/hfu-share-webapp/issues/185)) ([cb027d8](https://github.com/communitiesuk/hfu-share-webapp/commit/cb027d843277041e97524b39cddc10e3b1e420ac))
+* HFURB 4401 guest edit missing group link ([#364](https://github.com/communitiesuk/hfu-share-webapp/issues/364)) ([517c7d2](https://github.com/communitiesuk/hfu-share-webapp/commit/517c7d2841d01b36d4900bdedc0bcdf71d78170b))
+* replace turquoise with teal as turquoise is deprecated ([#362](https://github.com/communitiesuk/hfu-share-webapp/issues/362)) ([7accc00](https://github.com/communitiesuk/hfu-share-webapp/commit/7accc004f176e579de67580ada696e962811bc59))
+* use the right role for seeding the browser test data ([#367](https://github.com/communitiesuk/hfu-share-webapp/issues/367)) ([780fa64](https://github.com/communitiesuk/hfu-share-webapp/commit/780fa6469cae47855f3b0d773b74b7877c09059e))
+
+
+### Performance Improvements
+
+* create SQL querys to help with filtering, sorting and counting through the DB rather than with python ([#337](https://github.com/communitiesuk/hfu-share-webapp/issues/337)) ([2f9418a](https://github.com/communitiesuk/hfu-share-webapp/commit/2f9418a2bb708debb71229cb18d351498ead61a1))
+
 ## [2.33.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.32.0...2.33.0) (2026-11-24)
 
 
