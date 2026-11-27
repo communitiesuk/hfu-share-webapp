@@ -283,6 +283,40 @@ class AssignLocalAuthorityFormTestCase(TestSessionTokenMixin, BaseTestCase):
             self.assertEqual(accommodation.ltla_name, "Boston")
             self.assertEqual(accommodation.utla_name, "Lincolnshire")
 
+    def test_completing_the_form_assigns_the_local_authority_codes_to_the_record(self):
+        self.client.force_login(get_mhclg_user())
+
+        self.complete_form(self.unassigned_ar, self.english_la)
+
+        self.unassigned_ar.refresh_from_db()
+        self.assertEqual(self.unassigned_ar.ltla_code_id, ["E07000136"])
+        self.assertEqual(self.unassigned_ar.utla_code_id, ["E10000019"])
+
+    def test_completing_the_form_leaves_the_utla_code_empty_when_the_la_has_no_utla(
+        self,
+    ):
+        self.client.force_login(get_mhclg_user())
+        scottish_la = GroupInfo.objects.get(ltla_name="Highland", is_utla=False)
+
+        self.complete_form(self.unassigned_ar, scottish_la)
+
+        self.unassigned_ar.refresh_from_db()
+        self.assertEqual(self.unassigned_ar.ltla_code_id, ["S12000017"])
+        self.assertEqual(self.unassigned_ar.utla_code_id, [])
+
+    def test_completing_the_form_assigns_the_accommodations_local_authority_and_country(
+        self,
+    ):
+        self.client.force_login(get_mhclg_user())
+        accommodations, _visa_applications = self.link_records_to(self.unassigned_ar)
+
+        self.complete_form(self.unassigned_ar, self.english_la)
+
+        for accommodation in accommodations:
+            accommodation.refresh_from_db()
+            self.assertEqual(accommodation.local_authority, "Boston")
+            self.assertEqual(accommodation.country, "England")
+
     def test_completing_the_form_assigns_the_local_authority_to_the_visa_applications(
         self,
     ):
