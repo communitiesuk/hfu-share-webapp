@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.34.1](https://github.com/communitiesuk/hfu-share-webapp/compare/2.34.0...2.34.1) (2026-11-27)
+
+
+### Bug Fixes
+
+* set more location fields on accommodation assign ([#370](https://github.com/communitiesuk/hfu-share-webapp/issues/370)) ([b8d59aa](https://github.com/communitiesuk/hfu-share-webapp/commit/b8d59aa27c30c0f9998c880a023d68919fbfb646))
+
 ## [2.34.0](https://github.com/communitiesuk/hfu-share-webapp/compare/2.33.0...2.34.0) (2026-11-26)
 
 
